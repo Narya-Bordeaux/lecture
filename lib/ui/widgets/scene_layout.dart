@@ -9,6 +9,47 @@ class SceneChild {
   final Widget child;
 }
 
+/// Calcule le rectangle occupe par l'illustration dans la surface donnee.
+///
+/// Fonction pure, extraite pour etre testable : c'est elle qui decide si une
+/// zone de depot reste a l'ecran, et l'eprouver demande seulement deux tailles,
+/// pas un appareil.
+///
+/// L'illustration est **entierement visible** et **calee en bas**. Remplir
+/// l'ecran en recadrant serait tentant, mais sur un telephone allonge — 1080 x
+/// 2340, soit 1:2,17, contre 1:1,5 pour l'image — l'illustration devrait
+/// mesurer une fois et demie la largeur de l'ecran : un quart sortirait de
+/// chaque cote, emportant avec lui les zones qui y sont ancrees.
+///
+/// Le calage en bas garde le personnage et le chemin visibles, et libere en
+/// haut une bande que le bandeau des mots occupe deja.
+Rect computeSceneRect({required Size surface, required Size? imageSize}) {
+  if (imageSize == null || imageSize.isEmpty || surface.isEmpty) {
+    return Offset.zero & surface;
+  }
+
+  final imageRatio = imageSize.width / imageSize.height;
+  final surfaceRatio = surface.width / surface.height;
+
+  final double width;
+  final double height;
+  if (surfaceRatio < imageRatio) {
+    // L'ecran est plus etroit que l'image : on cale sur la largeur.
+    width = surface.width;
+    height = width / imageRatio;
+  } else {
+    height = surface.height;
+    width = height * imageRatio;
+  }
+
+  return Rect.fromLTWH(
+    (surface.width - width) / 2,
+    surface.height - height,
+    width,
+    height,
+  );
+}
+
 /// Affiche l'illustration de fond et pose des elements a des endroits precis
 /// de cette illustration.
 ///
@@ -113,12 +154,17 @@ class _SceneLayoutState extends State<SceneLayout> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final surface = Size(constraints.maxWidth, constraints.maxHeight);
-        final imageRect = _coveredRect(surface);
+        final imageRect = computeSceneRect(
+          surface: surface,
+          imageSize: _imageSize,
+        );
 
         return ClipRect(
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
+              // La bande laissee libre au-dessus de l'illustration se fond
+              // dans son ciel : la jointure passe inapercue.
               ColoredBox(color: widget.backgroundColor),
               if (widget.backgroundAsset != null)
                 Positioned(
@@ -145,38 +191,6 @@ class _SceneLayoutState extends State<SceneLayout> {
           ),
         );
       },
-    );
-  }
-
-  /// Le rectangle qu'occupe l'illustration une fois recadree pour couvrir la
-  /// surface, centree. Sans dimensions connues, l'illustration est reputee
-  /// occuper toute la surface.
-  Rect _coveredRect(Size surface) {
-    final imageSize = _imageSize;
-    if (imageSize == null || imageSize.isEmpty || surface.isEmpty) {
-      return Offset.zero & surface;
-    }
-
-    final imageRatio = imageSize.width / imageSize.height;
-    final surfaceRatio = surface.width / surface.height;
-
-    final double width;
-    final double height;
-    if (surfaceRatio > imageRatio) {
-      // La surface est plus large que l'image : on cale sur la largeur et on
-      // deborde en hauteur.
-      width = surface.width;
-      height = width / imageRatio;
-    } else {
-      height = surface.height;
-      width = height * imageRatio;
-    }
-
-    return Rect.fromLTWH(
-      (surface.width - width) / 2,
-      (surface.height - height) / 2,
-      width,
-      height,
     );
   }
 }

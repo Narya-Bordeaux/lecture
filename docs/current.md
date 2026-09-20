@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.6.1+10** — 20 septembre 2026
+**Version : 0.6.2+11** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -16,7 +16,7 @@ par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 79 tests.
+Seul le comportement est prouvé, par 102 tests.
 
 ## Chantier en cours
 
@@ -29,6 +29,17 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.6.2+11 — L'illustration et les zones débordaient de l'écran
+- L'illustration était recadrée pour remplir l'écran. Sur un 1080 × 2340, elle
+  devait mesurer 1560 px de large : 480 px sortaient, et les zones ancrées au
+  décor sortaient avec elles.
+- Elle est désormais montrée **en entier**, calée en bas, la bande du haut étant
+  comblée par `backgroundColor` — le bleu du ciel de l'image, invisible au
+  raccord.
+- `computeSceneRect` extraite en fonction pure, éprouvée sur quatre appareils
+  réels par `test/ui/scene_geometry_test.dart`.
+- 102 tests au vert.
 
 ### 0.6.1+10 — Assets manquants : le jeu ne s'ouvrait plus
 - `pubspec.yaml` ne déclarait que `assets/content/adventures/`. Flutter

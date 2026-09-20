@@ -7,6 +7,7 @@
       "id": "home",
       "location": "Devant la maison",
       "background": "assets/pictures/Grisbie_plage2.jpg",
+      "backgroundColor": "#4ab8fd",
       "narrative": {
         "onArrival": "Grisbie veut aller à la plage. Comment va-t-il y aller ?",
         "onCompletion": "Grisbie a choisi. C'est parti !"

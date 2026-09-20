@@ -18,9 +18,19 @@ class Stage {
     required this.families,
     this.narrative = Narrative.none,
     this.backgroundAsset,
+    this.backgroundColor,
     this.encounter,
     this.visibleWordCount = 6,
   });
+
+  /// Lit une couleur ecrite « #RRGGBB » dans le contenu.
+  static int? parseColor(Object? value) {
+    if (value is! String) return null;
+    final hex = value.startsWith('#') ? value.substring(1) : value;
+    final parsed = int.tryParse(hex, radix: 16);
+    if (parsed == null || hex.length != 6) return null;
+    return 0xFF000000 | parsed;
+  }
 
   /// Construit l'etape en resolvant mots et personnages.
   factory Stage.fromJson(
@@ -35,6 +45,7 @@ class Stage {
       locationName: json['location'] as String,
       narrative: Narrative.fromJson(json['narrative']),
       backgroundAsset: json['background'] as String?,
+      backgroundColor: parseColor(json['backgroundColor']),
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       encounter: encounter == null
           ? null
@@ -76,6 +87,13 @@ class Stage {
 
   /// L'illustration de fond, sur laquelle les zones sont posees.
   final String? backgroundAsset;
+
+  /// La couleur qui comble la bande laissee libre au-dessus de l'illustration.
+  ///
+  /// L'illustration est montree en entier et calee en bas ; sur un telephone
+  /// allonge, il reste de la place au-dessus. Une couleur prise dans le ciel de
+  /// l'image rend la jointure invisible.
+  final int? backgroundColor;
 
   /// Le personnage rencontre ici, s'il y en a un.
   final Encounter? encounter;
@@ -209,6 +227,7 @@ class Stage {
     Narrative? narrative,
     List<WordFamily>? families,
     String? backgroundAsset,
+    int? backgroundColor,
     Encounter? encounter,
     int? visibleWordCount,
   }) {
@@ -218,6 +237,7 @@ class Stage {
       narrative: narrative ?? this.narrative,
       families: families ?? this.families,
       backgroundAsset: backgroundAsset ?? this.backgroundAsset,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
       encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
     );
@@ -229,6 +249,9 @@ class Stage {
       'location': locationName,
       if (!narrative.isEmpty) 'narrative': narrative.toJson(),
       if (backgroundAsset != null) 'background': backgroundAsset,
+      if (backgroundColor != null)
+        'backgroundColor':
+            '#${(backgroundColor! & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
       if (encounter != null) 'character': encounter!.toJson(),
       'visibleWordCount': visibleWordCount,
       'families': families.map((family) => family.toJson()).toList(),

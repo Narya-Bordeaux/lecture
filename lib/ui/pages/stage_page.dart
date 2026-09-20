@@ -113,6 +113,9 @@ class _StagePageState extends State<StagePage> {
         children: <Widget>[
           SceneLayout(
             backgroundAsset: widget.stage.backgroundAsset,
+            backgroundColor: widget.stage.backgroundColor == null
+                ? const Color(0xFF4AB8FD)
+                : Color(widget.stage.backgroundColor!),
             children: <SceneChild>[
               for (final family in widget.stage.families)
                 if (family.area != null)

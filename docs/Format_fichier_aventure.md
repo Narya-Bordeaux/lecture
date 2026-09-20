@@ -134,6 +134,7 @@ Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 | `id` | oui | Nom interne, cité par les autres lieux comme destination |
 | `location` | oui | Le nom du lieu, montré au joueur |
 | `background` | non | L'illustration de fond |
+| `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
 | `narrative.onArrival` | non | Texte affiché en arrivant, **avant** de jouer |
 | `narrative.onCompletion` | non | Texte affiché au moment de repartir |
 | `visibleWordCount` | non | Combien de mots sont proposés à la fois (6 par défaut) |
@@ -169,6 +170,22 @@ le contenu réel.
 **Une famille sans `destination` ne mène nulle part.** C'est le classeur de
 rebut d'une énigme : l'enfant y range ce qui ne répond pas à la question, et le
 remplir n'ouvre aucun chemin.
+
+### L'illustration et la bande du haut
+
+L'illustration est affichée **en entier** et **calée en bas**. Elle n'est jamais
+recadrée : sur un téléphone allongé — 1080 × 2340, soit 1 : 2,17, contre 1 : 1,5
+pour une image en portrait classique — le recadrage ferait sortir un quart de
+l'image de chaque côté, **emportant les zones avec lui**.
+
+Il reste donc une bande libre en haut, qu'occupe le bandeau des mots. Donnez-lui
+la couleur du haut de votre illustration, avec `backgroundColor` : si c'est du
+ciel, la jointure devient invisible. Pour la trouver, ouvrez l'image dans
+n'importe quel éditeur et prélevez la couleur d'un pixel du bord supérieur.
+
+Cela veut dire que **le bas de l'illustration est la partie sûre** : c'est elle
+qui reste visible quel que soit l'appareil. Placez-y ce qui compte — le
+personnage, le chemin, les éléments que désignent les zones.
 
 ### Où poser une zone — `area`
 

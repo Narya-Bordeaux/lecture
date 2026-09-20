@@ -44,6 +44,36 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.6.2+11 — 20 septembre 2026 — L'illustration et les zones débordaient
+
+Constaté sur appareil : l'illustration sortait de l'écran sur les côtés, et les
+zones « En bus » et « À pied » étaient amputées.
+
+L'illustration était recadrée pour remplir l'écran. Sur un Galaxy A54 — 1080 ×
+2340, soit 1 : 2,17, contre 1 : 1,5 pour l'image — elle devait mesurer 1560 px
+de large pour en couvrir la hauteur : **480 px sortaient**, 240 de chaque côté.
+Les zones, qui collent au décor par construction, sortaient avec lui. Aucun
+réglage de zone n'aurait corrigé cela : le recadrage lui-même était en cause.
+
+L'illustration est désormais affichée **en entier** et **calée en bas** : le
+personnage et le chemin restent visibles, et la bande libérée en haut est celle
+qu'occupe déjà le bandeau des mots. Elle est comblée par `backgroundColor`, une
+nouvelle donnée de contenu — `#4ab8fd` pour cette scène, la couleur relevée dans
+son ciel, ce qui rend le raccord invisible.
+
+Sur le A54, l'illustration occupe maintenant 0 → 1080 en largeur, et les trois
+zones tiennent entre x = 22 et x = 1037.
+
+**Le test qui manquait.** `computeSceneRect` est extraite en fonction pure, et
+`test/ui/scene_geometry_test.dart` l'éprouve sur quatre appareils réels : image
+entièrement visible, proportions gardées, calage en bas, chaque zone à l'écran
+et assez grande pour un doigt. Les tests d'interface existants ne pouvaient rien
+voir — ils tournent sans illustration, donc sans recadrage. Vérifié en
+réintroduisant l'ancien calcul : neuf tests échouent, dont « chaque zone de
+dépôt reste entièrement à l'écran » sur le A54.
+
+102 tests au vert.
+
 ### 0.6.1+10 — 20 septembre 2026 — Assets manquants : le jeu ne s'ouvrait plus
 
 Sur l'appareil, le jeu affichait « Le jeu n'a pas pu s'ouvrir ». La répartition
