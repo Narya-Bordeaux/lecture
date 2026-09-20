@@ -116,6 +116,9 @@ class _StagePageState extends State<StagePage> {
             backgroundColor: widget.stage.backgroundColor == null
                 ? const Color(0xFF4AB8FD)
                 : Color(widget.stage.backgroundColor!),
+            // Le bas du decor porte le personnage : le caler au-dessus de la
+            // barre de navigation evite qu'il passe sous les boutons.
+            bottomInset: MediaQuery.paddingOf(context).bottom,
             children: <SceneChild>[
               for (final family in widget.stage.families)
                 if (family.area != null)

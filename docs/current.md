@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.6.2+11** — 20 septembre 2026
+**Version : 0.6.3+12** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -16,7 +16,7 @@ par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 102 tests.
+Seul le comportement est prouvé, par 108 tests.
 
 ## Chantier en cours
 
@@ -29,6 +29,13 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.6.3+12 — Intitulés au-dessus des zones, marge système en bas
+- L'intitulé d'une zone est posé **au-dessus** du cadre, libre de déborder
+  latéralement : « En voiture » s'abrégeait en « En voitu… ».
+- Le cadre est ainsi entièrement disponible pour les mots déposés.
+- L'illustration se cale au-dessus de la barre de navigation Android.
+- 108 tests au vert, dont un qui échoue si un intitulé peut être tronqué.
 
 ### 0.6.2+11 — L'illustration et les zones débordaient de l'écran
 - L'illustration était recadrée pour remplir l'écran. Sur un 1080 × 2340, elle

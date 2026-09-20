@@ -23,28 +23,42 @@ class SceneChild {
 ///
 /// Le calage en bas garde le personnage et le chemin visibles, et libere en
 /// haut une bande que le bandeau des mots occupe deja.
-Rect computeSceneRect({required Size surface, required Size? imageSize}) {
+/// [bottomInset] est la hauteur reservee en bas de l'ecran par le systeme —
+/// barre de navigation, geste de retour. L'illustration se cale au-dessus,
+/// sinon le bas du decor, ou se trouve le personnage, passe sous les boutons.
+Rect computeSceneRect({
+  required Size surface,
+  required Size? imageSize,
+  double bottomInset = 0,
+}) {
   if (imageSize == null || imageSize.isEmpty || surface.isEmpty) {
     return Offset.zero & surface;
   }
 
+  // La hauteur reellement disponible, une fois la zone systeme deduite.
+  final available = Size(
+    surface.width,
+    (surface.height - bottomInset).clamp(0.0, surface.height),
+  );
+  if (available.isEmpty) return Offset.zero & surface;
+
   final imageRatio = imageSize.width / imageSize.height;
-  final surfaceRatio = surface.width / surface.height;
+  final availableRatio = available.width / available.height;
 
   final double width;
   final double height;
-  if (surfaceRatio < imageRatio) {
+  if (availableRatio < imageRatio) {
     // L'ecran est plus etroit que l'image : on cale sur la largeur.
-    width = surface.width;
+    width = available.width;
     height = width / imageRatio;
   } else {
-    height = surface.height;
+    height = available.height;
     width = height * imageRatio;
   }
 
   return Rect.fromLTWH(
-    (surface.width - width) / 2,
-    surface.height - height,
+    (available.width - width) / 2,
+    available.height - height,
     width,
     height,
   );
@@ -67,12 +81,17 @@ class SceneLayout extends StatefulWidget {
     required this.children,
     this.backgroundAsset,
     this.backgroundColor = const Color(0xFF9CC5E3),
+    this.bottomInset = 0,
     super.key,
   });
 
   final List<SceneChild> children;
   final String? backgroundAsset;
   final Color backgroundColor;
+
+  /// Hauteur reservee en bas par le systeme, au-dessus de laquelle
+  /// l'illustration se cale.
+  final double bottomInset;
 
   @override
   State<SceneLayout> createState() => _SceneLayoutState();
@@ -157,11 +176,15 @@ class _SceneLayoutState extends State<SceneLayout> {
         final imageRect = computeSceneRect(
           surface: surface,
           imageSize: _imageSize,
+          bottomInset: widget.bottomInset,
         );
 
         return ClipRect(
           child: Stack(
             fit: StackFit.expand,
+            // Les intitules des zones debordent volontairement de leur cadre,
+            // pour n'etre jamais tronques. Seul le bord de l'ecran les coupe.
+            clipBehavior: Clip.none,
             children: <Widget>[
               // La bande laissee libre au-dessus de l'illustration se fond
               // dans son ciel : la jointure passe inapercue.

@@ -118,6 +118,56 @@ void main() {
     });
   });
 
+  group('Marge systeme en bas', () {
+    // La barre de navigation d'Android occupe environ 48 points.
+    const screen = Size(1080, 2340);
+    const inset = 135.0;
+
+    test('l\'illustration se cale au-dessus de la barre de navigation', () {
+      final image = computeSceneRect(
+        surface: screen,
+        imageSize: illustration,
+        bottomInset: inset,
+      );
+
+      expect(
+        image.bottom,
+        closeTo(screen.height - inset, 0.5),
+        reason: 'le bas du decor passerait sous les boutons systeme',
+      );
+    });
+
+    test('les zones remontent avec l\'illustration', () {
+      final image = computeSceneRect(
+        surface: screen,
+        imageSize: illustration,
+        bottomInset: inset,
+      );
+
+      stageAreas.forEach((label, area) {
+        final rect = areaOnScreen(area, image);
+        expect(
+          rect.bottom,
+          lessThanOrEqualTo(screen.height - inset + 0.5),
+          reason: '\$label depasse dans la zone systeme',
+        );
+      });
+    });
+
+    test('l\'illustration garde ses proportions malgre la marge', () {
+      final image = computeSceneRect(
+        surface: screen,
+        imageSize: illustration,
+        bottomInset: inset,
+      );
+
+      expect(
+        image.width / image.height,
+        closeTo(illustration.width / illustration.height, 0.001),
+      );
+    });
+  });
+
   group('Cas limites', () {
     test('sans illustration, la scene occupe toute la surface', () {
       const surface = Size(400, 800);

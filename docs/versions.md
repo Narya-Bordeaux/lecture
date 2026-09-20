@@ -44,6 +44,38 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.6.3+12 — 20 septembre 2026 — Intitulés au-dessus des zones, marge système
+
+Deux défauts relevés sur appareil.
+
+**« En voiture » s'affichait « En voitu… ».** L'intitulé était placé dans le
+cadre, donc contraint par sa largeur, et Flutter l'abrégeait. Un enfant qui
+apprend à lire ne doit jamais voir un mot tronqué — c'est le contraire de ce que
+le jeu travaille.
+
+L'intitulé est désormais posé **au-dessus** du cadre, centré sur lui et libre de
+déborder de 90 points de chaque côté. Il porte `overflow: visible`, `maxLines:
+1` et `softWrap: false` : il s'écrit en entier, quoi qu'il arrive. Le compteur
+l'accompagne, ce qui laisse le cadre entièrement disponible pour les mots
+déposés.
+
+Conséquence technique : `SceneLayout` passe en `clipBehavior: Clip.none`, seul
+le bord de l'écran coupant désormais un intitulé.
+
+**Le bas du décor passait sous la barre de navigation**, masquant les pieds du
+personnage. `computeSceneRect` accepte un `bottomInset` — la marge réservée par
+le système — et cale l'illustration au-dessus.
+
+Les tests d'interface visaient le centre de l'intitulé pour y lâcher un mot ;
+celui-ci n'étant plus dans la zone, ils visent maintenant le cadre, identifié
+par `FamilyDropZone.frameKeyFor`.
+
+Deux tests ajoutés : l'un vérifie qu'aucun intitulé ne peut être abrégé ni rendu
+plus étroit que son texte naturel, l'autre que l'illustration et ses zones
+restent au-dessus de la marge système.
+
+108 tests au vert.
+
 ### 0.6.2+11 — 20 septembre 2026 — L'illustration et les zones débordaient
 
 Constaté sur appareil : l'illustration sortait de l'écran sur les côtés, et les

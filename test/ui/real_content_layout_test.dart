@@ -6,6 +6,7 @@ import 'package:reading_game/application/stage_engine.dart';
 import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
+import 'package:reading_game/ui/widgets/family_drop_zone.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
@@ -63,17 +64,21 @@ StageEngine buildWitnessEngine() {
   );
 }
 
+/// On vise le cadre et non l'intitule : celui-ci est pose au-dessus de la zone,
+/// et n'est donc plus un point de depot valide.
 Future<void> dragWordOnto(
   WidgetTester tester, {
   required String word,
-  required String familyLabel,
+  required String familyId,
 }) async {
   final gesture = await tester.startGesture(
     tester.getCenter(find.text(word).first),
   );
   await gesture.moveBy(const Offset(0, 40));
   await tester.pump();
-  await gesture.moveTo(tester.getCenter(find.text(familyLabel).first));
+  await gesture.moveTo(
+    tester.getCenter(find.byKey(FamilyDropZone.frameKeyFor(familyId))),
+  );
   await tester.pump();
   await gesture.up();
   await tester.pumpAndSettle();
@@ -117,6 +122,40 @@ void main() {
         }
       });
 
+      testWidgets('aucun intitule de zone n\'est tronque', (tester) async {
+        await pumpRealStage(tester, screen);
+
+        // « En voiture » s'abregeait en « En voitu... » quand l'intitule etait
+        // contraint par la largeur de son cadre. Un enfant qui apprend a lire
+        // ne doit jamais voir un mot coupe.
+        for (final family in loadHomeStageWithoutBackground().families) {
+          final label = tester.widget<Text>(find.text(family.label));
+
+          expect(
+            label.overflow,
+            TextOverflow.visible,
+            reason: '"${family.label}" pourrait etre abrege',
+          );
+          expect(label.maxLines, 1);
+          expect(label.softWrap, isFalse);
+
+          // Le texte s'affiche a sa largeur naturelle, sans compression.
+          final painted = tester.renderObject<RenderBox>(
+            find.text(family.label),
+          );
+          final natural = (TextPainter(
+            text: TextSpan(text: family.label, style: label.style),
+            textDirection: TextDirection.ltr,
+          )..layout())
+              .width;
+          expect(
+            painted.size.width,
+            greaterThanOrEqualTo(natural - 1),
+            reason: '"${family.label}" est rendu plus etroit que son texte',
+          );
+        }
+      });
+
       testWidgets('un mot peut etre depose dans chaque zone', (tester) async {
         await pumpRealStage(tester, screen);
         final witness = buildWitnessEngine();
@@ -134,7 +173,7 @@ void main() {
           await dragWordOnto(
             tester,
             word: word.text,
-            familyLabel: family.label,
+            familyId: family.id,
           );
           witness.placeWord(wordId: word.id, familyId: family.id);
 
@@ -177,7 +216,7 @@ void main() {
           await dragWordOnto(
             tester,
             word: word.text,
-            familyLabel: target.label,
+            familyId: target.id,
           );
           witness.placeWord(wordId: word.id, familyId: target.id);
         }
