@@ -1,8 +1,8 @@
 {
   "domain": "transport",
   "words": [
-    { "id": "bus_stop", "text": "arrêt", "syllables": ["ar", "rêt"] },
-    { "id": "ticket", "text": "ticket", "syllables": ["tic", "ket"] },
+    { "id": "bus_stop", "text": "arrêt", "syllables": ["a", "rê"] },
+    { "id": "ticket", "text": "ticket", "syllables": ["ti", "cket"] },
     { "id": "timetable", "text": "horaire", "syllables": ["ho", "raire"] },
     { "id": "shelter", "text": "abri", "syllables": ["a", "bri"] },
     { "id": "line", "text": "ligne", "syllables": ["ligne"] },
@@ -10,14 +10,14 @@
     { "id": "counter", "text": "guichet", "syllables": ["gui", "chet"] },
 
     { "id": "wheel", "text": "volant", "syllables": ["vo", "lant"] },
-    { "id": "fuel", "text": "essence", "syllables": ["es", "sence"] },
+    { "id": "fuel", "text": "essence", "syllables": ["é", "ssence"] },
     { "id": "boot", "text": "coffre", "syllables": ["coffre"] },
     { "id": "garage_word", "text": "garage", "syllables": ["ga", "rage"] },
     { "id": "horn", "text": "klaxon", "syllables": ["kla", "xon"] },
     { "id": "radio", "text": "radio", "syllables": ["ra", "dio"] },
     { "id": "key", "text": "clé", "syllables": ["clé"] },
 
-    { "id": "shoe", "text": "chaussure", "syllables": ["chaus", "sure"] },
+    { "id": "shoe", "text": "chaussure", "syllables": ["chau", "ssure"] },
     { "id": "path", "text": "sentier", "syllables": ["sen", "tier"] },
     { "id": "step", "text": "marche", "syllables": ["marche"] },
     { "id": "stride", "text": "pas", "syllables": ["pas"] },
@@ -26,6 +26,6 @@
     { "id": "walk", "text": "promenade", "syllables": ["pro", "me", "nade"] },
 
     { "id": "platform", "text": "quai", "syllables": ["quai"] },
-    { "id": "rail_ticket", "text": "billet", "syllables": ["bil", "let"] }
+    { "id": "rail_ticket", "text": "billet", "syllables": ["bi","ll", "et"] }
   ]
 }
