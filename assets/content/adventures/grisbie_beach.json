@@ -50,7 +50,7 @@
       "id": "station_hall",
       "location": "La gare",
       "narrative": {
-        "onArrival": "Grisbie est dans la gare. Il y a du monde partout !",
+        "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir",
         "onCompletion": "Le train part dans deux minutes. Vite !"
       },
       "visibleWordCount": 4,
