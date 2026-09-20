@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.5.0+8** — 20 septembre 2026
+**Version : 0.6.0+9** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -11,8 +11,12 @@ Chaque famille puise dans une liste pleine de sept mots, et un mot bien classé
 est remplacé sur place par un mot de la réserve. La spécification est en version
 de travail 0.8.
 
+Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décrits
+par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
+dans la boutique de la gare.
+
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 66 tests.
+Seul le comportement est prouvé, par 78 tests.
 
 ## Chantier en cours
 
@@ -21,9 +25,22 @@ appareil, puis à traiter la suite du parcours : la gare n'a pas de décor et se
 zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
 
 Un réglage attend un avis : le **tirage libre**, qui peut ne proposer aucun mot
-d'une famille donnée.
+d'une famille donnée. Les six thèmes proposés (station-service, garage, marché,
+école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.6.0+9 — Format de contenu en plusieurs fichiers
+- `index.json` (le sommaire), `lexicon/*.json` (le vocabulaire, chaque mot défini
+  une seule fois), `characters.json`, `adventures/*.json`.
+- Récit à deux temps par lieu : `onArrival` avant de jouer, `onCompletion` au
+  départ, affichés sur un écran dédié.
+- Rencontres : un `character` dans un lieu, et un classeur **sans destination**
+  pour le rebut d'une énigme.
+- Les mots sont portés par les familles ; `Stage.words` en est dérivé.
+- `docs/Format_fichier_aventure.md` : la spécification du format, pour qui écrit
+  du contenu sans toucher au code.
+- 78 tests au vert.
 
 ### 0.5.0+8 — Listes pleines, une seule aide
 - Les listes sont pleines : une famille s'ouvre quand tous ses mots sont classés.
@@ -110,6 +127,10 @@ d'une famille donnée.
   Remplir une catégorie est en soi une aide pour les mots suivants.
 - **Étapes imbriquées** : une destination atteinte ouvre une étape de même nature,
   avec ses propres familles. Le modèle est récursif, un seul moteur sert partout.
+- **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, les
+  personnages, les aventures. Un mot n'est défini qu'une fois.
+- **Leurres écrits à la main** : jamais tirés au hasard, sous peine de sortir un
+  mot appartenant vraiment au thème et de refuser une bonne réponse.
 
 ## Points ouverts
 

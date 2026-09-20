@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -7,22 +5,13 @@ import 'package:reading_game/application/stage_engine.dart';
 import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/word.dart';
 
-/// Lit le contenu depuis le disque plutot que depuis le bundle : ce test porte
-/// sur les donnees pedagogiques elles-memes, pas sur leur chargement par
-/// Flutter.
-Adventure loadAdventureFromDisk(String adventureId) {
-  final file = File('assets/content/adventures/$adventureId.json');
-  expect(file.existsSync(), isTrue, reason: 'Fichier absent : ${file.path}');
-  return Adventure.fromJson(
-    jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
-  );
-}
+import '../support/disk_content.dart';
 
 void main() {
   group('Contenu de l\'aventure « Grisbie va à la plage »', () {
     late Adventure adventure;
 
-    setUp(() => adventure = loadAdventureFromDisk('grisbie_beach'));
+    setUp(() async => adventure = await loadRealAdventure());
 
     test('le contenu ne presente aucune incoherence', () {
       // Couvre notamment les mots ambigus, que la specification proscrit, et
@@ -144,8 +133,8 @@ void main() {
   });
 
   group('Parcours complet jusqu\'a la plage', () {
-    test('classer puis partir mene de la maison a la mer', () {
-      final adventure = loadAdventureFromDisk('grisbie_beach');
+    test('classer puis partir mene de la maison a la mer', () async {
+      final adventure = await loadRealAdventure();
 
       // Premiere etape : classer assez de mots « bus » pour ouvrir la gare.
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
@@ -173,8 +162,8 @@ void main() {
       expect(beach.isTerminal, isTrue);
     });
 
-    test('une famille non choisie mene ailleurs, sans bloquer', () {
-      final adventure = loadAdventureFromDisk('grisbie_beach');
+    test('une famille non choisie mene ailleurs, sans bloquer', () async {
+      final adventure = await loadRealAdventure();
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
 
       // L'enfant ouvre deux chemins avant de se decider.

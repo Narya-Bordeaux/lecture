@@ -5,118 +5,113 @@
   "stages": [
     {
       "id": "home",
-      "locationName": "Devant la maison",
-      "narrative": "Grisbie veut aller à la plage. Comment va-t-il y aller ?",
-      "backgroundAsset": "assets/pictures/Grisbie_plage2.jpg",
+      "location": "Devant la maison",
+      "background": "assets/pictures/Grisbie_plage2.jpg",
+      "narrative": {
+        "onArrival": "Grisbie veut aller à la plage. Comment va-t-il y aller ?",
+        "onCompletion": "Grisbie a choisi. C'est parti !"
+      },
       "visibleWordCount": 6,
-      "words": [
-        { "id": "bus_stop", "text": "arrêt", "syllables": ["ar", "rêt"] },
-        { "id": "ticket", "text": "ticket", "syllables": ["tic", "ket"] },
-        { "id": "timetable", "text": "horaire", "syllables": ["ho", "raire"] },
-        { "id": "shelter", "text": "abri", "syllables": ["a", "bri"] },
-        { "id": "line", "text": "ligne", "syllables": ["ligne"] },
-        { "id": "terminus", "text": "terminus", "syllables": ["ter", "mi", "nus"] },
-        { "id": "counter", "text": "guichet", "syllables": ["gui", "chet"] },
-
-        { "id": "wheel", "text": "volant", "syllables": ["vo", "lant"] },
-        { "id": "fuel", "text": "essence", "syllables": ["es", "sence"] },
-        { "id": "boot", "text": "coffre", "syllables": ["coffre"] },
-        { "id": "garage_word", "text": "garage", "syllables": ["ga", "rage"] },
-        { "id": "horn", "text": "klaxon", "syllables": ["kla", "xon"] },
-        { "id": "radio", "text": "radio", "syllables": ["ra", "dio"] },
-        { "id": "key", "text": "clé", "syllables": ["clé"] },
-
-        { "id": "shoe", "text": "chaussure", "syllables": ["chaus", "sure"] },
-        { "id": "path", "text": "sentier", "syllables": ["sen", "tier"] },
-        { "id": "step", "text": "marche", "syllables": ["marche"] },
-        { "id": "stride", "text": "pas", "syllables": ["pas"] },
-        { "id": "leg", "text": "jambe", "syllables": ["jambe"] },
-        { "id": "heel", "text": "talon", "syllables": ["ta", "lon"] },
-        { "id": "walk", "text": "promenade", "syllables": ["pro", "me", "nade"] }
-      ],
       "families": [
         {
           "id": "by_bus",
           "label": "En bus",
-          "wordIds": [
+          "words": [
             "bus_stop", "ticket", "timetable", "shelter", "line",
             "terminus", "counter"
           ],
-          "destinationStageId": "station_hall",
+          "destination": "station_hall",
           "area": { "left": 0.02, "top": 0.29, "width": 0.32, "height": 0.16 }
         },
         {
           "id": "by_car",
           "label": "En voiture",
-          "wordIds": [
-            "wheel", "fuel", "boot", "garage_word", "horn",
-            "radio", "key"
+          "words": [
+            "wheel", "fuel", "boot", "garage_word", "horn", "radio", "key"
           ],
-          "destinationStageId": "garage",
+          "destination": "garage",
           "area": { "left": 0.37, "top": 0.39, "width": 0.27, "height": 0.15 }
         },
         {
           "id": "on_foot",
           "label": "À pied",
-          "wordIds": [
-            "shoe", "path", "step", "stride", "leg", "heel", "walk"
-          ],
-          "destinationStageId": "street",
+          "words": ["shoe", "path", "step", "stride", "leg", "heel", "walk"],
+          "destination": "street",
           "area": { "left": 0.66, "top": 0.42, "width": 0.30, "height": 0.18 }
         }
       ]
     },
     {
       "id": "station_hall",
-      "locationName": "La gare",
-      "narrative": "Grisbie est dans la gare. Il y a du monde partout !",
-      "words": [
-        { "id": "platform", "text": "quai", "syllables": ["quai"] },
-        { "id": "rail_ticket", "text": "billet", "syllables": ["bil", "let"] },
-        { "id": "cake", "text": "gâteau", "syllables": ["gâ", "teau"] },
-        { "id": "newspaper", "text": "journal", "syllables": ["jour", "nal"] }
-      ],
+      "location": "La gare",
+      "narrative": {
+        "onArrival": "Grisbie est dans la gare. Il y a du monde partout !",
+        "onCompletion": "Le train part dans deux minutes. Vite !"
+      },
+      "visibleWordCount": 4,
       "families": [
         {
           "id": "take_the_train",
           "label": "Prendre le train",
-          "wordIds": ["platform", "rail_ticket"],
-          "destinationStageId": "beach"
+          "words": ["platform", "rail_ticket"],
+          "destination": "beach"
         },
         {
           "id": "buy_something",
           "label": "Acheter quelque chose",
-          "wordIds": ["cake", "newspaper"],
-          "destinationStageId": "station_shop"
+          "words": ["cake", "newspaper"],
+          "destination": "station_shop"
         }
       ]
     },
     {
       "id": "station_shop",
-      "locationName": "La boutique de la gare",
-      "narrative": "Grisbie achète un gâteau. Miam ! Mais le train, lui, n'attend pas.",
-      "words": [],
-      "families": []
+      "location": "La boutique de la gare",
+      "narrative": {
+        "onArrival": "Grisbie pousse la porte de la boutique.",
+        "onCompletion": "Le sac est plein de bonnes choses. Direction la mer !"
+      },
+      "character": {
+        "id": "shopkeeper",
+        "line": "Tu pars en voyage ? Prends ce qui se mange, et laisse-moi le reste !"
+      },
+      "visibleWordCount": 6,
+      "families": [
+        {
+          "id": "edible",
+          "label": "Ce qui se mange",
+          "words": ["cake", "sweet", "juice", "biscuit", "apple", "bread"],
+          "destination": "beach"
+        },
+        {
+          "id": "keep",
+          "label": "Laisse-le",
+          "words": ["newspaper", "magazine", "bench", "clock", "wheel", "key"]
+        }
+      ]
     },
     {
       "id": "street",
-      "locationName": "La rue",
-      "narrative": "Grisbie marche sur le trottoir. La plage est encore loin...",
-      "words": [],
+      "location": "La rue",
+      "narrative": {
+        "onArrival": "Grisbie marche sur le trottoir. La plage est encore loin..."
+      },
       "families": []
     },
     {
       "id": "garage",
-      "locationName": "Le garage",
-      "narrative": "La voiture est au garage. Elle ne partira pas aujourd'hui.",
-      "words": [],
+      "location": "Le garage",
+      "narrative": {
+        "onArrival": "La voiture est au garage. Elle ne partira pas aujourd'hui."
+      },
       "families": []
     },
     {
       "id": "beach",
-      "locationName": "La plage",
-      "narrative": "Le train est arrivé. Grisbie court sur le sable : la mer est là !",
-      "words": [],
+      "location": "La plage",
+      "narrative": {
+        "onArrival": "Grisbie court sur le sable : la mer est là !"
+      },
       "families": []
     }
   ]

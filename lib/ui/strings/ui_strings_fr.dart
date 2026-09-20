@@ -13,6 +13,9 @@ abstract final class UiStringsFr {
   /// Invitation affichee au-dessus des etiquettes.
   static const String dragInvitation = 'Pose les mots au bon endroit';
 
+  /// Bouton qui clot un moment de recit et lance le jeu.
+  static const String continueStory = 'Continuer';
+
   /// Bouton de depart vers une destination ouverte.
   static String departTo(String familyLabel) => 'Partir $familyLabel';
 

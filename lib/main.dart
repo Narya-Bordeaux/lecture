@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:reading_game/infrastructure/content/asset_adventure_repository.dart';
+import 'package:reading_game/infrastructure/content/asset_content_source.dart';
+import 'package:reading_game/infrastructure/content/content_repository.dart';
 import 'package:reading_game/ui/pages/adventure_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
 
@@ -32,8 +33,10 @@ class ReadingGameApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
         useMaterial3: true,
       ),
-      home: const AdventurePage(
-        repository: AssetAdventureRepository(),
+      home: AdventurePage(
+        repository: ContentRepository(
+          source: const AssetContentSource(),
+        ),
         adventureId: _defaultAdventureId,
       ),
     );

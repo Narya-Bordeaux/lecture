@@ -1,15 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reading_game/application/stage_engine.dart';
-import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+
+import '../support/disk_content.dart';
 
 /// Ces tests montent l'interface avec le contenu reellement livre, aux
 /// coordonnees reelles de ses zones.
@@ -22,13 +21,14 @@ import 'package:reading_game/ui/strings/ui_strings_fr.dart';
 
 /// L'etape de depart, privee de son illustration : l'image n'est pas dans le
 /// bundle de test, et seule la geometrie des zones est en cause ici.
-Stage loadHomeStageWithoutBackground() {
-  final file = File('assets/content/adventures/grisbie_beach.json');
-  final adventure = Adventure.fromJson(
-    jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
-  );
-  return adventure.startStage.copyWith(backgroundAsset: '');
+late final Stage _homeStage;
+
+Future<void> loadHomeStage() async {
+  final adventure = await loadRealAdventure();
+  _homeStage = adventure.startStage.copyWith(backgroundAsset: '');
 }
+
+Stage loadHomeStageWithoutBackground() => _homeStage;
 
 /// La graine du melange, partagee entre la page et le moteur temoin.
 const int _seed = 3;
@@ -80,6 +80,10 @@ Future<void> dragWordOnto(
 }
 
 void main() {
+  // Le contenu est charge une fois : il traverse le fichier pere, les lexiques
+  // et les personnages, ce qui n'a pas a etre refait a chaque test.
+  setUpAll(loadHomeStage);
+
   // Trois formats courants, du plus contraint au plus confortable.
   const formats = <String, Size>{
     'petit telephone': Size(360, 640),

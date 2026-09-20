@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.5.0+8** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.6.0+9** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -127,6 +127,15 @@ déjà avant d'en créer un nouveau.
 Les mots, familles, niveaux et textes d'histoire sont **des données, pas du code**.
 Ils vivent dans `assets/content/` en JSON et sont chargés par `lib/infrastructure/`.
 
+**Le format est spécifié dans `docs/Format_fichier_aventure.md`** — structure des
+quatre sortes de fichiers, champs, contrôles automatiques. Le lire avant de
+toucher au contenu, et le mettre à jour si le format change.
+
+Quatre fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
+définit chaque mot **une seule fois**, `characters.json` porte les personnages, et
+`adventures/*.json` assemble le tout par références. Un mot défini à deux endroits
+finirait découpé de deux façons différentes ; le chargement refuse le doublon.
+
 Raison : le contenu doit pouvoir évoluer sans recompilation, être relu par un
 enseignant ou un parent, et le dépôt étant destiné à l'open source, c'est le point
 d'entrée le plus accessible pour une contribution extérieure.
@@ -168,6 +177,17 @@ L'illustration a été écartée : avec trois familles, les possibilités se
 réduisent d'elles-mêmes et montrer l'image donnerait la réponse. Ne pas la
 réintroduire sans arbitrage — c'est une décision, pas un oubli.
 
+**Rencontre et classeur sans issue** — une étape portant un `character` est une
+rencontre : un personnage pose une question, et l'enfant trie entre le thème et
+un classeur de rebut. Ce dernier est une famille **sans destination**, qui
+n'ouvre donc aucun chemin. Les leurres sont écrits à la main, jamais tirés au
+hasard : un tirage pourrait sortir un mot appartenant vraiment au thème, et le
+jeu refuserait une bonne réponse.
+
+**Pas de champ « type d'étape »** — la structure le dit déjà : un `character`
+signale une rencontre, l'absence de famille une étape terminale. Ajouter un
+type serait une information en double, qui finirait par diverger.
+
 **Champ lexical des familles** — les familles d'une étape doivent avoir des
 vocabulaires disjoints, et c'est plus contraignant qu'il n'y paraît : « En bus »
 et « En voiture » partagent toute la mécanique (moteur, roue, frein, siège,
@@ -196,3 +216,4 @@ Tout changement de taille dans le bandeau doit être revalidé là.
 | `docs/versions.md` | Historique des versions et procédure de versioning |
 | `docs/TODO.md` | Backlog |
 | `docs/Specification_jeu_decouverte_lecture.md` | Cadrage fonctionnel du jeu |
+| `docs/Format_fichier_aventure.md` | **Contrat** — structure des fichiers de contenu, pour qui écrit une aventure |

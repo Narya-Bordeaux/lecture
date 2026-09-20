@@ -1,0 +1,12 @@
+{
+  "characters": [
+    {
+      "id": "shopkeeper",
+      "name": "La marchande de journaux"
+    },
+    {
+      "id": "fisherman",
+      "name": "Le pêcheur"
+    }
+  ]
+}

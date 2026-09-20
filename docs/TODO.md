@@ -51,8 +51,13 @@ trop longtemps serait de toute façon périmé.
 - [ ] `abri` reste vague hors du contexte de l'abribus, et `talon` côtoie
       `ticket` dans la même étape (un ticket a un talon). À revoir si l'usage
       montre une hésitation.
-- [ ] Illustrer les autres étapes : la gare n'a ni décor ni zones placées, elle
-      s'affiche sur fond uni.
+- [ ] Illustrer les autres étapes : la gare et la boutique n'ont ni décor ni
+      zones placées, elles s'affichent sur fond uni.
+- [ ] Écrire les six thèmes proposés : station-service et garage (en voiture),
+      marché et école (en bus), loueur de vélos et forêt (à pied).
+- [ ] Nommer le second classeur d'une énigme. « Laisse-le » est un tri par
+      rejet ; deux gestes positifs seraient peut-être plus justes à six ans.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
-- [ ] Récit : `Stage.narrative` n'est affiché que sur les étapes terminales.
+- [ ] Portraits des personnages : `portrait` existe dans le format mais aucun
+      dessin n'est fourni ; seul le nom s'affiche.

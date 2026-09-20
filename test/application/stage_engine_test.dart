@@ -8,31 +8,33 @@ import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/domain/models/word_family.dart';
 
+import '../support/stage_builders.dart' as build;
+
 /// Etape de reference utilisee par la plupart des tests : deux familles de deux
 /// mots, chacune menant a une destination distincte.
 Stage buildTestStage() {
-  return const Stage(
+  return build.stage(
     id: 'home',
-    locationName: 'Devant la maison',
-    narrative: 'Grisbie veut aller a la plage.',
-    words: [
-      Word(id: 'train', text: 'train', syllables: ['train']),
-      Word(id: 'station', text: 'gare', syllables: ['gare']),
-      Word(id: 'shoe', text: 'chaussure', syllables: ['chau', 'ssure']),
-      Word(id: 'sidewalk', text: 'trottoir', syllables: ['trot', 'toir']),
-    ],
-    families: [
-      WordFamily(
+    location: 'Devant la maison',
+    arrivalText: 'Grisbie veut aller a la plage.',
+    families: <WordFamily>[
+      build.family(
         id: 'by_train',
         label: 'En train',
-        wordIds: {'train', 'station'},
-        destinationStageId: 'station_hall',
+        words: <Word>[
+          build.word('train', 'train'),
+          build.word('station', 'gare'),
+        ],
+        destination: 'station_hall',
       ),
-      WordFamily(
+      build.family(
         id: 'on_foot',
         label: 'A pied',
-        wordIds: {'shoe', 'sidewalk'},
-        destinationStageId: 'street',
+        words: <Word>[
+          build.word('shoe', 'chaussure', <String>['chau', 'ssure']),
+          build.word('sidewalk', 'trottoir', <String>['trot', 'toir']),
+        ],
+        destination: 'street',
       ),
     ],
   );

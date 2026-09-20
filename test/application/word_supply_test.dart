@@ -6,35 +6,34 @@ import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/domain/models/word_family.dart';
 
+import '../support/stage_builders.dart' as build;
+
 /// Etape dotee d'un reservoir : plus de mots que d'emplacements visibles.
 ///
 /// Deux familles de six mots, quatre emplacements affiches. Un mot bien classe
 /// libere son emplacement, qu'un mot du reservoir vient reprendre.
 Stage buildSupplyStage({int? goal}) {
-  return Stage(
+  return build.stage(
     id: 'home',
-    locationName: 'Devant la maison',
-    narrative: 'Grisbie veut aller a la plage.',
+    location: 'Devant la maison',
     visibleWordCount: 4,
-    words: List<Word>.unmodifiable(<Word>[
-      for (var i = 1; i <= 6; i++)
-        Word(id: 'bus$i', text: 'bus$i', syllables: <String>['bus$i']),
-      for (var i = 1; i <= 6; i++)
-        Word(id: 'foot$i', text: 'foot$i', syllables: <String>['foot$i']),
-    ]),
     families: <WordFamily>[
-      WordFamily(
+      build.family(
         id: 'by_bus',
         label: 'En bus',
-        wordIds: <String>{for (var i = 1; i <= 6; i++) 'bus$i'},
-        destinationStageId: 'station_hall',
+        words: <Word>[
+          for (var i = 1; i <= 6; i++) build.word('bus$i', 'bus$i'),
+        ],
+        destination: 'station_hall',
         goal: goal,
       ),
-      WordFamily(
+      build.family(
         id: 'on_foot',
         label: 'A pied',
-        wordIds: <String>{for (var i = 1; i <= 6; i++) 'foot$i'},
-        destinationStageId: 'street',
+        words: <Word>[
+          for (var i = 1; i <= 6; i++) build.word('foot$i', 'foot$i'),
+        ],
+        destination: 'street',
         goal: goal,
       ),
     ],

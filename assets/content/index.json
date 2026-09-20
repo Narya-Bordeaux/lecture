@@ -1,0 +1,16 @@
+{
+  "lexicons": [
+    "lexicon/transport.json",
+    "lexicon/food.json",
+    "lexicon/place.json"
+  ],
+  "characters": "characters.json",
+  "adventures": [
+    {
+      "id": "grisbie_beach",
+      "title": "Grisbie va à la plage",
+      "cover": "assets/pictures/Grisbie_plage.jpg",
+      "file": "adventures/grisbie_beach.json"
+    }
+  ]
+}

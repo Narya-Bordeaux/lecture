@@ -139,6 +139,10 @@ class _StagePageState extends State<StagePage> {
                   slots: _visibleSlots,
                   hintsFor: _engine.state.hintsFor,
                   shakeKeys: _shakeKeys,
+                  // Quand un personnage pose la question, sa replique tient
+                  // lieu de consigne : elle dit ce qu'il faut faire, et mieux
+                  // qu'une invitation generique.
+                  invitation: widget.stage.encounter?.line,
                 ),
                 const Spacer(),
                 if (destinations.isNotEmpty)
@@ -165,6 +169,7 @@ class _WordTray extends StatelessWidget {
     required this.slots,
     required this.hintsFor,
     required this.shakeKeys,
+    this.invitation,
   });
 
   /// Trois colonnes : avec six emplacements, deux lignes pleines.
@@ -173,6 +178,10 @@ class _WordTray extends StatelessWidget {
   final List<Word?> slots;
   final Set<Hint> Function(String wordId) hintsFor;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
+
+  /// La consigne affichee au-dessus des mots. Par defaut une invitation
+  /// generique, remplacee par la replique du personnage lors d'une rencontre.
+  final String? invitation;
 
   @override
   Widget build(BuildContext context) {
@@ -194,9 +203,10 @@ class _WordTray extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Text(
-            UiStringsFr.dragInvitation,
-            style: TextStyle(
+          Text(
+            invitation ?? UiStringsFr.dragInvitation,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF4A4A4A),

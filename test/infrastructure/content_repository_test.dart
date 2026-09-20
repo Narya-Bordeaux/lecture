@@ -1,0 +1,220 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:reading_game/domain/repositories/content_source.dart';
+import 'package:reading_game/infrastructure/content/content_repository.dart';
+
+import '../support/disk_content.dart';
+
+/// Une source de contenu tenue en memoire, pour eprouver le chargement sans
+/// toucher au disque ni aux fichiers livres.
+class MemoryContentSource implements ContentSource {
+  MemoryContentSource(this.files);
+
+  final Map<String, String> files;
+
+  @override
+  Future<String> readFile(String path) async {
+    final content = files[path];
+    if (content == null) throw StateError('Fichier absent : $path');
+    return content;
+  }
+}
+
+/// Un contenu minimal mais valide, que chaque test deforme a sa guise.
+Map<String, String> buildFiles({
+  String? lexiconWords,
+  String? familyWords,
+  String? characters,
+  String? encounter,
+}) {
+  return <String, String>{
+    'index.json': '''
+{
+  "lexicons": ["lexicon/test.json"],
+  "characters": "characters.json",
+  "adventures": [
+    { "id": "test", "title": "Essai", "file": "adventures/test.json" }
+  ]
+}''',
+    'lexicon/test.json': '''
+{ "domain": "test", "words": [
+  ${lexiconWords ?? '''
+  { "id": "a", "text": "un", "syllables": ["un"] },
+  { "id": "b", "text": "deux", "syllables": ["deux"] }'''}
+] }''',
+    'characters.json': characters ??
+        '{ "characters": [ { "id": "guide", "name": "Le guide" } ] }',
+    'adventures/test.json': '''
+{
+  "id": "test",
+  "title": "Essai",
+  "startStageId": "start",
+  "stages": [
+    {
+      "id": "start",
+      "location": "Depart",
+      "narrative": { "onArrival": "Bonjour.", "onCompletion": "A bientot." },
+      ${encounter ?? ''}
+      "families": [
+        { "id": "one", "label": "Famille",
+          "words": [${familyWords ?? '"a", "b"'}],
+          "destination": "end" }
+      ]
+    },
+    { "id": "end", "location": "Arrivee", "families": [] }
+  ]
+}''',
+  };
+}
+
+ContentRepository buildRepository(Map<String, String> files) {
+  return ContentRepository(source: MemoryContentSource(files));
+}
+
+void main() {
+  group('Fichier pere', () {
+    test('annonce les aventures sans les charger', () async {
+      final index = await buildRepository(buildFiles()).loadIndex();
+
+      expect(index.adventures, hasLength(1));
+      expect(index.adventures.first.title, 'Essai');
+      expect(index.lexiconFiles, <String>['lexicon/test.json']);
+    });
+
+    test('une aventure non declaree est refusee en la nommant', () async {
+      expect(
+        () => buildRepository(buildFiles()).loadAdventure('inconnue'),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('inconnue'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('Resolution des references', () {
+    test('les mots viennent du lexique, pas de l\'aventure', () async {
+      final adventure = await buildRepository(buildFiles()).loadAdventure(
+        'test',
+      );
+
+      final word = adventure.startStage.findWord('a');
+      expect(word, isNotNull);
+      expect(word!.text, 'un');
+      expect(word.syllables, <String>['un']);
+    });
+
+    test('un mot inconnu est signale par son identifiant', () async {
+      final files = buildFiles(familyWords: '"a", "fantome"');
+
+      expect(
+        () => buildRepository(files).loadAdventure('test'),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('fantome'),
+          ),
+        ),
+      );
+    });
+
+    test('un mot defini deux fois dans le lexique est refuse', () async {
+      final files = buildFiles(
+        lexiconWords: '''
+        { "id": "a", "text": "un", "syllables": ["un"] },
+        { "id": "a", "text": "autre", "syllables": ["au", "tre"] },
+        { "id": "b", "text": "deux", "syllables": ["deux"] }''',
+      );
+
+      expect(
+        () => buildRepository(files).loadAdventure('test'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('un personnage inconnu est signale par son identifiant', () async {
+      final files = buildFiles(
+        encounter: '"character": { "id": "absent", "line": "Bonjour !" },',
+      );
+
+      expect(
+        () => buildRepository(files).loadAdventure('test'),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('absent'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('Structure d\'une etape', () {
+    test('le recit a deux temps', () async {
+      final adventure = await buildRepository(buildFiles()).loadAdventure(
+        'test',
+      );
+
+      expect(adventure.startStage.narrative.onArrival, 'Bonjour.');
+      expect(adventure.startStage.narrative.onCompletion, 'A bientot.');
+    });
+
+    test('un personnage fait de l\'etape une rencontre', () async {
+      final files = buildFiles(
+        encounter: '"character": { "id": "guide", "line": "Suis-moi !" },',
+      );
+
+      final adventure = await buildRepository(files).loadAdventure('test');
+      final stage = adventure.startStage;
+
+      expect(stage.isEncounter, isTrue);
+      expect(stage.encounter!.character.name, 'Le guide');
+      expect(stage.encounter!.line, 'Suis-moi !');
+    });
+
+    test('sans personnage, l\'etape est un simple classement', () async {
+      final adventure = await buildRepository(buildFiles()).loadAdventure(
+        'test',
+      );
+
+      expect(adventure.startStage.isEncounter, isFalse);
+    });
+
+    test('les mots de l\'etape sont ceux de ses familles', () async {
+      final adventure = await buildRepository(buildFiles()).loadAdventure(
+        'test',
+      );
+
+      expect(
+        adventure.startStage.words.map((word) => word.id),
+        <String>['a', 'b'],
+      );
+    });
+  });
+
+  group('Contenu livre', () {
+    test('l\'aventure de Grisbie se charge et se valide', () async {
+      final adventure = await loadRealAdventure();
+
+      expect(adventure.id, 'grisbie_beach');
+      expect(adventure.validate(), isEmpty);
+    });
+
+    test('la rencontre de la boutique pose son enigme', () async {
+      final adventure = await loadRealAdventure();
+      final shop = adventure.findStage('station_shop')!;
+
+      expect(shop.isEncounter, isTrue);
+      expect(shop.encounter!.character.name, 'La marchande de journaux');
+
+      // Le classeur de rebut ne mene nulle part : le remplir n'ouvre rien.
+      final keep = shop.findFamily('keep')!;
+      expect(keep.leadsSomewhere, isFalse);
+      expect(shop.findFamily('edible')!.leadsSomewhere, isTrue);
+    });
+  });
+}

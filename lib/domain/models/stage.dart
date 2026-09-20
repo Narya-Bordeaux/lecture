@@ -1,38 +1,69 @@
+import 'package:reading_game/domain/models/character.dart';
+import 'package:reading_game/domain/models/lexicon.dart';
+import 'package:reading_game/domain/models/narrative.dart';
 import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/domain/models/word_family.dart';
 
-/// Une etape du parcours : un lieu, des mots a classer, et les familles qui
-/// ouvrent chacune vers un lieu suivant.
+/// Une etape du parcours : un lieu, des familles a remplir, et les chemins
+/// qu'elles ouvrent.
 ///
-/// Une etape sans famille est terminale : le chat y arrive et l'aventure
-/// s'arrete la.
+/// La nature de l'etape se lit dans sa structure, sans avoir a la declarer :
+/// une etape avec un [encounter] est une rencontre, une etape sans famille est
+/// une arrivee. Declarer le type en plus serait une information en double, qui
+/// finirait par contredire le contenu.
 class Stage {
   const Stage({
     required this.id,
     required this.locationName,
-    required this.narrative,
-    required this.words,
     required this.families,
+    this.narrative = Narrative.none,
     this.backgroundAsset,
+    this.encounter,
     this.visibleWordCount = 6,
   });
 
-  factory Stage.fromJson(Map<String, dynamic> json) {
+  /// Construit l'etape en resolvant mots et personnages.
+  factory Stage.fromJson(
+    Map<String, dynamic> json, {
+    required Lexicon lexicon,
+    required Map<String, Character> characters,
+  }) {
+    final encounter = json['character'] as Map<String, dynamic>?;
+
     return Stage(
       id: json['id'] as String,
-      locationName: json['locationName'] as String,
-      narrative: json['narrative'] as String,
-      backgroundAsset: json['backgroundAsset'] as String?,
+      locationName: json['location'] as String,
+      narrative: Narrative.fromJson(json['narrative']),
+      backgroundAsset: json['background'] as String?,
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
-      words: List<Word>.unmodifiable(
-        (json['words'] as List<dynamic>? ?? <dynamic>[])
-            .map((item) => Word.fromJson(item as Map<String, dynamic>)),
-      ),
+      encounter: encounter == null
+          ? null
+          : Encounter(
+              character: _resolveCharacter(
+                encounter['id'] as String,
+                characters,
+              ),
+              line: encounter['line'] as String,
+            ),
       families: List<WordFamily>.unmodifiable(
         (json['families'] as List<dynamic>? ?? <dynamic>[])
-            .map((item) => WordFamily.fromJson(item as Map<String, dynamic>)),
+            .map((item) => WordFamily.fromJson(
+                  item as Map<String, dynamic>,
+                  lexicon,
+                )),
       ),
     );
+  }
+
+  static Character _resolveCharacter(
+    String id,
+    Map<String, Character> characters,
+  ) {
+    final character = characters[id];
+    if (character == null) {
+      throw FormatException('Personnage inconnu : "$id"');
+    }
+    return character;
   }
 
   final String id;
@@ -40,28 +71,45 @@ class Stage {
   /// Le lieu ou se deroule l'etape, par exemple « La gare ».
   final String locationName;
 
-  /// L'episode d'histoire affiche en arrivant.
-  final String narrative;
-
-  final List<Word> words;
-  final List<WordFamily> families;
+  /// Ce que raconte l'etape, a l'arrivee et au depart.
+  final Narrative narrative;
 
   /// L'illustration de fond, sur laquelle les zones sont posees.
   final String? backgroundAsset;
 
+  /// Le personnage rencontre ici, s'il y en a un.
+  final Encounter? encounter;
+
+  final List<WordFamily> families;
+
   /// Combien de mots sont proposes en meme temps.
   ///
   /// Les autres attendent en reserve : un mot bien classe libere son
-  /// emplacement, qu'un mot de la reserve vient reprendre. Montrer toute la
-  /// liste d'un coup saturerait l'ecran et la lecture.
+  /// emplacement, qu'un mot de la reserve vient reprendre.
   final int visibleWordCount;
+
+  /// Tous les mots de l'etape, qui sont ceux de ses familles.
+  ///
+  /// La liste est derivee et non declaree : la declarer en plus obligerait a
+  /// verifier qu'elle concorde avec les familles, et elle finirait par en
+  /// diverger.
+  List<Word> get words {
+    return List<Word>.unmodifiable(
+      families.expand((family) => family.words),
+    );
+  }
 
   /// Une etape sans famille clot le parcours.
   bool get isTerminal => families.isEmpty;
 
+  /// Vrai si l'etape met en scene un personnage.
+  bool get isEncounter => encounter != null;
+
   Word? findWord(String wordId) {
-    for (final word in words) {
-      if (word.id == wordId) return word;
+    for (final family in families) {
+      for (final word in family.words) {
+        if (word.id == wordId) return word;
+      }
     }
     return null;
   }
@@ -80,57 +128,46 @@ class Stage {
   /// comportement de jeu inexplicable.
   List<String> validate() {
     final issues = <String>[];
-    final wordIds = words.map((word) => word.id).toList();
+    final owners = <String, String>{};
 
-    for (final id in wordIds.toSet()) {
-      if (wordIds.where((other) => other == id).length > 1) {
-        issues.add('Le mot "$id" est declare plusieurs fois.');
-      }
-    }
-
-    final assignedWordIds = <String, String>{};
     for (final family in families) {
-      if (family.wordIds.isEmpty) {
+      if (family.words.isEmpty) {
         issues.add('La famille "${family.id}" ne contient aucun mot.');
       }
-      for (final wordId in family.wordIds) {
-        if (findWord(wordId) == null) {
-          issues.add(
-            'La famille "${family.id}" reference le mot inconnu "$wordId".',
-          );
-        }
+
+      for (final word in family.words) {
         // Un mot classable dans deux familles de la meme etape est exactement
         // le « mot ambigu » que la specification proscrit.
-        final owner = assignedWordIds[wordId];
+        final owner = owners[word.id];
         if (owner != null) {
           issues.add(
-            'Le mot "$wordId" est ambigu : il appartient aux familles '
+            'Le mot "${word.id}" est ambigu : il appartient aux familles '
             '"$owner" et "${family.id}".',
           );
         }
-        assignedWordIds[wordId] = family.id;
+        owners[word.id] = family.id;
+
+        if (word.syllables.isEmpty) {
+          issues.add('Le mot "${word.id}" n\'a pas de decoupage syllabique.');
+        }
+
+        // Un mot dont le texte se retrouve dans le nom de sa famille se classe
+        // en comparant les lettres, sans comprendre le sens.
+        if (family.label.toLowerCase().contains(word.text.toLowerCase())) {
+          issues.add(
+            'Le mot "${word.text}" apparait dans le nom de sa famille '
+            '"${family.label}" : il se classerait sans etre compris.',
+          );
+        }
       }
     }
 
-    for (final word in words) {
-      if (!assignedWordIds.containsKey(word.id)) {
-        issues.add('Le mot "${word.id}" n\'appartient a aucune famille.');
-      }
-      if (word.syllables.isEmpty) {
-        issues.add('Le mot "${word.id}" n\'a pas de decoupage syllabique.');
-      }
-      // Un mot dont le texte se retrouve dans le nom de sa famille se classe
-      // en comparant les lettres, sans comprendre le sens : exactement ce que
-      // le jeu cherche a faire travailler.
-      final familyId = assignedWordIds[word.id];
-      final family = familyId == null ? null : findFamily(familyId);
-      if (family != null &&
-          family.label.toLowerCase().contains(word.text.toLowerCase())) {
-        issues.add(
-          'Le mot "${word.text}" apparait dans le nom de sa famille '
-          '"${family.label}" : il se classerait sans etre compris.',
-        );
-      }
+    // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac :
+    // l'enfant y resterait bloque, sans depart possible.
+    if (families.isNotEmpty && !families.any((family) => family.leadsSomewhere)) {
+      issues.add(
+        'Aucune famille ne mene ailleurs : l\'etape serait sans issue.',
+      );
     }
 
     issues.addAll(_validateAreas());
@@ -169,19 +206,19 @@ class Stage {
   Stage copyWith({
     String? id,
     String? locationName,
-    String? narrative,
-    List<Word>? words,
+    Narrative? narrative,
     List<WordFamily>? families,
     String? backgroundAsset,
+    Encounter? encounter,
     int? visibleWordCount,
   }) {
     return Stage(
       id: id ?? this.id,
       locationName: locationName ?? this.locationName,
       narrative: narrative ?? this.narrative,
-      words: words ?? this.words,
       families: families ?? this.families,
       backgroundAsset: backgroundAsset ?? this.backgroundAsset,
+      encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
     );
   }
@@ -189,11 +226,11 @@ class Stage {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
-      'locationName': locationName,
-      'narrative': narrative,
-      if (backgroundAsset != null) 'backgroundAsset': backgroundAsset,
+      'location': locationName,
+      if (!narrative.isEmpty) 'narrative': narrative.toJson(),
+      if (backgroundAsset != null) 'background': backgroundAsset,
+      if (encounter != null) 'character': encounter!.toJson(),
       'visibleWordCount': visibleWordCount,
-      'words': words.map((word) => word.toJson()).toList(),
       'families': families.map((family) => family.toJson()).toList(),
     };
   }

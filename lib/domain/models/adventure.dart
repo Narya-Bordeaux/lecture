@@ -1,3 +1,5 @@
+import 'package:reading_game/domain/models/character.dart';
+import 'package:reading_game/domain/models/lexicon.dart';
 import 'package:reading_game/domain/models/stage.dart';
 
 /// Une « journee » du chat Grisbie : un ensemble d'etapes reliees entre elles.
@@ -12,10 +14,19 @@ class Adventure {
     required this.stages,
   });
 
-  factory Adventure.fromJson(Map<String, dynamic> json) {
+  /// Construit l'aventure en resolvant mots et personnages.
+  factory Adventure.fromJson(
+    Map<String, dynamic> json, {
+    required Lexicon lexicon,
+    required Map<String, Character> characters,
+  }) {
     final stages = <String, Stage>{};
     for (final item in json['stages'] as List<dynamic>) {
-      final stage = Stage.fromJson(item as Map<String, dynamic>);
+      final stage = Stage.fromJson(
+        item as Map<String, dynamic>,
+        lexicon: lexicon,
+        characters: characters,
+      );
       stages[stage.id] = stage;
     }
 
@@ -59,10 +70,11 @@ class Adventure {
       issues.addAll(stage.validate().map((issue) => '[${stage.id}] $issue'));
 
       for (final family in stage.families) {
-        if (!stages.containsKey(family.destinationStageId)) {
+        final destination = family.destinationStageId;
+        if (destination != null && !stages.containsKey(destination)) {
           issues.add(
             '[${stage.id}] La famille "${family.id}" mene a l\'etape '
-            'inconnue "${family.destinationStageId}".',
+            'inconnue "$destination".',
           );
         }
       }
@@ -73,7 +85,8 @@ class Adventure {
     final reachable = <String>{startStageId};
     for (final stage in stages.values) {
       for (final family in stage.families) {
-        reachable.add(family.destinationStageId);
+        final destination = family.destinationStageId;
+        if (destination != null) reachable.add(destination);
       }
     }
     for (final stageId in stages.keys) {

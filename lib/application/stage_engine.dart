@@ -108,14 +108,18 @@ class StageState {
   int get remainingInSupply => _supply.length;
 
   /// Les directions ouvertes, parmi lesquelles l'enfant choisira de partir.
+  ///
+  /// Une famille qui ne mene nulle part en est exclue, meme complete : c'est
+  /// le cas du classeur de rebut d'une enigme, ou l'enfant range ce qui ne
+  /// repond pas a la question. Le remplir ne doit ouvrir aucun chemin.
   List<AvailableDestination> get availableDestinations {
     return _stage.families
-        .where(_isFamilyComplete)
+        .where((family) => family.leadsSomewhere && _isFamilyComplete(family))
         .map(
           (family) => AvailableDestination(
             familyId: family.id,
             familyLabel: family.label,
-            stageId: family.destinationStageId,
+            stageId: family.destinationStageId!,
           ),
         )
         .toList(growable: false);

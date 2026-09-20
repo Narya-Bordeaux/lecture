@@ -3,10 +3,26 @@ import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/repositories/adventure_repository.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
+import 'package:reading_game/ui/pages/story_moment_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+
+/// Les trois temps d'une etape.
+enum _StagePhase {
+  /// Le recit d'arrivee, avant de jouer.
+  arrival,
+
+  /// Le classement des mots.
+  playing,
+
+  /// Le recit de depart, avant le lieu suivant.
+  completion,
+}
 
 /// Deroule une aventure : charge son contenu, puis enchaine les etapes au fil
 /// des departs de l'enfant.
+///
+/// Chaque etape se joue en trois temps — recit d'arrivee, jeu, recit de
+/// depart — les deux recits etant sautes quand l'etape n'en a pas.
 class AdventurePage extends StatefulWidget {
   const AdventurePage({
     required this.repository,
@@ -24,6 +40,10 @@ class AdventurePage extends StatefulWidget {
 class _AdventurePageState extends State<AdventurePage> {
   late Future<Adventure> _adventureLoading;
   String? _currentStageId;
+  _StagePhase _phase = _StagePhase.arrival;
+
+  /// Ou l'enfant part une fois le recit de depart lu.
+  String? _pendingDestination;
 
   @override
   void initState() {
@@ -31,7 +51,25 @@ class _AdventurePageState extends State<AdventurePage> {
     _adventureLoading = widget.repository.loadAdventure(widget.adventureId);
   }
 
-  void _goTo(String stageId) => setState(() => _currentStageId = stageId);
+  void _enterStage(String stageId) {
+    setState(() {
+      _currentStageId = stageId;
+      _phase = _StagePhase.arrival;
+      _pendingDestination = null;
+    });
+  }
+
+  /// L'enfant quitte le lieu : le recit de depart s'intercale, s'il existe.
+  void _leaveStage(Stage stage, String destination) {
+    if (stage.narrative.onCompletion == null) {
+      _enterStage(destination);
+      return;
+    }
+    setState(() {
+      _phase = _StagePhase.completion;
+      _pendingDestination = destination;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,21 +88,61 @@ class _AdventurePageState extends State<AdventurePage> {
             adventure.findStage(_currentStageId ?? adventure.startStageId) ??
                 adventure.startStage;
 
-        if (stage.isTerminal) {
-          return _TerminalStageView(
-            stage: stage,
-            onRestart: () => _goTo(adventure.startStageId),
-          );
-        }
-
-        return StagePage(
-          // La cle force un etat neuf a chaque etape : sans elle, Flutter
-          // reutiliserait l'etat de l'etape precedente.
-          key: ValueKey<String>(stage.id),
-          stage: stage,
-          onDeparture: _goTo,
-        );
+        return switch (_phase) {
+          _StagePhase.arrival => _buildArrival(stage, adventure),
+          _StagePhase.playing => _buildPlayingOrEnd(stage, adventure),
+          _StagePhase.completion => _buildCompletion(stage, adventure),
+        };
       },
+    );
+  }
+
+  Widget _buildArrival(Stage stage, Adventure adventure) {
+    final text = stage.narrative.onArrival;
+    // Une etape terminale raconte deja son arrivee dans son propre ecran : la
+    // doubler d'un moment de recit afficherait deux fois le meme texte.
+    if (text == null || stage.isTerminal) {
+      return _buildPlayingOrEnd(stage, adventure);
+    }
+
+    return StoryMomentPage(
+      locationName: stage.locationName,
+      text: text,
+      backgroundAsset: stage.backgroundAsset,
+      onContinue: () => setState(() => _phase = _StagePhase.playing),
+    );
+  }
+
+  /// Une etape terminale n'a rien a classer : elle clot l'aventure.
+  Widget _buildPlayingOrEnd(Stage stage, Adventure adventure) {
+    if (stage.isTerminal) {
+      return _TerminalStageView(
+        stage: stage,
+        onRestart: () => _enterStage(adventure.startStageId),
+      );
+    }
+
+    return StagePage(
+      // La cle force un etat neuf a chaque etape : sans elle, Flutter
+      // reutiliserait l'etat de l'etape precedente.
+      key: ValueKey<String>(stage.id),
+      stage: stage,
+      onDeparture: (destination) => _leaveStage(stage, destination),
+    );
+  }
+
+  Widget _buildCompletion(Stage stage, Adventure adventure) {
+    final destination = _pendingDestination;
+    final text = stage.narrative.onCompletion;
+    if (destination == null || text == null) {
+      return _buildPlayingOrEnd(stage, adventure);
+    }
+
+    return StoryMomentPage(
+      locationName: stage.locationName,
+      text: text,
+      backgroundAsset: stage.backgroundAsset,
+      onContinue: () => _enterStage(destination),
     );
   }
 }
@@ -98,7 +176,7 @@ class _TerminalStageView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  stage.narrative,
+                  stage.narrative.onArrival ?? UiStringsFr.adventureEnd,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20,

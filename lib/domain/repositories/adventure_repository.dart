@@ -1,9 +1,14 @@
 import 'package:reading_game/domain/models/adventure.dart';
+import 'package:reading_game/domain/models/content_index.dart';
 
-/// Source des aventures, vue par le moteur.
+/// Source des aventures, vue par l'interface.
 ///
-/// Le moteur ignore d'ou vient le contenu : fichier embarque aujourd'hui, autre
-/// source demain. C'est ce qui permet de le tester sans Flutter.
+/// L'interface ignore d'ou vient le contenu : fichiers embarques aujourd'hui,
+/// autre source demain. C'est ce qui permet de tester le jeu sans Flutter.
 abstract class AdventureRepository {
+  /// Ce qui existe, sans charger les aventures elles-memes.
+  Future<ContentIndex> loadIndex();
+
+  /// Une aventure complete, mots et personnages resolus.
   Future<Adventure> loadAdventure(String adventureId);
 }

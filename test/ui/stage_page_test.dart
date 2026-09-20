@@ -9,33 +9,44 @@ import 'package:reading_game/domain/models/word_family.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
 
+import '../support/stage_builders.dart' as build;
+
 /// Etape sans illustration : les tests portent sur le comportement, pas sur le
 /// decor, et une image absente du bundle de test ferait echouer le rendu.
 Stage buildTestStage() {
-  return const Stage(
+  return build.stage(
     id: 'home',
-    locationName: 'Devant la maison',
-    narrative: 'Grisbie veut aller a la plage.',
-    words: [
-      Word(id: 'bus_stop', text: 'arrêt', syllables: ['ar', 'rêt']),
-      Word(id: 'ticket', text: 'ticket', syllables: ['tic', 'ket']),
-      Word(id: 'shoe', text: 'chaussure', syllables: ['chaus', 'sure']),
-      Word(id: 'path', text: 'sentier', syllables: ['sen', 'tier']),
-    ],
-    families: [
-      WordFamily(
+    location: 'Devant la maison',
+    families: <WordFamily>[
+      build.family(
         id: 'by_bus',
         label: 'En bus',
-        wordIds: {'bus_stop', 'ticket'},
-        destinationStageId: 'station_hall',
-        area: RelativeArea(left: 0.04, top: 0.35, width: 0.4, height: 0.2),
+        words: <Word>[
+          build.word('bus_stop', 'arrêt', <String>['ar', 'rêt']),
+          build.word('ticket', 'ticket', <String>['tic', 'ket']),
+        ],
+        destination: 'station_hall',
+        area: const RelativeArea(
+          left: 0.04,
+          top: 0.35,
+          width: 0.4,
+          height: 0.2,
+        ),
       ),
-      WordFamily(
+      build.family(
         id: 'on_foot',
         label: 'À pied',
-        wordIds: {'shoe', 'path'},
-        destinationStageId: 'street',
-        area: RelativeArea(left: 0.55, top: 0.35, width: 0.4, height: 0.2),
+        words: <Word>[
+          build.word('shoe', 'chaussure', <String>['chaus', 'sure']),
+          build.word('path', 'sentier', <String>['sen', 'tier']),
+        ],
+        destination: 'street',
+        area: const RelativeArea(
+          left: 0.55,
+          top: 0.35,
+          width: 0.4,
+          height: 0.2,
+        ),
       ),
     ],
   );

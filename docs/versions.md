@@ -44,6 +44,50 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.6.0+9 — 20 septembre 2026 — Format de contenu en plusieurs fichiers
+
+Le contenu tenait dans un seul fichier, qui aurait explosé avec six thèmes et
+des rencontres. Il se répartit désormais en quatre sortes de fichiers, décrites
+par `docs/Format_fichier_aventure.md` — un document destiné à qui écrit du
+contenu sans toucher au code.
+
+- `index.json` : le sommaire, qui dit ce qui existe sans rien charger.
+- `lexicon/*.json` : le vocabulaire par domaine. **Chaque mot n'est défini
+  qu'une fois** : dupliqué, il finirait découpé de deux façons différentes, et
+  l'enfant verrait les deux.
+- `characters.json` : les personnages, réutilisables d'une aventure à l'autre.
+- `adventures/*.json` : les lieux, qui ne citent que des identifiants.
+
+Nouveaux modèles : `Lexicon`, `Character`, `Encounter`, `Narrative`,
+`ContentIndex`. Le chargement se fait en trois temps dans `ContentRepository`,
+derrière une abstraction `ContentSource` — les assets en jeu, le disque en test.
+
+**Récit à deux temps.** Chaque lieu porte un `onArrival`, affiché avant de
+jouer, et un `onCompletion`, affiché au départ. Ils occupent un écran à eux
+(`StoryMomentPage`) plutôt que de se glisser dans l'écran de jeu : le bandeau
+des mots touche déjà les zones ancrées haut dans le décor, l'épaissir aurait
+rouvert le défaut corrigé en 0.3.0.
+
+**Rencontres.** Une étape portant un `character` est une rencontre ; sa réplique
+remplace la consigne au-dessus des mots. Le classeur de rebut est une famille
+**sans destination** : `destination` devient optionnel, et une telle famille
+n'ouvre aucun chemin même complète. Aucune notion de « mot intrus » n'a été
+nécessaire.
+
+**Simplification** : les mots sont portés par les familles, `Stage.words` en est
+dérivé. La liste déclarée en double disparaît, et avec elle le risque qu'elle
+diverge des familles.
+
+Pas de champ « type d'étape » : la structure le dit déjà. Un `character` signale
+une rencontre, l'absence de famille une arrivée.
+
+**Défaut trouvé par les tests** : `Lexicon.fromJson` écrasait silencieusement un
+mot défini deux fois dans le **même** fichier — le cas le plus probable, une
+ligne copiée puis mal reprise. Seuls les doublons entre fichiers étaient
+détectés. Les deux le sont désormais, en nommant les coupables.
+
+78 tests au vert, `flutter analyze` sans erreur.
+
 ### 0.5.0+8 — 20 septembre 2026 — Listes pleines, une seule aide
 
 Deux décisions de conception, prises ensemble parce qu'elles reposent sur la
