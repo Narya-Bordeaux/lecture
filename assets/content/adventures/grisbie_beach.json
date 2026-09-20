@@ -1,0 +1,93 @@
+{
+  "id": "grisbie_beach",
+  "title": "Grisbie va à la plage",
+  "startStageId": "home",
+  "stages": [
+    {
+      "id": "home",
+      "locationName": "Devant la maison",
+      "narrative": "Grisbie veut aller à la plage. Comment va-t-il y aller ?",
+      "words": [
+        { "id": "train", "text": "train", "syllables": ["train"] },
+        { "id": "station", "text": "gare", "syllables": ["gare"] },
+        { "id": "shoe", "text": "chaussure", "syllables": ["chaus", "sure"] },
+        { "id": "sidewalk", "text": "trottoir", "syllables": ["trot", "toir"] },
+        { "id": "wheel", "text": "volant", "syllables": ["vo", "lant"] },
+        { "id": "fuel", "text": "essence", "syllables": ["es", "sence"] }
+      ],
+      "families": [
+        {
+          "id": "by_train",
+          "label": "En train",
+          "wordIds": ["train", "station"],
+          "destinationStageId": "station_hall"
+        },
+        {
+          "id": "on_foot",
+          "label": "À pied",
+          "wordIds": ["shoe", "sidewalk"],
+          "destinationStageId": "street"
+        },
+        {
+          "id": "by_car",
+          "label": "En voiture",
+          "wordIds": ["wheel", "fuel"],
+          "destinationStageId": "garage"
+        }
+      ]
+    },
+    {
+      "id": "station_hall",
+      "locationName": "La gare",
+      "narrative": "Grisbie est dans la gare. Il y a du monde partout !",
+      "words": [
+        { "id": "platform", "text": "quai", "syllables": ["quai"] },
+        { "id": "ticket", "text": "billet", "syllables": ["bil", "let"] },
+        { "id": "cake", "text": "gâteau", "syllables": ["gâ", "teau"] },
+        { "id": "newspaper", "text": "journal", "syllables": ["jour", "nal"] }
+      ],
+      "families": [
+        {
+          "id": "take_the_train",
+          "label": "Prendre le train",
+          "wordIds": ["platform", "ticket"],
+          "destinationStageId": "beach"
+        },
+        {
+          "id": "buy_something",
+          "label": "Acheter quelque chose",
+          "wordIds": ["cake", "newspaper"],
+          "destinationStageId": "station_shop"
+        }
+      ]
+    },
+    {
+      "id": "station_shop",
+      "locationName": "La boutique de la gare",
+      "narrative": "Grisbie achète un gâteau. Miam ! Mais le train, lui, n'attend pas.",
+      "words": [],
+      "families": []
+    },
+    {
+      "id": "street",
+      "locationName": "La rue",
+      "narrative": "Grisbie marche sur le trottoir. La plage est encore loin...",
+      "words": [],
+      "families": []
+    },
+    {
+      "id": "garage",
+      "locationName": "Le garage",
+      "narrative": "La voiture est au garage. Elle ne partira pas aujourd'hui.",
+      "words": [],
+      "families": []
+    },
+    {
+      "id": "beach",
+      "locationName": "La plage",
+      "narrative": "Le train est arrivé. Grisbie court sur le sable : la mer est là !",
+      "words": [],
+      "families": []
+    }
+  ]
+}

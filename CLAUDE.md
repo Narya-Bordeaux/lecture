@@ -13,8 +13,9 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.1.2+3** — projet en phase de conception, le code applicatif
-n'est pas encore écrit (`lib/main.dart` est encore le squelette généré par Flutter).
+**Version actuelle : 0.2.0+4** — le moteur de jeu existe et est testé ; il n'y a
+pas encore d'interface (`lib/main.dart` est toujours le squelette généré par
+Flutter, et rien n'affiche encore une étape).
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
@@ -136,9 +137,15 @@ Ne jamais coder en dur une liste de mots dans un widget ou dans le moteur.
 Deux règles issues de la spécification, à respecter dans les données comme dans le
 moteur :
 - Les mots **ambigus** (raisonnablement classables dans plusieurs familles présentes
-  à la même étape) sont à proscrire.
-- Toutes les familles d'une étape acceptent leurs mots, mais seule la famille liée à
-  la direction choisie fait avancer.
+  à la même étape) sont à proscrire. `Stage.validate()` les détecte, et un test le
+  vérifie sur chaque aventure livrée.
+- Compléter une famille **ouvre** sa destination sans y envoyer l'enfant. Plusieurs
+  destinations peuvent être ouvertes à la fois ; seul un départ explicite termine
+  l'étape.
+
+Le découpage syllabique est une donnée du contenu, jamais calculé : le français n'a
+pas de règle de syllabation assez sûre pour être automatisée, et une syllabe fausse
+tromperait l'enfant sur ce que le jeu cherche précisément à travailler.
 
 ## 7. Documentation
 

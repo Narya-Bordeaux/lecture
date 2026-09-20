@@ -1,25 +1,35 @@
 # État courant
 
-**Version : 0.1.2+3** — 20 septembre 2026
+**Version : 0.2.0+4** — 20 septembre 2026
 
 ## Où en est le projet
 
-Phase de conception. La spécification fonctionnelle est en version de travail 0.4 et
-sert de base commune. Le code applicatif n'existe pas encore : `lib/main.dart` est
-toujours le squelette généré par `flutter create`, et `test/widget_test.dart` le test
-de démonstration associé.
+Le moteur de jeu existe et est testé, sans interface. La spécification est en
+version de travail 0.5. `lib/main.dart` est toujours le squelette généré par
+`flutter create` : rien n'est encore affiché à l'écran.
 
-Le dépôt vient d'être préparé en vue d'une éventuelle publication en open source.
+Le dépôt est prêt pour une éventuelle publication en open source.
 
 ## Chantier en cours
 
-Mise en place du cadre de travail (documentation, conventions, versioning,
-outillage). Aucun chantier fonctionnel ouvert.
+**Niveau test « Grisbie va à la plage »** — moteur et contenu livrés, interface à
+faire. C'est le prochain pas : afficher une étape, permettre le glisser-déposer,
+montrer les aides et les destinations ouvertes.
 
-Prochaine étape naturelle : répondre aux questions ouvertes de la spécification,
-puis définir le format du contenu pédagogique avant d'écrire le moteur.
+Le moteur étant indépendant de Flutter, l'interface ne fera que l'appeler et
+afficher son état ; aucune règle de jeu ne doit être réimplémentée dedans.
 
 ## Dernières modifications
+
+### 0.2.0+4 — Moteur d'étape et niveau test
+- Domaine : `Word`, `WordFamily`, `Stage`, `Adventure`, `HintPolicy`, `Hint`.
+- Moteur `StageEngine` : placement, refus immédiat, comptage des erreurs par mot,
+  déblocage des aides, complétion d'une famille, ouverture des destinations,
+  départ à l'initiative de l'enfant.
+- Contenu `assets/content/adventures/grisbie_beach.json` : trois chemins au départ,
+  une étape imbriquée dans la gare, la plage en arrivée.
+- 31 tests au vert, `flutter analyze` sans erreur.
+- Spécification mise à jour (v0.5) d'après les décisions prises en session.
 
 ### 0.1.2+3 — Flutter disponible dans l'environnement cloud
 - Hook de démarrage de session installant le SDK Flutter 3.47.5, version épinglée et
@@ -48,8 +58,16 @@ puis définir le format du contenu pédagogique avant d'écrire le moteur.
 - **Pas de serveur** : la progression reste sur l'appareil. Le public étant mineur,
   aucune donnée personnelle ne sort de la machine. Un backend n'est pas exclu à
   terme, mais ce serait une décision à part entière.
-- **Contenu pédagogique séparé du code** : les mots, familles et niveaux vivront dans
+- **Contenu pédagogique séparé du code** : les mots, familles et niveaux vivent dans
   `assets/content/` en JSON.
+- **Le classement est libre, le départ est choisi** : compléter une famille ouvre sa
+  destination sans y envoyer l'enfant. Plusieurs destinations peuvent être ouvertes
+  en même temps ; l'enfant part quand il le décide.
+- **Aides automatiques** : syllabes dès la 1ʳᵉ erreur sur un mot, illustration à la
+  5ᵉ. L'écart est délibéré — le découpage aide à déchiffrer, l'illustration donne
+  presque la réponse.
+- **Étapes imbriquées** : une destination atteinte ouvre une étape de même nature,
+  avec ses propres familles. Le modèle est récursif, un seul moteur sert partout.
 
 ## Points ouverts
 

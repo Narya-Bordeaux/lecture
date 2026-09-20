@@ -40,7 +40,10 @@ trop longtemps serait de toute façon périmé.
 
 ## Développement
 
-- [ ] Écrire les modèles du domaine : mot, famille, étape, niveau, parcours.
-- [ ] Écrire le moteur d'une étape en TDD : tirage des mots, validation d'un
-      classement, comptage des erreurs, déclenchement des aides, fin d'étape.
+- [ ] Écrire l'interface du niveau test : affichage d'une étape, glisser-déposer,
+      refus visible, aides, destinations ouvertes, départ. L'interface appelle le
+      moteur et n'implémente aucune règle.
 - [ ] Remplacer le squelette de `lib/main.dart` et le test de démonstration.
+- [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
+- [ ] Illustrations des mots : le champ `illustrationAsset` existe et reste vide.
+      Tant qu'il l'est, l'aide « illustration » n'a rien à montrer.

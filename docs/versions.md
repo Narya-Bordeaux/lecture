@@ -44,6 +44,28 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.2.0+4 — 20 septembre 2026 — Moteur d'étape et niveau test
+
+Première livraison de code applicatif. Le moteur applique les règles de classement ;
+rien n'est encore affiché.
+
+- `lib/domain/models/` : `Word` (texte, syllabes, illustration), `WordFamily` (mots
+  et destination desservie), `Stage`, `Adventure`, `Hint`, `HintPolicy`.
+- `lib/application/stage_engine.dart` : `StageEngine` et `StageState`. Placement
+  accepté ou refusé, erreurs comptées par mot, aides débloquées aux seuils,
+  destination ouverte par la complétion d'une famille, départ explicite.
+- `lib/infrastructure/content/` : chargement JSON, avec validation du contenu.
+- `assets/content/adventures/grisbie_beach.json` : le niveau test.
+- 31 tests, `flutter analyze` sans erreur.
+
+Décisions prises en session et reportées dans la spécification (v0.5) : classement
+libre sans engagement préalable, destination rendue disponible et non imposée,
+seuils d'aides à 1 et 5 erreurs, étapes imbriquées.
+
+`validate()` sur `Stage` et `Adventure` détecte les incohérences de contenu, dont
+les mots ambigus que la spécification proscrit. Un test les vérifie sur le niveau
+livré, pour que la règle soit tenue automatiquement plutôt que de mémoire.
+
 ### 0.1.2+3 — 20 septembre 2026 — Flutter disponible dans l'environnement cloud
 
 Les sessions cloud ne disposaient ni de `flutter` ni de `dart` : aucune

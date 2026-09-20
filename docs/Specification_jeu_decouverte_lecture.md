@@ -1,6 +1,6 @@
 # Spécification du jeu de découverte de la lecture
 
-**Version de travail 0.4 — 20 septembre 2026**
+**Version de travail 0.5 — 20 septembre 2026**
 
 ## Objet du document
 
@@ -37,12 +37,20 @@ L'enfant a les différents mots: train / chaussure / panneau / gare / station es
 Quand une famille est remplie, il peut avancer sur cette histoire. Il aura alors un autre mini jeu pour avancer dans la gare, par exemple avec boutique / toilettes / guichet qui lui permettent de valider la gare et d'avancer sur ce chemin afin d'arriver à la plage.
 
 1. Le chemin montre plusieurs destinations, chacune associée dès le départ à une famille de mots.
-2. L’enfant choisit une direction. La mission et le décor rendent compréhensible le lien entre cette direction et les familles correspondantes.
+2. La mission et le décor rendent compréhensible le lien entre chaque direction et la famille correspondante. L’enfant ne s’engage sur aucune direction à ce stade.
 3. L’étape présente plusieurs mots visibles et plusieurs familles désignées par leur nom.
 4. L’enfant choisit un mot et le fait glisser vers le nom de la famille correspondante.
-5. Toutes les familles acceptent leurs mots, l'enfant peut aller à une destination dont il a rempli tous les mots.
-6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Après plusieurs erreurs sur le même mot, il propose automatiquement le découpage syllabique puis l’illustration.
-7. Dès que la famille liée à la direction choisie est entièrement complétée, l’étape se termine, les mots restants disparaissent et l’enfant avance.
+5. Toutes les familles acceptent leurs mots. L’enfant classe librement, dans l’ordre qu’il veut.
+6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Les aides se débloquent sur le mot concerné, voir « Aides à la lecture ».
+7. Dès qu’une famille est entièrement complétée, **sa destination devient disponible** : elle s’active sur la carte, sans que l’enfant y soit envoyé. Il peut continuer à classer et rendre plusieurs destinations disponibles.
+8. L’enfant part quand il le décide, vers la destination disponible de son choix. À ce moment seulement l’étape se termine, les mots restants disparaissent et le chat avance.
+
+### Étapes imbriquées
+
+Une destination atteinte ouvre à son tour une étape de même nature, avec ses
+propres mots et ses propres familles concurrentes. Arriver à la gare ne clôt donc
+pas le parcours : il faut y classer de nouveaux mots pour en repartir. La structure
+est récursive, un lieu contenant une étape qui mène à d’autres lieux.
 
 ## Aides à la lecture
 
@@ -51,8 +59,20 @@ Deux aides peuvent être demandées pendant le classement. Leur disponibilité e
 - Afficher le découpage du mot en syllabes.
 - Afficher une illustration correspondant au mot.
 
+Les aides se débloquent aussi automatiquement, en fonction du nombre d’erreurs
+commises **sur un même mot** :
 
-Après plusieurs erreurs sur le même mot, ces deux aides sont également proposées automatiquement. Le nombre d’erreurs requis et l’ordre d’apparition des aides restent à définir.
+| Erreurs sur le mot | Aide proposée |
+|---|---|
+| 1 | Découpage en syllabes |
+| 5 | Illustration |
+
+L’écart entre les deux seuils est délibéré. Le découpage arrive tôt, car il aide à
+déchiffrer sans livrer le sens : l’enfant garde tout le travail de compréhension.
+L’illustration, qui donne le sens et donc presque la réponse, n’arrive qu’après un
+effort prolongé.
+
+Une aide débloquée sur un mot le reste jusqu’à la fin de l’étape.
 
 ## Progression et difficulté
 
@@ -84,13 +104,12 @@ Les mots ambigus, qui pourraient raisonnablement appartenir à plusieurs famille
 
 | État | Éléments concernés |
 |---|---|
-| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, aides automatiques après des erreurs répétées, choix préalable d’une destination, autres familles classables sans faire avancer, fin de l’étape lorsque la famille associée est complète, disparition des mots restants, retour immédiat aux bifurcations, personnages purement visuels et parcours narratif. |
-| À préciser | Déclenchement et ordre des aides, forme de la carte, contenu d’une étape, niveaux détaillés, récompenses, durée d’une session, suivi de la progression et rôle précis de l’adulte. |
+| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, seuils des aides automatiques (1 et 5 erreurs), classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie. |
+| À préciser | Forme de la carte, niveaux détaillés, récompenses, durée d’une session, suivi de la progression et rôle précis de l’adulte. |
 
 ## Questions ouvertes pour la prochaine version
 
 - Que voit l’enfant sur le chemin avant et après une étape ?
-- Après combien d’erreurs les aides automatiques apparaissent-elles, et dans quel ordre ?
 - Quelle forme générale la carte et ses bifurcations prennent-elles ?
 - Comment le niveau de lecture initial est-il choisi ?
 - Quels contenus, quantités et aides correspondent à chaque niveau ?
