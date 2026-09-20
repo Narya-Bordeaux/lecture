@@ -4,8 +4,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:reading_game/application/stage_engine.dart';
 import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/stage.dart';
+import 'package:reading_game/domain/models/word.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
 
@@ -28,6 +30,9 @@ Stage loadHomeStageWithoutBackground() {
   return adventure.startStage.copyWith(backgroundAsset: '');
 }
 
+/// La graine du melange, partagee entre la page et le moteur temoin.
+const int _seed = 3;
+
 Future<void> pumpRealStage(WidgetTester tester, Size screen) async {
   tester.view.physicalSize = screen;
   tester.view.devicePixelRatio = 1;
@@ -39,11 +44,23 @@ Future<void> pumpRealStage(WidgetTester tester, Size screen) async {
       home: StagePage(
         stage: loadHomeStageWithoutBackground(),
         onDeparture: (_) {},
-        random: Random(3),
+        random: Random(_seed),
       ),
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Un moteur mene en parallele, avec la meme graine que la page.
+///
+/// Les mots proposes sont tires d'une reserve de trente : impossible de viser
+/// un mot ecrit en dur dans le test. Ce temoin dit lesquels sont a l'ecran, et
+/// a quelle famille ils appartiennent.
+StageEngine buildWitnessEngine() {
+  return StageEngine(
+    stage: loadHomeStageWithoutBackground(),
+    random: Random(_seed),
+  );
 }
 
 Future<void> dragWordOnto(
@@ -96,29 +113,75 @@ void main() {
         }
       });
 
-      testWidgets('un mot peut etre depose dans la zone du bus', (
-        tester,
-      ) async {
+      testWidgets('un mot peut etre depose dans chaque zone', (tester) async {
         await pumpRealStage(tester, screen);
+        final witness = buildWitnessEngine();
+        final stage = witness.stage;
 
-        await dragWordOnto(tester, word: 'arrêt', familyLabel: 'En bus');
+        // Un mot par famille, pour eprouver les trois zones — dont celle du
+        // bus, la plus haute et donc la plus exposee au recouvrement.
+        for (final family in stage.families) {
+          final word = witness.visibleWords.whereType<Word>().firstWhere(
+                (word) => family.accepts(word.id),
+                orElse: () => stage.findWord(family.wordIds.first)!,
+              );
+          if (!witness.visibleWords.contains(word)) continue;
 
-        expect(
-          find.text(UiStringsFr.familyProgress(1, 2)),
-          findsOneWidget,
-          reason: 'Le depot dans la zone la plus haute n\'a pas abouti',
-        );
+          await dragWordOnto(
+            tester,
+            word: word.text,
+            familyLabel: family.label,
+          );
+          witness.placeWord(wordId: word.id, familyId: family.id);
+
+          expect(
+            find.text(UiStringsFr.familyProgress(1, family.requiredCount)),
+            findsWidgets,
+            reason: 'Le depot dans la zone "${family.label}" n\'a pas abouti',
+          );
+        }
       });
 
-      testWidgets('le parcours complet vers le bus reste jouable', (
+      testWidgets('ouvrir un chemin reste jouable de bout en bout', (
         tester,
       ) async {
         await pumpRealStage(tester, screen);
+        final witness = buildWitnessEngine();
+        final family = witness.stage.families.first;
 
-        await dragWordOnto(tester, word: 'arrêt', familyLabel: 'En bus');
-        await dragWordOnto(tester, word: 'ticket', familyLabel: 'En bus');
+        // On classe jusqu'a l'objectif, en suivant les mots reellement
+        // proposes : chaque reussite en fait apparaitre un nouveau.
+        //
+        // Il arrive qu'aucun mot de la famille visee ne soit a l'ecran — le
+        // tirage est libre. L'enfant classe alors ailleurs, ce qui renouvelle
+        // la reserve ; le test fait de meme plutot que de rester bloque.
+        var safety = 0;
+        while (witness.state.placedCountIn(family.id) < family.requiredCount) {
+          expect(safety++, lessThan(40), reason: 'Progression impossible');
 
-        expect(find.text(UiStringsFr.departTo('en bus')), findsOneWidget);
+          final visible = witness.visibleWords.whereType<Word>().toList();
+          expect(visible, isNotEmpty, reason: 'Plus aucun mot propose');
+
+          final word = visible.firstWhere(
+            (word) => family.accepts(word.id),
+            orElse: () => visible.first,
+          );
+          final target = witness.stage.families.firstWhere(
+            (candidate) => candidate.accepts(word.id),
+          );
+
+          await dragWordOnto(
+            tester,
+            word: word.text,
+            familyLabel: target.label,
+          );
+          witness.placeWord(wordId: word.id, familyId: target.id);
+        }
+
+        expect(
+          find.text(UiStringsFr.departTo(family.label.toLowerCase())),
+          findsOneWidget,
+        );
       });
     });
   });

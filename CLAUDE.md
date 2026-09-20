@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.3.0+5** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.4.0+6** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -154,6 +154,12 @@ le détecte et un test le vérifie.
 chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
 repérées en fractions de l'image, jamais en pixels, pour rester collées au décor
 quelle que soit la taille de l'écran.
+
+**Réserve et objectif** — une famille a plus de mots que l'étape n'en montre
+(`Stage.visibleWordCount`). Un mot bien classé est remplacé sur place par un mot
+de la réserve. `WordFamily.goal` dit combien de mots ouvrent la destination :
+sans lui, il faudrait classer presque toute l'étape avant d'ouvrir un chemin.
+C'est cet objectif que l'enfant voit sur la zone, pas la taille de la réserve.
 
 ## 7. Interface
 

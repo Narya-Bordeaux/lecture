@@ -68,6 +68,9 @@ class StageState {
   final Map<String, Set<Hint>> _requestedHints = <String, Set<Hint>>{};
   String? _departedTo;
 
+  /// Les mots qui attendent leur tour, dans l'ordre ou ils apparaitront.
+  final List<Word> _supply = <Word>[];
+
   /// Les mots deja poses dans leur famille.
   Set<String> get placedWordIds => Set<String>.unmodifiable(_placements.keys);
 
@@ -88,13 +91,21 @@ class StageState {
     };
   }
 
-  /// Les familles dont tous les mots ont ete places.
+  /// Les familles dont l'objectif est atteint.
   Set<String> get completedFamilyIds {
     return _stage.families
         .where(_isFamilyComplete)
         .map((family) => family.id)
         .toSet();
   }
+
+  /// Combien de mots de cette famille ont ete classes.
+  int placedCountIn(String familyId) {
+    return _placements.values.where((id) => id == familyId).length;
+  }
+
+  /// Combien de mots attendent encore en reserve.
+  int get remainingInSupply => _supply.length;
 
   /// Les directions ouvertes, parmi lesquelles l'enfant choisira de partir.
   List<AvailableDestination> get availableDestinations {
@@ -117,9 +128,7 @@ class StageState {
   String? get departedTo => _departedTo;
 
   bool _isFamilyComplete(WordFamily family) {
-    return family.wordIds.every(
-      (wordId) => _placements[wordId] == family.id,
-    );
+    return placedCountIn(family.id) >= family.requiredCount;
   }
 }
 
@@ -134,7 +143,9 @@ class StageEngine {
     Random? random,
   })  : _stage = stage,
         _random = random ?? Random(),
-        state = StageState._(stage, hintPolicy);
+        state = StageState._(stage, hintPolicy) {
+    _fillInitialSlots();
+  }
 
   final Stage _stage;
   final Random _random;
@@ -142,15 +153,27 @@ class StageEngine {
   /// L'etat courant, expose en lecture a l'interface.
   final StageState state;
 
+  /// Les emplacements affiches. Un emplacement vide vaut null : la reserve est
+  /// epuisee et la grille se vide sans que les mots restants ne bougent.
+  final List<Word?> _slots = <Word?>[];
+
   Stage get stage => _stage;
 
-  /// Les mots dans l'ordre ou les presenter, melange une fois pour l'etape.
+  /// Les mots proposes en ce moment, emplacement par emplacement.
+  List<Word?> get visibleWords => List<Word?>.unmodifiable(_slots);
+
+  /// Constitue la reserve melangee, puis garnit les emplacements.
   ///
-  /// Le melange passe par le [Random] injecte : a graine fixee, l'ordre est
-  /// reproductible, ce qui rend les tests deterministes.
-  late final List<Word> shuffledWords = List<Word>.unmodifiable(
-    List<Word>.of(_stage.words)..shuffle(_random),
-  );
+  /// Le melange passe par le [Random] injecte : a graine fixee, la suite des
+  /// mots est reproductible, ce qui rend les tests deterministes.
+  void _fillInitialSlots() {
+    state._supply.addAll(List<Word>.of(_stage.words)..shuffle(_random));
+
+    final slotCount = _stage.visibleWordCount.clamp(1, _stage.words.length);
+    for (var slot = 0; slot < slotCount; slot++) {
+      _slots.add(state._supply.isEmpty ? null : state._supply.removeAt(0));
+    }
+  }
 
   /// Tente de poser [wordId] dans [familyId].
   ///
@@ -198,11 +221,25 @@ class StageEngine {
     }
 
     state._placements[wordId] = familyId;
+    _refillSlotOf(wordId);
+
     return PlacementResult(
       accepted: true,
       unlockedHints: const <Hint>{},
       completedFamilyId: state._isFamilyComplete(family) ? family.id : null,
     );
+  }
+
+  /// Remplace le mot qui vient d'etre classe par le suivant de la reserve.
+  ///
+  /// Le nouveau mot reprend exactement l'emplacement libere, et lui seul : les
+  /// autres mots ne bougent pas, pour que l'enfant ne perde pas des yeux celui
+  /// qu'il etait en train de dechiffrer.
+  void _refillSlotOf(String wordId) {
+    final slot = _slots.indexWhere((word) => word?.id == wordId);
+    if (slot < 0) return;
+
+    _slots[slot] = state._supply.isEmpty ? null : state._supply.removeAt(0);
   }
 
   /// Comptabilise l'erreur et retourne les aides qu'elle fait apparaitre.

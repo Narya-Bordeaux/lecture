@@ -44,6 +44,40 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.4.0+6 — 20 septembre 2026 — Réserve de dix mots par famille
+
+Chaque famille dispose désormais d'une liste de dix mots. Six sont proposés à la
+fois ; un mot bien classé est remplacé par un mot de la réserve.
+
+- `Stage.visibleWordCount` : combien de mots sont proposés en même temps (6).
+- `WordFamily.goal` et `requiredCount` : combien de mots ouvrent la destination.
+- `StageEngine` : emplacements et réserve. `shuffledWords` devient `visibleWords`,
+  une liste d'emplacements où un vide vaut `null`.
+- `StageState.remainingInSupply` et `placedCountIn`.
+- Contenu : trois listes de dix mots pour « En bus », « En voiture » et « À pied ».
+
+Le mot qui arrive reprend **exactement** l'emplacement libéré, et lui seul : les
+autres ne bougent pas, pour que l'enfant ne perde pas des yeux celui qu'il était
+en train de déchiffrer. Un mot mal classé ne déclenche aucun renouvellement.
+
+**Objectif plus court, à valider.** Avec dix mots par famille, la règle
+précédente — classer toute la liste — aurait demandé près de trente placements
+avant d'ouvrir le moindre chemin, bien au-delà de l'attention d'un enfant de six
+ans. Une famille s'ouvre donc au bout de cinq mots, réglable famille par famille
+dans le contenu. La zone affiche l'avancement vers cet objectif, pas vers la
+réserve, et le compte est borné pour ne jamais afficher « 6 / 5 ».
+
+Conséquence du tirage libre, également à valider : il peut arriver qu'aucun mot
+d'une famille donnée ne soit à l'écran. L'enfant classe alors ailleurs, ce qui
+renouvelle la réserve. Cela l'oblige à lire tous les mots, mais peut contrarier
+qui vise une destination précise.
+
+Les tests d'interface ne peuvent plus viser un mot écrit en dur, puisque les six
+mots affichés sont tirés de trente. Ils mènent un moteur témoin avec la même
+graine, qui dit lesquels sont à l'écran.
+
+65 tests au vert, `flutter analyze` sans erreur.
+
 ### 0.3.0+5 — 20 septembre 2026 — Interface du niveau test
 
 Le niveau test devient jouable.

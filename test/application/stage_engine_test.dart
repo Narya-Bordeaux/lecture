@@ -291,20 +291,23 @@ void main() {
   });
 
   group('Presentation des mots', () {
-    test('tous les mots a classer sont proposes', () {
+    test('tous les mots tiennent dans les emplacements de cette etape', () {
+      // Quatre mots et six emplacements : la totalite est proposee d'emblee,
+      // sans reserve.
       final engine = buildEngine();
 
       expect(
-        engine.shuffledWords.map((word) => word.id).toSet(),
+        engine.visibleWords.whereType<Word>().map((word) => word.id).toSet(),
         buildTestStage().words.map((word) => word.id).toSet(),
       );
+      expect(engine.state.remainingInSupply, 0);
     });
 
     test('l\'ordre est reproductible a graine egale', () {
-      final first = buildEngine().shuffledWords.map((w) => w.id).toList();
-      final second = buildEngine().shuffledWords.map((w) => w.id).toList();
+      List<String?> ids(StageEngine engine) =>
+          engine.visibleWords.map((word) => word?.id).toList();
 
-      expect(first, second);
+      expect(ids(buildEngine()), ids(buildEngine()));
     });
   });
 }

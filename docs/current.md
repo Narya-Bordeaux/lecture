@@ -1,16 +1,18 @@
 # État courant
 
-**Version : 0.3.0+5** — 20 septembre 2026
+**Version : 0.4.0+6** — 20 septembre 2026
 
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
 `Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
 bus, la voiture et le sentier, glisser-déposer, aides et bouton de départ.
-La spécification est en version de travail 0.5.
+Chaque famille puise dans une liste de dix mots, et un mot bien classé est
+remplacé sur place par un mot de la réserve. La spécification est en version de
+travail 0.6.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 50 tests.
+Seul le comportement est prouvé, par 65 tests.
 
 ## Chantier en cours
 
@@ -18,7 +20,19 @@ Seul le comportement est prouvé, par 50 tests.
 appareil, puis à traiter la suite du parcours : la gare n'a pas d'illustration et
 ses zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
 
+Deux réglages attendent un avis : l'**objectif** de cinq mots par famille, et le
+**tirage libre** qui peut ne proposer aucun mot d'une famille donnée.
+
 ## Dernières modifications
+
+### 0.4.0+6 — Réserve de dix mots par famille
+- Trois listes de dix mots ; six sont proposés à la fois, les autres attendent.
+- Un mot bien classé est remplacé **sur place** par un mot de la réserve ; les
+  autres mots ne bougent pas. Un mot mal classé ne déclenche rien.
+- Objectif réglable par famille (`goal`), fixé à 5 : sans lui, il faudrait près
+  de trente classements pour ouvrir un chemin.
+- La zone affiche l'avancement vers l'objectif (« 3 / 5 »), pas vers la réserve.
+- 65 tests au vert.
 
 ### 0.3.0+5 — Interface du niveau test
 - Décor plein écran, six étiquettes en grille 2 × 3, trois zones translucides

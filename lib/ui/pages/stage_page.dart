@@ -93,12 +93,8 @@ class _StagePageState extends State<StagePage> {
     setState(() {});
   }
 
-  /// Les mots encore a classer, dans l'ordre melange par le moteur.
-  List<Word> get _remainingWords {
-    return _engine.shuffledWords
-        .where((word) => !_engine.state.placedWordIds.contains(word.id))
-        .toList(growable: false);
-  }
+  /// Les emplacements proposes par le moteur, vides compris.
+  List<Word?> get _visibleSlots => _engine.visibleWords;
 
   List<Word> _wordsPlacedIn(String familyId) {
     return _engine.state.placements.entries
@@ -140,7 +136,7 @@ class _StagePageState extends State<StagePage> {
             child: Column(
               children: <Widget>[
                 _WordTray(
-                  words: _remainingWords,
+                  slots: _visibleSlots,
                   hintsFor: _engine.state.hintsFor,
                   shakeKeys: _shakeKeys,
                 ),
@@ -159,25 +155,28 @@ class _StagePageState extends State<StagePage> {
   }
 }
 
-/// La grille des mots restant a classer, en haut de l'ecran.
+/// La grille des mots proposes, en haut de l'ecran.
+///
+/// Chaque case correspond a un emplacement du moteur, et garde sa position :
+/// un mot classe est remplace sur place par un mot de la reserve, les autres
+/// ne bougent pas.
 class _WordTray extends StatelessWidget {
   const _WordTray({
-    required this.words,
+    required this.slots,
     required this.hintsFor,
     required this.shakeKeys,
   });
 
-  /// Trois colonnes : avec six mots, deux lignes pleines, et la grille garde
-  /// sa forme a mesure qu'elle se vide.
+  /// Trois colonnes : avec six emplacements, deux lignes pleines.
   static const int _columns = 3;
 
-  final List<Word> words;
+  final List<Word?> slots;
   final Set<Hint> Function(String wordId) hintsFor;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
 
   @override
   Widget build(BuildContext context) {
-    if (words.isEmpty) return const SizedBox.shrink();
+    if (slots.every((word) => word == null)) return const SizedBox.shrink();
 
     // La hauteur de ce bandeau est contrainte : les zones de depot sont
     // ancrees au decor, et la premiere — le bus — commence vers 29 % de la
@@ -204,7 +203,7 @@ class _WordTray extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          for (final row in _rows(words))
+          for (final row in _rows(slots))
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Row(
@@ -213,17 +212,19 @@ class _WordTray extends StatelessWidget {
                   for (final word in row)
                     Expanded(
                       child: Center(
-                        child: Shake(
-                          key: shakeKeys[word.id],
-                          child: DraggableWordLabel(
-                            word: word,
-                            hints: hintsFor(word.id),
-                          ),
-                        ),
+                        // Un emplacement vide garde sa place : la grille ne se
+                        // reorganise pas sous les doigts de l'enfant.
+                        child: word == null
+                            ? const SizedBox.shrink()
+                            : Shake(
+                                key: shakeKeys[word.id],
+                                child: DraggableWordLabel(
+                                  word: word,
+                                  hints: hintsFor(word.id),
+                                ),
+                              ),
                       ),
                     ),
-                  // Cases vides de fin de ligne : les mots restants gardent
-                  // leur position au lieu de se recentrer a chaque reussite.
                   for (var i = row.length; i < _columns; i++)
                     const Expanded(child: SizedBox.shrink()),
                 ],
@@ -234,12 +235,10 @@ class _WordTray extends StatelessWidget {
     );
   }
 
-  List<List<Word>> _rows(List<Word> words) {
-    final rows = <List<Word>>[];
-    for (var start = 0; start < words.length; start += _columns) {
-      rows.add(
-        words.sublist(start, min(start + _columns, words.length)),
-      );
+  List<List<Word?>> _rows(List<Word?> slots) {
+    final rows = <List<Word?>>[];
+    for (var start = 0; start < slots.length; start += _columns) {
+      rows.add(slots.sublist(start, min(start + _columns, slots.length)));
     }
     return rows;
   }

@@ -14,6 +14,7 @@ class Stage {
     required this.words,
     required this.families,
     this.backgroundAsset,
+    this.visibleWordCount = 6,
   });
 
   factory Stage.fromJson(Map<String, dynamic> json) {
@@ -22,6 +23,7 @@ class Stage {
       locationName: json['locationName'] as String,
       narrative: json['narrative'] as String,
       backgroundAsset: json['backgroundAsset'] as String?,
+      visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       words: List<Word>.unmodifiable(
         (json['words'] as List<dynamic>? ?? <dynamic>[])
             .map((item) => Word.fromJson(item as Map<String, dynamic>)),
@@ -46,6 +48,13 @@ class Stage {
 
   /// L'illustration de fond, sur laquelle les zones sont posees.
   final String? backgroundAsset;
+
+  /// Combien de mots sont proposes en meme temps.
+  ///
+  /// Les autres attendent en reserve : un mot bien classe libere son
+  /// emplacement, qu'un mot de la reserve vient reprendre. Montrer toute la
+  /// liste d'un coup saturerait l'ecran et la lecture.
+  final int visibleWordCount;
 
   /// Une etape sans famille clot le parcours.
   bool get isTerminal => families.isEmpty;
@@ -164,6 +173,7 @@ class Stage {
     List<Word>? words,
     List<WordFamily>? families,
     String? backgroundAsset,
+    int? visibleWordCount,
   }) {
     return Stage(
       id: id ?? this.id,
@@ -172,6 +182,7 @@ class Stage {
       words: words ?? this.words,
       families: families ?? this.families,
       backgroundAsset: backgroundAsset ?? this.backgroundAsset,
+      visibleWordCount: visibleWordCount ?? this.visibleWordCount,
     );
   }
 
@@ -181,6 +192,7 @@ class Stage {
       'locationName': locationName,
       'narrative': narrative,
       if (backgroundAsset != null) 'backgroundAsset': backgroundAsset,
+      'visibleWordCount': visibleWordCount,
       'words': words.map((word) => word.toJson()).toList(),
       'families': families.map((family) => family.toJson()).toList(),
     };

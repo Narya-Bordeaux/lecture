@@ -43,6 +43,13 @@ trop longtemps serait de toute façon périmé.
 - [ ] **Juger le rendu réel sur appareil** : le jeu n'a jamais été vu à l'écran,
       aucun build n'étant possible en session cloud. Position des trois zones,
       taille des étiquettes, lisibilité sur le décor.
+- [ ] Trancher l'**objectif** par famille, fixé à 5 sur 10 mots. Combien de mots
+      un enfant doit-il classer pour ouvrir un chemin ?
+- [ ] Trancher le **tirage** : il est libre, donc aucun mot d'une famille donnée
+      peut n'être à l'écran. Faut-il garantir au moins un mot par famille ?
+- [ ] Relire les trois listes de dix mots. Quelques-uns valent pour le bus comme
+      pour la voiture — `ceinture`, `phare`, `pneu` — et `abri` est vague hors du
+      contexte de l'abribus.
 - [ ] Illustrer les autres étapes : la gare n'a ni décor ni zones placées, elle
       s'affiche sur fond uni.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).

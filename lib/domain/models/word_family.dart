@@ -11,6 +11,7 @@ class WordFamily {
     required this.wordIds,
     required this.destinationStageId,
     this.area,
+    this.goal,
   });
 
   factory WordFamily.fromJson(Map<String, dynamic> json) {
@@ -25,6 +26,7 @@ class WordFamily {
       area: area == null
           ? null
           : RelativeArea.fromJson(area as Map<String, dynamic>),
+      goal: json['goal'] as int?,
     );
   }
 
@@ -43,6 +45,22 @@ class WordFamily {
   /// bus. Absent pour une famille sans ancrage visuel.
   final RelativeArea? area;
 
+  /// Combien de mots suffisent a ouvrir la destination, si moins que la liste
+  /// entiere.
+  ///
+  /// La famille puise dans une reserve plus large que ce qui est affiche : sans
+  /// objectif plus court, il faudrait classer presque tous les mots de l'etape
+  /// avant d'ouvrir le moindre chemin, ce qui depasse largement l'attention
+  /// d'un enfant de six ans.
+  final int? goal;
+
+  /// Le nombre de mots reellement demande pour ouvrir la destination.
+  int get requiredCount {
+    final goal = this.goal;
+    if (goal == null || goal > wordIds.length) return wordIds.length;
+    return goal < 1 ? 1 : goal;
+  }
+
   /// Vrai si ce mot appartient a la famille.
   bool accepts(String wordId) => wordIds.contains(wordId);
 
@@ -52,6 +70,7 @@ class WordFamily {
     Set<String>? wordIds,
     String? destinationStageId,
     RelativeArea? area,
+    int? goal,
   }) {
     return WordFamily(
       id: id ?? this.id,
@@ -59,6 +78,7 @@ class WordFamily {
       wordIds: wordIds ?? this.wordIds,
       destinationStageId: destinationStageId ?? this.destinationStageId,
       area: area ?? this.area,
+      goal: goal ?? this.goal,
     );
   }
 
@@ -69,6 +89,7 @@ class WordFamily {
       'wordIds': wordIds.toList(),
       'destinationStageId': destinationStageId,
       if (area != null) 'area': area!.toJson(),
+      if (goal != null) 'goal': goal,
     };
   }
 

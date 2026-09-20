@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reading_game/application/stage_engine.dart';
 import 'package:reading_game/domain/models/adventure.dart';
+import 'package:reading_game/domain/models/word.dart';
 
 /// Lit le contenu depuis le disque plutot que depuis le bundle : ce test porte
 /// sur les donnees pedagogiques elles-memes, pas sur leur chargement par
@@ -29,12 +30,40 @@ void main() {
       expect(adventure.validate(), isEmpty);
     });
 
-    test('l\'etape de depart propose trois chemins', () {
+    test('l\'etape de depart propose trois chemins de dix mots', () {
       final start = adventure.startStage;
 
       expect(start.id, 'home');
       expect(start.families, hasLength(3));
-      expect(start.words, hasLength(6));
+      expect(start.words, hasLength(30));
+      for (final family in start.families) {
+        expect(
+          family.wordIds,
+          hasLength(10),
+          reason: 'La famille "${family.id}" n\'a pas dix mots',
+        );
+      }
+    });
+
+    test('six mots sont proposes a la fois, les autres attendent', () {
+      final start = adventure.startStage;
+      final engine = StageEngine(stage: start, random: Random(1));
+
+      expect(start.visibleWordCount, 6);
+      expect(engine.visibleWords.whereType<Word>(), hasLength(6));
+      expect(engine.state.remainingInSupply, 24);
+    });
+
+    test('chaque famille s\'ouvre avant d\'avoir epuise sa liste', () {
+      // Sans objectif plus court, il faudrait classer presque tous les mots de
+      // l'etape avant d'ouvrir le moindre chemin.
+      for (final family in adventure.startStage.families) {
+        expect(
+          family.requiredCount,
+          lessThan(family.wordIds.length),
+          reason: 'La famille "${family.id}" demande toute sa liste',
+        );
+      }
     });
 
     test('l\'etape de depart pose ses trois zones sur l\'illustration', () {
@@ -102,10 +131,14 @@ void main() {
     test('classer puis partir mene de la maison a la mer', () {
       final adventure = loadAdventureFromDisk('grisbie_beach');
 
-      // Premiere etape : choisir le bus.
+      // Premiere etape : classer assez de mots « bus » pour ouvrir la gare.
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
-      home.placeWord(wordId: 'bus_stop', familyId: 'by_bus');
-      home.placeWord(wordId: 'ticket', familyId: 'by_bus');
+      final busFamily = adventure.startStage.families.firstWhere(
+        (family) => family.id == 'by_bus',
+      );
+      for (final wordId in busFamily.wordIds.take(busFamily.requiredCount)) {
+        home.placeWord(wordId: wordId, familyId: 'by_bus');
+      }
 
       expect(home.state.availableDestinations, hasLength(1));
       home.departTo('station_hall');
@@ -128,11 +161,15 @@ void main() {
       final adventure = loadAdventureFromDisk('grisbie_beach');
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
 
-      // L'enfant remplit deux familles avant de se decider.
-      home.placeWord(wordId: 'shoe', familyId: 'on_foot');
-      home.placeWord(wordId: 'path', familyId: 'on_foot');
-      home.placeWord(wordId: 'bus_stop', familyId: 'by_bus');
-      home.placeWord(wordId: 'ticket', familyId: 'by_bus');
+      // L'enfant ouvre deux chemins avant de se decider.
+      for (final familyId in <String>['on_foot', 'by_bus']) {
+        final family = adventure.startStage.families.firstWhere(
+          (family) => family.id == familyId,
+        );
+        for (final wordId in family.wordIds.take(family.requiredCount)) {
+          home.placeWord(wordId: wordId, familyId: familyId);
+        }
+      }
 
       expect(home.state.availableDestinations, hasLength(2));
       expect(home.state.isFinished, isFalse);

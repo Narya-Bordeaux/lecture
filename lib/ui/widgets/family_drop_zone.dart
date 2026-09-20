@@ -69,8 +69,14 @@ class FamilyDropZone extends StatelessWidget {
               children: <Widget>[
                 _ZoneTitle(
                   label: family.label,
-                  placed: placedWords.length,
-                  total: family.wordIds.length,
+                  // L'avancement se compte vers l'objectif, pas vers la
+                  // reserve : l'enfant doit voir ce qui lui reste a faire pour
+                  // ouvrir le chemin, pas la taille cachee de la liste. Le
+                  // compte est borne, pour ne jamais afficher « 6 / 5 ».
+                  placed: placedWords.length > family.requiredCount
+                      ? family.requiredCount
+                      : placedWords.length,
+                  total: family.requiredCount,
                 ),
                 if (placedWords.isNotEmpty) ...<Widget>[
                   const SizedBox(height: 4),

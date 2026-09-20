@@ -1,6 +1,6 @@
 # Spécification du jeu de découverte de la lecture
 
-**Version de travail 0.5 — 20 septembre 2026**
+**Version de travail 0.6 — 20 septembre 2026**
 
 ## Objet du document
 
@@ -42,8 +42,28 @@ Quand une famille est remplie, il peut avancer sur cette histoire. Il aura alors
 4. L’enfant choisit un mot et le fait glisser vers le nom de la famille correspondante.
 5. Toutes les familles acceptent leurs mots. L’enfant classe librement, dans l’ordre qu’il veut.
 6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Les aides se débloquent sur le mot concerné, voir « Aides à la lecture ».
-7. Dès qu’une famille est entièrement complétée, **sa destination devient disponible** : elle s’active sur la carte, sans que l’enfant y soit envoyé. Il peut continuer à classer et rendre plusieurs destinations disponibles.
+7. Dès qu’une famille atteint son objectif, **sa destination devient disponible** : elle s’active sur la carte, sans que l’enfant y soit envoyé. Il peut continuer à classer et rendre plusieurs destinations disponibles.
 8. L’enfant part quand il le décide, vers la destination disponible de son choix. À ce moment seulement l’étape se termine, les mots restants disparaissent et le chat avance.
+
+### Réserve de mots et renouvellement
+
+Une famille dispose d'une liste plus longue que ce qui est montré. L'étape
+propose un nombre fixe de mots — six au départ — et garde les autres en réserve.
+
+**Dès qu'un mot est bien classé, il quitte la grille et un mot de la réserve
+vient reprendre sa place**, et seulement la sienne : les autres mots ne bougent
+pas, pour que l'enfant ne perde pas des yeux celui qu'il était en train de
+déchiffrer. Un mot mal classé ne déclenche aucun renouvellement.
+
+Le tirage est libre : il peut arriver qu'aucun mot d'une famille donnée ne soit
+à l'écran. L'enfant classe alors ailleurs, ce qui renouvelle la réserve. Cela
+l'oblige à lire tous les mots plutôt qu'à se concentrer sur une seule famille.
+
+> **À valider.** Avec dix mots par famille, exiger la liste entière
+> demanderait près de trente classements avant d'ouvrir le moindre chemin. Une
+> famille ouvre donc sa destination au bout d'un **objectif** plus court, fixé
+> à cinq. C'est ce nombre que l'enfant voit sur la zone (« 3 / 5 »), et il se
+> règle famille par famille dans le contenu.
 
 ### Étapes imbriquées
 
