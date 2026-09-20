@@ -13,9 +13,9 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.2.0+4** — le moteur de jeu existe et est testé ; il n'y a
-pas encore d'interface (`lib/main.dart` est toujours le squelette généré par
-Flutter, et rien n'affiche encore une étape).
+**Version actuelle : 0.3.0+5** — le niveau test est jouable : moteur, contenu et
+interface de l'étape de départ. Une seule aventure existe, et la progression
+n'est pas encore enregistrée.
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
@@ -116,9 +116,8 @@ contenu et sa persistance, il ne les construit pas.
 **Aléa** — jamais de `Random()` construit dans la logique de jeu : injecter un
 `Random` (graine fixée en test). Sans cela le tirage des mots n'est pas testable.
 
-**Chaînes d'interface** — centralisées dans `lib/ui/strings/ui_strings_fr.dart`
-(à créer dès la première chaîne affichée). À ne pas confondre avec le contenu
-pédagogique, voir §6.
+**Chaînes d'interface** — centralisées dans `lib/ui/strings/ui_strings_fr.dart`.
+À ne pas confondre avec le contenu pédagogique, voir §6.
 
 **Grep avant de créer** — chercher si un widget, service ou modèle similaire existe
 déjà avant d'en créer un nouveau.
@@ -147,7 +146,29 @@ Le découpage syllabique est une donnée du contenu, jamais calculé : le franç
 pas de règle de syllabation assez sûre pour être automatisée, et une syllabe fausse
 tromperait l'enfant sur ce que le jeu cherche précisément à travailler.
 
-## 7. Documentation
+**Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
+bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
+le détecte et un test le vérifie.
+
+**Décor et zones** — l'illustration d'une étape (`backgroundAsset`) et l'endroit de
+chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
+repérées en fractions de l'image, jamais en pixels, pour rester collées au décor
+quelle que soit la taille de l'écran.
+
+## 7. Interface
+
+`lib/ui/` n'applique aucune règle : elle transmet les gestes au moteur et affiche
+l'état qu'il renvoie. Décider dans un widget si un mot est bien placé dupliquerait
+le moteur et ferait diverger les deux.
+
+**Piège de mise en page, vérifié par les tests** — le bandeau des mots occupe le
+haut de l'écran, or les zones sont ancrées au décor et la première commence vers
+29 % de la hauteur. Un bandeau trop haut la recouvre et intercepte le doigt : le
+mot n'atteint jamais sa cible, sans le moindre message. `test/ui/real_content_layout_test.dart`
+monte l'étape réelle sur trois formats d'écran et échoue si cela se reproduit.
+Tout changement de taille dans le bandeau doit être revalidé là.
+
+## 8. Documentation
 
 | Fichier | Contenu |
 |---|---|

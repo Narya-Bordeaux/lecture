@@ -13,6 +13,7 @@ class Stage {
     required this.narrative,
     required this.words,
     required this.families,
+    this.backgroundAsset,
   });
 
   factory Stage.fromJson(Map<String, dynamic> json) {
@@ -20,6 +21,7 @@ class Stage {
       id: json['id'] as String,
       locationName: json['locationName'] as String,
       narrative: json['narrative'] as String,
+      backgroundAsset: json['backgroundAsset'] as String?,
       words: List<Word>.unmodifiable(
         (json['words'] as List<dynamic>? ?? <dynamic>[])
             .map((item) => Word.fromJson(item as Map<String, dynamic>)),
@@ -41,6 +43,9 @@ class Stage {
 
   final List<Word> words;
   final List<WordFamily> families;
+
+  /// L'illustration de fond, sur laquelle les zones sont posees.
+  final String? backgroundAsset;
 
   /// Une etape sans famille clot le parcours.
   bool get isTerminal => families.isEmpty;
@@ -105,6 +110,48 @@ class Stage {
       if (word.syllables.isEmpty) {
         issues.add('Le mot "${word.id}" n\'a pas de decoupage syllabique.');
       }
+      // Un mot dont le texte se retrouve dans le nom de sa famille se classe
+      // en comparant les lettres, sans comprendre le sens : exactement ce que
+      // le jeu cherche a faire travailler.
+      final familyId = assignedWordIds[word.id];
+      final family = familyId == null ? null : findFamily(familyId);
+      if (family != null &&
+          family.label.toLowerCase().contains(word.text.toLowerCase())) {
+        issues.add(
+          'Le mot "${word.text}" apparait dans le nom de sa famille '
+          '"${family.label}" : il se classerait sans etre compris.',
+        );
+      }
+    }
+
+    issues.addAll(_validateAreas());
+
+    return issues;
+  }
+
+  /// Verifie les zones de depot posees sur l'illustration.
+  List<String> _validateAreas() {
+    final issues = <String>[];
+    final placed = <WordFamily>[];
+
+    for (final family in families) {
+      final area = family.area;
+      if (area == null) continue;
+
+      if (area.overflows) {
+        issues.add(
+          'La zone de la famille "${family.id}" deborde de l\'illustration.',
+        );
+      }
+      for (final other in placed) {
+        if (area.overlaps(other.area!)) {
+          issues.add(
+            'Les zones des familles "${other.id}" et "${family.id}" se '
+            'chevauchent : le depot serait ambigu.',
+          );
+        }
+      }
+      placed.add(family);
     }
 
     return issues;
@@ -116,6 +163,7 @@ class Stage {
     String? narrative,
     List<Word>? words,
     List<WordFamily>? families,
+    String? backgroundAsset,
   }) {
     return Stage(
       id: id ?? this.id,
@@ -123,6 +171,7 @@ class Stage {
       narrative: narrative ?? this.narrative,
       words: words ?? this.words,
       families: families ?? this.families,
+      backgroundAsset: backgroundAsset ?? this.backgroundAsset,
     );
   }
 
@@ -131,6 +180,7 @@ class Stage {
       'id': id,
       'locationName': locationName,
       'narrative': narrative,
+      if (backgroundAsset != null) 'backgroundAsset': backgroundAsset,
       'words': words.map((word) => word.toJson()).toList(),
       'families': families.map((family) => family.toJson()).toList(),
     };

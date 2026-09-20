@@ -1,3 +1,5 @@
+import 'package:reading_game/domain/models/relative_area.dart';
+
 /// Une famille de sens, et la direction qu'elle ouvre.
 ///
 /// Dans ce jeu une famille n'est pas seulement une categorie : elle est aussi
@@ -8,9 +10,11 @@ class WordFamily {
     required this.label,
     required this.wordIds,
     required this.destinationStageId,
+    this.area,
   });
 
   factory WordFamily.fromJson(Map<String, dynamic> json) {
+    final area = json['area'];
     return WordFamily(
       id: json['id'] as String,
       label: json['label'] as String,
@@ -18,6 +22,9 @@ class WordFamily {
         (json['wordIds'] as List<dynamic>).cast<String>(),
       ),
       destinationStageId: json['destinationStageId'] as String,
+      area: area == null
+          ? null
+          : RelativeArea.fromJson(area as Map<String, dynamic>),
     );
   }
 
@@ -32,6 +39,10 @@ class WordFamily {
   /// L'etape atteinte lorsque la famille est complete.
   final String destinationStageId;
 
+  /// L'endroit de l'illustration ou poser la zone de depot, par exemple sur le
+  /// bus. Absent pour une famille sans ancrage visuel.
+  final RelativeArea? area;
+
   /// Vrai si ce mot appartient a la famille.
   bool accepts(String wordId) => wordIds.contains(wordId);
 
@@ -40,12 +51,14 @@ class WordFamily {
     String? label,
     Set<String>? wordIds,
     String? destinationStageId,
+    RelativeArea? area,
   }) {
     return WordFamily(
       id: id ?? this.id,
       label: label ?? this.label,
       wordIds: wordIds ?? this.wordIds,
       destinationStageId: destinationStageId ?? this.destinationStageId,
+      area: area ?? this.area,
     );
   }
 
@@ -55,6 +68,7 @@ class WordFamily {
       'label': label,
       'wordIds': wordIds.toList(),
       'destinationStageId': destinationStageId,
+      if (area != null) 'area': area!.toJson(),
     };
   }
 

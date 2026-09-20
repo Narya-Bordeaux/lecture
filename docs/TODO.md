@@ -40,10 +40,14 @@ trop longtemps serait de toute façon périmé.
 
 ## Développement
 
-- [ ] Écrire l'interface du niveau test : affichage d'une étape, glisser-déposer,
-      refus visible, aides, destinations ouvertes, départ. L'interface appelle le
-      moteur et n'implémente aucune règle.
-- [ ] Remplacer le squelette de `lib/main.dart` et le test de démonstration.
+- [ ] **Juger le rendu réel sur appareil** : le jeu n'a jamais été vu à l'écran,
+      aucun build n'étant possible en session cloud. Position des trois zones,
+      taille des étiquettes, lisibilité sur le décor.
+- [ ] Illustrer les autres étapes : la gare n'a ni décor ni zones placées, elle
+      s'affiche sur fond uni.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Illustrations des mots : le champ `illustrationAsset` existe et reste vide.
-      Tant qu'il l'est, l'aide « illustration » n'a rien à montrer.
+      Tant qu'il l'est, l'aide « illustration » n'a rien à montrer, alors qu'elle
+      se débloque à la 5ᵉ erreur.
+- [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
+- [ ] Récit : `Stage.narrative` n'est affiché que sur les étapes terminales.

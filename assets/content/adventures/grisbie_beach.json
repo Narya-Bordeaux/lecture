@@ -7,32 +7,36 @@
       "id": "home",
       "locationName": "Devant la maison",
       "narrative": "Grisbie veut aller à la plage. Comment va-t-il y aller ?",
+      "backgroundAsset": "assets/pictures/Grisbie_plage2.jpg",
       "words": [
-        { "id": "train", "text": "train", "syllables": ["train"] },
-        { "id": "station", "text": "gare", "syllables": ["gare"] },
-        { "id": "shoe", "text": "chaussure", "syllables": ["chaus", "sure"] },
-        { "id": "sidewalk", "text": "trottoir", "syllables": ["trot", "toir"] },
+        { "id": "bus_stop", "text": "arrêt", "syllables": ["ar", "rêt"] },
+        { "id": "ticket", "text": "ticket", "syllables": ["tic", "ket"] },
         { "id": "wheel", "text": "volant", "syllables": ["vo", "lant"] },
-        { "id": "fuel", "text": "essence", "syllables": ["es", "sence"] }
+        { "id": "fuel", "text": "essence", "syllables": ["es", "sence"] },
+        { "id": "shoe", "text": "chaussure", "syllables": ["chaus", "sure"] },
+        { "id": "path", "text": "sentier", "syllables": ["sen", "tier"] }
       ],
       "families": [
         {
-          "id": "by_train",
-          "label": "En train",
-          "wordIds": ["train", "station"],
-          "destinationStageId": "station_hall"
-        },
-        {
-          "id": "on_foot",
-          "label": "À pied",
-          "wordIds": ["shoe", "sidewalk"],
-          "destinationStageId": "street"
+          "id": "by_bus",
+          "label": "En bus",
+          "wordIds": ["bus_stop", "ticket"],
+          "destinationStageId": "station_hall",
+          "area": { "left": 0.02, "top": 0.29, "width": 0.32, "height": 0.16 }
         },
         {
           "id": "by_car",
           "label": "En voiture",
           "wordIds": ["wheel", "fuel"],
-          "destinationStageId": "garage"
+          "destinationStageId": "garage",
+          "area": { "left": 0.37, "top": 0.39, "width": 0.27, "height": 0.15 }
+        },
+        {
+          "id": "on_foot",
+          "label": "À pied",
+          "wordIds": ["shoe", "path"],
+          "destinationStageId": "street",
+          "area": { "left": 0.66, "top": 0.42, "width": 0.30, "height": 0.18 }
         }
       ]
     },
@@ -42,7 +46,7 @@
       "narrative": "Grisbie est dans la gare. Il y a du monde partout !",
       "words": [
         { "id": "platform", "text": "quai", "syllables": ["quai"] },
-        { "id": "ticket", "text": "billet", "syllables": ["bil", "let"] },
+        { "id": "rail_ticket", "text": "billet", "syllables": ["bil", "let"] },
         { "id": "cake", "text": "gâteau", "syllables": ["gâ", "teau"] },
         { "id": "newspaper", "text": "journal", "syllables": ["jour", "nal"] }
       ],
@@ -50,7 +54,7 @@
         {
           "id": "take_the_train",
           "label": "Prendre le train",
-          "wordIds": ["platform", "ticket"],
+          "wordIds": ["platform", "rail_ticket"],
           "destinationStageId": "beach"
         },
         {

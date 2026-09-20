@@ -1,25 +1,34 @@
 # État courant
 
-**Version : 0.2.0+4** — 20 septembre 2026
+**Version : 0.3.0+5** — 20 septembre 2026
 
 ## Où en est le projet
 
-Le moteur de jeu existe et est testé, sans interface. La spécification est en
-version de travail 0.5. `lib/main.dart` est toujours le squelette généré par
-`flutter create` : rien n'est encore affiché à l'écran.
+**Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
+`Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
+bus, la voiture et le sentier, glisser-déposer, aides et bouton de départ.
+La spécification est en version de travail 0.5.
 
-Le dépôt est prêt pour une éventuelle publication en open source.
+Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
+Seul le comportement est prouvé, par 50 tests.
 
 ## Chantier en cours
 
-**Niveau test « Grisbie va à la plage »** — moteur et contenu livrés, interface à
-faire. C'est le prochain pas : afficher une étape, permettre le glisser-déposer,
-montrer les aides et les destinations ouvertes.
-
-Le moteur étant indépendant de Flutter, l'interface ne fera que l'appeler et
-afficher son état ; aucune règle de jeu ne doit être réimplémentée dedans.
+**Niveau test « Grisbie va à la plage »** — reste à juger le rendu réel sur
+appareil, puis à traiter la suite du parcours : la gare n'a pas d'illustration et
+ses zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
 
 ## Dernières modifications
+
+### 0.3.0+5 — Interface du niveau test
+- Décor plein écran, six étiquettes en grille 2 × 3, trois zones translucides
+  ancrées sur le bus, la voiture et le sentier.
+- Glisser-déposer : le mot juste se range dans sa zone, le mot faux revient à sa
+  case en tremblant et débloque son découpage syllabique.
+- Bouton « Partir » en bas, une fois une famille complète.
+- Contenu revu : famille « En bus » au lieu de « En train », mots choisis pour
+  qu'aucun ne se devine par le nom de sa famille.
+- 50 tests, dont l'étape réelle montée sur trois formats d'écran.
 
 ### 0.2.0+4 — Moteur d'étape et niveau test
 - Domaine : `Word`, `WordFamily`, `Stage`, `Adventure`, `HintPolicy`, `Hint`.

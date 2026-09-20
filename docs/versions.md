@@ -44,6 +44,38 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.3.0+5 — 20 septembre 2026 — Interface du niveau test
+
+Le niveau test devient jouable.
+
+- `lib/ui/pages/` : `StagePage` (une étape) et `AdventurePage` (enchaînement des
+  étapes, chargement du contenu, étapes terminales).
+- `lib/ui/widgets/` : `SceneLayout` (décor et zones), `FamilyDropZone`,
+  `DraggableWordLabel`, `Shake`.
+- `lib/ui/strings/ui_strings_fr.dart` : chaînes de l'interface.
+- `lib/main.dart` : point d'entrée réel, portrait verrouillé.
+- Domaine : `RelativeArea`, `WordFamily.area`, `Stage.backgroundAsset`.
+
+Décisions d'interface prises en session : portrait pour le MVP, étiquette qui se
+loge dans sa zone, retour animé au refus, bouton « Partir » en bas d'écran.
+
+Contenu revu pour la scène illustrée : la famille « En train » devient « En bus »,
+et les mots sont choisis pour qu'aucun n'apparaisse dans le nom de sa famille —
+« bus » dans « En bus » se classerait en comparant les lettres, sans être compris.
+`Stage.validate()` détecte désormais ce cas, ainsi que les zones qui débordent de
+l'illustration ou se chevauchent.
+
+**Défaut trouvé et corrigé pendant les tests** : le bandeau des mots recouvrait la
+zone du bus sur un écran de 360 × 640. Le doigt y était intercepté et le mot
+n'atteignait jamais sa cible, sans aucun signe. En cause, les mots longs qui
+passaient à la ligne et faisaient grandir le bandeau. Les étiquettes tiennent
+maintenant sur une seule ligne, quitte à réduire la police, et
+`test/ui/real_content_layout_test.dart` monte l'étape réelle sur trois formats
+d'écran pour que cela ne puisse pas revenir sans être vu.
+
+50 tests au vert, `flutter analyze` sans erreur. Le rendu visuel n'a pas pu être
+observé : aucun build n'est possible en session cloud.
+
 ### 0.2.0+4 — 20 septembre 2026 — Moteur d'étape et niveau test
 
 Première livraison de code applicatif. Le moteur applique les règles de classement ;
