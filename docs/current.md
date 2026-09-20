@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.1.0+1** — 20 septembre 2026
+**Version : 0.1.1+2** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -18,6 +18,11 @@ chantier fonctionnel ouvert.
 
 ## Dernières modifications
 
+### 0.1.1+2 — Retrait de la plateforme iOS
+- Suppression du dossier `ios/`, entièrement généré et jamais personnalisé, pour une
+  plateforme non visée. Commande de régénération consignée dans `docs/TODO.md`.
+- `.metadata` mis en cohérence : entrée de migration `ios` retirée.
+
 ### 0.1.0+1 — Mise en place du cadre de travail
 - Durcissement du `.gitignore` en vue d'une publication open source : `.vscode/`,
   `.env` et variantes (avec exception `.env.example`), `.claude/settings.local.json`.
@@ -29,8 +34,8 @@ chantier fonctionnel ouvert.
 
 ## Décisions prises
 
-- **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, bien que
-  le dossier `ios/` soit encore présent dans le dépôt.
+- **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
+  a été supprimé du dépôt en 0.1.1. Seul `android/` est configuré à ce jour.
 - **Pas de serveur** : la progression reste sur l'appareil. Le public étant mineur,
   aucune donnée personnelle ne sort de la machine. Un backend n'est pas exclu à
   terme, mais ce serait une décision à part entière.

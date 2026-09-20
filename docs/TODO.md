@@ -7,10 +7,22 @@ n'existe plus que dans `versions.md`.
 
 - [ ] Installer Flutter dans l'environnement cloud via un hook de démarrage de
       session, pour y rendre possibles `flutter analyze` et `flutter test`.
-- [ ] Décider du sort du dossier `ios/` : iOS n'est pas une plateforme visée, mais
-      27 des fichiers suivis lui appartiennent.
-- [ ] Ajouter les cibles Web et Windows (`flutter create --platforms=web,windows .`),
-      à lancer depuis le poste de développement.
+- [ ] Ajouter les cibles Web et Windows, depuis le poste de développement :
+      `flutter create --platforms=web,windows --org fr.naryabordeaux .`
+
+## Si un jour iOS revient au programme
+
+Le dossier `ios/` a été supprimé en 0.1.1 : plateforme non visée, aucun compte
+Apple, et 27 fichiers générés sur les 69 que suivait le dépôt. Rien n'y avait été
+personnalisé. Pour le régénérer à l'identique, une seule commande suffit :
+
+```bash
+flutter create --platforms=ios --org fr.naryabordeaux .
+```
+
+Mieux vaut la relancer que récupérer l'ancienne version dans l'historique git : les
+fichiers de projet Xcode évoluent à chaque version de Flutter, un squelette conservé
+trop longtemps serait de toute façon périmé.
 
 ## Avant publication en open source
 

@@ -14,7 +14,7 @@ incrément de version. Une session qui ne touche qu'à la documentation de trava
 |---|---|---|
 | Majeur | Refonte, rupture de compatibilité des données sauvegardées | 0.9.0 → 1.0.0 |
 | Mineur | Nouvelle fonctionnalité | 0.3.1 → 0.4.0 |
-| Correctif | Correction de bug | 0.3.0 → 0.3.1 |
+| Correctif | Correction de bug, ou nettoyage structurel sans fonctionnalité nouvelle | 0.3.0 → 0.3.1 |
 | Build | **À chaque** incrément, quel qu'en soit le niveau. Jamais réinitialisé | +11 → +12 |
 
 Tant que le jeu n'est pas jouable de bout en bout, la version reste en `0.x`.
@@ -43,6 +43,19 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 ---
 
 ## Historique
+
+### 0.1.1+2 — 20 septembre 2026 — Retrait de la plateforme iOS
+
+iOS n'est pas une plateforme visée et aucun compte développeur Apple n'est ouvert.
+Le dossier `ios/` représentait 27 des 69 fichiers suivis, entièrement générés et
+jamais personnalisés.
+
+- Suppression du dossier `ios/`.
+- `.metadata` : retrait de l'entrée de migration `ios` et du fichier `ios` de
+  `unmanaged_files`. Édité à la main faute de Flutter dans l'environnement cloud,
+  alors que ce fichier est normalement maintenu par l'outil.
+- `docs/TODO.md` : commande de régénération consignée, pour que le retour d'iOS
+  reste trivial.
 
 ### 0.1.0+1 — 20 septembre 2026 — Mise en place du cadre de travail
 

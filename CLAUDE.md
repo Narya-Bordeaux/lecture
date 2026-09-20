@@ -13,10 +13,12 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.1.0+1** — projet en phase de conception, le code applicatif
+**Version actuelle : 0.1.1+2** — projet en phase de conception, le code applicatif
 n'est pas encore écrit (`lib/main.dart` est encore le squelette généré par Flutter).
 
-**Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés.
+**Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
+dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
+Seul `android/` est configuré à ce jour ; Web et Windows restent à ajouter.
 
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
