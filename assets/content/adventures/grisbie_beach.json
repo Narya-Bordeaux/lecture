@@ -5,7 +5,7 @@
   "opening": {
     "title": "Grisbie part à la plage",
     "image": "assets/pictures/Grisbie_plage.jpg",
-    "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Il veut aller voir la mer !\n\nMais la plage est loin. Comment va-t-il y aller ? Aide-le à choisir son chemin."
+    "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Elle veut aller voir la mer !\n\nMais la plage est loin. Comment va-t-elle y aller ? Aide-le à choisir son chemin."
   },
   "stages": [
     {
@@ -14,7 +14,7 @@
       "background": "assets/pictures/Grisbie_plage2.jpg",
       "backgroundColor": "#4ab8fd",
       "narrative": {
-        "onCompletion": "Grisbie a trouvé son chemin. En route vers la mer !"
+        "onCompletion": "Grisbie est arrivée à la plage. Une belle journée s'annonce !"
       },
       "visibleWordCount": 6,
       "families": [
