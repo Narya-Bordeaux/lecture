@@ -18,10 +18,8 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Configurations locales de VS Code : chaque contributeur garde les siennes
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -43,3 +41,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Variables d'environnement et secrets : jamais versionnes.
+# Le fichier d'exemple, lui, documente les variables attendues sans les valeurs.
+.env
+.env.*
+!.env.example
+
+# Reglages locaux d'outils, propres a un poste de travail
+.claude/settings.local.json
