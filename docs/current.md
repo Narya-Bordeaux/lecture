@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.1.1+2** — 20 septembre 2026
+**Version : 0.1.2+3** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -13,10 +13,19 @@ Le dépôt vient d'être préparé en vue d'une éventuelle publication en open 
 
 ## Chantier en cours
 
-Mise en place du cadre de travail (documentation, conventions, versioning). Aucun
-chantier fonctionnel ouvert.
+Mise en place du cadre de travail (documentation, conventions, versioning,
+outillage). Aucun chantier fonctionnel ouvert.
+
+Prochaine étape naturelle : répondre aux questions ouvertes de la spécification,
+puis définir le format du contenu pédagogique avant d'écrire le moteur.
 
 ## Dernières modifications
+
+### 0.1.2+3 — Flutter disponible dans l'environnement cloud
+- Hook de démarrage de session installant le SDK Flutter 3.47.5, version épinglée et
+  archive vérifiée. `flutter analyze` et `flutter test` sont désormais exécutables en
+  session cloud ; les builds ne le sont toujours pas.
+- Démarrage à froid 1 min 34 s, reprise à chaud 0,9 s.
 
 ### 0.1.1+2 — Retrait de la plateforme iOS
 - Suppression du dossier `ios/`, entièrement généré et jamais personnalisé, pour une

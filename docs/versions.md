@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.1.2+3 — 20 septembre 2026 — Flutter disponible dans l'environnement cloud
+
+Les sessions cloud ne disposaient ni de `flutter` ni de `dart` : aucune
+vérification du code Dart n'y était possible, ce qui est incompatible avec un
+développement en TDD.
+
+- `.claude/hooks/session-start.sh` : installation du SDK Flutter au démarrage de
+  session. Version épinglée (3.47.5), archive vérifiée par empreinte SHA-256,
+  installation idempotente, PATH propagé à la session. Le script sort immédiatement
+  hors environnement distant, pour ne rien installer sur le poste de développement.
+- `.claude/settings.json` : enregistrement du hook.
+- `analysis_options.yaml` et `pubspec.lock` : mis à jour par l'outil Flutter lors de
+  la première résolution des dépendances avec le SDK épinglé.
+- `CLAUDE.md` §2 réécrit : l'environnement n'est plus décrit comme dépourvu de
+  Flutter.
+
+Mesures : démarrage à froid 1 min 34 s (téléchargement, vérification, extraction,
+artefacts, dépendances), reprise à chaud 0,9 s. `flutter analyze` sans erreur et
+`flutter test` au vert.
+
 ### 0.1.1+2 — 20 septembre 2026 — Retrait de la plateforme iOS
 
 iOS n'est pas une plateforme visée et aucun compte développeur Apple n'est ouvert.

@@ -5,8 +5,9 @@ n'existe plus que dans `versions.md`.
 
 ## Cadre de travail
 
-- [ ] Installer Flutter dans l'environnement cloud via un hook de démarrage de
-      session, pour y rendre possibles `flutter analyze` et `flutter test`.
+- [ ] Aligner le SDK du poste de développement sur la version épinglée par le hook
+      (Flutter 3.47.5), faute de quoi `pubspec.lock` fera des allers-retours entre
+      le poste et les sessions cloud.
 - [ ] Ajouter les cibles Web et Windows, depuis le poste de développement :
       `flutter create --platforms=web,windows --org fr.naryabordeaux .`
 

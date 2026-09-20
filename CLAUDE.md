@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.1.1+2** — projet en phase de conception, le code applicatif
+**Version actuelle : 0.1.2+3** — projet en phase de conception, le code applicatif
 n'est pas encore écrit (`lib/main.dart` est encore le squelette généré par Flutter).
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
@@ -26,18 +26,26 @@ compte ou d'une télémétrie doit être posée à l'utilisateur, jamais introdu
 
 ## 2. Environnement
 
-- `flutter` / `dart` : **absents de cet environnement cloud**. L'analyse statique,
-  les tests et les builds ne peuvent pas y être lancés. Ne pas prétendre avoir
-  vérifié du code Dart ici : annoncer explicitement ce qui n'a pas pu être exécuté.
+- `flutter` / `dart` : **disponibles** — Flutter 3.47.5 / Dart 3.13.4, installés dans
+  `/opt/flutter` par le hook de démarrage de session
+  (`.claude/hooks/session-start.sh`). Le PATH est déjà positionné ; au besoin :
+  `export PATH="/opt/flutter/bin:$PATH"`. L'avertissement « running as root » est
+  inoffensif.
 - `node` : disponible (v22).
-- Builds Android, Web et Windows : sur le poste de l'utilisateur uniquement.
+- **Builds Android, Web et Windows impossibles ici** : ni SDK Android, ni
+  toolchain Windows, ni navigateur de test. Flutter n'est installé que pour
+  l'analyse statique, les tests et la gestion des dépendances.
 
-Commandes à lancer localement après toute modification de code :
+Commandes de vérification, à lancer après toute modification de code :
 
 ```bash
 flutter analyze
 flutter test
 ```
+
+La version du SDK est épinglée dans le hook. Pour en changer, mettre à jour
+ensemble `FLUTTER_VERSION` et `FLUTTER_ARCHIVE_SHA256`, dont l'empreinte se trouve
+dans `releases_linux.json` publié par Flutter.
 
 ## 3. Lire en premier
 
