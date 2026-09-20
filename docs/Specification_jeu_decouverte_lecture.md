@@ -10,7 +10,7 @@ Cette spécification rassemble uniquement les choix déjà formulés pour un jeu
 
 Le jeu propose à l’enfant de lire plusieurs mots puis de les classer dans des familles de sens déjà nommées, par exemple des animaux, des aliments ou des éléments associés à une situation comme l’école ou la cuisine.
 
-Le classement prend place dans un parcours illustré. L’enfant choisit l’apparence de son personnage parmi plusieurs possibilités. Compléter une famille permet d’avancer sur un chemin, de découvrir des lieux liés au vocabulaire rencontré et de faire progresser une petite histoire.
+Le classement prend place dans un parcours illustré. L’enfant accompagne le chat Grisbie dans ses aventures. Compléter une famille permet d’avancer sur un chemin, de découvrir des lieux liés au vocabulaire rencontré et de faire progresser une petite histoire.
 
 ## Public et contexte d’utilisation
 
@@ -29,10 +29,10 @@ Le classement prend place dans un parcours illustré. L’enfant choisit l’app
 ## Boucle de jeu confirmée
 
 1. Le chemin montre plusieurs destinations, chacune associée dès le départ à une famille de mots.
-2. L’enfant choisit une direction. La mission et le décor rendent compréhensible le lien entre cette direction et la famille correspondante.
+2. L’enfant choisit une direction. La mission et le décor rendent compréhensible le lien entre cette direction et les familles correspondantes.
 3. L’étape présente plusieurs mots visibles et plusieurs familles désignées par leur nom.
 4. L’enfant choisit un mot et le fait glisser vers le nom de la famille correspondante.
-5. Toutes les familles acceptent leurs mots, mais compléter une famille qui ne correspond pas à la direction choisie ne fait pas avancer.
+5. Toutes les familles acceptent leurs mots, l'enfant peut aller à une destination dont il a rempli tous les mots.
 6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Après plusieurs erreurs sur le même mot, il propose automatiquement le découpage syllabique puis l’illustration.
 7. Dès que la famille liée à la direction choisie est entièrement complétée, l’étape se termine, les mots restants disparaissent et l’enfant avance.
 
@@ -40,8 +40,9 @@ Le classement prend place dans un parcours illustré. L’enfant choisit l’app
 
 Deux aides peuvent être demandées pendant le classement. Leur disponibilité exacte selon les niveaux reste à définir.
 
-- Afficher une illustration correspondant au mot.
 - Afficher le découpage du mot en syllabes.
+- Afficher une illustration correspondant au mot.
+
 
 Après plusieurs erreurs sur le même mot, ces deux aides sont également proposées automatiquement. Le nombre d’erreurs requis et l’ordre d’apparition des aides restent à définir.
 
@@ -69,7 +70,7 @@ Les mots ambigus, qui pourraient raisonnablement appartenir à plusieurs famille
 - Les choix de chemin modifient l’histoire.
 - Chaque direction affiche dès le départ la destination et la famille qui lui correspondent.
 - Depuis la carte, l’enfant peut revenir immédiatement à une bifurcation déjà franchie pour explorer l’autre chemin.
-- L’enfant choisit son personnage parmi plusieurs apparences, sans différence de règles, de mission ou d’histoire.
+- L’enfant nomme son personnage, mais il n'apparaît jamis dans le jeu, il est interpellé "Charles/Julie aide le chat Grisbie à aller à la plage".
 
 ## État de la spécification
 
