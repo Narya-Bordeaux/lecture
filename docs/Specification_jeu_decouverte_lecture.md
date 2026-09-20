@@ -28,6 +28,14 @@ Le classement prend place dans un parcours illustré. L’enfant accompagne le c
 
 ## Boucle de jeu confirmée
 
+L'enfant accompagne le chat Grisbie dans ses aventures. Le chat va avoir différentes "journées" ou "aventures" pour lesquelles l'enfant devra classer des mots dans des familles afin que le chat puisse avancer dans sa journée.
+
+Une journée pourra proposer différents chemins par exemple: aller à la plage en transport en commun, à pied, en voiture...
+
+L'enfant a les différents mots: train / chaussure / panneau / gare / station essence
+
+Quand une famille est remplie, il peut avancer sur cette histoire. Il aura alors un autre mini jeu pour avancer dans la gare, par exemple avec boutique / toilettes / guichet qui lui permettent de valider la gare et d'avancer sur ce chemin afin d'arriver à la plage.
+
 1. Le chemin montre plusieurs destinations, chacune associée dès le départ à une famille de mots.
 2. L’enfant choisit une direction. La mission et le décor rendent compréhensible le lien entre cette direction et les familles correspondantes.
 3. L’étape présente plusieurs mots visibles et plusieurs familles désignées par leur nom.
