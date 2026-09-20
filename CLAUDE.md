@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.7.0+13** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.7.1+14** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -210,7 +210,9 @@ lisent le disque) et un jeu qui refuse de s'ouvrir sur l'appareil.
 déclarations et échoue si l'un manque.
 
 **Page de garde** — `Adventure.opening` porte un titre, une illustration et un
-texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Sa mise
+texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Quand
+elle existe, le lieu de départ n'a pas de `onArrival` : deux écrans de texte
+d'affilée dont le second redit le premier font attendre l'enfant pour rien. Sa mise
 en page diffère des moments de récit : le titre annonce, l'image occupe la
 largeur à ses proportions — elle peut être horizontale —, le texte se lit
 dessous. C'est un seuil, pas une transition.

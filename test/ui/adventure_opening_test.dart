@@ -145,9 +145,20 @@ void main() {
       await tester.tap(find.text(UiStringsFr.startAdventure));
       await tester.pumpAndSettle();
 
-      // Puis le recit d'arrivee du premier lieu.
+      // Puis le jeu, directement : le premier lieu n'a pas de recit
+      // d'arrivee, celui-ci repeterait la page de garde.
       expect(find.text('Grisbie part à la plage'), findsNothing);
-      expect(find.text('Devant la maison'), findsOneWidget);
+      expect(find.text(UiStringsFr.continueStory), findsNothing);
+      expect(find.text('En bus'), findsOneWidget);
+    });
+
+    testWidgets('le premier lieu ne repete pas la page de garde', (
+      tester,
+    ) async {
+      // Deux ecrans de texte d'affilee avant de jouer, dont le second redit le
+      // premier : l'enfant attend sans rien apprendre. Le recit d'arrivee est
+      // donc laisse vide sur le lieu de depart.
+      expect(adventure.startStage.narrative.onArrival, isNull);
     });
   });
 }

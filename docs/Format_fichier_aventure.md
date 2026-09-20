@@ -140,6 +140,11 @@ proportions. C'est le bon endroit pour une vue d'ensemble.
 Le champ `opening` est facultatif : sans lui, l'aventure démarre directement sur
 son premier lieu.
 
+> **Ne redites pas la page de garde dans le premier lieu.** Si l'ouverture
+> annonce déjà « Grisbie veut aller à la plage », laissez le `onArrival` du lieu
+> de départ vide. Sinon l'enfant enchaîne deux écrans de texte avant de jouer,
+> dont le second n'apprend rien — il attend, simplement.
+
 ### Un lieu
 
 ```json

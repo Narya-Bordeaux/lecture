@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.7.1+14 — 20 septembre 2026 — Plus d'écran de texte redondant au départ
+
+La page de garde annonçait « Grisbie part à la plage », et l'écran suivant le
+répétait sur fond estompé : deux écrans de texte d'affilée avant de jouer, dont
+le second n'apprenait rien.
+
+Le lieu de départ n'a donc plus de `narrative.onArrival` — le format le
+permettait déjà, ce champ étant facultatif. Après « C'est parti ! », le jeu
+commence directement. Le récit de départ de ce lieu est conservé et reformulé,
+pour ne plus faire écho au bouton.
+
+Les autres lieux gardent leur récit d'arrivée : la gare et la boutique ne
+répètent rien.
+
+Un test vérifie que le lieu de départ n'a pas de récit d'arrivée tant qu'une
+page de garde existe, et le conseil est consigné dans
+`docs/Format_fichier_aventure.md`.
+
+119 tests au vert.
+
 ### 0.7.0+13 — 20 septembre 2026 — Page de garde d'une aventure
 
 Une aventure peut désormais s'ouvrir sur un écran d'accueil : un titre en haut,

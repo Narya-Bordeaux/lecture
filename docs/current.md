@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.7.0+13** — 20 septembre 2026
+**Version : 0.7.1+14** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -16,7 +16,7 @@ par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 118 tests.
+Seul le comportement est prouvé, par 119 tests.
 
 ## Chantier en cours
 
@@ -29,6 +29,12 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.7.1+14 — Plus d'écran de texte redondant au départ
+- Le lieu de départ n'a plus de récit d'arrivée : il répétait la page de garde,
+  et faisait enchaîner deux écrans de texte avant de jouer.
+- Après « C'est parti ! », le jeu commence directement.
+- Un test vérifie que le lieu de départ ne redit pas la page de garde.
 
 ### 0.7.0+13 — Page de garde d'une aventure
 - `Adventure.opening` : un titre, une illustration horizontale et un texte,
