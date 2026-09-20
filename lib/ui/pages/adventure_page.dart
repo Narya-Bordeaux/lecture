@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/stage.dart';
@@ -77,7 +78,14 @@ class _AdventurePageState extends State<AdventurePage> {
       future: _adventureLoading,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const _CenteredMessage(text: UiStringsFr.loadingFailed);
+          return _CenteredMessage(
+            text: UiStringsFr.loadingFailed,
+            // Le chargement produit des diagnostics precis — mot inconnu,
+            // personnage absent, destination introuvable. Les cacher derriere
+            // un message generique laisse chercher a l'aveugle, ce qui est
+            // exactement ce qui est arrive avec des assets non declares.
+            detail: '${snapshot.error}',
+          );
         }
         final adventure = snapshot.data;
         if (adventure == null) {
@@ -210,18 +218,54 @@ class _TerminalStageView extends StatelessWidget {
 }
 
 class _CenteredMessage extends StatelessWidget {
-  const _CenteredMessage({required this.text});
+  const _CenteredMessage({required this.text, this.detail});
 
   final String text;
+
+  /// Le detail technique, montre au developpeur seulement : l'enfant n'a que
+  /// faire d'une pile d'appels, mais sans elle une panne se cherche a
+  /// l'aveugle.
+  final String? detail;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF6E8),
-      body: Center(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 20, color: Color(0xFF3B3B3B)),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Color(0xFF3B3B3B),
+                  ),
+                ),
+                if (detail != null && kDebugMode) ...<Widget>[
+                  const SizedBox(height: 20),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        detail!,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: Color(0xFF8A3B3B),
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.6.0+9** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.6.1+10** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -200,6 +200,14 @@ naturellement séparées plutôt que d'élaguer après coup.
 `lib/ui/` n'applique aucune règle : elle transmet les gestes au moteur et affiche
 l'état qu'il renvoie. Décider dans un widget si un mot est bien placé dupliquerait
 le moteur et ferait diverger les deux.
+
+**Assets : déclarer chaque répertoire** — Flutter n'embarque pas les
+sous-dossiers ; une entrée `assets/` terminée par `/` ne prend que les fichiers
+de ce répertoire. Ajouter un sous-dossier de contenu sans l'inscrire dans
+`pubspec.yaml` produit une application qui compile, des tests qui passent (ils
+lisent le disque) et un jeu qui refuse de s'ouvrir sur l'appareil.
+`test/infrastructure/declared_assets_test.dart` compare les fichiers réels aux
+déclarations et échoue si l'un manque.
 
 **Piège de mise en page, vérifié par les tests** — le bandeau des mots occupe le
 haut de l'écran, or les zones sont ancrées au décor et la première commence vers

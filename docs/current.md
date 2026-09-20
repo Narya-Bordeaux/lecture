@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.6.0+9** — 20 septembre 2026
+**Version : 0.6.1+10** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -16,7 +16,7 @@ par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 78 tests.
+Seul le comportement est prouvé, par 79 tests.
 
 ## Chantier en cours
 
@@ -29,6 +29,16 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.6.1+10 — Assets manquants : le jeu ne s'ouvrait plus
+- `pubspec.yaml` ne déclarait que `assets/content/adventures/`. Flutter
+  n'embarque pas les sous-dossiers : `index.json`, `characters.json` et les
+  trois lexiques n'étaient pas dans l'application, et le chargement échouait.
+- Les quatre répertoires sont déclarés.
+- `test/infrastructure/declared_assets_test.dart` compare les fichiers réels aux
+  déclarations du pubspec — le seul test qui regarde ce qui sera livré.
+- L'écran d'erreur montre le diagnostic en mode développement, au lieu de le
+  cacher derrière « Le jeu n'a pas pu s'ouvrir ».
 
 ### 0.6.0+9 — Format de contenu en plusieurs fichiers
 - `index.json` (le sommaire), `lexicon/*.json` (le vocabulaire, chaque mot défini

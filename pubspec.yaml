@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.6.0+9
+version: 0.6.1+10
 
 environment:
   sdk: ^3.12.2
@@ -59,7 +59,12 @@ flutter:
 
   # Contenu pedagogique : mots, familles et etapes des aventures.
   # Ce sont des donnees, modifiables sans toucher au code.
+  # Flutter n'embarque pas les sous-dossiers : chaque repertoire doit etre
+  # declare separement, sinon ses fichiers manquent a l'execution sans que
+  # rien ne le signale a la compilation.
   assets:
+    - assets/content/
+    - assets/content/lexicon/
     - assets/content/adventures/
     - assets/pictures/
 

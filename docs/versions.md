@@ -44,6 +44,31 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.6.1+10 — 20 septembre 2026 — Assets manquants : le jeu ne s'ouvrait plus
+
+Sur l'appareil, le jeu affichait « Le jeu n'a pas pu s'ouvrir ». La répartition
+du contenu en sous-dossiers (0.6.0) n'avait pas été reportée dans
+`pubspec.yaml`, qui ne déclarait que `assets/content/adventures/`.
+
+**Flutter n'embarque pas les sous-dossiers** : une entrée terminée par `/` ne
+prend que les fichiers de ce répertoire précis. `index.json`, `characters.json`
+et les trois lexiques n'étaient donc pas dans l'application. Le chargement
+échouait dès le premier fichier lu.
+
+Rien ne pouvait le signaler plus tôt : l'application compilait, et les 78 tests
+passaient puisqu'ils lisent le disque, pas le bundle.
+
+- Les quatre répertoires sont déclarés dans `pubspec.yaml`.
+- `test/infrastructure/declared_assets_test.dart` parcourt `assets/` et vérifie
+  que chaque fichier est couvert par une déclaration. C'est le seul test qui
+  regarde ce qui sera réellement livré. Éprouvé contre l'ancien pubspec : il
+  nomme les cinq fichiers manquants.
+- L'écran d'erreur affiche désormais le diagnostic en mode développement. Le
+  chargement produit des messages précis — mot inconnu, personnage absent — et
+  l'interface les jetait, ce qui obligeait à chercher à l'aveugle.
+
+79 tests au vert.
+
 ### 0.6.0+9 — 20 septembre 2026 — Format de contenu en plusieurs fichiers
 
 Le contenu tenait dans un seul fichier, qui aurait explosé avec six thèmes et
