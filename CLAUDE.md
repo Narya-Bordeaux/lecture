@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.6.3+12** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.7.0+13** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -208,6 +208,17 @@ de ce répertoire. Ajouter un sous-dossier de contenu sans l'inscrire dans
 lisent le disque) et un jeu qui refuse de s'ouvrir sur l'appareil.
 `test/infrastructure/declared_assets_test.dart` compare les fichiers réels aux
 déclarations et échoue si l'un manque.
+
+**Page de garde** — `Adventure.opening` porte un titre, une illustration et un
+texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Sa mise
+en page diffère des moments de récit : le titre annonce, l'image occupe la
+largeur à ses proportions — elle peut être horizontale —, le texte se lit
+dessous. C'est un seuil, pas une transition.
+
+**Tests de widget et lecture disque** — `testWidgets` fait tourner une horloge
+simulée, où une lecture de fichier réelle ne se résout **jamais** : le test
+tourne sans fin. Charger le contenu dans `setUpAll`, jamais dans le corps d'un
+`testWidgets`, et passer `PreloadedAdventureRepository` à la page.
 
 **L'illustration n'est jamais recadrée** — elle est montrée en entier et calée
 en bas, la bande libre du haut étant comblée par `Stage.backgroundColor`. Un

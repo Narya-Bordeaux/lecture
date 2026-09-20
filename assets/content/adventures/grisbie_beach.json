@@ -2,6 +2,11 @@
   "id": "grisbie_beach",
   "title": "Grisbie va à la plage",
   "startStageId": "home",
+  "opening": {
+    "title": "Grisbie part à la plage",
+    "image": "assets/pictures/Grisbie_plage.jpg",
+    "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Il veut aller voir la mer !\n\nMais la plage est loin. Comment va-t-il y aller ? Aide-le à choisir son chemin."
+  },
   "stages": [
     {
       "id": "home",

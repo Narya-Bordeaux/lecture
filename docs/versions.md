@@ -44,6 +44,33 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.7.0+13 — 20 septembre 2026 — Page de garde d'une aventure
+
+Une aventure peut désormais s'ouvrir sur un écran d'accueil : un titre en haut,
+une illustration en pleine largeur, le texte dessous.
+
+Ce n'est pas une étape — il n'y a rien à classer — mais la page de garde de la
+journée qui commence. Elle appartient donc à l'aventure (`Adventure.opening`) et
+non à un lieu. Sa mise en page diffère volontairement des moments de récit :
+c'est un seuil que l'on franchit une fois, pas une transition entre deux lieux.
+
+- `AdventureOpening` : `title` (facultatif, celui de l'aventure sert de repli),
+  `image` (facultative), `text`.
+- `AdventureOpeningPage` : titre, image **entière et à ses proportions** — elle
+  peut donc être horizontale, à l'inverse des décors de jeu —, texte, et bouton
+  « C'est parti ! » maintenu hors du défilement pour rester à portée du pouce.
+- « Recommencer » repasse par la page de garde : refaire le voyage, c'est le
+  refaire depuis le début.
+
+**Un piège de test rencontré au passage.** Le test d'enchaînement tournait sans
+fin — sept minutes avant d'être interrompu. En cause : `testWidgets` fait
+tourner une **horloge simulée**, où une lecture de fichier réelle ne se résout
+jamais. Charger le contenu dans `setUpAll` règle le problème, et
+`PreloadedAdventureRepository` sert l'aventure déjà en mémoire. Le test passe
+maintenant en une seconde. La règle est consignée dans `CLAUDE.md`.
+
+118 tests au vert.
+
 ### 0.6.3+12 — 20 septembre 2026 — Intitulés au-dessus des zones, marge système
 
 Deux défauts relevés sur appareil.

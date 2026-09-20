@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.6.3+12** — 20 septembre 2026
+**Version : 0.7.0+13** — 20 septembre 2026
 
 ## Où en est le projet
 
@@ -16,7 +16,7 @@ par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 108 tests.
+Seul le comportement est prouvé, par 118 tests.
 
 ## Chantier en cours
 
@@ -29,6 +29,14 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.7.0+13 — Page de garde d'une aventure
+- `Adventure.opening` : un titre, une illustration horizontale et un texte,
+  montrés une fois avant le premier lieu.
+- Mise en page propre : le titre annonce, l'image occupe la largeur à ses
+  proportions, le texte se lit dessous, le bouton reste hors du défilement.
+- « Recommencer » repasse par la page de garde.
+- 118 tests au vert.
 
 ### 0.6.3+12 — Intitulés au-dessus des zones, marge système en bas
 - L'intitulé d'une zone est posé **au-dessus** du cadre, libre de déborder

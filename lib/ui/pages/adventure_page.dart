@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reading_game/domain/models/adventure.dart';
 import 'package:reading_game/domain/models/stage.dart';
 import 'package:reading_game/domain/repositories/adventure_repository.dart';
+import 'package:reading_game/ui/pages/adventure_opening_page.dart';
 import 'package:reading_game/ui/pages/stage_page.dart';
 import 'package:reading_game/ui/pages/story_moment_page.dart';
 import 'package:reading_game/ui/strings/ui_strings_fr.dart';
@@ -43,6 +44,9 @@ class _AdventurePageState extends State<AdventurePage> {
   String? _currentStageId;
   _StagePhase _phase = _StagePhase.arrival;
 
+  /// La page de garde ne se montre qu'une fois, au debut de l'aventure.
+  bool _openingSeen = false;
+
   /// Ou l'enfant part une fois le recit de depart lu.
   String? _pendingDestination;
 
@@ -55,6 +59,17 @@ class _AdventurePageState extends State<AdventurePage> {
   void _enterStage(String stageId) {
     setState(() {
       _currentStageId = stageId;
+      _phase = _StagePhase.arrival;
+      _pendingDestination = null;
+    });
+  }
+
+  /// Recommencer, c'est refaire le voyage depuis le debut, page de garde
+  /// comprise.
+  void _restart(Adventure adventure) {
+    setState(() {
+      _openingSeen = false;
+      _currentStageId = adventure.startStageId;
       _phase = _StagePhase.arrival;
       _pendingDestination = null;
     });
@@ -92,6 +107,15 @@ class _AdventurePageState extends State<AdventurePage> {
           return const _CenteredMessage(text: UiStringsFr.loading);
         }
 
+        final opening = adventure.opening;
+        if (opening != null && !_openingSeen) {
+          return AdventureOpeningPage(
+            opening: opening,
+            adventureTitle: adventure.title,
+            onStart: () => setState(() => _openingSeen = true),
+          );
+        }
+
         final stage =
             adventure.findStage(_currentStageId ?? adventure.startStageId) ??
                 adventure.startStage;
@@ -126,7 +150,7 @@ class _AdventurePageState extends State<AdventurePage> {
     if (stage.isTerminal) {
       return _TerminalStageView(
         stage: stage,
-        onRestart: () => _enterStage(adventure.startStageId),
+        onRestart: () => _restart(adventure),
       );
     }
 

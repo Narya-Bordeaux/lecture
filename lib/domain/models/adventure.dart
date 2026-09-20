@@ -1,3 +1,4 @@
+import 'package:reading_game/domain/models/adventure_opening.dart';
 import 'package:reading_game/domain/models/character.dart';
 import 'package:reading_game/domain/models/lexicon.dart';
 import 'package:reading_game/domain/models/stage.dart';
@@ -12,6 +13,7 @@ class Adventure {
     required this.title,
     required this.startStageId,
     required this.stages,
+    this.opening,
   });
 
   /// Construit l'aventure en resolvant mots et personnages.
@@ -30,11 +32,14 @@ class Adventure {
       stages[stage.id] = stage;
     }
 
+    final opening = json['opening'] as Map<String, dynamic>?;
+
     return Adventure(
       id: json['id'] as String,
       title: json['title'] as String,
       startStageId: json['startStageId'] as String,
       stages: Map<String, Stage>.unmodifiable(stages),
+      opening: opening == null ? null : AdventureOpening.fromJson(opening),
     );
   }
 
@@ -47,6 +52,9 @@ class Adventure {
 
   /// Les etapes, indexees par identifiant.
   final Map<String, Stage> stages;
+
+  /// La page de garde, montree une fois avant le premier lieu.
+  final AdventureOpening? opening;
 
   Stage get startStage {
     final stage = stages[startStageId];
@@ -103,6 +111,7 @@ class Adventure {
       'id': id,
       'title': title,
       'startStageId': startStageId,
+      if (opening != null) 'opening': opening!.toJson(),
       'stages': stages.values.map((stage) => stage.toJson()).toList(),
     };
   }

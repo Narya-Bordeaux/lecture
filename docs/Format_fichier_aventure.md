@@ -113,6 +113,33 @@ Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 
 `startStageId` désigne le lieu par lequel on commence.
 
+### La page de garde — `opening`
+
+Une aventure peut s'ouvrir sur un écran d'accueil, montré **une seule fois**
+avant le premier lieu : un titre en haut, une illustration en pleine largeur, le
+texte dessous.
+
+```json
+"opening": {
+  "title": "Grisbie part à la plage",
+  "image": "assets/pictures/Grisbie_plage.jpg",
+  "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte."
+}
+```
+
+| Champ | Obligatoire | Rôle |
+|---|---|---|
+| `title` | non | Le titre affiché. Absent, celui de l'aventure prend sa place |
+| `image` | non | L'illustration d'accueil, montrée **entière**, à ses proportions |
+| `text` | oui | Ce que l'on raconte avant de partir |
+
+Contrairement aux décors de jeu, cette illustration n'est jamais recadrée et
+peut donc être **horizontale** : elle occupe la largeur, sa hauteur suit ses
+proportions. C'est le bon endroit pour une vue d'ensemble.
+
+Le champ `opening` est facultatif : sans lui, l'aventure démarre directement sur
+son premier lieu.
+
 ### Un lieu
 
 ```json

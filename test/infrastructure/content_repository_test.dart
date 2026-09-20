@@ -196,12 +196,62 @@ void main() {
     });
   });
 
+  group('Page de garde', () {
+    test('une aventure peut s\'ouvrir sur un titre, une image et un texte',
+        () async {
+      final files = buildFiles();
+      files['adventures/test.json'] = files['adventures/test.json']!.replaceFirst(
+        '"startStageId": "start",',
+        '"startStageId": "start",'
+        '"opening": { "title": "Le grand depart", '
+        '"image": "assets/pictures/cover.jpg", "text": "Il etait une fois." },',
+      );
+
+      final adventure = await buildRepository(files).loadAdventure('test');
+
+      expect(adventure.opening, isNotNull);
+      expect(adventure.opening!.titleOr(adventure.title), 'Le grand depart');
+      expect(adventure.opening!.imageAsset, 'assets/pictures/cover.jpg');
+      expect(adventure.opening!.text, 'Il etait une fois.');
+    });
+
+    test('sans titre propre, celui de l\'aventure prend sa place', () async {
+      final files = buildFiles();
+      files['adventures/test.json'] = files['adventures/test.json']!.replaceFirst(
+        '"startStageId": "start",',
+        '"startStageId": "start","opening": { "text": "Bonjour." },',
+      );
+
+      final adventure = await buildRepository(files).loadAdventure('test');
+
+      expect(adventure.opening!.titleOr(adventure.title), 'Essai');
+    });
+
+    test('une aventure sans page de garde reste valide', () async {
+      final adventure = await buildRepository(buildFiles()).loadAdventure(
+        'test',
+      );
+
+      expect(adventure.opening, isNull);
+    });
+  });
+
   group('Contenu livre', () {
     test('l\'aventure de Grisbie se charge et se valide', () async {
       final adventure = await loadRealAdventure();
 
       expect(adventure.id, 'grisbie_beach');
       expect(adventure.validate(), isEmpty);
+    });
+
+    test('l\'aventure s\'ouvre sur sa page de garde', () async {
+      final adventure = await loadRealAdventure();
+      final opening = adventure.opening;
+
+      expect(opening, isNotNull);
+      expect(opening!.titleOr(adventure.title), 'Grisbie part à la plage');
+      expect(opening.imageAsset, 'assets/pictures/Grisbie_plage.jpg');
+      expect(opening.text, isNotEmpty);
     });
 
     test('la rencontre de la boutique pose son enigme', () async {

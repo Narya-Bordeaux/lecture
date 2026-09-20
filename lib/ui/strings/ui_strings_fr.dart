@@ -16,6 +16,9 @@ abstract final class UiStringsFr {
   /// Bouton qui clot un moment de recit et lance le jeu.
   static const String continueStory = 'Continuer';
 
+  /// Bouton de la page de garde, qui ouvre l'aventure.
+  static const String startAdventure = 'C\'est parti !';
+
   /// Bouton de depart vers une destination ouverte.
   static String departTo(String familyLabel) => 'Partir $familyLabel';
 
