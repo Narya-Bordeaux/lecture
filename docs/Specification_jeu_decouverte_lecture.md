@@ -1,6 +1,6 @@
 # Spécification du jeu de découverte de la lecture
 
-**Version de travail 0.6 — 20 septembre 2026**
+**Version de travail 0.7 — 20 septembre 2026**
 
 ## Objet du document
 
@@ -59,11 +59,30 @@ Le tirage est libre : il peut arriver qu'aucun mot d'une famille donnée ne soit
 à l'écran. L'enfant classe alors ailleurs, ce qui renouvelle la réserve. Cela
 l'oblige à lire tous les mots plutôt qu'à se concentrer sur une seule famille.
 
-> **À valider.** Avec dix mots par famille, exiger la liste entière
-> demanderait près de trente classements avant d'ouvrir le moindre chemin. Une
-> famille ouvre donc sa destination au bout d'un **objectif** plus court, fixé
-> à cinq. C'est ce nombre que l'enfant voit sur la zone (« 3 / 5 »), et il se
-> règle famille par famille dans le contenu.
+Une famille ouvre sa destination au bout d'un **objectif** plus court que sa
+liste. C'est ce nombre que l'enfant voit sur la zone (« 3 / 4 »), et il se règle
+famille par famille dans le contenu. Les listes n'ont pas à être de la même
+taille : toutes les familles n'offrent pas le même champ lexical.
+
+> **À surveiller.** Plus l'objectif est haut, moins le choix du chemin est un
+> vrai choix : avec un tirage libre, l'enfant aura classé la plus grande partie
+> de l'étape avant qu'une famille n'atteigne son but, et la question « par où
+> partir ? » arrivera trop tard pour se poser. L'objectif est à 4 sur des
+> listes de 7.
+
+### Familles et champ lexical
+
+Les familles d'une même étape doivent avoir des vocabulaires **disjoints**, et
+c'est une contrainte de conception plus forte qu'il n'y paraît. « En bus » et
+« En voiture » partagent presque toute la mécanique — moteur, roue, frein,
+siège, portière, phare, ceinture — car un bus est une voiture en plus grand.
+Seuls tiennent les mots propres à l'usage : le transport collectif d'un côté
+(arrêt, ticket, horaire, guichet), la voiture familiale de l'autre (coffre,
+garage, radio, clé).
+
+Mieux vaut choisir des familles aux lexiques naturellement séparés. « En vélo »,
+par exemple, offrirait guidon, pédale, casque, sonnette, selle, panier — que ni
+le bus ni la marche ne revendiquent.
 
 ### Étapes imbriquées
 

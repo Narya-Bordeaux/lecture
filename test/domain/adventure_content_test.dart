@@ -30,17 +30,28 @@ void main() {
       expect(adventure.validate(), isEmpty);
     });
 
-    test('l\'etape de depart propose trois chemins de dix mots', () {
+    test('l\'etape de depart propose trois chemins', () {
       final start = adventure.startStage;
 
       expect(start.id, 'home');
       expect(start.families, hasLength(3));
-      expect(start.words, hasLength(30));
-      for (final family in start.families) {
+    });
+
+    test('les listes peuvent etre de tailles differentes', () {
+      // Les familles n'ont pas le meme champ lexical disponible : « En
+      // voiture » partage presque tout son vocabulaire avec « En bus », donc
+      // sa liste est plus courte. Rien n'impose de les egaliser.
+      final sizes = adventure.startStage.families
+          .map((family) => family.wordIds.length)
+          .toSet();
+
+      expect(sizes, isNotEmpty);
+      for (final family in adventure.startStage.families) {
         expect(
-          family.wordIds,
-          hasLength(10),
-          reason: 'La famille "${family.id}" n\'a pas dix mots',
+          family.wordIds.length,
+          greaterThanOrEqualTo(family.requiredCount),
+          reason:
+              'La famille "${family.id}" demande plus de mots qu\'elle n\'en a',
         );
       }
     });
@@ -51,7 +62,10 @@ void main() {
 
       expect(start.visibleWordCount, 6);
       expect(engine.visibleWords.whereType<Word>(), hasLength(6));
-      expect(engine.state.remainingInSupply, 24);
+      expect(
+        engine.state.remainingInSupply,
+        start.words.length - start.visibleWordCount,
+      );
     });
 
     test('chaque famille s\'ouvre avant d\'avoir epuise sa liste', () {

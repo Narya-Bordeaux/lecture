@@ -1,18 +1,18 @@
 # État courant
 
-**Version : 0.4.0+6** — 20 septembre 2026
+**Version : 0.4.1+7** — 20 septembre 2026
 
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
 `Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
 bus, la voiture et le sentier, glisser-déposer, aides et bouton de départ.
-Chaque famille puise dans une liste de dix mots, et un mot bien classé est
+Chaque famille puise dans une liste de sept mots, et un mot bien classé est
 remplacé sur place par un mot de la réserve. La spécification est en version de
-travail 0.6.
+travail 0.7.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 65 tests.
+Seul le comportement est prouvé, par 66 tests.
 
 ## Chantier en cours
 
@@ -20,10 +20,19 @@ Seul le comportement est prouvé, par 65 tests.
 appareil, puis à traiter la suite du parcours : la gare n'a pas d'illustration et
 ses zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
 
-Deux réglages attendent un avis : l'**objectif** de cinq mots par famille, et le
-**tirage libre** qui peut ne proposer aucun mot d'une famille donnée.
+Un réglage attend un avis : le **tirage libre**, qui peut ne proposer aucun mot
+d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.4.1+7 — Listes de sept mots, sans ambiguïté
+- Onze mots retirés, partagés entre deux familles : navette, car, voyageur pour
+  le bus ; ceinture, pneu, parking, capot, phare pour la voiture ; trottoir,
+  semelle, lacet pour la marche.
+- `radio` et `clé` ajoutés à « En voiture », qui manquait de vocabulaire propre.
+- Trois listes de sept mots, objectif abaissé de 5 à 4.
+- Spécification : une section sur le champ lexical des familles, qui doivent
+  être disjointes — contrainte plus forte qu'il n'y paraît.
 
 ### 0.4.0+6 — Réserve de dix mots par famille
 - Trois listes de dix mots ; six sont proposés à la fois, les autres attendent.

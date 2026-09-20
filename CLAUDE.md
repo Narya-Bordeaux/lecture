@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.4.0+6** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.4.1+7** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -160,6 +160,14 @@ quelle que soit la taille de l'écran.
 de la réserve. `WordFamily.goal` dit combien de mots ouvrent la destination :
 sans lui, il faudrait classer presque toute l'étape avant d'ouvrir un chemin.
 C'est cet objectif que l'enfant voit sur la zone, pas la taille de la réserve.
+Les listes n'ont pas à être de la même taille d'une famille à l'autre.
+
+**Champ lexical des familles** — les familles d'une étape doivent avoir des
+vocabulaires disjoints, et c'est plus contraignant qu'il n'y paraît : « En bus »
+et « En voiture » partagent toute la mécanique (moteur, roue, frein, siège,
+phare, ceinture), un bus étant une voiture en plus grand. Ne retenir que les
+mots propres à l'usage. Pour une nouvelle scène, préférer des familles
+naturellement séparées plutôt que d'élaguer après coup.
 
 ## 7. Interface
 

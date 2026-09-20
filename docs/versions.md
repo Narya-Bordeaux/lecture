@@ -44,6 +44,33 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.4.1+7 — 20 septembre 2026 — Listes de sept mots, sans ambiguïté
+
+Relecture du contenu : onze mots valaient pour deux familles à la fois et ont
+été retirés — navette, car, voyageur (bus) ; ceinture, pneu, parking, capot,
+phare (voiture) ; trottoir, semelle, lacet (marche).
+
+« En voiture » s'est retrouvée à cinq mots, faute de vocabulaire qui lui soit
+propre : `radio` et `clé` l'ont complétée, deux mots de la voiture familiale que
+le bus ne revendique pas. Les trois familles comptent maintenant sept mots.
+
+L'objectif passe de 5 à 4. Sur des listes de sept, un objectif de 5 laissait
+trop peu de marge, et surtout : plus l'objectif est haut, moins le choix du
+chemin est un vrai choix, l'enfant ayant déjà classé la plus grande partie de
+l'étape quand une famille atteint son but.
+
+La spécification gagne une section sur le **champ lexical des familles**. Le
+fond du problème est structurel : « En bus » et « En voiture » partagent toute
+la mécanique — moteur, roue, frein, siège, phare, ceinture — car un bus est une
+voiture en plus grand. Seuls tiennent les mots propres à l'usage. Pour une
+nouvelle scène, mieux vaut choisir des familles aux lexiques naturellement
+séparés que d'élaguer après coup.
+
+Les listes n'ont plus à être de même taille : un test le vérifie, en s'assurant
+seulement qu'aucune famille ne demande plus de mots qu'elle n'en possède.
+
+66 tests au vert, `flutter analyze` sans erreur.
+
 ### 0.4.0+6 — 20 septembre 2026 — Réserve de dix mots par famille
 
 Chaque famille dispose désormais d'une liste de dix mots. Six sont proposés à la
