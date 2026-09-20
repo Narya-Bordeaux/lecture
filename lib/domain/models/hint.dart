@@ -1,14 +1,13 @@
-/// Les deux aides a la lecture proposees pendant le classement.
+/// Les aides a la lecture proposees pendant le classement.
 ///
-/// L'ordre de declaration suit l'ordre pedagogique : le decoupage aide a
-/// dechiffrer sans livrer le sens, l'illustration donne le sens et donc
-/// presque la reponse.
+/// Il n'y en a qu'une. L'illustration du mot, un temps prevue, a ete ecartee :
+/// avec trois familles seulement, les possibilites se reduisent d'elles-memes a
+/// mesure que les categories se remplissent, et un enfant qui a oublie le sens
+/// d'un mot finit par n'avoir plus qu'un choix. Montrer l'image en plus
+/// reviendrait a donner la reponse.
 enum Hint {
   /// Montre le mot decoupe en syllabes.
-  syllables,
-
-  /// Montre une image de ce que le mot designe.
-  illustration;
+  syllables;
 
   static Hint fromName(String name) {
     return Hint.values.firstWhere(

@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.4.1+7** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.5.0+8** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -155,12 +155,18 @@ chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
 repérées en fractions de l'image, jamais en pixels, pour rester collées au décor
 quelle que soit la taille de l'écran.
 
-**Réserve et objectif** — une famille a plus de mots que l'étape n'en montre
-(`Stage.visibleWordCount`). Un mot bien classé est remplacé sur place par un mot
-de la réserve. `WordFamily.goal` dit combien de mots ouvrent la destination :
-sans lui, il faudrait classer presque toute l'étape avant d'ouvrir un chemin.
-C'est cet objectif que l'enfant voit sur la zone, pas la taille de la réserve.
-Les listes n'ont pas à être de la même taille d'une famille à l'autre.
+**Réserve et listes pleines** — une famille a plus de mots que l'étape n'en
+montre (`Stage.visibleWordCount`). Un mot bien classé est remplacé sur place par
+un mot de la réserve. Les listes sont **pleines** : une famille s'ouvre quand
+tous ses mots sont classés. `WordFamily.goal` permet d'en demander moins, mais
+n'est utilisé nulle part — remplir entièrement une catégorie est en soi une aide,
+puisque le choix se réduit pour les mots suivants. Les listes n'ont pas à être
+de la même taille d'une famille à l'autre.
+
+**Une seule aide** — le découpage syllabique, dès la première erreur sur le mot.
+L'illustration a été écartée : avec trois familles, les possibilités se
+réduisent d'elles-mêmes et montrer l'image donnerait la réponse. Ne pas la
+réintroduire sans arbitrage — c'est une décision, pas un oubli.
 
 **Champ lexical des familles** — les familles d'une étape doivent avoir des
 vocabulaires disjoints, et c'est plus contraignant qu'il n'y paraît : « En bus »

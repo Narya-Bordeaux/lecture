@@ -38,7 +38,6 @@
         {
           "id": "by_bus",
           "label": "En bus",
-          "goal": 4,
           "wordIds": [
             "bus_stop", "ticket", "timetable", "shelter", "line",
             "terminus", "counter"
@@ -49,7 +48,6 @@
         {
           "id": "by_car",
           "label": "En voiture",
-          "goal": 4,
           "wordIds": [
             "wheel", "fuel", "boot", "garage_word", "horn",
             "radio", "key"
@@ -60,7 +58,6 @@
         {
           "id": "on_foot",
           "label": "À pied",
-          "goal": 4,
           "wordIds": [
             "shoe", "path", "step", "stride", "leg", "heel", "walk"
           ],

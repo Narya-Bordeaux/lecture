@@ -1,6 +1,6 @@
 # Spécification du jeu de découverte de la lecture
 
-**Version de travail 0.7 — 20 septembre 2026**
+**Version de travail 0.8 — 20 septembre 2026**
 
 ## Objet du document
 
@@ -41,7 +41,7 @@ Quand une famille est remplie, il peut avancer sur cette histoire. Il aura alors
 3. L’étape présente plusieurs mots visibles et plusieurs familles désignées par leur nom.
 4. L’enfant choisit un mot et le fait glisser vers le nom de la famille correspondante.
 5. Toutes les familles acceptent leurs mots. L’enfant classe librement, dans l’ordre qu’il veut.
-6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Les aides se débloquent sur le mot concerné, voir « Aides à la lecture ».
+6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Le découpage syllabique se débloque sur le mot concerné, voir « Aides à la lecture ».
 7. Dès qu’une famille atteint son objectif, **sa destination devient disponible** : elle s’active sur la carte, sans que l’enfant y soit envoyé. Il peut continuer à classer et rendre plusieurs destinations disponibles.
 8. L’enfant part quand il le décide, vers la destination disponible de son choix. À ce moment seulement l’étape se termine, les mots restants disparaissent et le chat avance.
 
@@ -59,16 +59,19 @@ Le tirage est libre : il peut arriver qu'aucun mot d'une famille donnée ne soit
 à l'écran. L'enfant classe alors ailleurs, ce qui renouvelle la réserve. Cela
 l'oblige à lire tous les mots plutôt qu'à se concentrer sur une seule famille.
 
-Une famille ouvre sa destination au bout d'un **objectif** plus court que sa
-liste. C'est ce nombre que l'enfant voit sur la zone (« 3 / 4 »), et il se règle
-famille par famille dans le contenu. Les listes n'ont pas à être de la même
-taille : toutes les familles n'offrent pas le même champ lexical.
+**Les listes sont pleines** : une famille ouvre sa destination lorsque tous ses
+mots sont classés. C'est ce que l'enfant voit sur la zone (« 3 / 7 »). Les
+listes n'ont pas à être de la même taille d'une famille à l'autre — toutes
+n'offrent pas le même champ lexical — et le contenu peut, au besoin, demander
+moins que la liste entière.
 
-> **À surveiller.** Plus l'objectif est haut, moins le choix du chemin est un
-> vrai choix : avec un tirage libre, l'enfant aura classé la plus grande partie
-> de l'étape avant qu'une famille n'atteigne son but, et la question « par où
-> partir ? » arrivera trop tard pour se poser. L'objectif est à 4 sur des
-> listes de 7.
+Remplir entièrement une catégorie est en soi une aide : les mots restants ne
+peuvent plus lui appartenir, et le choix se réduit pour ceux qui suivent.
+
+> **Conséquence.** Le choix du chemin arrive tard, une fois l'essentiel de
+> l'étape classé, et les trois destinations sont alors souvent ouvertes en même
+> temps. Le choix est donc complet plutôt que précoce : l'enfant a fait tout le
+> travail de lecture, puis décide où aller.
 
 ### Familles et champ lexical
 
@@ -93,34 +96,36 @@ est récursive, un lieu contenant une étape qui mène à d’autres lieux.
 
 ## Aides à la lecture
 
-Deux aides peuvent être demandées pendant le classement. Leur disponibilité exacte selon les niveaux reste à définir.
+Une seule aide est proposée pendant le classement : **afficher le découpage du
+mot en syllabes**. Elle apparaît dès la première erreur sur ce mot, et peut
+aussi être demandée sans avoir commis d’erreur. Une fois obtenue sur un mot,
+elle y reste jusqu’à la fin de l’étape.
 
-- Afficher le découpage du mot en syllabes.
-- Afficher une illustration correspondant au mot.
+Le découpage aide à déchiffrer sans livrer le sens : l’enfant garde tout le
+travail de compréhension, qui est l’objet du jeu.
 
-Les aides se débloquent aussi automatiquement, en fonction du nombre d’erreurs
-commises **sur un même mot** :
+### Pourquoi pas d’illustration
 
-| Erreurs sur le mot | Aide proposée |
-|---|---|
-| 1 | Découpage en syllabes |
-| 5 | Illustration |
+Une seconde aide — montrer une image du mot — a été prévue puis **écartée**. Le
+nombre de familles fait déjà office d’aide : avec trois catégories, les
+possibilités se réduisent d’elles-mêmes à mesure qu’elles se remplissent, et
+l’enfant qui a oublié le sens d’un mot finit par n’avoir plus qu’un choix.
+Ajouter l’image reviendrait à donner la réponse.
 
-L’écart entre les deux seuils est délibéré. Le découpage arrive tôt, car il aide à
-déchiffrer sans livrer le sens : l’enfant garde tout le travail de compréhension.
-L’illustration, qui donne le sens et donc presque la réponse, n’arrive qu’après un
-effort prolongé.
-
-Une aide débloquée sur un mot le reste jusqu’à la fin de l’étape.
+> **Conséquence assumée.** La fin d’une étape devient facile : quand deux
+> familles sont pleines, les derniers mots se classent sans être lus. C’est un
+> soulagement pour un enfant en difficulté, et sans intérêt pour un bon lecteur
+> — d’où le nombre de familles comme axe de progression, déjà retenu plus bas.
 
 ## Progression et difficulté
 
 La difficulté doit pouvoir varier au sein du même jeu. Les axes de progression déjà retenus sont les suivants :
 
 - la longueur des mots et leur difficulté de déchiffrage ;
-- la présence ou l’absence d’illustrations ;
+- le seuil d’apparition du découpage syllabique, voire son absence ;
 - le caractère plus ou moins évident des familles ;
-- le nombre de familles et de mots visibles, qui varie selon le niveau.
+- le nombre de familles et de mots visibles, qui varie selon le niveau. Plus il
+  y a de familles, moins leur remplissage progressif aide l’enfant.
 
 ### Mots ambigus
 
@@ -143,7 +148,7 @@ Les mots ambigus, qui pourraient raisonnablement appartenir à plusieurs famille
 
 | État | Éléments concernés |
 |---|---|
-| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, seuils des aides automatiques (1 et 5 erreurs), classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie. |
+| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, découpage syllabique comme aide unique dès la première erreur, abandon de l’illustration, listes pleines, réserve et renouvellement sur place, classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie. |
 | À préciser | Forme de la carte, niveaux détaillés, récompenses, durée d’une session, suivi de la progression et rôle précis de l’adulte. |
 
 ## Questions ouvertes pour la prochaine version

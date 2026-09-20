@@ -44,6 +44,36 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.5.0+8 — 20 septembre 2026 — Listes pleines, une seule aide
+
+Deux décisions de conception, prises ensemble parce qu'elles reposent sur la
+même observation : **le nombre de familles est déjà une aide**.
+
+**Listes pleines.** Une famille s'ouvre lorsque tous ses mots sont classés, et
+non plus au bout d'un objectif raccourci. `goal` disparaît du contenu, le champ
+restant disponible si un niveau veut en demander moins. Remplir entièrement une
+catégorie réduit le choix pour les mots suivants : c'est une aide progressive
+qui ne coûte rien.
+
+**L'illustration est retirée.** Avec trois familles, un enfant qui a oublié le
+sens d'un mot finit par n'avoir plus qu'un choix ; montrer l'image en plus
+reviendrait à donner la réponse. Sont supprimés : `Hint.illustration`,
+`HintPolicy.illustrationThreshold` et `Word.illustrationAsset`, ce dernier
+n'ayant jamais été rempli. Le découpage syllabique reste l'unique aide, dès la
+première erreur.
+
+Conséquence assumée, notée dans la spécification : la fin d'une étape devient
+facile, puisque les derniers mots se classent sans être lus une fois deux
+familles pleines. C'est un soulagement pour un enfant en difficulté et sans
+intérêt pour un bon lecteur — d'où le nombre de familles comme axe de
+progression.
+
+Le choix du chemin arrive désormais tard, une fois l'essentiel de l'étape
+classé, et les trois destinations sont souvent ouvertes en même temps. Le choix
+est donc complet plutôt que précoce.
+
+66 tests au vert, `flutter analyze` sans erreur.
+
 ### 0.4.1+7 — 20 septembre 2026 — Listes de sept mots, sans ambiguïté
 
 Relecture du contenu : onze mots valaient pour deux familles à la fois et ont

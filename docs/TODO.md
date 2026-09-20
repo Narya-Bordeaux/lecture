@@ -45,16 +45,14 @@ trop longtemps serait de toute façon périmé.
       taille des étiquettes, lisibilité sur le décor.
 - [ ] Trancher le **tirage** : il est libre, donc aucun mot d'une famille donnée
       peut n'être à l'écran. Faut-il garantir au moins un mot par famille ?
-- [ ] Vérifier à l'usage que l'objectif de 4 laisse le choix du chemin ouvert :
-      s'il est atteint trop tard, l'enfant aura tout classé avant de choisir.
+- [ ] Vérifier à l'usage que la fin d'étape ne devient pas trop facile : deux
+      familles pleines, et les derniers mots se classent sans être lus. C'est le
+      revers assumé de l'aide par réduction du choix.
 - [ ] `abri` reste vague hors du contexte de l'abribus, et `talon` côtoie
       `ticket` dans la même étape (un ticket a un talon). À revoir si l'usage
       montre une hésitation.
 - [ ] Illustrer les autres étapes : la gare n'a ni décor ni zones placées, elle
       s'affiche sur fond uni.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
-- [ ] Illustrations des mots : le champ `illustrationAsset` existe et reste vide.
-      Tant qu'il l'est, l'aide « illustration » n'a rien à montrer, alors qu'elle
-      se débloque à la 5ᵉ erreur.
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
 - [ ] Récit : `Stage.narrative` n'est affiché que sur les étapes terminales.

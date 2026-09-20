@@ -134,22 +134,17 @@ void main() {
       expect(engine.state.hintsFor('train'), contains(Hint.syllables));
     });
 
-    test('l\'illustration n\'arrive qu\'a la cinquieme erreur', () {
+    test('le decoupage est la seule aide du jeu', () {
+      // L'illustration a ete ecartee : avec trois familles, les possibilites
+      // se reduisent d'elles-memes et montrer l'image donnerait la reponse.
       final engine = buildEngine();
 
-      for (var attempt = 1; attempt <= 4; attempt++) {
-        final result = engine.placeWord(wordId: 'train', familyId: 'on_foot');
-        expect(
-          result.unlockedHints,
-          isNot(contains(Hint.illustration)),
-          reason: 'erreur $attempt : trop tot pour l\'illustration',
-        );
+      for (var attempt = 1; attempt <= 8; attempt++) {
+        engine.placeWord(wordId: 'train', familyId: 'on_foot');
       }
 
-      final fifth = engine.placeWord(wordId: 'train', familyId: 'on_foot');
-
-      expect(fifth.unlockedHints, contains(Hint.illustration));
-      expect(engine.state.hintsFor('train'), contains(Hint.illustration));
+      expect(engine.state.hintsFor('train'), <Hint>{Hint.syllables});
+      expect(Hint.values, <Hint>[Hint.syllables]);
     });
 
     test('une aide n\'est signalee comme nouvelle qu\'une seule fois', () {
@@ -171,12 +166,9 @@ void main() {
       expect(engine.state.hintsFor('train'), contains(Hint.syllables));
     });
 
-    test('les seuils sont ceux de la politique injectee', () {
+    test('le seuil est celui de la politique injectee', () {
       final engine = buildEngine(
-        policy: const HintPolicy(
-          syllablesThreshold: 2,
-          illustrationThreshold: 3,
-        ),
+        policy: const HintPolicy(syllablesThreshold: 2),
       );
 
       final first = engine.placeWord(wordId: 'train', familyId: 'on_foot');
@@ -184,17 +176,14 @@ void main() {
 
       final second = engine.placeWord(wordId: 'train', familyId: 'on_foot');
       expect(second.unlockedHints, contains(Hint.syllables));
-
-      final third = engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      expect(third.unlockedHints, contains(Hint.illustration));
     });
 
     test('une aide peut etre demandee sans avoir commis d\'erreur', () {
       final engine = buildEngine();
 
-      engine.requestHint(wordId: 'shoe', hint: Hint.illustration);
+      engine.requestHint(wordId: 'shoe', hint: Hint.syllables);
 
-      expect(engine.state.hintsFor('shoe'), contains(Hint.illustration));
+      expect(engine.state.hintsFor('shoe'), contains(Hint.syllables));
       expect(engine.state.errorCountFor('shoe'), 0);
     });
   });

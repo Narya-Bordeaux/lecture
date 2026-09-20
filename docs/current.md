@@ -1,15 +1,15 @@
 # État courant
 
-**Version : 0.4.1+7** — 20 septembre 2026
+**Version : 0.5.0+8** — 20 septembre 2026
 
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
 `Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
 bus, la voiture et le sentier, glisser-déposer, aides et bouton de départ.
-Chaque famille puise dans une liste de sept mots, et un mot bien classé est
-remplacé sur place par un mot de la réserve. La spécification est en version de
-travail 0.7.
+Chaque famille puise dans une liste pleine de sept mots, et un mot bien classé
+est remplacé sur place par un mot de la réserve. La spécification est en version
+de travail 0.8.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
 Seul le comportement est prouvé, par 66 tests.
@@ -17,13 +17,21 @@ Seul le comportement est prouvé, par 66 tests.
 ## Chantier en cours
 
 **Niveau test « Grisbie va à la plage »** — reste à juger le rendu réel sur
-appareil, puis à traiter la suite du parcours : la gare n'a pas d'illustration et
-ses zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
+appareil, puis à traiter la suite du parcours : la gare n'a pas de décor et ses
+zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
 
 Un réglage attend un avis : le **tirage libre**, qui peut ne proposer aucun mot
 d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.5.0+8 — Listes pleines, une seule aide
+- Les listes sont pleines : une famille s'ouvre quand tous ses mots sont classés.
+  `goal` disparaît du contenu. Remplir une catégorie devient une aide en soi,
+  puisque les mots restants ne peuvent plus lui appartenir.
+- L'aide « illustration » est retirée : `Hint.illustration`,
+  `HintPolicy.illustrationThreshold` et `Word.illustrationAsset` supprimés.
+- Le découpage syllabique reste l'unique aide, dès la 1ʳᵉ erreur.
 
 ### 0.4.1+7 — Listes de sept mots, sans ambiguïté
 - Onze mots retirés, partagés entre deux familles : navette, car, voyageur pour
@@ -95,9 +103,11 @@ d'une famille donnée.
 - **Le classement est libre, le départ est choisi** : compléter une famille ouvre sa
   destination sans y envoyer l'enfant. Plusieurs destinations peuvent être ouvertes
   en même temps ; l'enfant part quand il le décide.
-- **Aides automatiques** : syllabes dès la 1ʳᵉ erreur sur un mot, illustration à la
-  5ᵉ. L'écart est délibéré — le découpage aide à déchiffrer, l'illustration donne
-  presque la réponse.
+- **Une seule aide** : le découpage syllabique, dès la 1ʳᵉ erreur sur le mot.
+  L'illustration a été écartée — avec trois familles, les possibilités se
+  réduisent d'elles-mêmes à mesure que les catégories se remplissent.
+- **Listes pleines** : une famille s'ouvre quand tous ses mots sont classés.
+  Remplir une catégorie est en soi une aide pour les mots suivants.
 - **Étapes imbriquées** : une destination atteinte ouvre une étape de même nature,
   avec ses propres familles. Le modèle est récursif, un seul moteur sert partout.
 

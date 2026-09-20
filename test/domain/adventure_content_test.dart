@@ -68,15 +68,17 @@ void main() {
       );
     });
 
-    test('chaque famille s\'ouvre avant d\'avoir epuise sa liste', () {
-      // Sans objectif plus court, il faudrait classer presque tous les mots de
-      // l'etape avant d'ouvrir le moindre chemin.
+    test('une famille s\'ouvre quand toute sa liste est classee', () {
+      // Les listes sont pleines, sans objectif raccourci : remplir entierement
+      // une categorie est en soi une aide, puisque les mots restants ne
+      // peuvent plus lui appartenir et que le choix se reduit.
       for (final family in adventure.startStage.families) {
         expect(
-          family.requiredCount,
-          lessThan(family.wordIds.length),
-          reason: 'La famille "${family.id}" demande toute sa liste',
+          family.goal,
+          isNull,
+          reason: 'La famille "${family.id}" raccourcit sa liste',
         );
+        expect(family.requiredCount, family.wordIds.length);
       }
     });
 
