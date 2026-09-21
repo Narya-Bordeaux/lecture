@@ -44,6 +44,37 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.16.0+29 — 21 septembre 2026 — Un troisième choix, et des listes bien à soi
+
+Deux remarques d'usage, dont une qui demandait d'abord une vérification.
+
+**« La liste du reste est-elle globale ? »** Non — mais la crainte était
+justifiée dans la lettre. Les listes appartiennent au lieu ; seuls les **mots**
+sont globaux, définis une fois dans le lexique et cités ensuite. Sauf que la
+famille était construite en `const`, et Dart canonise les constantes : deux tris
+uniques partageaient **littéralement le même objet**. Immutable, donc rien
+n'aurait jamais divergé — mais il ne faut pas avoir à le démontrer pour être
+tranquille. Le `const` tombe, et deux tests le prouvent : les familles ne sont
+pas le même objet, et remplir l'une laisse l'autre intacte.
+
+**Un troisième choix structurel : « Une fin ».** À côté du tri à plusieurs
+listes et du tri unique, `TripKind.ending` crée un lieu **déjà achevé** — le seul
+qu'on puisse créer terminé, ni faux ni incomplet. Il manquait : rien ne
+permettait de clore une journée depuis l'outil.
+
+Les trois choix quittent le bouton segmenté pour une liste à trois entrées, où
+chacune **dit en une ligne ce que l'enfant y fera**. Ce ne sont pas trois façons
+d'habiller un lieu, ce sont trois mécaniques ; un contrôle qui les réduit à des
+étiquettes courtes le cachait.
+
+- `RadioListTile` avait changé d'API : les deux avertissements de dépréciation
+  sont traités par un `RadioGroup`, pas laissés en place.
+- Le plan de navigation discuté — cliquer le titre pour l'image et les zones,
+  cliquer un trajet pour sa liste de mots, un bouton « Valider » — est consigné
+  dans `TODO.md`. Il absorbe les étapes 4 à 6 du chantier, et reste à arbitrer.
+
+- 240 tests au vert, dont 7 nouveaux.
+
 ### 0.15.0+28 — 21 septembre 2026 — Le tri unique
 
 Essayé sur l'appareil, le mode « personnage » affichait un trajet **« sans

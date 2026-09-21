@@ -84,13 +84,22 @@ construisant :
       brouillon sera enregistré, l'outil ne pourra plus le rouvrir.
 - [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
       d'un personnage — l'écran ne les demande pas encore.
-- [ ] Étape 4 : l'image. Pendant l'édition elle doit se charger **par chemin de
-      fichier**, les assets étant scellés au build ; `BackgroundImageSize` devra
-      savoir faire les deux.
-- [ ] Étape 5 : le lexique — saisie des mots et de leur découpage, unicité
-      d'orthographe garantie.
-- [ ] Étape 6 : rebrancher le calage des zones sur l'aventure éditée, et
-      enregistrer au lieu de copier dans le presse-papiers.
+
+**La navigation visée depuis l'écran du parcours** — discutée, pas encore
+arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
+
+- [ ] **Cliquer le titre d'une carte** ouvre le lieu : charger son
+      illustration, et y poser les zones de dépôt. C'est l'outil de calage
+      existant, rebranché sur l'aventure éditée au lieu du contenu livré
+      (étapes 4 et 6). L'image devra se charger **par chemin de fichier**
+      pendant l'édition, les assets étant scellés au build ;
+      `BackgroundImageSize` devra savoir faire les deux.
+- [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
+      famille : saisie des mots et de leur découpage, unicité d'orthographe
+      garantie (étape 5).
+- [ ] **Un bouton « Valider »**, à gauche d'« Ajouter », qui valide les listes.
+      Reste à définir ce que « valider » arrête exactement — figer une liste
+      close, ou seulement signaler qu'on la considère finie.
 
 ## Cadre de travail
 

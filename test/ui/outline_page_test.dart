@@ -246,6 +246,47 @@ void main() {
     });
   });
 
+  group('Clore la journée', () {
+    testWidgets('les trois choix structurels sont offerts, et expliqués',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Ajouter').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Plusieurs listes'), findsOneWidget);
+      expect(find.text('Tri unique'), findsOneWidget);
+      expect(find.text('Une fin'), findsOneWidget);
+      // Ce ne sont pas trois habillages : chacun dit ce que l'enfant y fera.
+      expect(
+        find.text('La journée s\'arrête là. Rien n\'en repart.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('un trajet « une fin » crée un lieu déjà achevé',
+        (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'La plage');
+      await tester.tap(find.text('Une fin'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer'));
+      await tester.pumpAndSettle();
+
+      // Le seul lieu qu'on puisse créer déjà terminé : il l'annonce, et rien
+      // ne le signale comme inachevé.
+      expect(find.text('Fin de l\'aventure.'), findsOneWidget);
+      expect(find.text('La plage'), findsNWidgets(2));
+    });
+  });
+
   group('Partir d\'une page blanche', () {
     testWidgets('une aventure neuve montre son seul point de depart',
         (tester) async {

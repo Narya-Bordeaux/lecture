@@ -154,34 +154,74 @@ class _AddTripsPageState extends State<AddTripsPage> {
             // Le bouton « Créer » s'active des qu'un nom est saisi.
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 8),
-          SegmentedButton<TripKind>(
-            segments: const <ButtonSegment<TripKind>>[
-              ButtonSegment<TripKind>(
-                value: TripKind.ordinary,
-                label: Text('Plusieurs listes'),
-                icon: Icon(Icons.dashboard_outlined),
-              ),
-              ButtonSegment<TripKind>(
-                value: TripKind.singleSort,
-                label: Text('Tri unique'),
-                icon: Icon(Icons.filter_alt_outlined),
-              ),
-            ],
-            selected: <TripKind>{_kinds[index]},
-            onSelectionChanged: (selection) =>
-                setState(() => _kinds[index] = selection.first),
-          ),
-          if (_kinds[index] == TripKind.singleSort)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                'Là-bas, l\'enfant triera entre ce qui est du thème et tout '
-                'le reste. Une seule sortie.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+          const SizedBox(height: 4),
+          // Trois choix structurels, et non trois façons d'habiller un lieu :
+          // ils décident de ce que l'enfant fera là-bas. Une liste déroulante
+          // les cacherait ; chacun s'explique donc en une ligne.
+          RadioGroup<TripKind>(
+            groupValue: _kinds[index],
+            onChanged: (chosen) => setState(() => _kinds[index] = chosen!),
+            child: const Column(
+              children: <Widget>[
+                _KindChoice(
+                  kind: TripKind.ordinary,
+                  icon: Icons.dashboard_outlined,
+                  title: 'Plusieurs listes',
+                  explanation: 'L\'enfant trie entre plusieurs familles, et le '
+                      'lieu pourra ouvrir plusieurs chemins.',
+                ),
+                _KindChoice(
+                  kind: TripKind.singleSort,
+                  icon: Icons.filter_alt_outlined,
+                  title: 'Tri unique',
+                  explanation: 'L\'enfant trie entre ce qui est du thème et '
+                      'tout le reste. Une seule sortie.',
+                ),
+                _KindChoice(
+                  kind: TripKind.ending,
+                  icon: Icons.flag_outlined,
+                  title: 'Une fin',
+                  explanation: 'La journée s\'arrête là. Rien n\'en repart.',
+                ),
+              ],
             ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Un des trois choix structurels, avec ce qu'il change pour l'enfant.
+class _KindChoice extends StatelessWidget {
+  const _KindChoice({
+    required this.kind,
+    required this.icon,
+    required this.title,
+    required this.explanation,
+  });
+
+  final TripKind kind;
+  final IconData icon;
+  final String title;
+  final String explanation;
+
+  @override
+  Widget build(BuildContext context) {
+    return RadioListTile<TripKind>(
+      value: kind,
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Row(
+        children: <Widget>[
+          Icon(icon, size: 18),
+          const SizedBox(width: 8),
+          Text(title),
+        ],
+      ),
+      subtitle: Text(
+        explanation,
+        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }

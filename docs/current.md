@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.15.0+28** — 21 septembre 2026
+**Version : 0.16.0+29** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -69,6 +69,20 @@ aucun mot d'une famille donnée.
 
 ## Dernières modifications
 
+### 0.16.0+29 — Un troisième choix, et des listes bien à soi
+- **La liste du reste n'était pas globale**, mais elle était `const` — et Dart
+  canonise les constantes, donc deux tris uniques partageaient littéralement le
+  même objet. Immutable, donc sans conséquence, mais il ne faut pas avoir à le
+  démontrer : le `const` tombe, deux tests prouvent l'indépendance.
+- **Troisième choix structurel : « Une fin »** (`TripKind.ending`). Le seul lieu
+  qu'on puisse créer déjà achevé. Rien ne permettait de clore une journée.
+- Les trois choix passent en liste explicite : chacun **dit ce que l'enfant y
+  fera**. Ce sont trois mécaniques, pas trois habillages.
+- `RadioListTile` avait changé d'API ; les dépréciations sont traitées.
+- Le plan de navigation discuté (titre → image et zones, trajet → liste de mots,
+  bouton « Valider ») est consigné dans `TODO.md`, à arbitrer.
+- 240 tests au vert, dont 7 nouveaux.
+
 ### 0.15.0+28 — Le tri unique
 - **Ce que faisait la « rencontre » n'est pas narratif, c'est une mécanique** :
   l'enfant trie entre **une liste et son complément**, au lieu de comparer
@@ -102,25 +116,6 @@ aucun mot d'une famille donnée.
   tests d'écran agrandissent la fenêtre, sans quoi ils cherchent des widgets
   qui n'existent pas dans l'arbre.
 - 223 tests au vert, dont 9 nouveaux.
-
-### 0.13.0+26 — L'écran de construction du parcours
-- **`OutlinePage`** : un point, sa lettre, ses trajets dessous, un bouton
-  **Ajouter** qui demande combien de trajets en partent, leur nature — classique
-  ou personnage — et leur nom. Cliquer un trajet ajoute la suite depuis son
-  arrivée.
-- **`AdventureBuilder`** (Dart pur) porte la règle : *l'identifiant naît du nom,
-  puis s'en détache*. « La gare » donne `gare`, et renommer le lieu ne le touche
-  plus — sinon chaque renommage casserait les destinations qui le citent.
-- La règle reproduit les identifiants écrits à la main dans le contenu livré.
-  Les accents tombent : un identifiant finit dans un chemin de fichier.
-- Un homonyme est **suffixé, jamais écrasé**. Un trajet **personnage** pose
-  d'office son classeur de rebut. Ajouter un trajet à une fin la fait cesser
-  d'en être une.
-- Un lieu neuf naît **incomplet et jamais faux** : écrire ne produit pas d'écran
-  rouge.
-- **Rien n'est enregistré** : l'écran travaille en mémoire. Voir `TODO.md` pour
-  les trois manques.
-- 214 tests au vert, dont 22 nouveaux.
 
 ## Décisions prises
 

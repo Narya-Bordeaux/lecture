@@ -18,6 +18,12 @@ enum TripKind {
   /// contrainte qui va avec — un tel lieu n'a **qu'une seule sortie**, celle
   /// que le theme ouvre.
   singleSort,
+
+  /// Une **fin** : la journee s'arrete la, et rien n'en repart.
+  ///
+  /// Troisieme choix structurel, a cote des deux mecaniques de tri. C'est le
+  /// seul lieu qu'on puisse creer deja acheve — ni faux, ni incomplet.
+  ending,
 }
 
 /// Ce que l'auteur demande en ajoutant un trajet : un nom, et une nature.
@@ -168,30 +174,42 @@ class AdventureBuilder {
 
   /// Le lieu qu'un trajet atteint, a sa naissance.
   Stage _arrivalOf(NewTrip trip, String stageId) {
-    if (trip.kind == TripKind.ordinary) {
-      return Stage(id: stageId, locationName: trip.name);
-    }
+    switch (trip.kind) {
+      case TripKind.ordinary:
+        return Stage(id: stageId, locationName: trip.name);
 
-    // La liste du reste est la moitie du dispositif, pas un defaut a corriger :
-    // c'est elle qui fait du lieu un tri unique. La poser d'office evite un
-    // lieu ne a moitie, et il n'y aurait aucun moyen de la deviner ensuite.
-    //
-    // Aucun personnage n'est invente : il est un ornement, et l'auteur le pose
-    // s'il en veut un.
-    return Stage(
-      id: stageId,
-      locationName: trip.name,
-      families: List<WordFamily>.unmodifiable(<WordFamily>[
-        const WordFamily(
-          id: 'le_reste',
-          // Nom provisoire : comment nommer cette seconde liste reste une
-          // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
-          // peut-etre pas le geste le plus juste a six ans.
-          label: 'Le reste',
-          words: <Word>[],
-        ),
-      ]),
-    );
+      case TripKind.ending:
+        // Le seul lieu qui naisse acheve : declare fin, et sans famille.
+        return Stage(id: stageId, locationName: trip.name, isEnding: true);
+
+      case TripKind.singleSort:
+        // La liste du reste est la moitie du dispositif, pas un defaut a
+        // corriger : c'est elle qui fait du lieu un tri unique. La poser
+        // d'office evite un lieu ne a moitie, et il n'y aurait aucun moyen de
+        // la deviner ensuite.
+        //
+        // Aucun personnage n'est invente : il est un ornement, et l'auteur le
+        // pose s'il en veut un.
+        return Stage(
+          id: stageId,
+          locationName: trip.name,
+          families: List<WordFamily>.unmodifiable(<WordFamily>[
+            // **Pas `const`** : Dart canoniserait l'objet, et deux tris uniques
+            // partageraient litteralement la meme famille. Elles sont
+            // immutables, donc rien ne pourrait diverger — mais il ne faut pas
+            // avoir a le demontrer pour etre tranquille. Chaque lieu a la
+            // sienne.
+            WordFamily(
+              id: 'le_reste',
+              // Nom provisoire : comment nommer cette seconde liste reste une
+              // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
+              // peut-etre pas le geste le plus juste a six ans.
+              label: 'Le reste',
+              words: const <Word>[],
+            ),
+          ]),
+        );
+    }
   }
 
   /// Un identifiant de lieu libre, suffixe s'il est deja pris.

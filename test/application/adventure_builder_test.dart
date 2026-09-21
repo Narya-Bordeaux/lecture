@@ -3,6 +3,7 @@ import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 
 import '../support/stage_builders.dart';
@@ -260,6 +261,80 @@ void main() {
 
       expect(built.stages, hasLength(3));
       expect(built.startStage.families, hasLength(2));
+    });
+  });
+
+  group('Chaque liste du reste est propre a son lieu', () {
+    test('deux tris uniques ne partagent pas leur liste', () {
+      final built = AdventureBuilder(emptyAdventureAt('depart')).addTrips(
+        'depart',
+        const <NewTrip>[
+          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
+          NewTrip(name: 'Le kiosque', kind: TripKind.singleSort),
+        ],
+      );
+
+      final boutique = built.findStage('boutique')!.families.single;
+      final kiosque = built.findStage('kiosque')!.families.single;
+
+      // Les familles ne sont pas le meme objet : ecrire dans l'une ne peut en
+      // aucun cas toucher l'autre. Les mots viennent du lexique, qui les
+      // definit une fois ; les **listes**, elles, appartiennent au lieu.
+      expect(identical(boutique, kiosque), isFalse);
+      expect(boutique.words, isEmpty);
+      expect(kiosque.words, isEmpty);
+    });
+
+    test('remplir l\'une laisse l\'autre intacte', () {
+      final built = AdventureBuilder(emptyAdventureAt('depart')).addTrips(
+        'depart',
+        const <NewTrip>[
+          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
+          NewTrip(name: 'Le kiosque', kind: TripKind.singleSort),
+        ],
+      );
+
+      final filled = built.findStage('boutique')!.families.single
+          .copyWith(words: <Word>[word('vélo', const <String>['vé', 'lo'])]);
+
+      expect(filled.words, hasLength(1));
+      expect(built.findStage('kiosque')!.families.single.words, isEmpty);
+    });
+  });
+
+  group('Un trajet qui clot la journee', () {
+    late Adventure built;
+
+    setUpAll(() {
+      built = AdventureBuilder(emptyAdventureAt('gare')).addTrips(
+        'gare',
+        const <NewTrip>[NewTrip(name: 'La plage', kind: TripKind.ending)],
+      );
+    });
+
+    test('le lieu d\'arrivee se declare fin', () {
+      // Troisieme choix structurel, a cote du tri a plusieurs listes et du tri
+      // unique : ici la journee s'arrete, et rien ne repart.
+      final beach = built.findStage('plage')!;
+
+      expect(beach.isEnding, isTrue);
+      expect(beach.families, isEmpty);
+    });
+
+    test('elle ne produit aucune anomalie', () {
+      // Une fin declaree et sans famille est un lieu acheve : ni faux, ni
+      // incomplet. C'est le seul lieu qu'on puisse creer deja termine.
+      expect(
+        built.validate().where((i) => i.stageId == 'plage'),
+        isEmpty,
+      );
+    });
+
+    test('on peut toujours la prolonger, elle cesse alors d\'etre une fin', () {
+      final prolonged = AdventureBuilder(built)
+          .addTrips('plage', const <NewTrip>[NewTrip(name: 'Le retour')]);
+
+      expect(prolonged.findStage('plage')!.isEnding, isFalse);
     });
   });
 
