@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.9.3+19** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.9.4+20** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -35,9 +35,14 @@ première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
 compte ou d'une télémétrie doit être posée à l'utilisateur, jamais introduite d'office.
-Corollaire vérifié par un test : **aucun `google-services.json` dans `android/`**
-— sur Android, le SDK Firebase s'initialise seul dès que ce fichier est présent,
-et le jeu livré aux enfants contacterait un serveur.
+
+**Deux saveurs Android**, `jeu` et `auteur` — le jeu ne contacte rien, l'outil
+d'auteur dépose le contenu sur Firebase Storage. Sur Android, le SDK Firebase
+s'initialise seul dès que `google-services.json` est présent : ce fichier ne vit
+donc que dans `android/app/src/auteur/`, et un test le refuse ailleurs. La saveur
+auteur porte le suffixe `.auteur`, ce qui rend impubliable un jeu construit par
+erreur avec elle. **Une saveur ne choisit pas le point d'entrée Dart** : `--flavor`
+et `-t` s'apparient à la main, voir `docs/Noms_et_identifiants.md`.
 
 ## 2. Environnement
 
@@ -57,6 +62,10 @@ Commandes de vérification, à lancer après toute modification de code :
 flutter analyze
 flutter test
 ```
+
+Elles ne passent pas par Gradle et ignorent donc les saveurs. Les commandes de
+build, elles, **exigent `--flavor`** depuis 0.9.4, et ne sont lançables que sur
+un poste équipé : `flutter run --flavor jeu -t lib/main.dart`.
 
 La version du SDK est épinglée dans le hook. Pour en changer, mettre à jour
 ensemble `FLUTTER_VERSION` et `FLUTTER_ARCHIVE_SHA256`, dont l'empreinte se trouve

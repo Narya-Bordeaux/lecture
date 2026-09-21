@@ -12,14 +12,48 @@ fait échouer la suite.
 | Élément | Valeur | Où elle vit |
 |---|---|---|
 | Nom de la fiche Play Store | **Les Aventures de Grisbie** | Play Console, **pas dans le dépôt** |
-| Nom sous l'icône | **Grisbie** | `android:label`, `android/app/src/main/AndroidManifest.xml` |
+| Nom sous l'icône, jeu | **Grisbie** | `resValue` de la saveur `jeu`, `android/app/build.gradle.kts` |
+| Nom sous l'icône, outil d'auteur | **Grisbie auteur** | `resValue` de la saveur `auteur` |
 | Identifiant Android **définitif** | `fr.naryabordeaux.grisbie` | `applicationId` et `namespace`, `android/app/build.gradle.kts` |
+| Identifiant de l'outil d'auteur | `fr.naryabordeaux.grisbie.auteur` | `applicationIdSuffix` de la saveur `auteur` |
+| Saveurs Gradle | `jeu`, `auteur` | dimension `usage`, `android/app/build.gradle.kts` |
 | Paquet Kotlin | `fr.naryabordeaux.grisbie` | `android/app/src/main/kotlin/fr/naryabordeaux/grisbie/` |
 | Package Dart interne | `grisbie` | `pubspec.yaml`, et tous les `import 'package:grisbie/…'` |
 | Titre de l'application | Les Aventures de Grisbie | `UiStringsFr.appTitle` |
 | Projet Firebase développement | `narya-grisbie-dev` | console Firebase |
 | Projet Firebase production | `narya-grisbie-prod` | console Firebase |
-| Pseudo de l'app Android dans Firebase | Les Aventures de Grisbie – Android | console Firebase |
+| App Android enregistrée dans Firebase | `fr.naryabordeaux.grisbie.auteur` | console Firebase |
+| Pseudo de cette app dans Firebase | Grisbie auteur – Android | console Firebase |
+
+Le manifeste ne porte plus de libellé en dur : `android:label="@string/app_name"`,
+et chaque saveur nomme son application. Sans cela, les deux icônes seraient
+indiscernables sur l'écran d'accueil de l'auteur.
+
+## Construire
+
+Une saveur Gradle **ne choisit pas le point d'entrée Dart** : `--flavor` et `-t`
+sont deux options indépendantes, que rien n'oblige à apparier. Les deux
+commandes, à ne pas mélanger :
+
+```bash
+flutter run --flavor jeu    -t lib/main.dart
+flutter run --flavor auteur -t lib/main_author.dart
+```
+
+Les saveurs existant, **`--flavor` devient obligatoire** : `flutter build` ou
+`flutter run` sans elle s'arrête en le disant. `flutter analyze` et
+`flutter test` ne sont pas concernés, ils ne passent pas par Gradle.
+
+Deux garde-fous couvrent l'appariement, chacun dans un sens :
+
+- `lib/main_author.dart` vérifie au démarrage la constante `appFlavor` que
+  Flutter expose, et refuse de s'ouvrir sous la saveur du jeu — l'outil
+  n'y aurait pas sa configuration Firebase et aurait échoué plus tard, plus
+  loin.
+- Le **suffixe** couvre l'autre sens, celui qui compte : un jeu compilé par
+  erreur sous la saveur auteur porte `fr.naryabordeaux.grisbie.auteur`, donc
+  pas l'identifiant publié. Il est impubliable, et l'erreur reste sans
+  conséquence.
 
 ## Quatre couches à ne pas confondre
 
@@ -56,8 +90,15 @@ qu'un fichier écrit sur un téléphone est difficile à rapatrier.
 de l'appareil.
 
 L'application Android enregistrée dans les deux projets Firebase porte
-l'identifiant du jeu, `fr.naryabordeaux.grisbie` — Firebase apparie sur
-l'`applicationId` exact.
+l'identifiant **de l'outil d'auteur**, `fr.naryabordeaux.grisbie.auteur`, jamais
+celui du jeu : Firebase apparie sur l'`applicationId` exact. Conséquence
+recherchée — l'identifiant publié n'existe dans aucun projet Firebase, et une
+configuration égarée n'y correspondrait de toute façon pas.
+
+Une seule saveur auteur existe pour deux projets. On bascule de
+`narya-grisbie-dev` à `narya-grisbie-prod` en remplaçant le fichier à la main.
+Le jour où cela produira une confusion, c'est le signal qu'il faut découper cette
+saveur en deux.
 
 ### La règle qui protège le jeu des enfants
 
@@ -67,16 +108,19 @@ d'appareil auprès de Google. Or les deux points d'entrée, `lib/main.dart` et
 `lib/main_author.dart`, partagent le même `pubspec.yaml` et le même dossier
 `android/`.
 
-Tant qu'aucune saveur Gradle ne les sépare, **ce fichier ne doit exister nulle
-part dans le dépôt** : le jeu des enfants l'embarquerait mécaniquement.
-`android_packaging_test.dart` échoue s'il apparaît.
+C'est la raison d'être des saveurs. **Le fichier ne vit que dans
+`android/app/src/auteur/`**, où seule la saveur auteur le lit.
+`android_packaging_test.dart` le refuse partout ailleurs, en nommant le fichier
+égaré.
 
-Il n'est volontairement pas listé dans `.gitignore` : ignoré, il serait présent
-au build sans que rien ne le signale, et c'est précisément le scénario à éviter.
-Un test qui échoue en nommant la raison vaut mieux qu'un fichier invisible.
+Il est ignoré par git à tout emplacement : le dépôt est destiné à l'open source,
+et ce fichier désigne le projet Firebase de l'auteur avec ses clés. Cet oubli
+volontaire ne masque rien — le test lit le disque, pas l'index de git, et un
+fichier ignoré mais présent le fait donc échouer tout autant.
 
-Le jour où une saveur « auteur » existera, ce test devra n'autoriser que son
-dossier — et non être supprimé.
+Ce que ces saveurs séparent : le **paquet Android** — identifiant, libellé,
+configuration Firebase. Pas le code Dart, qui reste apparié à la main ; voir
+« Construire » plus haut.
 
 ## Signature de l'application publiée
 

@@ -12,3 +12,10 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Configuration Firebase de l'outil d'auteur. Elle designe le projet de
+# l'auteur et porte ses cles, dans un depot destine a l'open source : elle ne
+# doit etre commitee nulle part. Sur le disque, sa seule place autorisee est
+# « app/src/auteur/ », et android_packaging_test.dart la refuse ailleurs — un
+# fichier ignore par git reste present au build.
+google-services.json

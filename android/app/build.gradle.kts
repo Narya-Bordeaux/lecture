@@ -44,12 +44,52 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Repris de « pubspec.yaml » : la version 0.9.3+19 donne versionName
-        // « 0.9.3 » et versionCode 19. Le Play Store exige un versionCode
+        // Repris de « pubspec.yaml » : la version 0.9.4+20 donne versionName
+        // « 0.9.4 » et versionCode 20. Le Play Store exige un versionCode
         // strictement croissant, d'ou la regle « jamais reinitialise » du
         // numero de build (voir docs/versions.md).
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    // Deux paquets Android distincts, pour deux usages qui n'ont rien a voir.
+    //
+    // Le jeu va aux enfants et ne contacte rien. L'outil d'auteur tourne sur le
+    // telephone de l'auteur et depose le contenu sur Firebase Storage. Sur
+    // Android, le SDK Firebase s'initialise **tout seul** des que
+    // « google-services.json » est present au build : sans cette separation, les
+    // deux points d'entree partageant le meme dossier android/, la configuration
+    // de l'outil partirait mecaniquement dans le jeu.
+    //
+    // Le fichier ne vit donc que dans « src/auteur/ », et rien d'autre ne le lit.
+    //
+    // Attention : une saveur ne choisit **pas** le point d'entree Dart. Les deux
+    // options sont independantes et doivent etre appariees a la main :
+    //
+    //   flutter run --flavor jeu    -t lib/main.dart
+    //   flutter run --flavor auteur -t lib/main_author.dart
+    //
+    // « main_author.dart » refuse de demarrer si l'appariement est faux. Le
+    // suffixe ci-dessous protege l'autre sens : un jeu compile par erreur avec
+    // la saveur auteur ne porte pas l'identifiant publie, il est donc
+    // impubliable.
+    flavorDimensions += "usage"
+    productFlavors {
+        create("jeu") {
+            dimension = "usage"
+            // Ce qui s'affiche sous l'icone, sur l'ecran d'accueil.
+            resValue("string", "app_name", "Grisbie")
+        }
+        create("auteur") {
+            dimension = "usage"
+            // fr.naryabordeaux.grisbie.auteur : un autre paquet Android, donc
+            // les deux applications cohabitent sur le telephone de l'auteur.
+            // C'est cet identifiant-la qui est enregistre dans Firebase, jamais
+            // celui du jeu — Firebase apparie sur l'applicationId exact.
+            applicationIdSuffix = ".auteur"
+            versionNameSuffix = "-auteur"
+            resValue("string", "app_name", "Grisbie auteur")
+        }
     }
 
     signingConfigs {

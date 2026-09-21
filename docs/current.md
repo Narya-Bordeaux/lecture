@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.3+19** — 21 septembre 2026
+**Version : 0.9.4+20** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -20,7 +20,7 @@ Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON.
 jeu livré n'en contient aucune trace.
 
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 150 tests.
+Seul le comportement est prouvé, par 158 tests.
 
 ## Chantier en cours
 
@@ -49,16 +49,40 @@ Découpage en six étapes, les deux premières faites :
 **Ce qui bloque Firebase** : rien n'est encore dans le dépôt, et l'intégration
 n'est pas testable en session cloud faute de SDK Android. Les préalables sont
 listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
-Les noms, eux, sont fixés depuis 0.9.3 — `Noms_et_identifiants.md`. Le premier
-geste côté dépôt sera de **séparer le jeu de l'outil d'auteur par des saveurs
-Gradle** : sans elles, un `google-services.json` déposé dans `android/` partirait
-dans le jeu des enfants, et un test l'interdit donc pour l'instant.
+Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
+depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
+un seul emplacement autorisé pour `google-services.json`. Tout cela
+(`Noms_et_identifiants.md`) attend d'être confronté à un vrai build : aucun
+n'est possible ici.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.9.4+20 — Deux saveurs Android, deux paquets
+- **`jeu` et `auteur`**, dans la dimension `usage`. La saveur auteur porte le
+  suffixe `.auteur` : les deux applications cohabitent sur le téléphone, et un
+  jeu construit par erreur avec elle ne porte pas l'identifiant publié — il est
+  donc impubliable, et l'erreur reste sans conséquence.
+- `google-services.json` a désormais **un emplacement légitime**,
+  `android/app/src/auteur/`, et un seul. Le test le refuse ailleurs. Il est
+  maintenant ignoré par git partout : le dépôt est destiné à l'open source, et
+  le test lit le disque, pas l'index — un fichier ignoré mais présent échoue
+  tout autant.
+- L'application Firebase est à enregistrer sous
+  `fr.naryabordeaux.grisbie.auteur`, **pas** sous l'identifiant du jeu.
+- Le libellé sous l'icône passe du manifeste aux saveurs (`@string/app_name`) :
+  « Grisbie » et « Grisbie auteur », sans quoi les deux icônes seraient
+  indiscernables.
+- **Une saveur ne choisit pas le point d'entrée Dart.** `main_author.dart`
+  vérifie `appFlavor` au démarrage et refuse la saveur du jeu ; le suffixe
+  couvre l'autre sens. `--flavor` devient obligatoire pour tout build.
+- **Non vérifié ici** : le test lit des fichiers, il ne lance pas Gradle. Il
+  attrape un nom qui dérive ou un fichier égaré, il ne prouve pas que le projet
+  Android compile. Premier vrai build à faire sur le poste.
+- 158 tests au vert.
 
 ### 0.9.3+19 — Le jeu prend son nom
 - **Grisbie partout** : package Dart `grisbie`, `applicationId` Android
@@ -96,19 +120,6 @@ aucun mot d'une famille donnée.
   au lieu d'en être une seconde version.
 - 150 tests au vert.
 
-### 0.9.1+17 — Écrire le contenu, et prouver que rien ne se perd
-- `ContentSink`, symétrique de `ContentSource`, et `ContentWriter` qui réécrit
-  une aventure au format exact que le chargement relit — via les `toJson()`
-  existants, pour qu'il n'y ait pas deux descriptions du format.
-- **Le test qui compte** : chaque champ du fichier livré doit se retrouver dans
-  le fichier écrit, et un champ manquant est nommé par son chemin
-  (`/stages[0]/backgroundColor`). Vérifié en supprimant un champ pour de bon.
-- Réécrire deux fois donne le même fichier : ouvrir puis fermer l'outil sans
-  rien changer ne produira pas de différence dans git.
-- JSON indenté et terminé par un saut de ligne : le contenu reste relisible.
-- Rien ne l'utilise encore — c'est le socle de l'outil de création.
-- 144 tests au vert.
-
 ## Décisions prises
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
@@ -121,11 +132,12 @@ aucun mot d'une famille donnée.
   livré ne contacte rien.** Le choix répond au fait qu'un fichier écrit sur un
   téléphone est difficile à rapatrier. Deux projets, `narya-grisbie-dev` et
   `narya-grisbie-prod`, où l'application Android est enregistrée sous
-  `fr.naryabordeaux.grisbie`.
+  `fr.naryabordeaux.grisbie.auteur` — **jamais sous l'identifiant du jeu**, qui
+  n'existe ainsi dans aucun projet Firebase.
   Précaution qui va avec : les deux points d'entrée partagent `pubspec.yaml`, et
   sur Android le SDK Firebase s'initialise seul dès que `google-services.json`
-  est présent — ce fichier ne doit donc exister que dans la saveur « auteur ».
-  Tant que cette saveur n'existe pas, un test l'interdit partout.
+  est présent. D'où les deux saveurs `jeu` et `auteur`, et l'unique emplacement
+  autorisé pour ce fichier.
 - **Le jeu s'appelle Grisbie**, et l'identifiant Android
   `fr.naryabordeaux.grisbie` est **définitif dès la première publication** sur le
   Play Store. Table de vérité dans `Noms_et_identifiants.md`, contrôlée par test.

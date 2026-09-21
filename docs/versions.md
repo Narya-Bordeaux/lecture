@@ -44,6 +44,49 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.4+20 — 21 septembre 2026 — Deux saveurs Android
+
+La version précédente interdisait `google-services.json` partout, faute de
+pouvoir le ranger quelque part. Deux saveurs Gradle lui donnent enfin une place,
+et une seule.
+
+`jeu` et `auteur`, dans la dimension `usage`. La saveur auteur porte le suffixe
+`applicationIdSuffix = ".auteur"` : l'outil devient un autre paquet Android, les
+deux applications cohabitent sur le téléphone de l'auteur, et **un jeu construit
+par erreur avec la saveur auteur ne porte pas l'identifiant publié** — il est
+impubliable, donc l'erreur est sans conséquence. C'est la raison de ce suffixe,
+plus que la cohabitation.
+
+Conséquence à reporter en console : l'application Android s'enregistre dans les
+deux projets Firebase sous `fr.naryabordeaux.grisbie.auteur`, jamais sous
+l'identifiant du jeu, qui n'existe ainsi dans aucun projet.
+
+- `android/app/src/auteur/` est le seul emplacement autorisé pour
+  `google-services.json`, et le test le refuse ailleurs en nommant le fichier
+  égaré. Un README y explique ce qu'on y dépose et pourquoi.
+- Le fichier passe dans `.gitignore`, à tout emplacement : le dépôt est destiné à
+  l'open source et ce fichier porte les clés du projet de l'auteur. Revirement
+  assumé par rapport à 0.9.3 — l'argument d'alors (« ignoré, il serait présent au
+  build sans que rien ne le signale ») ne tient pas : le test lit le disque et non
+  l'index de git, un fichier ignoré mais présent le fait échouer tout autant.
+- Le libellé sous l'icône quitte le manifeste pour les saveurs
+  (`android:label="@string/app_name"`) : « Grisbie » et « Grisbie auteur ». Deux
+  icônes portant le même nom auraient été indiscernables.
+- **Une saveur Gradle ne choisit pas le point d'entrée Dart** : `--flavor` et
+  `-t` sont indépendants. `main_author.dart` vérifie donc `appFlavor` au
+  démarrage et refuse la saveur du jeu, où il n'aurait pas sa configuration
+  Firebase et aurait échoué plus tard et plus loin. Le suffixe couvre l'autre
+  sens.
+- Les saveurs rendent `--flavor` obligatoire pour tout build. `flutter analyze`
+  et `flutter test` ne passent pas par Gradle et restent inchangés.
+
+**Ce qui n'est pas prouvé** : le test lit des fichiers, il ne lance pas Gradle.
+Il attrape un nom qui dérive, une saveur mal écrite, un fichier égaré ; il ne dit
+rien de la compilation. Aucun build Android n'étant possible en session cloud, le
+premier vrai build se fera sur le poste.
+
+- 158 tests au vert.
+
 ### 0.9.3+19 — 21 septembre 2026 — Le jeu prend son nom
 
 Le projet s'appelait encore `reading_game` partout où il ne s'affichait pas, et

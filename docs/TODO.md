@@ -12,9 +12,13 @@ Android, ni appareil, ni accès à votre console) :
 
 Les noms sont fixés par `Noms_et_identifiants.md` : projets `narya-grisbie-dev`
 et `narya-grisbie-prod`, application Android enregistrée sous
-`fr.naryabordeaux.grisbie`. Le produit retenu est **Cloud Storage**, pas
-Firestore.
+`fr.naryabordeaux.grisbie.auteur` — **l'identifiant suffixé de l'outil, pas celui
+du jeu**. Le produit retenu est **Cloud Storage**, pas Firestore. Les saveurs
+Android existent depuis 0.9.4, `android/app/src/auteur/` attend le fichier.
 
+- [ ] **Premier build réel des deux saveurs**, sur le poste : rien de tout cela
+      n'a jamais été compilé, aucun SDK Android n'étant disponible en session
+      cloud. `flutter run --flavor jeu -t lib/main.dart`, puis la saveur auteur.
 - [ ] Créer les deux projets Firebase et y enregistrer l'application Android.
 - [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
       le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que
@@ -22,15 +26,12 @@ Firestore.
 - [ ] Trancher l'authentification : sans elle, le bucket est soit ouvert en
       écriture — à exclure — soit inaccessible. Un compte Google unique, celui de
       l'auteur, suffit pour un usage solo.
-- [ ] **Séparer le jeu de l'outil d'auteur par des saveurs Gradle**, avant de
-      poser le moindre `google-services.json` dans le dépôt. Sans saveurs, les
-      deux points d'entrée partagent le dossier `android/`, et le jeu livré aux
-      enfants embarquerait la configuration Firebase. En attendant,
-      `test/infrastructure/android_packaging_test.dart` interdit ce fichier
-      partout ; le jour venu, il devra n'autoriser que le dossier de la saveur
-      « auteur » — et non être supprimé.
+- [ ] Déposer `google-services.json` dans `android/app/src/auteur/`, et nulle
+      part ailleurs — `android_packaging_test.dart` le refuse ailleurs. Il est
+      ignoré par git : c'est voulu, il porte les clés du projet de l'auteur.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
-      supposer.
+      supposer. Les saveurs le rendent structurellement improbable, elles ne le
+      démontrent pas.
 
 **Faisable en session cloud, et ne dépend pas de Firebase** :
 
