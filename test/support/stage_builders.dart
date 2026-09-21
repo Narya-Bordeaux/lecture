@@ -44,6 +44,7 @@ Stage stage({
   String location = 'Un lieu',
   String? arrivalText,
   int visibleWordCount = 6,
+  bool ending = false,
 }) {
   return Stage(
     id: id,
@@ -51,5 +52,16 @@ Stage stage({
     narrative: Narrative(onArrival: arrivalText),
     families: families,
     visibleWordCount: visibleWordCount,
+    isEnding: ending,
+  );
+}
+
+/// Une etape qui clot le parcours : declaree comme telle, et sans famille.
+Stage ending({required String id, String location = 'Une fin'}) {
+  return stage(
+    id: id,
+    families: const <WordFamily>[],
+    location: location,
+    ending: true,
   );
 }

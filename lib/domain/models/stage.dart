@@ -22,6 +22,7 @@ class Stage {
     this.backgroundColor,
     this.encounter,
     this.visibleWordCount = 6,
+    this.isEnding = false,
   });
 
   /// Lit une couleur ecrite « #RRGGBB » dans le contenu.
@@ -48,6 +49,7 @@ class Stage {
       backgroundAsset: json['background'] as String?,
       backgroundColor: parseColor(json['backgroundColor']),
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
+      isEnding: json['ending'] as bool? ?? false,
       encounter: encounter == null
           ? null
           : Encounter(
@@ -118,8 +120,19 @@ class Stage {
     );
   }
 
-  /// Une etape sans famille clot le parcours.
-  bool get isTerminal => families.isEmpty;
+  /// Vrai si l'etape clot le parcours.
+  ///
+  /// Declare, et non deduit de l'absence de famille. Une etape qu'on vient de
+  /// creer et qu'on n'a pas encore ecrite n'en a pas non plus : sans ce
+  /// marqueur, un lieu oublie passerait pour une fin, et `validate()` n'aurait
+  /// rien a dire.
+  ///
+  /// C'est bien une information en double avec la structure, ce que le projet
+  /// evite d'ordinaire. La contrepartie est que la redondance est
+  /// **verifiable** : `validate()` refuse qu'une fin porte des familles, et
+  /// signale un lieu sans famille qui ne se declare pas fin. Les deux ne
+  /// peuvent donc pas diverger en silence.
+  final bool isEnding;
 
   /// Vrai si l'etape met en scene un personnage.
   bool get isEncounter => encounter != null;
@@ -214,6 +227,23 @@ class Stage {
       ));
     }
 
+    // Le marqueur de fin fait double emploi avec la structure. C'est assume,
+    // a condition qu'on ne puisse pas les faire mentir l'un sur l'autre.
+    if (isEnding && families.isNotEmpty) {
+      issues.add(ContentIssue.wrong(
+        'L\'etape se declare fin mais porte des familles : les mots classes '
+        'ouvriraient un chemin depuis une fin.',
+        stageId: id,
+      ));
+    }
+    if (!isEnding && families.isEmpty) {
+      issues.add(ContentIssue.incomplete(
+        'L\'etape n\'a aucune famille et ne se declare pas fin : lieu pose, '
+        'mais pas encore ecrit.',
+        stageId: id,
+      ));
+    }
+
     issues.addAll(_validateAreas());
 
     return issues;
@@ -263,6 +293,7 @@ class Stage {
     int? backgroundColor,
     Encounter? encounter,
     int? visibleWordCount,
+    bool? isEnding,
   }) {
     return Stage(
       id: id ?? this.id,
@@ -273,6 +304,7 @@ class Stage {
       backgroundColor: backgroundColor ?? this.backgroundColor,
       encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
+      isEnding: isEnding ?? this.isEnding,
     );
   }
 
@@ -286,6 +318,9 @@ class Stage {
         'backgroundColor':
             '#${(backgroundColor! & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
       if (encounter != null) 'character': encounter!.toJson(),
+      // Ecrit seulement quand il vaut quelque chose : une etape ordinaire n'a
+      // pas a porter « ending: false ».
+      if (isEnding) 'ending': true,
       'visibleWordCount': visibleWordCount,
       'families': families.map((family) => family.toJson()).toList(),
     };

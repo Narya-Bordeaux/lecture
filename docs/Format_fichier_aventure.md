@@ -339,7 +339,22 @@ Sont détectés :
 - **un mot qui apparaît dans le nom de sa famille** (« bus » dans « En bus ») :
   l'enfant le classerait en comparant les lettres, sans comprendre le sens ;
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
-- une zone qui déborde de l'illustration, ou qui en chevauche une autre.
+- une zone qui déborde de l'illustration, ou qui en chevauche une autre ;
+- un lieu qui **se déclare fin tout en portant des familles**, ou qui n'a aucune
+  famille **sans se déclarer fin**.
+
+### `ending` — une fin se déclare
+
+Un lieu qui clôt le parcours porte `"ending": true` et n'a aucune famille.
+
+C'est une information en double avec la structure, ce que le format évite
+partout ailleurs. Elle est acceptée ici parce que l'absence de famille ne
+suffisait pas : un lieu qu'on vient de créer et qu'on n'a pas encore écrit n'en
+a pas non plus, et passait donc pour une fin sans que rien ne le signale.
+
+La contrepartie est que les deux ne peuvent pas se contredire : une fin qui
+porte des familles est refusée, et un lieu sans famille qui ne se déclare pas
+fin est signalé comme inachevé.
 
 ### Faux, ou seulement incomplet
 

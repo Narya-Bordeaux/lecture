@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.10.0+23** — 21 septembre 2026
+**Version : 0.11.0+24** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -67,6 +67,19 @@ aucun mot d'une famille donnée.
 
 ## Dernières modifications
 
+### 0.11.0+24 — Une fin se déclare
+- `Stage.isEnding` (`"ending": true`) remplace le `isTerminal` dérivé de
+  l'absence de famille. Motif : **un lieu créé et pas encore écrit n'a pas de
+  famille non plus**, et passait donc pour une fin sans que rien ne le signale.
+- Information en double avec la structure — assumée, parce qu'elle est
+  **vérifiable** : une fin qui porte des familles est *fausse*, un lieu sans
+  famille qui ne se déclare pas fin est *incomplet*. Les deux ne peuvent pas
+  mentir l'un sur l'autre.
+- `rue`, `garage` et `plage` sont marqués dans le contenu livré.
+- L'exception à la règle « pas de champ type d'étape » est consignée dans
+  `CLAUDE.md` et `Format_fichier_aventure.md`, avec sa justification.
+- 177 tests au vert, dont 3 nouveaux.
+
 ### 0.10.0+23 — Faux, ou seulement incomplet
 - Début de l'étape 3, par le moteur. Difficulté à traiter d'abord : **une
   aventure en cours d'écriture est toujours invalide**, donc `validate()`
@@ -99,21 +112,6 @@ aucun mot d'une famille donnée.
   de `src/auteur/` et un commentaire de `build.gradle.kts`. Tous renvoient
   désormais au document, seul à les décrire.
 - 158 tests au vert, inchangés : rien de fonctionnel n'a bougé.
-
-### 0.9.5+21 — Les saveurs configurent enfin
-- Le premier vrai build s'arrêtait avant de compiler : « Product Flavor jeu
-  contains custom resource values, but the feature is disabled ». **AGP 9
-  désactive `resValue()` par défaut**, et les libellés sous l'icône s'écrivaient
-  ainsi.
-- Ils deviennent de vraies ressources, `src/jeu/res/values/strings.xml` et
-  `src/auteur/res/values/strings.xml`. Plutôt que de rallumer un drapeau que les
-  versions suivantes d'AGP éteindront encore : le recouvrement par saveur est le
-  mécanisme le plus stable d'Android, et un libellé **est** une ressource.
-- Le test lit ces deux fichiers et **refuse tout `resValue(`** dans le build.
-- Rappel de la limite annoncée en 0.9.4 : le test avait bien vérifié que les
-  libellés existaient, pas que Gradle accepterait la façon de les produire. Un
-  test qui lit des fichiers ne remplace pas un build.
-- 158 tests au vert.
 
 ## Décisions prises
 

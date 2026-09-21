@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.10.0+23** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.11.0+24** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -257,9 +257,18 @@ n'ouvre donc aucun chemin. Les leurres sont écrits à la main, jamais tirés au
 hasard : un tirage pourrait sortir un mot appartenant vraiment au thème, et le
 jeu refuserait une bonne réponse.
 
-**Pas de champ « type d'étape »** — la structure le dit déjà : un `character`
-signale une rencontre, l'absence de famille une étape terminale. Ajouter un
-type serait une information en double, qui finirait par diverger.
+**Pas de champ « type d'étape »** — la structure le dit : un `character` signale
+une rencontre. Ajouter un type serait une information en double, qui finirait
+par diverger.
+
+**Une exception, assumée : la fin se déclare** (`Stage.isEnding`, `"ending"`
+dans le JSON). L'absence de famille ne suffisait pas à la dire : un lieu qu'on
+vient de créer et qu'on n'a pas encore écrit n'en a pas non plus, et passait
+donc pour une fin sans que rien ne le signale. C'est bien la redondance que la
+règle ci-dessus proscrit — elle n'est acceptée que parce qu'elle est
+**vérifiable** : `validate()` refuse qu'une fin porte des familles (*faux*), et
+signale un lieu sans famille qui ne se déclare pas fin (*incomplet*). Les deux
+ne peuvent donc pas mentir l'un sur l'autre.
 
 **Champ lexical des familles** — les familles d'une étape doivent avoir des
 vocabulaires disjoints, et c'est plus contraignant qu'il n'y paraît : « En bus »

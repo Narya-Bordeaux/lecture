@@ -133,7 +133,7 @@ class _AdventurePageState extends State<AdventurePage> {
     final text = stage.narrative.onArrival;
     // Une etape terminale raconte deja son arrivee dans son propre ecran : la
     // doubler d'un moment de recit afficherait deux fois le meme texte.
-    if (text == null || stage.isTerminal) {
+    if (text == null || stage.isEnding) {
       return _buildPlayingOrEnd(stage, adventure);
     }
 
@@ -147,7 +147,7 @@ class _AdventurePageState extends State<AdventurePage> {
 
   /// Une etape terminale n'a rien a classer : elle clot l'aventure.
   Widget _buildPlayingOrEnd(Stage stage, Adventure adventure) {
-    if (stage.isTerminal) {
+    if (stage.isEnding) {
       return _TerminalStageView(
         stage: stage,
         onRestart: () => _restart(adventure),

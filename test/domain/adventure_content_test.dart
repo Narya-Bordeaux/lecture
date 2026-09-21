@@ -106,12 +106,12 @@ void main() {
       final station = adventure.findStage('gare');
 
       expect(station, isNotNull);
-      expect(station!.isTerminal, isFalse);
+      expect(station!.isEnding, isFalse);
       expect(station.families, hasLength(2));
     });
 
     test('la plage est une etape terminale', () {
-      expect(adventure.findStage('plage')!.isTerminal, isTrue);
+      expect(adventure.findStage('plage')!.isEnding, isTrue);
     });
 
     test('chaque mot possede un decoupage', () {
@@ -157,7 +157,7 @@ void main() {
 
       final beach = adventure.findStage(station.state.departedTo!)!;
       expect(beach.locationName, 'La plage');
-      expect(beach.isTerminal, isTrue);
+      expect(beach.isEnding, isTrue);
     });
 
     test('une famille non choisie mene ailleurs, sans bloquer', () async {

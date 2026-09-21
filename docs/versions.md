@@ -44,6 +44,35 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.11.0+24 — 21 septembre 2026 — Une fin se déclare
+
+Le croquis d'une aventure sur papier portait une ligne que le format ne savait
+pas exprimer : `F1, G1, H1 → Fin`.
+
+Jusqu'ici, une étape sans famille était terminale, et c'était tout. Mais une
+étape **qu'on vient de créer et qu'on n'a pas encore écrite** n'en a pas non
+plus. Les deux étaient indiscernables : un lieu posé puis oublié passait pour
+une fin, et `validate()` n'avait rien à dire.
+
+`Stage.isEnding` — `"ending": true` dans le JSON — lève l'ambiguïté. Le getter
+dérivé `isTerminal` disparaît : une seule notion, déclarée.
+
+C'est une information en double avec la structure, ce que le projet proscrit
+ailleurs et continue de proscrire pour les rencontres. Elle est acceptée ici à
+une condition, qui est tout l'intérêt : la redondance est **vérifiable**. Une
+fin qui porte des familles est *fausse* — les mots classés ouvriraient un chemin
+depuis une fin. Un lieu sans famille qui ne se déclare pas fin est *incomplet*.
+Les deux ne peuvent donc pas mentir l'un sur l'autre en silence.
+
+- Les trois lieux terminaux du contenu livré — `rue`, `garage`, `plage` — sont
+  marqués.
+- Le contrôle a immédiatement attrapé le fixture des tests de chargement, dont
+  l'étape d'arrivée ne se déclarait pas fin. C'est exactement son office.
+- `CLAUDE.md` et `Format_fichier_aventure.md` consignent l'exception **et sa
+  justification** : une décision qu'on renverse doit se lire, pas se découvrir.
+
+- 177 tests au vert, dont 3 nouveaux.
+
 ### 0.10.0+23 — 21 septembre 2026 — Faux, ou seulement incomplet
 
 Début de l'étape 3 du chantier, par le moteur. L'outil d'auteur doit signaler

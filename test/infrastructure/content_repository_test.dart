@@ -60,7 +60,7 @@ Map<String, String> buildFiles({
           "destination": "end" }
       ]
     },
-    { "id": "end", "location": "Arrivee", "families": [] }
+    { "id": "end", "location": "Arrivee", "families": [], "ending": true }
   ]
 }''',
   };

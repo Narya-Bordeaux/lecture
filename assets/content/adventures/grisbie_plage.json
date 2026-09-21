@@ -22,30 +22,61 @@
           "id": "en_bus",
           "label": "En bus",
           "words": [
-            "arrêt", "ticket", "horaire", "abri", "ligne",
-            "terminus", "guichet"
+            "arrêt",
+            "ticket",
+            "horaire",
+            "abri",
+            "ligne",
+            "terminus",
+            "guichet"
           ],
           "destination": "gare",
-          "area": { "left": 0.02, "top": 0.29, "width": 0.32, "height": 0.16 }
+          "area": {
+            "left": 0.02,
+            "top": 0.29,
+            "width": 0.32,
+            "height": 0.16
+          }
         },
         {
           "id": "en_voiture",
           "label": "En voiture",
           "words": [
-            "volant", "essence", "coffre", "garage", "klaxon", "radio", "clé"
+            "volant",
+            "essence",
+            "coffre",
+            "garage",
+            "klaxon",
+            "radio",
+            "clé"
           ],
           "destination": "garage",
-          "area": { "left": 0.37, "top": 0.39, "width": 0.27, "height": 0.15 }
+          "area": {
+            "left": 0.37,
+            "top": 0.39,
+            "width": 0.27,
+            "height": 0.15
+          }
         },
         {
           "id": "a_pied",
           "label": "À pied",
           "words": [
-            "chaussure", "sentier", "marche", "pas", "jambe", "talon",
+            "chaussure",
+            "sentier",
+            "marche",
+            "pas",
+            "jambe",
+            "talon",
             "promenade"
           ],
           "destination": "rue",
-          "area": { "left": 0.66, "top": 0.42, "width": 0.30, "height": 0.18 }
+          "area": {
+            "left": 0.66,
+            "top": 0.42,
+            "width": 0.3,
+            "height": 0.18
+          }
         }
       ]
     },
@@ -61,13 +92,19 @@
         {
           "id": "prendre_le_train",
           "label": "Prendre le train",
-          "words": ["quai", "billet"],
+          "words": [
+            "quai",
+            "billet"
+          ],
           "destination": "plage"
         },
         {
           "id": "acheter",
           "label": "Acheter quelque chose",
-          "words": ["gâteau", "journal"],
+          "words": [
+            "gâteau",
+            "journal"
+          ],
           "destination": "boutique"
         }
       ]
@@ -88,13 +125,27 @@
         {
           "id": "a_manger",
           "label": "Ce qui se mange",
-          "words": ["gâteau", "bonbon", "jus", "biscuit", "pomme", "pain"],
+          "words": [
+            "gâteau",
+            "bonbon",
+            "jus",
+            "biscuit",
+            "pomme",
+            "pain"
+          ],
           "destination": "plage"
         },
         {
           "id": "a_laisser",
           "label": "Laisse-le",
-          "words": ["journal", "revue", "banc", "pendule", "volant", "clé"]
+          "words": [
+            "journal",
+            "revue",
+            "banc",
+            "pendule",
+            "volant",
+            "clé"
+          ]
         }
       ]
     },
@@ -104,7 +155,8 @@
       "narrative": {
         "onArrival": "Grisbie marche sur le trottoir. La plage est encore loin..."
       },
-      "families": []
+      "families": [],
+      "ending": true
     },
     {
       "id": "garage",
@@ -112,7 +164,8 @@
       "narrative": {
         "onArrival": "La voiture est au garage. Elle ne partira pas aujourd'hui."
       },
-      "families": []
+      "families": [],
+      "ending": true
     },
     {
       "id": "plage",
@@ -120,7 +173,8 @@
       "narrative": {
         "onArrival": "Grisbie court sur le sable : la mer est là !"
       },
-      "families": []
+      "families": [],
+      "ending": true
     }
   ]
 }

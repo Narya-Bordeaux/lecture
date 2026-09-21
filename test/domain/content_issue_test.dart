@@ -235,6 +235,83 @@ void main() {
     });
   });
 
+  group('Une fin se declare', () {
+    // Une etape sans famille clot le parcours. Mais une etape qu'on vient de
+    // creer et qu'on n'a pas encore ecrite n'a pas de famille non plus : sans
+    // marqueur, les deux sont indiscernables et un lieu oublie passe pour une
+    // fin. D'ou `isEnding`, declare.
+    //
+    // La contrepartie de cette redondance est qu'elle doit etre **verifiable** :
+    // le marqueur et la structure ne doivent jamais se contredire, sans quoi
+    // l'information en double finirait par diverger.
+
+    test('une fin declaree et sans famille ne pose aucun probleme', () {
+      final adventure = adventureOf(<Stage>[
+        stage(
+          id: 'depart',
+          families: <WordFamily>[
+            family(
+              id: 'en_bus',
+              label: 'En autocar',
+              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              destination: 'plage',
+            ),
+          ],
+        ),
+        ending(id: 'plage', location: 'La plage'),
+      ]);
+
+      expect(adventure.validate(), isEmpty);
+    });
+
+    test('un lieu cree et pas encore ecrit est signale incomplet', () {
+      final adventure = adventureOf(<Stage>[
+        stage(
+          id: 'depart',
+          families: <WordFamily>[
+            family(
+              id: 'en_bus',
+              label: 'En autocar',
+              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              destination: 'marche',
+            ),
+          ],
+        ),
+        // Ni famille, ni marqueur de fin : l'auteur l'a pose et abandonne.
+        stage(id: 'marche', families: const <WordFamily>[]),
+      ]);
+
+      expect(issuesOf(adventure, IssueSeverity.wrong), isEmpty);
+      final incomplete = issuesOf(adventure, IssueSeverity.incomplete);
+      expect(incomplete, hasLength(1));
+      expect(incomplete.single.stageId, 'marche');
+    });
+
+    test('une fin qui porte des familles se contredit', () {
+      final adventure = adventureOf(<Stage>[
+        Stage(
+          id: 'depart',
+          locationName: 'Depart',
+          isEnding: true,
+          families: <WordFamily>[
+            family(
+              id: 'en_bus',
+              label: 'En autocar',
+              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              destination: 'depart',
+            ),
+          ],
+        ),
+      ]);
+
+      // C'est tout l'interet d'avoir rendu la redondance verifiable : le
+      // marqueur et la structure ne peuvent plus diverger en silence.
+      final wrong = issuesOf(adventure, IssueSeverity.wrong);
+      expect(wrong, hasLength(1));
+      expect(wrong.single.stageId, 'depart');
+    });
+  });
+
   group('Ce que l\'outil doit pouvoir dire', () {
     test('une aventure jouable ne presente aucune anomalie', () {
       final adventure = adventureWith(<WordFamily>[
