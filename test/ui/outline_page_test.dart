@@ -166,6 +166,23 @@ void main() {
       expect(find.byType(TextField), findsNWidgets(3));
     });
 
+    testWidgets('une seule nature vaut pour tout le lot', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Ajouter').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('3'));
+      await tester.pumpAndSettle();
+
+      // Trois noms a saisir, mais un seul choix de nature : on ne melange pas
+      // des fins, des tris uniques et des tris a plusieurs listes dans le
+      // meme geste.
+      expect(find.byType(TextField), findsNWidgets(3));
+      expect(find.text('Plusieurs listes'), findsOneWidget);
+      expect(find.text('Tri unique'), findsOneWidget);
+      expect(find.text('Une fin'), findsOneWidget);
+    });
+
     testWidgets('sans nom saisi, rien ne se cree', (tester) async {
       await pumpOutline(tester, realAdventure);
 
@@ -227,6 +244,35 @@ void main() {
       // Le personnage est un ornement : l'outil ne doit pas en poser un dont
       // l'auteur n'a pas voulu.
       expect(find.byIcon(Icons.person_outline), findsNothing);
+    });
+
+    testWidgets('rien n\'interdit d\'en ouvrir plusieurs depuis un carrefour',
+        (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Tri unique'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('2'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), 'La boutique');
+      await tester.enterText(find.byType(TextField).at(1), 'Le kiosque');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer'));
+      await tester.pumpAndSettle();
+
+      // « Une seule sortie » porte sur le lieu d'arrivee, pas sur celui d'ou
+      // l'on part : deux tris uniques peuvent s'ouvrir depuis ici, chacun
+      // avec sa propre liste du reste.
+      expect(
+        find.text('Tri unique : ce qui est du thème, et tout le reste.'),
+        findsNWidgets(2),
+      );
     });
 
     testWidgets('on n\'y propose pas plusieurs sorties', (tester) async {

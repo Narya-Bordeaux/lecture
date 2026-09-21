@@ -44,6 +44,31 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.17.1+31 — 21 septembre 2026 — La nature d'un trajet se choisit une fois
+
+L'écran d'ajout posait la nature **trajet par trajet** : sous chaque nom, les
+trois pavés d'explication revenaient. Demander trois directions affichait donc
+neuf choix, et permettait de composer un lot bigarré — une fin, un tri unique et
+un tri à plusieurs listes — sans qu'on sache plus ce qu'on demandait.
+
+La nature passe **en tête, et vaut pour tout le lot** ; le nombre vient ensuite.
+C'est l'ordre des questions : la nature décide de la mécanique du lieu d'arrivée,
+le nombre n'est qu'une commodité de saisie.
+
+**L'interdiction de mélanger porte sur un ajout, pas sur un lieu.** « Devant la
+maison » ouvre sur un tri à plusieurs listes et sur deux fins : l'aventure livrée
+mélange déjà les natures, et l'outil doit pouvoir la reproduire. L'écran énonce
+donc la règle et son contournement — revenir ajouter les autres ensuite, ce à
+quoi sert le rappel « partent déjà d'ici ».
+
+**Et « une seule sortie » porte sur l'arrivée, pas sur le départ.** Ouvrir
+plusieurs tris uniques depuis un même carrefour est légitime : chacun a sa
+propre liste du reste. Le bridage inverse subsiste, et lui seul — ajouter
+*depuis* un tri unique n'admet qu'un trajet. Deux points que les commentaires et
+un nouveau test distinguent désormais, la confusion étant facile.
+
+265 tests au vert, dont 2 nouveaux. `flutter analyze` sans remarque.
+
 ### 0.17.0+30 — 21 septembre 2026 — Des listes plus grandes que la partie
 
 Une idée de conception qui renverse une règle écrite : **une liste de mots est

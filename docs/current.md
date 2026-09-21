@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.17.0+30** — 21 septembre 2026
+**Version : 0.17.1+31** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -78,6 +78,18 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.17.1+31 — La nature d'un trajet se choisit une fois
+- **La nature passe en tête de l'écran d'ajout, et vaut pour tout le lot.**
+  Elle se choisissait trajet par trajet : demander trois directions affichait
+  neuf pavés d'explication, et laissait composer un lot bigarré.
+- **Mais un lieu garde le droit de mélanger** : « Devant la maison » ouvre sur
+  un tri à plusieurs listes et sur deux fins. L'interdiction porte sur un
+  ajout, et l'écran dit comment revenir ajouter les autres.
+- **« Une seule sortie » porte sur l'arrivée, pas sur le départ** : plusieurs
+  tris uniques peuvent s'ouvrir depuis un carrefour, chacun avec sa liste du
+  reste. Un test le fixe, la confusion étant facile.
+- 265 tests au vert, dont 2 nouveaux.
+
 ### 0.17.0+30 — Des listes plus grandes que la partie
 - **Une liste est réutilisable et plus grande que ce qu'une partie en montre.**
   À l'entrée d'un lieu, le moteur tire quelques mots de chaque liste, après
@@ -113,23 +125,6 @@ un travail d'auteur, pas de code.
 - Le plan de navigation discuté (titre → image et zones, trajet → liste de mots,
   bouton « Valider ») est consigné dans `TODO.md`, à arbitrer.
 - 240 tests au vert, dont 7 nouveaux.
-
-### 0.15.0+28 — Le tri unique
-- **Ce que faisait la « rencontre » n'est pas narratif, c'est une mécanique** :
-  l'enfant trie entre **une liste et son complément**, au lieu de comparer
-  plusieurs familles entre elles. Rien à comparer d'un mot à l'autre : chacun se
-  juge seul contre un seul critère. Plus abstrait, plus difficile.
-- `Stage.isSingleSort` : une famille **sans destination** est la liste du reste,
-  et sa présence dit la mécanique. Rien de déclaré.
-- Corollaire refusé par `validate()` : **un tri unique n'a qu'une seule
-  sortie**. L'écran n'en propose pas davantage.
-- **Le personnage devient un ornement**, posable sur n'importe quel lieu, dont
-  aucune mécanique ne dépend. L'outil n'en invente plus.
-- « sans issue » devient **« le reste »** — le mot se lisait comme une panne,
-  alors que cette liste est la moitié du dispositif.
-- Un manque disparaît : plus de `Character` fabriqué, donc plus de
-  `characters.json` à écrire.
-- 233 tests au vert, dont 10 nouveaux.
 
 
 ## Décisions prises

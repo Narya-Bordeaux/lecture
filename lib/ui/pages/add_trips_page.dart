@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 
-/// Demande combien de trajets partent d'un lieu, et ce qu'ils sont.
+/// Demande ce qu'on trouve au bout des trajets qu'on ajoute, et combien.
+///
+/// **La nature d'abord, le nombre ensuite.** Elle decide de ce que l'enfant
+/// fera la-bas, alors que le nombre n'est qu'une commodite de saisie : la
+/// poser en tete met la question structurante avant la question de detail.
+///
+/// **Une seule nature par ajout.** Elle valait auparavant trajet par trajet,
+/// ce qui repetait trois pavés d'explication sous chaque nom et laissait
+/// composer un lot bigarré sans qu'on sache ce qu'on demandait. Cela n'empeche
+/// pas un lieu de mener a des natures differentes — l'aventure livree mene de
+/// « Devant la maison » a un tri a plusieurs listes et a deux fins — mais cela
+/// se fait en plusieurs ajouts, et le rappel « partent deja d'ici » est la
+/// pour ca.
 ///
 /// Une page plutot qu'une boite de dialogue : on y tape plusieurs noms au
 /// clavier du telephone, et une boite qui remonte au-dessus du clavier laisse
@@ -25,10 +37,14 @@ class AddTripsPage extends StatefulWidget {
   /// presente une page vide, et laisse croire qu'elles ont disparu.
   final List<String> existingTrips;
 
-  /// Vrai si ce lieu fait trier entre une liste et le reste.
+  /// Vrai si **ce lieu-ci** fait trier entre une liste et le reste.
   ///
   /// Un tri unique n'a qu'une sortie : proposer d'en ajouter plusieurs
   /// laisserait croire a un choix que le moteur refuse.
+  ///
+  /// A ne pas confondre avec le choix [TripKind.singleSort], qui porte sur le
+  /// lieu **d'arrivee** : ouvrir trois tris uniques depuis un carrefour est
+  /// legitime, chacun ayant sa propre liste du reste.
   final bool allowsOneTripOnly;
 
   /// Au-dela, l'etape proposerait trop de directions a un enfant de six ans,
@@ -43,7 +59,9 @@ class _AddTripsPageState extends State<AddTripsPage> {
   final List<TextEditingController> _names = <TextEditingController>[
     TextEditingController(),
   ];
-  final List<TripKind> _kinds = <TripKind>[TripKind.ordinary];
+
+  /// La nature commune aux trajets de cet ajout.
+  TripKind _kind = TripKind.ordinary;
 
   @override
   void dispose() {
@@ -57,11 +75,9 @@ class _AddTripsPageState extends State<AddTripsPage> {
     setState(() {
       while (_names.length < count) {
         _names.add(TextEditingController());
-        _kinds.add(TripKind.ordinary);
       }
       while (_names.length > count) {
         _names.removeLast().dispose();
-        _kinds.removeLast();
       }
     });
   }
@@ -70,10 +86,10 @@ class _AddTripsPageState extends State<AddTripsPage> {
   /// moins qu'un lieu appele « lieu ».
   List<NewTrip> get _trips {
     final trips = <NewTrip>[];
-    for (var index = 0; index < _names.length; index++) {
-      final name = _names[index].text.trim();
+    for (final controller in _names) {
+      final name = controller.text.trim();
       if (name.isEmpty) continue;
-      trips.add(NewTrip(name: name, kind: _kinds[index]));
+      trips.add(NewTrip(name: name, kind: _kind));
     }
     return trips;
   }
@@ -111,6 +127,8 @@ class _AddTripsPageState extends State<AddTripsPage> {
             ),
           ],
           const SizedBox(height: 24),
+          _buildKindChoice(context),
+          const SizedBox(height: 24),
           if (widget.allowsOneTripOnly)
             Text(
               'Ici, l\'enfant trie entre une liste et le reste : ce lieu n\'a '
@@ -131,62 +149,75 @@ class _AddTripsPageState extends State<AddTripsPage> {
           ],
           const SizedBox(height: 24),
           for (var index = 0; index < _names.length; index++)
-            _buildTrip(index),
+            _buildName(index),
         ],
       ),
     );
   }
 
-  Widget _buildTrip(int index) {
+  /// La question structurante, posee une fois pour tout le lot.
+  Widget _buildKindChoice(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Text('Qu\'y a-t-il au bout de ces trajets ?'),
+        const SizedBox(height: 8),
+        // Trois choix structurels, et non trois façons d'habiller un lieu :
+        // ils décident de ce que l'enfant fera là-bas. Une liste déroulante
+        // les cacherait ; chacun s'explique donc en une ligne.
+        RadioGroup<TripKind>(
+          groupValue: _kind,
+          onChanged: (chosen) => setState(() => _kind = chosen!),
+          child: const Column(
+            children: <Widget>[
+              _KindChoice(
+                kind: TripKind.ordinary,
+                icon: Icons.dashboard_outlined,
+                title: 'Plusieurs listes',
+                explanation: 'L\'enfant trie entre plusieurs familles, et le '
+                    'lieu pourra ouvrir plusieurs chemins.',
+              ),
+              _KindChoice(
+                kind: TripKind.singleSort,
+                icon: Icons.filter_alt_outlined,
+                title: 'Tri unique',
+                explanation: 'L\'enfant trie entre ce qui est du thème et '
+                    'tout le reste. Le lieu d\'arrivée n\'a qu\'une sortie.',
+              ),
+              _KindChoice(
+                kind: TripKind.ending,
+                icon: Icons.flag_outlined,
+                title: 'Une fin',
+                explanation: 'La journée s\'arrête là. Rien n\'en repart.',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Dit du meme coup ce que l'ecran ne fait pas, et comment l'obtenir :
+        // un lieu peut bel et bien mener a des natures differentes.
+        Text(
+          'Tous les trajets ajoutés ici seront de cette sorte. Pour en '
+          'mélanger, revenez ensuite ajouter les autres.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildName(int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          TextField(
-            controller: _names[index],
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(
-              labelText: 'Trajet ${index + 1}',
-              hintText: 'En bus, La gare, Le guichetier…',
-              border: const OutlineInputBorder(),
-            ),
-            // Le bouton « Créer » s'active des qu'un nom est saisi.
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 4),
-          // Trois choix structurels, et non trois façons d'habiller un lieu :
-          // ils décident de ce que l'enfant fera là-bas. Une liste déroulante
-          // les cacherait ; chacun s'explique donc en une ligne.
-          RadioGroup<TripKind>(
-            groupValue: _kinds[index],
-            onChanged: (chosen) => setState(() => _kinds[index] = chosen!),
-            child: const Column(
-              children: <Widget>[
-                _KindChoice(
-                  kind: TripKind.ordinary,
-                  icon: Icons.dashboard_outlined,
-                  title: 'Plusieurs listes',
-                  explanation: 'L\'enfant trie entre plusieurs familles, et le '
-                      'lieu pourra ouvrir plusieurs chemins.',
-                ),
-                _KindChoice(
-                  kind: TripKind.singleSort,
-                  icon: Icons.filter_alt_outlined,
-                  title: 'Tri unique',
-                  explanation: 'L\'enfant trie entre ce qui est du thème et '
-                      'tout le reste. Une seule sortie.',
-                ),
-                _KindChoice(
-                  kind: TripKind.ending,
-                  icon: Icons.flag_outlined,
-                  title: 'Une fin',
-                  explanation: 'La journée s\'arrête là. Rien n\'en repart.',
-                ),
-              ],
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: _names[index],
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(
+          labelText: 'Trajet ${index + 1}',
+          hintText: 'En bus, La gare, Le guichetier…',
+          border: const OutlineInputBorder(),
+        ),
+        // Le bouton « Créer » s'active des qu'un nom est saisi.
+        onChanged: (_) => setState(() {}),
       ),
     );
   }

@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.17.0+30** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.17.1+31** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -378,6 +378,24 @@ d'`AdventureOutline` et **ne se stocke jamais** : il bouge dès qu'on insère un
 trajet. La page ne décide rien — elle passe les demandes à `AdventureBuilder`
 et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
+
+**L'ajout de trajets : la nature d'abord, une seule par lot** — `AddTripsPage`
+pose en tête ce que l'enfant trouvera au bout (plusieurs listes, tri unique,
+une fin), puis seulement le nombre. La nature décide de la mécanique, le nombre
+n'est qu'une commodité de saisie. Elle valait auparavant trajet par trajet, ce
+qui répétait trois pavés d'explication sous chaque nom et laissait composer un
+lot bigarré.
+
+**Mais un lieu peut mener à des natures différentes** : « Devant la maison »
+ouvre sur un tri à plusieurs listes et sur deux fins. L'interdiction porte donc
+sur **un ajout**, jamais sur un lieu — sans quoi l'outil ne saurait plus écrire
+l'aventure livrée. L'écran le dit, et le rappel « partent déjà d'ici » sert à
+revenir.
+
+**« Une seule sortie » porte sur l'arrivée, pas sur le départ** — ouvrir
+plusieurs tris uniques depuis un même carrefour est légitime, chacun ayant sa
+propre liste du reste. C'est `AddTripsPage.allowsOneTripOnly` qui traite
+l'autre sens : ajouter **depuis** un tri unique n'admet qu'un trajet.
 
 **Tests d'écran et fenêtre** — un `ListView` ne construit que ce qui est
 visible : sur la fenêtre de test par défaut, les cartes du bas n'existent pas
