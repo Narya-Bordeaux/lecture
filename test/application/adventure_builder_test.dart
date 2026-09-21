@@ -146,41 +146,77 @@ void main() {
     });
   });
 
-  group('Un trajet de type personnage', () {
+  group('Un trajet de type tri unique', () {
+    // L'enfant y trie entre **une liste et son complement** : ce qui est du
+    // theme, et tout le reste. Rien a comparer d'un mot a l'autre, chacun se
+    // juge seul contre un seul critere.
+
     late Adventure built;
 
     setUpAll(() {
       built = AdventureBuilder(emptyAdventureAt('gare')).addTrips(
         'gare',
         const <NewTrip>[
-          NewTrip(name: 'Le guichetier', kind: TripKind.encounter),
+          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
         ],
       );
     });
 
-    test('le lieu d\'arrivee est une rencontre', () {
-      final met = built.findStage('guichetier')!;
+    test('la liste du reste est posee d\'office', () {
+      // Elle n'est pas un defaut a corriger : c'est la moitie du dispositif.
+      // La poser d'office evite un lieu ne a moitie.
+      final sorting = built.findStage('boutique')!;
 
-      expect(met.isEncounter, isTrue);
-      expect(met.encounter!.character.name, 'Le guichetier');
+      expect(sorting.isSingleSort, isTrue);
+      expect(sorting.families, hasLength(1));
+      expect(sorting.families.single.leadsSomewhere, isFalse);
     });
 
-    test('son classeur sans issue est pose d\'office', () {
-      // La specification veut qu'un personnage pose une question, et que
-      // l'enfant trie entre le theme et un classeur de rebut. Sans lui, le
-      // lieu naitrait a moitie, et il faudrait y penser a chaque fois.
-      final met = built.findStage('guichetier')!;
-
-      expect(met.families, hasLength(1));
-      expect(met.families.single.leadsSomewhere, isFalse);
+    test('aucun personnage n\'est invente', () {
+      // Le personnage est un ornement, pas la mecanique : l'outil ne doit pas
+      // en fabriquer un dont l'auteur n'a pas voulu.
+      expect(built.findStage('boutique')!.isEncounter, isFalse);
     });
 
-    test('un trajet ordinaire n\'en pose aucun', () {
+    test('un trajet ordinaire ne pose aucune liste', () {
       final ordinary = AdventureBuilder(emptyAdventureAt('gare'))
           .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le quai')]);
 
       expect(ordinary.findStage('quai')!.families, isEmpty);
-      expect(ordinary.findStage('quai')!.isEncounter, isFalse);
+      expect(ordinary.findStage('quai')!.isSingleSort, isFalse);
+    });
+
+    test('il n\'accepte qu\'une seule sortie', () {
+      final prolonged = AdventureBuilder(built).addTrips(
+        'boutique',
+        const <NewTrip>[NewTrip(name: 'Ce qui se mange')],
+      );
+
+      expect(prolonged.findStage('boutique')!.families, hasLength(2));
+      expect(
+        prolonged.validate().where((i) => i.severity == IssueSeverity.wrong),
+        isEmpty,
+      );
+
+      // Une seconde sortie en ferait un tri ordinaire affuble d'une liste de
+      // rebut : ce n'est plus la meme mecanique, et l'outil le refuse.
+      expect(
+        () => AdventureBuilder(prolonged).addTrips(
+          'boutique',
+          const <NewTrip>[NewTrip(name: 'Ce qui se boit')],
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('deux trajets d\'un coup y sont refuses', () {
+      expect(
+        () => AdventureBuilder(built).addTrips(
+          'boutique',
+          const <NewTrip>[NewTrip(name: 'Un'), NewTrip(name: 'Deux')],
+        ),
+        throwsStateError,
+      );
     });
   });
 

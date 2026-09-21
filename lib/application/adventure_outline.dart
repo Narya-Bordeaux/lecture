@@ -74,6 +74,7 @@ class AdventureOutline {
           locationName: stage.locationName,
           hasTransitionText: stage.narrative.onCompletion != null,
           isEncounter: stage.isEncounter,
+          isSingleSort: stage.isSingleSort,
           isEnding: stage.isEnding,
           trips: List<OutlineTrip>.unmodifiable(
             stage.families.map((family) => _tripOf(family, letters, adventure)),
@@ -115,7 +116,7 @@ class AdventureOutline {
       label: family.label,
       destinationStageId: destination,
       destinationLetter: destination == null ? null : letters[destination],
-      leadsToEncounter: arrival?.isEncounter ?? false,
+      leadsToSingleSort: arrival?.isSingleSort ?? false,
       leadsToEnding: arrival?.isEnding ?? false,
     );
   }
@@ -157,6 +158,7 @@ class OutlineBlock {
     required this.locationName,
     required this.hasTransitionText,
     required this.isEncounter,
+    required this.isSingleSort,
     required this.isEnding,
     required this.trips,
   });
@@ -171,8 +173,13 @@ class OutlineBlock {
   /// La case du croquis : le recit qui accompagne le depart existe-t-il ?
   final bool hasTransitionText;
 
-  /// Vrai si un personnage attend ici.
+  /// Vrai si un personnage attend ici. C'est un ornement, pas une mecanique.
   final bool isEncounter;
+
+  /// Vrai si l'enfant y trie entre une liste et son complement.
+  ///
+  /// Un tel lieu n'a qu'une sortie : l'ecran n'en propose donc pas davantage.
+  final bool isSingleSort;
 
   /// Vrai si le lieu clot le parcours. Il n'a alors aucun trajet.
   final bool isEnding;
@@ -184,16 +191,16 @@ class OutlineBlock {
 
 /// Un trajet qui part d'un point.
 ///
-/// C'est une famille de mots portant une destination. Le classeur de rebut
-/// d'une rencontre — « garde-le » — en est un qui ne mene nulle part : il faut
-/// le voir sans qu'il ouvre de chemin.
+/// C'est une famille de mots portant une destination. La **liste du reste**
+/// d'un tri unique en est une qui ne mene nulle part : il faut la voir, sans
+/// qu'elle ouvre de chemin.
 class OutlineTrip {
   const OutlineTrip({
     required this.familyId,
     required this.label,
     required this.destinationStageId,
     required this.destinationLetter,
-    required this.leadsToEncounter,
+    required this.leadsToSingleSort,
     required this.leadsToEnding,
   });
 
@@ -202,7 +209,10 @@ class OutlineTrip {
   /// Ce que l'enfant lit sur la zone de depot : « En bus ».
   final String label;
 
-  /// Le lieu atteint. Nul pour un classeur sans issue.
+  /// Le lieu atteint.
+  ///
+  /// Nul pour la **liste du reste** d'un tri unique : elle n'ouvre aucun
+  /// chemin, et c'est sa raison d'etre, pas un defaut.
   final String? destinationStageId;
 
   /// Le reperage du lieu atteint, nul tant qu'il n'existe pas.
@@ -211,7 +221,8 @@ class OutlineTrip {
   /// le trajet s'affiche, sans fleche d'arrivee.
   final String? destinationLetter;
 
-  final bool leadsToEncounter;
+  /// Vrai si le lieu atteint fait trier entre une liste et le reste.
+  final bool leadsToSingleSort;
 
   final bool leadsToEnding;
 }

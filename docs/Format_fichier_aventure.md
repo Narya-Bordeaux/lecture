@@ -188,10 +188,13 @@ son premier lieu.
 | `character` | non | Le personnage rencontré ici |
 | `families` | oui | Les catégories à remplir |
 
-**Il n'y a pas de champ indiquant le type du lieu.** La structure le dit :
-un lieu avec un `character` est une rencontre, un lieu sans `families` est une
-arrivée qui clôt l'aventure. Rien à déclarer, donc rien qui puisse contredire
-le contenu réel.
+**Il n'y a pas de champ indiquant le type du lieu.** La structure le dit : un
+lieu dont une famille n'a pas de `destination` fait un **tri unique** (§5), un
+lieu sans `families` est une fin. Rien à déclarer, donc rien qui puisse
+contredire le contenu réel — à une exception près, `ending`, expliquée au §6.
+
+Le `character` ne dit rien du type du lieu : c'est un **ornement**, qu'on pose
+où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 
 ### Une famille
 
@@ -282,10 +285,25 @@ Au besoin, les valeurs restent calculables à la main : diviser la position d'un
 élément par la largeur (ou la hauteur) totale de l'image. Un élément commençant
 à 300 pixels sur une image large de 1024 donne `left: 0.29`.
 
-## 5. Une rencontre
+## 5. Un tri unique
 
-Une rencontre est un lieu ordinaire, avec un personnage et **deux familles dont
-une ne mène nulle part** :
+**C'est une autre mécanique de lecture, pas un ornement narratif.** Au lieu de
+trier entre plusieurs familles homogènes, l'enfant trie entre **une liste et son
+complément** : ce qui est du thème, et tout le reste.
+
+La différence porte sur ce que l'enfant fait. Dans un tri à trois familles, il
+compare les mots entre eux, et le choix se réduit à mesure que les listes se
+remplissent — remplir une catégorie est en soi une aide. Dans un tri unique, il
+n'y a rien à comparer : chaque mot se juge seul contre un seul critère, il en
+est ou il n'en est pas. C'est plus abstrait, et plus difficile.
+
+Un tri unique est un lieu portant **deux familles dont une ne mène nulle part** —
+et **une seule sortie**, celle que le thème ouvre. Rien ne se déclare : la
+famille sans destination suffit à le dire.
+
+Le personnage ci-dessous est facultatif. Il pose la question qui énonce le
+critère, ce qui aide, mais un tri unique s'en passe très bien, et un lieu
+ordinaire peut en porter un.
 
 ```json
 {
@@ -309,14 +327,19 @@ une ne mène nulle part** :
 La réplique du personnage remplace la consigne habituelle au-dessus des mots :
 elle dit ce qu'il faut faire, et mieux qu'une phrase générique.
 
-**Les leurres sont écrits à la main, jamais tirés au hasard.** Le tirage
+**Les mots du reste sont écrits à la main, jamais tirés au hasard.** Le tirage
 automatique dans les autres listes exposerait à sortir un mot qui appartient
 vraiment au thème — l'enfant le classerait correctement et le jeu le
 refuserait. Punir une bonne réponse est la pire erreur possible ici. Écrits une
-fois, les leurres sont vérifiés une fois.
+fois, ces mots sont vérifiés une fois.
 
-Comptez **autant de leurres que de mots du thème**. Un rebut beaucoup plus gros
-noierait le thème, les mots proposés étant tirés de l'ensemble.
+Comptez **autant de mots dans le reste que dans le thème**. Une liste du reste
+beaucoup plus grosse noierait le thème, les mots proposés étant tirés de
+l'ensemble.
+
+**Une seule sortie**, et le jeu le vérifie : un lieu qui aurait sa liste du
+reste et deux destinations ne serait plus un tri unique, mais un tri ordinaire
+affublé d'une liste de rebut. Le chargement le refuse.
 
 ## 6. Les règles que le jeu vérifie tout seul
 
@@ -341,7 +364,9 @@ Sont détectés :
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
 - une zone qui déborde de l'illustration, ou qui en chevauche une autre ;
 - un lieu qui **se déclare fin tout en portant des familles**, ou qui n'a aucune
-  famille **sans se déclarer fin**.
+  famille **sans se déclarer fin** ;
+- un **tri unique qui aurait plusieurs sorties** — une liste du reste va avec un
+  seul chemin.
 
 ### `ending` — une fin se déclare
 

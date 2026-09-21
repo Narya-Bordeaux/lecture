@@ -183,6 +183,69 @@ void main() {
     });
   });
 
+  group('Le tri unique', () {
+    /// Cree une aventure neuve et y ajoute un trajet de tri unique.
+    Future<void> addSingleSort(WidgetTester tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'La gare',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'La boutique');
+      await tester.tap(find.text('Tri unique'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('la liste du reste n\'est pas annoncee comme un defaut',
+        (tester) async {
+      await addSingleSort(tester);
+
+      // « sans issue » se lisait comme une panne, alors que cette liste est
+      // la moitie du dispositif.
+      expect(find.text('sans issue'), findsNothing);
+      expect(find.text('le reste'), findsOneWidget);
+      expect(find.text('Le reste'), findsOneWidget);
+    });
+
+    testWidgets('le lieu annonce sa mecanique', (tester) async {
+      await addSingleSort(tester);
+
+      expect(
+        find.text('Tri unique : ce qui est du thème, et tout le reste.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('aucun personnage n\'est invente', (tester) async {
+      await addSingleSort(tester);
+
+      // Le personnage est un ornement : l'outil ne doit pas en poser un dont
+      // l'auteur n'a pas voulu.
+      expect(find.byIcon(Icons.person_outline), findsNothing);
+    });
+
+    testWidgets('on n\'y propose pas plusieurs sorties', (tester) async {
+      await addSingleSort(tester);
+
+      // La carte de la boutique porte « Ajouter », puisqu'elle a deja sa
+      // liste du reste.
+      await tester.tap(find.text('Ajouter').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Combien de trajets partent d\'ici ?'), findsNothing);
+      expect(
+        find.textContaining('ce lieu n\'a qu\'une seule sortie'),
+        findsOneWidget,
+      );
+      expect(find.byType(TextField), findsOneWidget);
+    });
+  });
+
   group('Partir d\'une page blanche', () {
     testWidgets('une aventure neuve montre son seul point de depart',
         (tester) async {

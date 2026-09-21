@@ -73,15 +73,12 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 **Faisable en session cloud, et ne dépend pas de Firebase** :
 
 L'étape 3 est largement faite : `OutlinePage` construit le parcours, les
-anomalies s'affichent classées. Trois manques restent, découverts en la
+anomalies s'affichent classées. Deux manques restent, découverts en la
 construisant :
 
 - [ ] **Enregistrer.** `OutlinePage` travaille en mémoire et rend l'aventure
       modifiée à l'appelant ; personne ne l'écrit. `ContentWriter` et
       `FileContentSink` existent — il manque le geste et le dossier où écrire.
-- [ ] **Écrire `characters.json`.** Un trajet de type personnage crée un
-      `Character` en mémoire, mais `ContentWriter` ne sait écrire que l'aventure
-      et le sommaire. Une rencontre créée par l'outil ne se rechargerait pas.
 - [ ] **Passer l'outil à `loadDraft`.** `AuthorHomePage` charge encore par
       `loadAdventure`, qui refuse toute aventure incomplète : dès qu'un
       brouillon sera enregistré, l'outil ne pourra plus le rouvrir.
@@ -161,8 +158,10 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       zones placées, elles s'affichent sur fond uni.
 - [ ] Écrire les six thèmes proposés : station-service et garage (en voiture),
       marché et école (en bus), loueur de vélos et forêt (à pied).
-- [ ] Nommer le second classeur d'une énigme. « Laisse-le » est un tri par
-      rejet ; deux gestes positifs seraient peut-être plus justes à six ans.
+- [ ] Nommer la **liste du reste** d'un tri unique. L'outil propose
+      « Le reste » ; le contenu livré dit « Laisse-le ». Les deux sont des tris
+      par rejet, et deux gestes positifs seraient peut-être plus justes à six
+      ans.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
 - [ ] Portraits des personnages : `portrait` existe dans le format mais aucun

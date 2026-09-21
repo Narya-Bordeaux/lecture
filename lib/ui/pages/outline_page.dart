@@ -32,8 +32,11 @@ class _OutlinePageState extends State<OutlinePage> {
       MaterialPageRoute<List<NewTrip>>(
         builder: (_) => AddTripsPage(
           locationName: block.locationName,
-          existingTrips:
-              block.trips.map((trip) => trip.label).toList(growable: false),
+          allowsOneTripOnly: block.isSingleSort,
+          existingTrips: block.trips
+              .where((trip) => trip.destinationStageId != null)
+              .map((trip) => trip.label)
+              .toList(growable: false),
         ),
       ),
     );
@@ -159,6 +162,8 @@ class _BlockCard extends StatelessWidget {
                 ),
                 if (block.isEncounter)
                   const Icon(Icons.person_outline, size: 18),
+                if (block.isSingleSort)
+                  const Icon(Icons.filter_alt_outlined, size: 18),
                 if (block.isEnding) const Icon(Icons.flag_outlined, size: 18),
                 // La case du croquis : le recit qui accompagne le depart.
                 Icon(
@@ -171,6 +176,8 @@ class _BlockCard extends StatelessWidget {
             ),
             if (isDetached) _Note('Aucun chemin ne mène ici.'),
             if (block.isEnding) _Note('Fin de l\'aventure.'),
+            if (block.isSingleSort)
+              _Note('Tri unique : ce qui est du thème, et tout le reste.'),
             const SizedBox(height: 8),
             if (block.trips.isEmpty && !block.isEnding)
               _Note('Aucun trajet ne part d\'ici pour l\'instant.'),
@@ -206,10 +213,13 @@ class _BlockCard extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           Expanded(child: Text(trip.label)),
-          if (trip.leadsToEncounter) const Icon(Icons.person_outline, size: 16),
+          if (trip.leadsToSingleSort)
+            const Icon(Icons.filter_alt_outlined, size: 16),
           if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
+          // La liste du reste n'ouvre aucun chemin, et c'est sa raison d'etre :
+          // l'annoncer « sans issue » la ferait passer pour un defaut.
           if (trip.destinationStageId == null)
-            Text('sans issue', style: Theme.of(context).textTheme.bodySmall),
+            Text('le reste', style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );

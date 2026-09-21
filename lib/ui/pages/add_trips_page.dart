@@ -12,6 +12,7 @@ class AddTripsPage extends StatefulWidget {
   const AddTripsPage({
     required this.locationName,
     this.existingTrips = const <String>[],
+    this.allowsOneTripOnly = false,
     super.key,
   });
 
@@ -23,6 +24,12 @@ class AddTripsPage extends StatefulWidget {
   /// Sans ce rappel, ouvrir l'ajout sur un lieu qui a deja trois directions
   /// presente une page vide, et laisse croire qu'elles ont disparu.
   final List<String> existingTrips;
+
+  /// Vrai si ce lieu fait trier entre une liste et le reste.
+  ///
+  /// Un tri unique n'a qu'une sortie : proposer d'en ajouter plusieurs
+  /// laisserait croire a un choix que le moteur refuse.
+  final bool allowsOneTripOnly;
 
   /// Au-dela, l'etape proposerait trop de directions a un enfant de six ans,
   /// et les zones de depot ne tiendraient plus sur l'illustration.
@@ -104,16 +111,24 @@ class _AddTripsPageState extends State<AddTripsPage> {
             ),
           ],
           const SizedBox(height: 24),
-          const Text('Combien de trajets partent d\'ici ?'),
-          const SizedBox(height: 8),
-          SegmentedButton<int>(
-            segments: <ButtonSegment<int>>[
-              for (var count = 1; count <= AddTripsPage.maxTrips; count++)
-                ButtonSegment<int>(value: count, label: Text('$count')),
-            ],
-            selected: <int>{_names.length},
-            onSelectionChanged: (selection) => _setCount(selection.first),
-          ),
+          if (widget.allowsOneTripOnly)
+            Text(
+              'Ici, l\'enfant trie entre une liste et le reste : ce lieu n\'a '
+              'qu\'une seule sortie.',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else ...<Widget>[
+            const Text('Combien de trajets partent d\'ici ?'),
+            const SizedBox(height: 8),
+            SegmentedButton<int>(
+              segments: <ButtonSegment<int>>[
+                for (var count = 1; count <= AddTripsPage.maxTrips; count++)
+                  ButtonSegment<int>(value: count, label: Text('$count')),
+              ],
+              selected: <int>{_names.length},
+              onSelectionChanged: (selection) => _setCount(selection.first),
+            ),
+          ],
           const SizedBox(height: 24),
           for (var index = 0; index < _names.length; index++)
             _buildTrip(index),
@@ -144,19 +159,28 @@ class _AddTripsPageState extends State<AddTripsPage> {
             segments: const <ButtonSegment<TripKind>>[
               ButtonSegment<TripKind>(
                 value: TripKind.ordinary,
-                label: Text('Classique'),
-                icon: Icon(Icons.place_outlined),
+                label: Text('Plusieurs listes'),
+                icon: Icon(Icons.dashboard_outlined),
               ),
               ButtonSegment<TripKind>(
-                value: TripKind.encounter,
-                label: Text('Personnage'),
-                icon: Icon(Icons.person_outline),
+                value: TripKind.singleSort,
+                label: Text('Tri unique'),
+                icon: Icon(Icons.filter_alt_outlined),
               ),
             ],
             selected: <TripKind>{_kinds[index]},
             onSelectionChanged: (selection) =>
                 setState(() => _kinds[index] = selection.first),
           ),
+          if (_kinds[index] == TripKind.singleSort)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'Là-bas, l\'enfant triera entre ce qui est du thème et tout '
+                'le reste. Une seule sortie.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
         ],
       ),
     );

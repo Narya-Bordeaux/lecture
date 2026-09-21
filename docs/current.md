@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.14.0+27** — 21 septembre 2026
+**Version : 0.15.0+28** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -12,8 +12,9 @@ est remplacé sur place par un mot de la réserve. La spécification est en vers
 de travail 0.8.
 
 Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décrits
-par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
-dans la boutique de la gare.
+par `docs/Format_fichier_aventure.md`. La boutique de la gare est un **tri
+unique** : l'enfant y trie entre une liste et tout le reste, et une marchande y
+pose la question — l'ornement, pas la mécanique.
 
 **Un outil d'auteur existe**, sur un second point d'entrée `lib/main_author.dart`.
 Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON. Le
@@ -68,6 +69,23 @@ aucun mot d'une famille donnée.
 
 ## Dernières modifications
 
+### 0.15.0+28 — Le tri unique
+- **Ce que faisait la « rencontre » n'est pas narratif, c'est une mécanique** :
+  l'enfant trie entre **une liste et son complément**, au lieu de comparer
+  plusieurs familles entre elles. Rien à comparer d'un mot à l'autre : chacun se
+  juge seul contre un seul critère. Plus abstrait, plus difficile.
+- `Stage.isSingleSort` : une famille **sans destination** est la liste du reste,
+  et sa présence dit la mécanique. Rien de déclaré.
+- Corollaire refusé par `validate()` : **un tri unique n'a qu'une seule
+  sortie**. L'écran n'en propose pas davantage.
+- **Le personnage devient un ornement**, posable sur n'importe quel lieu, dont
+  aucune mécanique ne dépend. L'outil n'en invente plus.
+- « sans issue » devient **« le reste »** — le mot se lisait comme une panne,
+  alors que cette liste est la moitié du dispositif.
+- Un manque disparaît : plus de `Character` fabriqué, donc plus de
+  `characters.json` à écrire.
+- 233 tests au vert, dont 10 nouveaux.
+
 ### 0.14.0+27 — Toute arrivée devient une carte
 - **Le défaut qui rendait l'écran inutilisable** : je n'affichais que les lieux
   ayant déjà des trajets. Un lieu qu'on vient de créer n'en a aucun — ajouter
@@ -103,23 +121,6 @@ aucun mot d'une famille donnée.
 - **Rien n'est enregistré** : l'écran travaille en mémoire. Voir `TODO.md` pour
   les trois manques.
 - 214 tests au vert, dont 22 nouveaux.
-
-### 0.12.0+25 — Le lettrage du croquis
-- `AdventureOutline` (Dart pur) calcule le repérage `A`, `B1`, `C2` du croquis
-  papier, et la liste des points qui se déploient dans l'ordre de lecture.
-- **Règle donnée par le croquis, qui ne se devine pas** : `B1` donne `C1, C2`
-  mais `B2` donne `D1, D2`. La lettre ne marque pas la profondeur — chaque point
-  qui se déploie consomme la lettre suivante pour ses arrivées.
-- **Jamais stocké** : recalculé, et mouvant. Insérer un trajet fait passer `B2`
-  en `B3` — bon repère à l'écran, mauvais identifiant.
-- Encaisse ce qu'un brouillon a de sale : destination annoncée avant son lieu,
-  lieu atteint par deux chemins, classeur sans issue, lieu non relié, cycle, et
-  plus de vingt-six groupes.
-- **Le parseur de notation ne sera pas écrit** : la construction se fera par
-  boutons, et un langage dont personne ne se sert est un langage à maintenir
-  pour rien.
-- Rien n'est encore affiché : c'est le calcul que l'écran consommera.
-- 192 tests au vert, dont 15 nouveaux.
 
 ## Décisions prises
 

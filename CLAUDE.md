@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.14.0+27** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.15.0+28** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -258,16 +258,31 @@ L'illustration a été écartée : avec trois familles, les possibilités se
 réduisent d'elles-mêmes et montrer l'image donnerait la réponse. Ne pas la
 réintroduire sans arbitrage — c'est une décision, pas un oubli.
 
-**Rencontre et classeur sans issue** — une étape portant un `character` est une
-rencontre : un personnage pose une question, et l'enfant trie entre le thème et
-un classeur de rebut. Ce dernier est une famille **sans destination**, qui
-n'ouvre donc aucun chemin. Les leurres sont écrits à la main, jamais tirés au
-hasard : un tirage pourrait sortir un mot appartenant vraiment au thème, et le
-jeu refuserait une bonne réponse.
+**Le tri unique** — une **autre mécanique de lecture**, pas un élément narratif.
+Au lieu de trier entre plusieurs familles homogènes, l'enfant trie entre **une
+liste et son complément** : ce qui est du thème, et tout le reste. Il n'y a rien
+à comparer d'un mot à l'autre, chacun se juge seul contre un seul critère —
+c'est plus abstrait, et plus difficile.
 
-**Pas de champ « type d'étape »** — la structure le dit : un `character` signale
-une rencontre. Ajouter un type serait une information en double, qui finirait
-par diverger.
+La structure le dit, rien n'est déclaré : une famille **sans destination** est
+la liste du reste, et sa présence fait du lieu un tri unique (`isSingleSort`).
+Corollaire vérifié par `validate()` : un tri unique **n'a qu'une seule sortie**,
+celle que le thème ouvre. Deux en feraient un tri ordinaire affublé d'une liste
+de rebut, ce qui n'est plus la même mécanique.
+
+Les mots de la liste du reste sont écrits à la main, jamais tirés au hasard : un
+tirage pourrait sortir un mot appartenant vraiment au thème, et le jeu
+refuserait une bonne réponse.
+
+**Le personnage est un ornement** — un `character` et sa réplique se posent sur
+n'importe quel lieu, et ne définissent aucune mécanique. Un tri unique peut se
+passer de personnage ; un lieu ordinaire peut en porter un. L'outil d'auteur n'en
+invente jamais.
+
+**Pas de champ « type d'étape »** — la nature d'un lieu se lit dans sa structure :
+une famille sans destination fait un tri unique, aucune famille fait une fin
+(voir l'exception ci-dessous). Ajouter un type serait une information en double,
+qui finirait par diverger.
 
 **Une exception, assumée : la fin se déclare** (`Stage.isEnding`, `"ending"`
 dans le JSON). L'absence de famille ne suffisait pas à la dire : un lieu qu'on

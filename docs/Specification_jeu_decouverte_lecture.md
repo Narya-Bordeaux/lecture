@@ -148,7 +148,7 @@ Les mots ambigus, qui pourraient raisonnablement appartenir à plusieurs famille
 
 | État | Éléments concernés |
 |---|---|
-| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, découpage syllabique comme aide unique dès la première erreur, abandon de l’illustration, listes pleines, réserve et renouvellement sur place, classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie. |
+| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, découpage syllabique comme aide unique dès la première erreur, abandon de l’illustration, listes pleines, réserve et renouvellement sur place, classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie, **tri unique** (une liste et son complément, une seule sortie) comme seconde mécanique de classement, personnage rencontré réduit à un ornement sans effet sur la mécanique. |
 | À préciser | Forme de la carte, niveaux détaillés, récompenses, durée d’une session, suivi de la progression et rôle précis de l’adulte. |
 
 ## Questions ouvertes pour la prochaine version

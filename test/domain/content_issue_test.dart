@@ -312,6 +312,104 @@ void main() {
     });
   });
 
+  group('Le tri unique', () {
+    // Une autre mecanique de lecture : au lieu de trier entre plusieurs
+    // familles homogenes, l'enfant trie entre **une liste et son complement**
+    // — ce qui est du theme, et tout le reste. Rien a comparer d'un mot a
+    // l'autre : chacun se juge seul contre un seul critere.
+    //
+    // La structure le dit : une famille sans destination est la liste du
+    // reste. Rien a declarer en plus.
+
+    test('une liste du reste fait du lieu un tri unique', () {
+      final sorting = stage(
+        id: 'boutique',
+        families: <WordFamily>[
+          family(
+            id: 'a_manger',
+            label: 'Ce qui se mange',
+            words: <Word>[word('pain', const <String>['pain'])],
+            destination: 'depart',
+          ),
+          family(id: 'le_reste', label: 'Le reste', words: <Word>[
+            word('vélo', const <String>['vé', 'lo']),
+          ]),
+        ],
+      );
+
+      expect(sorting.isSingleSort, isTrue);
+    });
+
+    test('un tri entre plusieurs familles n\'en est pas un', () {
+      final ordinary = stage(
+        id: 'depart',
+        families: <WordFamily>[
+          family(
+            id: 'en_bus',
+            label: 'En autocar',
+            words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+            destination: 'depart',
+          ),
+        ],
+      );
+
+      expect(ordinary.isSingleSort, isFalse);
+    });
+
+    test('un tri unique qui aurait deux sorties se contredit', () {
+      final adventure = adventureOf(<Stage>[
+        stage(
+          id: 'depart',
+          families: <WordFamily>[
+            family(
+              id: 'a_manger',
+              label: 'Ce qui se mange',
+              words: <Word>[word('pain', const <String>['pain'])],
+              destination: 'depart',
+            ),
+            family(
+              id: 'a_boire',
+              label: 'Ce qui se boit',
+              words: <Word>[word('eau', const <String>['eau'])],
+              destination: 'depart',
+            ),
+            family(id: 'le_reste', label: 'Le reste', words: <Word>[
+              word('vélo', const <String>['vé', 'lo']),
+            ]),
+          ],
+        ),
+      ]);
+
+      // Le tri unique tient a ce qu'il n'y ait qu'un seul choix. Deux sorties
+      // en feraient un tri ordinaire affuble d'une liste de rebut.
+      final wrong = issuesOf(adventure, IssueSeverity.wrong);
+      expect(wrong, hasLength(1));
+      expect(wrong.single.stageId, 'depart');
+    });
+
+    test('la boutique du contenu livre en est un, et reste valide', () {
+      // Elle a « ce qui se mange » d'un cote, « laisse-le » de l'autre.
+      final sorting = stage(
+        id: 'boutique',
+        families: <WordFamily>[
+          family(
+            id: 'a_manger',
+            label: 'Ce qui se mange',
+            words: <Word>[word('pain', const <String>['pain'])],
+            destination: 'depart',
+          ),
+          family(id: 'a_laisser', label: 'Laisse-le', words: <Word>[
+            word('vélo', const <String>['vé', 'lo']),
+          ]),
+        ],
+      );
+      final adventure = adventureOf(<Stage>[sorting], start: 'boutique');
+
+      expect(sorting.isSingleSort, isTrue);
+      expect(issuesOf(adventure, IssueSeverity.wrong), isEmpty);
+    });
+  });
+
   group('Ce que l\'outil doit pouvoir dire', () {
     test('une aventure jouable ne presente aucune anomalie', () {
       final adventure = adventureWith(<WordFamily>[

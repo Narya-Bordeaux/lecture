@@ -138,7 +138,24 @@ class Stage {
   final bool isEnding;
 
   /// Vrai si l'etape met en scene un personnage.
+  ///
+  /// C'est un ornement, pas une mecanique : un personnage peut se poser sur
+  /// n'importe quel lieu, et un tri unique peut se passer de lui.
   bool get isEncounter => encounter != null;
+
+  /// Vrai si l'etape fait trier entre **une liste et son complement**.
+  ///
+  /// Autre mecanique de lecture que le tri entre plusieurs familles : au lieu
+  /// de comparer les mots entre eux, avec un choix qui se reduit a mesure,
+  /// l'enfant juge chaque mot seul contre un seul critere — il est du theme,
+  /// ou il n'en est pas. C'est plus abstrait, et plus difficile.
+  ///
+  /// La structure le dit, rien n'est declare : une famille sans destination
+  /// **est** la liste du reste. Corollaire verifie par `validate()`, un tri
+  /// unique n'a qu'une sortie ; deux en feraient un tri ordinaire affuble
+  /// d'une liste de rebut.
+  bool get isSingleSort =>
+      families.any((family) => !family.leadsSomewhere);
 
   Word? findWord(String wordText) {
     for (final family in families) {
@@ -226,6 +243,16 @@ class Stage {
     if (families.isNotEmpty && !families.any((family) => family.leadsSomewhere)) {
       issues.add(ContentIssue.incomplete(
         'Aucune famille ne mene ailleurs : l\'etape serait sans issue.',
+        stageId: id,
+      ));
+    }
+
+    // Le tri unique tient a ce qu'il n'y ait qu'un seul choix : une liste, et
+    // tout le reste. Deux sorties en feraient autre chose.
+    if (isSingleSort && families.where((f) => f.leadsSomewhere).length > 1) {
+      issues.add(ContentIssue.wrong(
+        'Ce lieu fait trier entre une liste et le reste, mais propose '
+        'plusieurs sorties : un tri unique n\'en a qu\'une.',
         stageId: id,
       ));
     }

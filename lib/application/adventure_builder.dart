@@ -1,17 +1,23 @@
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 
 /// La nature du lieu qu'un trajet atteint.
 enum TripKind {
-  /// Un lieu ordinaire : l'enfant y classera des mots dans des familles.
+  /// Un lieu ordinaire : l'enfant y trie entre plusieurs familles, en
+  /// comparant les mots entre eux. Le choix se reduit a mesure que les listes
+  /// se remplissent.
   ordinary,
 
-  /// Une rencontre : un personnage y pose une question, et l'enfant trie
-  /// entre le theme et un classeur de rebut.
-  encounter,
+  /// Un **tri unique** : l'enfant y trie entre une liste et son complement —
+  /// ce qui est du theme, et tout le reste.
+  ///
+  /// Autre mecanique de lecture, et plus difficile : il n'y a rien a comparer
+  /// d'un mot a l'autre, chacun se juge seul contre un seul critere. D'ou la
+  /// contrainte qui va avec — un tel lieu n'a **qu'une seule sortie**, celle
+  /// que le theme ouvre.
+  singleSort,
 }
 
 /// Ce que l'auteur demande en ajoutant un trajet : un nom, et une nature.
@@ -116,6 +122,17 @@ class AdventureBuilder {
       throw StateError('Lieu inconnu : "$fromStageId".');
     }
 
+    // Un tri unique n'a qu'une sortie : c'est ce qui le distingue d'un tri
+    // ordinaire affuble d'une liste de rebut. L'interface n'en propose donc
+    // jamais plus d'une, et le moteur le garantit.
+    final exits = source.families.where((f) => f.leadsSomewhere).length;
+    if (source.isSingleSort && exits + trips.length > 1) {
+      throw StateError(
+        'Le lieu "$fromStageId" fait trier entre une liste et le reste : '
+        'il n\'accepte qu\'une seule sortie.',
+      );
+    }
+
     final stages = Map<String, Stage>.from(adventure.stages);
     final families = List<WordFamily>.from(source.families);
 
@@ -155,25 +172,22 @@ class AdventureBuilder {
       return Stage(id: stageId, locationName: trip.name);
     }
 
-    // Une rencontre n'est pas seulement un lieu avec un portrait : la
-    // specification veut que le personnage pose une question, et que l'enfant
-    // trie entre le theme et un classeur de rebut. Le poser d'office evite un
-    // lieu ne a moitie.
+    // La liste du reste est la moitie du dispositif, pas un defaut a corriger :
+    // c'est elle qui fait du lieu un tri unique. La poser d'office evite un
+    // lieu ne a moitie, et il n'y aurait aucun moyen de la deviner ensuite.
+    //
+    // Aucun personnage n'est invente : il est un ornement, et l'auteur le pose
+    // s'il en veut un.
     return Stage(
       id: stageId,
       locationName: trip.name,
-      encounter: Encounter(
-        character: Character(id: stageId, name: trip.name),
-        line: '',
-      ),
       families: List<WordFamily>.unmodifiable(<WordFamily>[
         const WordFamily(
-          id: 'a_laisser',
-          // Nom provisoire : comment nommer ce second classeur reste une
-          // question ouverte (voir docs/TODO.md). « Laisse-le » est un tri par
-          // rejet, et deux gestes positifs seraient peut-etre plus justes a
-          // six ans.
-          label: 'Laisse-le',
+          id: 'le_reste',
+          // Nom provisoire : comment nommer cette seconde liste reste une
+          // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
+          // peut-etre pas le geste le plus juste a six ans.
+          label: 'Le reste',
           words: <Word>[],
         ),
       ]),

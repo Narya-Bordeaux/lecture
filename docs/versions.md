@@ -44,6 +44,50 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.15.0+28 — 21 septembre 2026 — Le tri unique
+
+Essayé sur l'appareil, le mode « personnage » affichait un trajet **« sans
+issue »** — un mot qui se lit comme une panne, alors que cette liste est la
+moitié du dispositif. Le défaut d'affichage en cachait un plus profond : le
+nom.
+
+**Ce que la boutique de la gare fait n'est pas une rencontre, c'est une autre
+mécanique de lecture.** Au lieu de trier entre plusieurs familles homogènes,
+l'enfant trie entre **une liste et son complément** : ce qui est du thème, et
+tout le reste. Dans un tri à trois familles, il compare les mots entre eux et
+le choix se réduit à mesure — remplir une catégorie est en soi une aide. Ici il
+n'y a rien à comparer : chaque mot se juge seul contre un seul critère. C'est
+plus abstrait, et plus difficile.
+
+Le personnage n'était qu'un habillage posé dessus. Il devient ce qu'il est :
+**un ornement**, qu'on pose sur n'importe quel lieu, et dont aucune mécanique
+ne dépend. L'outil n'en invente plus.
+
+- `Stage.isSingleSort` : une famille **sans destination** est la liste du
+  reste, et sa présence suffit à dire la mécanique. Rien de déclaré, comme le
+  veut la règle du projet.
+- Corollaire, et `validate()` le refuse : **un tri unique n'a qu'une seule
+  sortie**. Deux en feraient un tri ordinaire affublé d'une liste de rebut, ce
+  qui n'est plus la même chose. L'écran n'en propose donc pas davantage, et le
+  moteur le garantit.
+- `TripKind.encounter` devient `TripKind.singleSort`. Le bouton dit
+  « Plusieurs listes » ou « Tri unique », et explique ce qui attend l'enfant
+  là-bas.
+- « sans issue » devient **« le reste »**, et le lieu annonce sa mécanique.
+- La liste du reste est toujours posée d'office — c'est la moitié du
+  dispositif, et il n'y aurait aucun moyen de la deviner ensuite.
+
+Un manque disparaît au passage : l'outil ne fabriquant plus de `Character`,
+`ContentWriter` n'a plus à savoir écrire `characters.json`.
+
+`CLAUDE.md` et `Format_fichier_aventure.md` portaient l'ancienne définition —
+« une étape portant un `character` est une rencontre ». Les deux sont repris :
+c'est une décision qu'on renverse, elle doit se lire. La spécification, elle, ne
+décrivait pas cette mécanique du tout ; elle gagne la ligne qui lui manquait,
+puisque le cadrage fonctionnel fait foi.
+
+- 233 tests au vert, dont 10 nouveaux.
+
 ### 0.14.0+27 — 21 septembre 2026 — Toute arrivée devient une carte
 
 Essayé sur l'appareil, l'écran de 0.13.0 s'est révélé inutilisable, et pour une
