@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:reading_game/domain/models/adventure.dart';
+import 'package:reading_game/domain/models/content_index.dart';
 import 'package:reading_game/domain/repositories/content_sink.dart';
 
 /// Enregistre le contenu sous la forme exacte que le chargement relit.
@@ -32,6 +33,17 @@ class ContentWriter {
     required String path,
   }) {
     return _write(path, adventure.toJson());
+  }
+
+  /// Ecrit le fichier pere.
+  ///
+  /// Une aventure que le sommaire n'annonce pas est introuvable pour le jeu :
+  /// creer une aventure suppose donc toujours de reecrire ce fichier.
+  Future<void> writeIndex(
+    ContentIndex index, {
+    String path = 'index.json',
+  }) {
+    return _write(path, index.toJson());
   }
 
   /// Le fichier se termine par un saut de ligne, comme tout fichier texte :

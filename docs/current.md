@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.1+17** — 21 septembre 2026
+**Version : 0.9.2+18** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -29,6 +29,21 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.9.2+18 — Écrire sur un vrai disque, et le relire avec le jeu
+- `FileContentSink` écrit le contenu dans un dossier, en créant les répertoires
+  manquants : un dossier vierge n'a ni `adventures/` ni `lexicon/`.
+- `FileContentSource` le relit — les assets étant scellés au build, l'outil ne
+  peut pas relire par eux ce qu'il vient d'enregistrer.
+- **Test de bout en bout** : écrire l'aventure dans un dossier temporaire, la
+  recharger avec `ContentRepository`, et retrouver les mêmes étapes et les
+  mêmes zones. Les tests précédents travaillaient en mémoire et ne voyaient
+  ni les chemins ni les dossiers absents.
+- `ContentWriter.writeIndex` : une aventure que le sommaire n'annonce pas est
+  introuvable pour le jeu.
+- Le `DiskContentSource` des tests s'appuie désormais sur `FileContentSource`,
+  au lieu d'en être une seconde version.
+- 150 tests au vert.
 
 ### 0.9.1+17 — Écrire le contenu, et prouver que rien ne se perd
 - `ContentSink`, symétrique de `ContentSource`, et `ContentWriter` qui réécrit

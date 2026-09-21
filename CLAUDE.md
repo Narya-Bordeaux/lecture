@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.9.1+17** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.9.2+18** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -150,6 +150,15 @@ indiscernables à l'écran. Le chargement refuse le doublon en nommant le mot.
 Raison : le contenu doit pouvoir évoluer sans recompilation, être relu par un
 enseignant ou un parent, et le dépôt étant destiné à l'open source, c'est le point
 d'entrée le plus accessible pour une contribution extérieure.
+
+**Lire et écrire sont symétriques** — `ContentSource` lit, `ContentSink` écrit,
+et `ContentWriter` enregistre via les `toJson()` que le jeu utilise déjà : le
+format n'est décrit qu'une fois. Les assets étant **scellés au build**, aucune
+implémentation ne peut réécrire `assets/` ; l'outil d'auteur passe donc par
+`FileContentSink`, et relit par `FileContentSource`.
+`test/infrastructure/content_writer_test.dart` compare le fichier écrit au
+fichier livré champ par champ et nomme ce qui manque — une sérialisation qui
+oublierait un champ ferait disparaître du contenu en silence.
 
 Ne jamais coder en dur une liste de mots dans un widget ou dans le moteur.
 

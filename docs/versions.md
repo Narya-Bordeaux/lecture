@@ -44,6 +44,39 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.2+18 — 21 septembre 2026 — Écrire sur un vrai disque
+
+Deuxième étape de l'outil de création. La précédente travaillait en mémoire et
+ne voyait donc ni les chemins, ni les dossiers absents, ni ce que le jeu ferait
+du fichier écrit.
+
+`FileContentSink` enregistre dans un dossier et crée les répertoires manquants —
+un dossier vierge n'a ni `adventures/` ni `lexicon/`, et la première aventure
+d'une installation neuve aurait échoué sans cela. `FileContentSource` fait la
+lecture correspondante : les assets étant scellés au moment du build, l'outil ne
+peut pas relire par eux ce qu'il vient d'enregistrer.
+
+Le test qui compte écrit l'aventure dans un dossier temporaire puis la recharge
+avec le `ContentRepository` du jeu, et retrouve les mêmes étapes et les mêmes
+zones. C'est la chaîne entière — sérialisation, chemins, système de fichiers,
+chargement — et non plus seulement sa moitié.
+
+`ContentWriter` sait aussi écrire le fichier père : une aventure que le sommaire
+n'annonce pas est introuvable pour le jeu, donc en créer une suppose toujours de
+le réécrire.
+
+Au passage, le `DiskContentSource` des tests s'appuie sur `FileContentSource` au
+lieu d'en être une seconde version.
+
+**Décision de cette session** : le contenu créé transitera par Firebase Storage,
+en tuyau d'auteur uniquement — le jeu livré reste hors ligne et ne contacte rien.
+Storage n'étant qu'une arborescence de fichiers, le dépôt distant se branchera
+par une autre implémentation de `ContentSink`, sans toucher à `ContentWriter`.
+Rien de Firebase n'est encore dans le dépôt : l'intégration n'est pas testable en
+session cloud, faute de SDK Android.
+
+150 tests au vert.
+
 ### 0.9.1+17 — 21 septembre 2026 — Écrire le contenu, sans rien perdre
 
 Première étape vers un outil qui crée une journée entière au lieu de copier des
