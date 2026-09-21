@@ -44,6 +44,43 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.19.1+34 — 21 septembre 2026 — Un lieu ne raconte pas son départ
+
+Correction d'un modèle faux, signalée à l'usage. Une étape avait deux moments
+de récit : `onArrival` en entrant, `onCompletion` en repartant. Le second n'a
+pas lieu d'être — **l'enfant clique un trajet, et c'est le lieu d'arrivée qui
+raconte**, avec son propre texte. La narration appartient à celui qui accueille.
+
+Le contenu livré le démontrait : « Devant la maison » annonçait *« Grisbie est
+arrivée à la plage »* au moment où on la quittait, avant que « La plage » ne
+raconte la même arrivée à son tour.
+
+`Narrative` perd donc `onCompletion`, et une étape se joue en **deux temps** —
+récit puis jeu — au lieu de trois. `_StagePhase.completion` et le
+`_pendingDestination` d'`AdventurePage` disparaissent avec.
+
+**Trois textes ont été retirés du contenu livré**, et méritent d'être relus :
+
+| Lieu | Texte perdu |
+|---|---|
+| `maison` | Grisbie est arrivée à la plage. Une belle journée s'annonce ! |
+| `gare` | Le train part dans deux minutes. Vite ! |
+| `boutique` | Le sac est plein de bonnes choses. Direction la mer ! |
+
+Le premier faisait doublon avec l'arrivée à la plage. Les deux autres disaient
+quelque chose du lieu qu'on quitte ; s'ils doivent revenir, c'est dans le
+`onArrival` du lieu suivant, réécrits de son point de vue.
+
+- `Narrative` garde sa forme d'objet pour un seul champ : le concept se nomme,
+  le format de contenu ne bouge pas (`"narrative": { "onArrival": … }`), et un
+  second moment aurait où se poser le jour où il se justifierait.
+- `OutlineBlock.hasTransitionText` devient `hasNarrative` : la case du croquis
+  cochait le récit de départ, elle coche maintenant celui d'arrivée.
+- `StageEditorPage` perd son champ « En repartant » et **dit pourquoi** sous
+  celui qui reste — sans quoi le geste manquant se chercherait.
+
+299 tests au vert. `flutter analyze` sans remarque.
+
 ### 0.19.0+33 — 21 septembre 2026 — Ce qu'un lieu porte, et le seuil de la journée
 
 L'écran du parcours disait **où** l'on va. Il dit maintenant aussi **ce qu'il y

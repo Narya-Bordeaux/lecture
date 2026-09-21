@@ -276,9 +276,9 @@ class _BlockCard extends StatelessWidget {
                 if (block.isSingleSort)
                   const Icon(Icons.filter_alt_outlined, size: 18),
                 if (block.isEnding) const Icon(Icons.flag_outlined, size: 18),
-                // La case du croquis : le recit qui accompagne le depart.
+                // La case du croquis : le recit d'arrivee est-il ecrit ?
                 Icon(
-                  block.hasTransitionText
+                  block.hasNarrative
                       ? Icons.check_box_outlined
                       : Icons.check_box_outline_blank,
                   size: 18,

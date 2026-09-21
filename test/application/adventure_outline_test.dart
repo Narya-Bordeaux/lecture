@@ -281,8 +281,9 @@ void main() {
       final outline = AdventureOutline.of(await loadRealAdventure());
       final start = outline.blocks.first;
 
-      // « maison » a un onCompletion : la case est cochee sur ses trajets.
-      expect(start.hasTransitionText, isTrue);
+      // « maison » n'a pas de recit d'arrivee : la page de garde le dit deja,
+      // et deux ecrans de suite feraient attendre l'enfant pour rien.
+      expect(start.hasNarrative, isFalse);
     });
 
     test('un lieu sans recit de depart laisse la case vide', () {
@@ -296,7 +297,7 @@ void main() {
         ending(id: 'plage'),
       ]));
 
-      expect(outline.blocks.first.hasTransitionText, isFalse);
+      expect(outline.blocks.first.hasNarrative, isFalse);
     });
   });
 }

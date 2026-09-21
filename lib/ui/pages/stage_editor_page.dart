@@ -9,7 +9,7 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 ///
 /// L'ecran du parcours dit **ou** l'on va — les trajets, les arrivees, la
 /// forme de la journee. Celui-ci dit **ce qu'il y a** une fois sur place : le
-/// nom, l'illustration, les zones de depot et les deux moments de recit.
+/// nom, l'illustration, les zones de depot et le recit d'arrivee.
 ///
 /// Les listes de mots n'y sont pas : elles appartiennent a un **trajet**, pas
 /// a un lieu, et une meme liste sert a plusieurs endroits. Les mettre ici
@@ -32,8 +32,6 @@ class _StageEditorPageState extends State<StageEditorPage> {
       TextEditingController(text: widget.stage.backgroundAsset ?? '');
   late final TextEditingController _onArrival =
       TextEditingController(text: widget.stage.narrative.onArrival ?? '');
-  late final TextEditingController _onCompletion =
-      TextEditingController(text: widget.stage.narrative.onCompletion ?? '');
 
   /// Les familles, dont les zones changent au calage.
   late List<WordFamily> _families = widget.stage.families;
@@ -43,7 +41,6 @@ class _StageEditorPageState extends State<StageEditorPage> {
     _name.dispose();
     _background.dispose();
     _onArrival.dispose();
-    _onCompletion.dispose();
     super.dispose();
   }
 
@@ -69,10 +66,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
           ? widget.stage.locationName
           : _name.text.trim(),
       families: _families,
-      narrative: Narrative(
-        onArrival: _orNull(_onArrival),
-        onCompletion: _orNull(_onCompletion),
-      ),
+      narrative: Narrative(onArrival: _orNull(_onArrival)),
       backgroundAsset: _backgroundPath.isEmpty ? null : _backgroundPath,
       clearBackgroundAsset: _backgroundPath.isEmpty,
     );
@@ -193,8 +187,8 @@ class _StageEditorPageState extends State<StageEditorPage> {
         TextField(
           key: const Key('onArrival'),
           controller: _onArrival,
-          maxLines: 4,
-          minLines: 2,
+          maxLines: 6,
+          minLines: 3,
           textCapitalization: TextCapitalization.sentences,
           decoration: const InputDecoration(
             labelText: 'En arrivant',
@@ -202,18 +196,12 @@ class _StageEditorPageState extends State<StageEditorPage> {
             border: OutlineInputBorder(),
           ),
         ),
-        const SizedBox(height: 16),
-        TextField(
-          key: const Key('onCompletion'),
-          controller: _onCompletion,
-          maxLines: 4,
-          minLines: 2,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'En repartant',
-            helperText: 'Le court épisode qui accompagne le départ.',
-            border: OutlineInputBorder(),
-          ),
+        const SizedBox(height: 8),
+        // Dit ce que l'ecran ne demande pas, et pourquoi : le geste manquant
+        // se chercherait sinon.
+        _Note(
+          'Un lieu ne raconte pas son départ. L\'enfant clique un trajet, et '
+          'c\'est le lieu d\'arrivée qui raconte, avec son propre texte.',
         ),
       ],
     );

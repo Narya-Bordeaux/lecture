@@ -58,7 +58,7 @@ Map<String, String> buildFiles({
     {
       "id": "start",
       "location": "Depart",
-      "narrative": { "onArrival": "Bonjour.", "onCompletion": "A bientot." },
+      "narrative": { "onArrival": "Bonjour." },
       ${encounter ?? ''}
       "families": [
         { "id": "one", "label": "Famille", "list": "liste_une",
@@ -175,7 +175,6 @@ void main() {
       );
 
       expect(adventure.startStage.narrative.onArrival, 'Bonjour.');
-      expect(adventure.startStage.narrative.onCompletion, 'A bientot.');
     });
 
     test('un personnage fait de l\'etape une rencontre', () async {

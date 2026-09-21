@@ -72,7 +72,7 @@ class AdventureOutline {
           stageId: stageId,
           letter: letters[stageId]!,
           locationName: stage.locationName,
-          hasTransitionText: stage.narrative.onCompletion != null,
+          hasNarrative: stage.narrative.onArrival != null,
           isEncounter: stage.isEncounter,
           isSingleSort: stage.isSingleSort,
           isEnding: stage.isEnding,
@@ -158,7 +158,7 @@ class OutlineBlock {
     required this.stageId,
     required this.letter,
     required this.locationName,
-    required this.hasTransitionText,
+    required this.hasNarrative,
     required this.isEncounter,
     required this.isSingleSort,
     required this.isEnding,
@@ -172,8 +172,10 @@ class OutlineBlock {
 
   final String locationName;
 
-  /// La case du croquis : le recit qui accompagne le depart existe-t-il ?
-  final bool hasTransitionText;
+  /// La case du croquis : le recit d'arrivee est-il ecrit ?
+  ///
+  /// Un lieu ne raconte pas son depart — c'est celui d'apres qui raconte.
+  final bool hasNarrative;
 
   /// Vrai si un personnage attend ici. C'est un ornement, pas une mecanique.
   final bool isEncounter;

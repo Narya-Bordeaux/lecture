@@ -1,22 +1,25 @@
-/// Les deux moments de recit d'une etape.
+/// Le recit d'un lieu.
 ///
-/// [onArrival] s'affiche en entrant dans le lieu, avant de jouer : il donne son
-/// sens a ce qui va etre demande. [onCompletion] accompagne le depart, et
-/// repond a la specification, qui veut « un court episode de l'histoire apres
-/// chaque avancee ».
+/// **Un lieu raconte son arrivee, jamais son depart.** L'enfant y entre, lit ce
+/// qui donne son sens a ce qui va lui etre demande, puis classe ses mots. Quand
+/// il repart, c'est le lieu **suivant** qui raconte — son propre [onArrival].
 ///
-/// Les deux sont facultatifs : une etape peut se passer de recit.
+/// Un recit de depart existait, et disait la meme chose deux fois : le contenu
+/// livre faisait annoncer l'arrivee a la plage par le lieu qu'on quittait,
+/// avant que la plage ne la raconte a son tour. La narration appartient a celui
+/// qui accueille.
+///
+/// Un objet pour un seul champ, et c'est voulu : le concept se nomme, le format
+/// de contenu garde sa forme (`"narrative": { "onArrival": … }`), et un second
+/// moment aurait ou se poser le jour ou il se justifierait.
 class Narrative {
-  const Narrative({this.onArrival, this.onCompletion});
+  const Narrative({this.onArrival});
 
   factory Narrative.fromJson(Object? json) {
     // Tolere l'ancienne forme, ou le recit etait une simple chaine.
     if (json is String) return Narrative(onArrival: json);
     if (json is Map<String, dynamic>) {
-      return Narrative(
-        onArrival: json['onArrival'] as String?,
-        onCompletion: json['onCompletion'] as String?,
-      );
+      return Narrative(onArrival: json['onArrival'] as String?);
     }
     return const Narrative();
   }
@@ -26,15 +29,11 @@ class Narrative {
   /// Affiche en arrivant, avant que l'enfant ne classe quoi que ce soit.
   final String? onArrival;
 
-  /// Affiche au moment de quitter le lieu.
-  final String? onCompletion;
-
-  bool get isEmpty => onArrival == null && onCompletion == null;
+  bool get isEmpty => onArrival == null;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       if (onArrival != null) 'onArrival': onArrival,
-      if (onCompletion != null) 'onCompletion': onCompletion,
     };
   }
 }

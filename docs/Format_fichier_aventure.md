@@ -223,8 +223,7 @@ son premier lieu.
   "location": "La station-service",
   "background": "assets/pictures/station.jpg",
   "narrative": {
-    "onArrival": "La voiture a soif ! Grisbie s'arrête faire le plein.",
-    "onCompletion": "Le réservoir est plein. En route vers la mer !"
+    "onArrival": "La voiture a soif ! Grisbie s'arrête faire le plein."
   },
   "visibleWordCount": 6,
   "drawCount": 7,
@@ -239,11 +238,15 @@ son premier lieu.
 | `background` | non | L'illustration de fond |
 | `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
 | `narrative.onArrival` | non | Texte affiché en arrivant, **avant** de jouer |
-| `narrative.onCompletion` | non | Texte affiché au moment de repartir |
 | `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
 | `drawCount` | non | Combien de mots **chaque famille** tire de sa liste (toute la liste par défaut) |
 | `character` | non | Le personnage rencontré ici |
 | `families` | oui | Les catégories à remplir |
+
+**Un lieu raconte son arrivée, jamais son départ.** L'enfant y entre, lit ce qui
+donne son sens à ce qui va lui être demandé, puis classe ses mots. Quand il
+repart en cliquant un trajet, c'est le **lieu suivant** qui raconte, avec son
+propre `onArrival`. La narration appartient à celui qui accueille.
 
 Ne pas confondre les deux nombres. `drawCount` dit combien de mots entrent en
 jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.

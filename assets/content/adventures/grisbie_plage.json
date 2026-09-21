@@ -13,9 +13,6 @@
       "location": "Devant la maison",
       "background": "assets/pictures/Grisbie_plage2.jpg",
       "backgroundColor": "#4ab8fd",
-      "narrative": {
-        "onCompletion": "Grisbie est arrivée à la plage. Une belle journée s'annonce !"
-      },
       "visibleWordCount": 6,
       "families": [
         {
@@ -60,8 +57,7 @@
       "id": "gare",
       "location": "La gare",
       "narrative": {
-        "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir",
-        "onCompletion": "Le train part dans deux minutes. Vite !"
+        "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir"
       },
       "visibleWordCount": 4,
       "families": [
@@ -83,8 +79,7 @@
       "id": "boutique",
       "location": "La boutique de la gare",
       "narrative": {
-        "onArrival": "Grisbie pousse la porte de la boutique.",
-        "onCompletion": "Le sac est plein de bonnes choses. Direction la mer !"
+        "onArrival": "Grisbie pousse la porte de la boutique."
       },
       "character": {
         "id": "marchande",

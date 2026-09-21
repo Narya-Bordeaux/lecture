@@ -8,23 +8,21 @@ import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/pages/story_moment_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
-/// Les trois temps d'une etape.
+/// Les deux temps d'une etape.
 enum _StagePhase {
   /// Le recit d'arrivee, avant de jouer.
   arrival,
 
   /// Le classement des mots.
   playing,
-
-  /// Le recit de depart, avant le lieu suivant.
-  completion,
 }
 
 /// Deroule une aventure : charge son contenu, puis enchaine les etapes au fil
 /// des departs de l'enfant.
 ///
-/// Chaque etape se joue en trois temps — recit d'arrivee, jeu, recit de
-/// depart — les deux recits etant sautes quand l'etape n'en a pas.
+/// Chaque etape se joue en deux temps — recit d'arrivee puis jeu — le recit
+/// etant saute quand l'etape n'en a pas. **Un lieu ne raconte pas son
+/// depart** : l'enfant clique un trajet, et c'est le lieu suivant qui raconte.
 class AdventurePage extends StatefulWidget {
   const AdventurePage({
     required this.repository,
@@ -47,9 +45,6 @@ class _AdventurePageState extends State<AdventurePage> {
   /// La page de garde ne se montre qu'une fois, au debut de l'aventure.
   bool _openingSeen = false;
 
-  /// Ou l'enfant part une fois le recit de depart lu.
-  String? _pendingDestination;
-
   @override
   void initState() {
     super.initState();
@@ -60,7 +55,6 @@ class _AdventurePageState extends State<AdventurePage> {
     setState(() {
       _currentStageId = stageId;
       _phase = _StagePhase.arrival;
-      _pendingDestination = null;
     });
   }
 
@@ -71,19 +65,6 @@ class _AdventurePageState extends State<AdventurePage> {
       _openingSeen = false;
       _currentStageId = adventure.startStageId;
       _phase = _StagePhase.arrival;
-      _pendingDestination = null;
-    });
-  }
-
-  /// L'enfant quitte le lieu : le recit de depart s'intercale, s'il existe.
-  void _leaveStage(Stage stage, String destination) {
-    if (stage.narrative.onCompletion == null) {
-      _enterStage(destination);
-      return;
-    }
-    setState(() {
-      _phase = _StagePhase.completion;
-      _pendingDestination = destination;
     });
   }
 
@@ -123,7 +104,6 @@ class _AdventurePageState extends State<AdventurePage> {
         return switch (_phase) {
           _StagePhase.arrival => _buildArrival(stage, adventure),
           _StagePhase.playing => _buildPlayingOrEnd(stage, adventure),
-          _StagePhase.completion => _buildCompletion(stage, adventure),
         };
       },
     );
@@ -159,22 +139,8 @@ class _AdventurePageState extends State<AdventurePage> {
       // reutiliserait l'etat de l'etape precedente.
       key: ValueKey<String>(stage.id),
       stage: stage,
-      onDeparture: (destination) => _leaveStage(stage, destination),
-    );
-  }
-
-  Widget _buildCompletion(Stage stage, Adventure adventure) {
-    final destination = _pendingDestination;
-    final text = stage.narrative.onCompletion;
-    if (destination == null || text == null) {
-      return _buildPlayingOrEnd(stage, adventure);
-    }
-
-    return StoryMomentPage(
-      locationName: stage.locationName,
-      text: text,
-      backgroundAsset: stage.backgroundAsset,
-      onContinue: () => _enterStage(destination),
+      // Rien ne s'intercale au depart : c'est le lieu d'arrivee qui raconte.
+      onDeparture: _enterStage,
     );
   }
 }

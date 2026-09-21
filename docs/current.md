@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.19.0+33** — 21 septembre 2026
+**Version : 0.19.1+34** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -81,6 +81,16 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.19.1+34 — Un lieu ne raconte pas son départ
+- **`Narrative` perd `onCompletion`.** L'enfant clique un trajet, et c'est le
+  lieu d'arrivée qui raconte, avec son propre texte.
+- Le contenu livré le démontrait : « Devant la maison » annonçait l'arrivée à
+  la plage au moment où on la quittait, avant que « La plage » ne la raconte.
+- Une étape se joue en **deux temps** — récit puis jeu — au lieu de trois.
+- **Trois textes ont été retirés du contenu**, listés dans `versions.md` : s'ils
+  doivent revenir, c'est dans le `onArrival` du lieu suivant.
+- 299 tests au vert.
+
 ### 0.19.0+33 — Ce qu'un lieu porte, et le seuil de la journée
 - **Cliquer le titre d'une carte ouvre le lieu** (`StageEditorPage`) : nom,
   illustration, zones de dépôt, et les deux moments de récit.
@@ -96,32 +106,6 @@ un travail d'auteur, pas de code.
 - **Choisir le fichier dans l'appareil reste à faire** : l'éditeur demande un
   chemin au clavier. Un sélecteur suppose une dépendance tierce, à arbitrer.
 - 299 tests au vert, dont 28 nouveaux.
-
-### 0.18.0+32 — Une fin est une fin, et elle se partage
-- **Une fin ne propose plus « Ajouter des trajets »** : sa carte contredisait
-  la ligne du dessus. La carte reste — une illustration et un texte d'arrivée
-  viendront s'y poser — mais rien n'en repart.
-- Conséquence notée dans `TODO.md` : une fin créée par erreur ne se rouvre plus
-  depuis cet écran. Le moteur sait le faire, il manque le geste.
-- **Plusieurs chemins peuvent aboutir à la même fin**
-  (`NewTrip.existingStageId`). Une fin porte un écran, une image et un texte :
-  deux arrivées identiques écrites deux fois finiraient par différer.
-  `AddTripsPage` propose les fins existantes dès qu'il y en a.
-- Le nom saisi reste celui du **trajet**, pas du lieu rejoint ; l'écran le
-  propose quand le champ est vide, et il reste modifiable.
-- 271 tests au vert, dont 6 nouveaux.
-
-### 0.17.1+31 — La nature d'un trajet se choisit une fois
-- **La nature passe en tête de l'écran d'ajout, et vaut pour tout le lot.**
-  Elle se choisissait trajet par trajet : demander trois directions affichait
-  neuf pavés d'explication, et laissait composer un lot bigarré.
-- **Mais un lieu garde le droit de mélanger** : « Devant la maison » ouvre sur
-  un tri à plusieurs listes et sur deux fins. L'interdiction porte sur un
-  ajout, et l'écran dit comment revenir ajouter les autres.
-- **« Une seule sortie » porte sur l'arrivée, pas sur le départ** : plusieurs
-  tris uniques peuvent s'ouvrir depuis un carrefour, chacun avec sa liste du
-  reste. Un test le fixe, la confusion étant facile.
-- 265 tests au vert, dont 2 nouveaux.
 
 
 ## Décisions prises
@@ -171,6 +155,9 @@ un travail d'auteur, pas de code.
   Remplir une catégorie est en soi une aide pour les mots suivants.
 - **Étapes imbriquées** : une destination atteinte ouvre une étape de même nature,
   avec ses propres familles. Le modèle est récursif, un seul moteur sert partout.
+- **Un lieu raconte son arrivée, jamais son départ** : la narration appartient
+  à celui qui accueille. Un récit de départ a existé, et disait la même chose
+  deux fois.
 - **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, les
   personnages, les aventures. Un mot n'est défini qu'une fois.
 - **Leurres écrits à la main** : jamais ramassés automatiquement, sous peine de

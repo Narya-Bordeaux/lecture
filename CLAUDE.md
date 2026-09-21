@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.19.0+33** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.19.1+34** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -373,6 +373,15 @@ de ce répertoire. Ajouter un sous-dossier de contenu sans l'inscrire dans
 lisent le disque) et un jeu qui refuse de s'ouvrir sur l'appareil.
 `test/infrastructure/declared_assets_test.dart` compare les fichiers réels aux
 déclarations et échoue si l'un manque.
+
+**Un lieu raconte son arrivée, jamais son départ** — `Narrative.onArrival`, et
+rien d'autre. L'enfant entre, lit ce qui donne son sens à ce qui va lui être
+demandé, classe ses mots, puis clique un trajet : c'est le **lieu suivant** qui
+raconte, avec son propre texte. Un `onCompletion` a existé et disait la même
+chose deux fois — le contenu livré faisait annoncer l'arrivée à la plage par le
+lieu qu'on quittait, avant que la plage ne la raconte à son tour. La narration
+appartient à celui qui accueille. Une étape se joue donc en **deux temps**,
+récit puis jeu.
 
 **Page de garde** — `Adventure.opening` porte un titre, une illustration et un
 texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Quand

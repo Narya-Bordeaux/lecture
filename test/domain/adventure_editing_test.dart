@@ -118,17 +118,15 @@ void main() {
     });
   });
 
-  group('Les recits se reprennent', () {
-    test('un lieu peut recevoir ses deux textes', () {
+  group('Le recit se reprend', () {
+    test('un lieu raconte son arrivee, et elle seule', () {
+      // Le depart ne se raconte pas : l'enfant clique un trajet, et c'est le
+      // lieu d'arrivee qui raconte, avec son propre texte.
       final told = twoStages().startStage.copyWith(
-            narrative: const Narrative(
-              onArrival: 'Grisbie sort.',
-              onCompletion: 'Et voila.',
-            ),
+            narrative: const Narrative(onArrival: 'Grisbie sort.'),
           );
 
       expect(told.narrative.onArrival, 'Grisbie sort.');
-      expect(told.narrative.onCompletion, 'Et voila.');
     });
   });
 }

@@ -65,8 +65,8 @@ void main() {
         find.text('Le bus a amené Grisbie à la gare. Il y a des choses à voir'),
         findsOneWidget,
       );
-      expect(find.text('Le train part dans deux minutes. Vite !'),
-          findsOneWidget);
+      // Un lieu ne raconte pas son depart : le champ n'existe plus.
+      expect(find.text('En repartant'), findsNothing);
     });
 
     testWidgets('le chemin de l\'illustration, modifiable', (tester) async {
@@ -108,7 +108,7 @@ void main() {
       expect(edited!.id, 'gare');
     });
 
-    testWidgets('les recits saisis reviennent sur l\'etape', (tester) async {
+    testWidgets('le recit saisi revient sur l\'etape', (tester) async {
       Stage? edited;
       await _withEditor(tester, realAdventure.findStage('gare')!,
           (result) => edited = result, (tester) async {
@@ -116,15 +116,10 @@ void main() {
           find.byKey(const Key('onArrival')),
           'Le train siffle.',
         );
-        await tester.enterText(
-          find.byKey(const Key('onCompletion')),
-          'En route.',
-        );
         await save(tester);
       });
 
       expect(edited!.narrative.onArrival, 'Le train siffle.');
-      expect(edited!.narrative.onCompletion, 'En route.');
     });
 
     testWidgets('vider le chemin retire l\'illustration', (tester) async {
