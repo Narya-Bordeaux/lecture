@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.0+16** — 21 septembre 2026
+**Version : 0.9.1+17** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -29,6 +29,19 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.9.1+17 — Écrire le contenu, et prouver que rien ne se perd
+- `ContentSink`, symétrique de `ContentSource`, et `ContentWriter` qui réécrit
+  une aventure au format exact que le chargement relit — via les `toJson()`
+  existants, pour qu'il n'y ait pas deux descriptions du format.
+- **Le test qui compte** : chaque champ du fichier livré doit se retrouver dans
+  le fichier écrit, et un champ manquant est nommé par son chemin
+  (`/stages[0]/backgroundColor`). Vérifié en supprimant un champ pour de bon.
+- Réécrire deux fois donne le même fichier : ouvrir puis fermer l'outil sans
+  rien changer ne produira pas de différence dans git.
+- JSON indenté et terminé par un saut de ligne : le contenu reste relisible.
+- Rien ne l'utilise encore — c'est le socle de l'outil de création.
+- 144 tests au vert.
 
 ### 0.9.0+16 — Outil de calage des zones, et un démarrage cassé
 - **`lib/main.dart` demandait encore `grisbie_beach`** après le renommage de

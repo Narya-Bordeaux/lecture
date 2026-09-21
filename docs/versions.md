@@ -44,6 +44,36 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.1+17 — 21 septembre 2026 — Écrire le contenu, sans rien perdre
+
+Première étape vers un outil qui crée une journée entière au lieu de copier des
+coordonnées. Avant toute interface, il fallait la garantie que l'écriture est
+fidèle : un outil qui enregistre en perdant un champ abîme le contenu sans que
+rien ne le signale.
+
+`ContentSink` est le pendant de `ContentSource` — abstrait pour la même raison,
+écrire doit s'éprouver sans Flutter ni appareil. `ContentWriter` réécrit une
+aventure en s'appuyant sur les `toJson()` que le jeu utilise déjà : le format
+n'est décrit qu'une fois, sinon la description écrite finirait par diverger de
+celle qui est lue.
+
+Le test central compare le fichier écrit au fichier livré, champ par champ, et
+nomme le chemin de ce qui manque — `/stages[0]/backgroundColor`. La comparaison
+est volontairement asymétrique : l'écriture explicite les valeurs par défaut
+qu'un auteur avait laissées implicites, ce qui est sans gravité ; c'est la
+disparition d'un champ qui serait grave. Vérifié en retirant pour de bon
+`backgroundColor` de la sérialisation, le test tombe en le nommant.
+
+Deux autres garanties : réécrire deux fois donne le même fichier, sinon ouvrir
+puis fermer l'outil sans rien changer laisserait une différence dans git ; et le
+JSON est indenté et terminé par un saut de ligne, le contenu devant rester
+relisible par un enseignant ou un parent.
+
+Rien ne s'en sert encore. C'est le socle, posé et éprouvé avant de construire
+dessus.
+
+144 tests au vert.
+
 ### 0.9.0+16 — 21 septembre 2026 — Outil de calage des zones
 
 Poser les zones de dépôt sur une illustration demandait d'ouvrir l'image dans
