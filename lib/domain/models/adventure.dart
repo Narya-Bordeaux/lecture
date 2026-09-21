@@ -1,7 +1,7 @@
-import 'package:reading_game/domain/models/adventure_opening.dart';
-import 'package:reading_game/domain/models/character.dart';
-import 'package:reading_game/domain/models/lexicon.dart';
-import 'package:reading_game/domain/models/stage.dart';
+import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/domain/models/character.dart';
+import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/models/stage.dart';
 
 /// Une « journee » du chat Grisbie : un ensemble d'etapes reliees entre elles.
 ///

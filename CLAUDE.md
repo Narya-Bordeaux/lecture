@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.9.2+18** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.9.3+19** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -24,9 +24,20 @@ réelle. Le chantier en cours l'étend à la création d'une journée entière, 
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
 Seul `android/` est configuré à ce jour ; Web et Windows restent à ajouter.
 
+**Noms et identifiants** : la table de vérité est
+`docs/Noms_et_identifiants.md`, contrôlée par
+`test/infrastructure/android_packaging_test.dart`. Le jeu s'appelle **Grisbie**
+sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
+`fr.naryabordeaux.grisbie` pour Android — **cet identifiant sera définitif dès la
+première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
+éléments sans reprendre le document.
+
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
 compte ou d'une télémétrie doit être posée à l'utilisateur, jamais introduite d'office.
+Corollaire vérifié par un test : **aucun `google-services.json` dans `android/`**
+— sur Android, le SDK Firebase s'initialise seul dès que ce fichier est présent,
+et le jeu livré aux enfants contacterait un serveur.
 
 ## 2. Environnement
 
@@ -94,11 +105,11 @@ Corollaire pratique : les tests du moteur sont des tests Dart purs, sans
 **TDD** — le développement se fait test d'abord. Un comportement du moteur s'écrit
 en test avant d'être implémenté.
 
-**Imports** — toujours `package:reading_game/` ; jamais de chemins relatifs :
+**Imports** — toujours `package:grisbie/` ; jamais de chemins relatifs :
 
 ```dart
 // ✅
-import 'package:reading_game/domain/models/word.dart';
+import 'package:grisbie/domain/models/word.dart';
 // ❌
 import '../../domain/models/word.dart';
 ```
@@ -256,7 +267,7 @@ largeur à ses proportions — elle peut être horizontale —, le texte se lit
 dessous. C'est un seuil, pas une transition.
 
 **Ce que `main.dart` demande doit exister** — l'identifiant d'aventure du
-lancement est exposé (`ReadingGameApp.defaultAdventureId`) et vérifié par
+lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
 `test/infrastructure/startup_test.dart`. Aucun test ne démarre `main.dart` :
 renommer une aventure sans reprendre cette constante donnait un jeu qui ne
 s'ouvre pas, suite entièrement verte. C'est arrivé.
@@ -296,3 +307,4 @@ Tout changement de taille dans le bandeau doit être revalidé là.
 | `docs/TODO.md` | Backlog |
 | `docs/Specification_jeu_decouverte_lecture.md` | Cadrage fonctionnel du jeu |
 | `docs/Format_fichier_aventure.md` | **Contrat** — structure des fichiers de contenu, pour qui écrit une aventure |
+| `docs/Noms_et_identifiants.md` | **Contrat** — table de vérité des noms, identifiants Android, Firebase, signature |

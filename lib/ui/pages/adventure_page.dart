@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/repositories/adventure_repository.dart';
-import 'package:reading_game/ui/pages/adventure_opening_page.dart';
-import 'package:reading_game/ui/pages/stage_page.dart';
-import 'package:reading_game/ui/pages/story_moment_page.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/ui/pages/adventure_opening_page.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
+import 'package:grisbie/ui/pages/story_moment_page.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 /// Les trois temps d'une etape.
 enum _StagePhase {

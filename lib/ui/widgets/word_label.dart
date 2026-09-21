@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/hint.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/domain/models/hint.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 /// L'aspect d'une etiquette de mot, sans aucun comportement.
 ///

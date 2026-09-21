@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/infrastructure/content/content_repository.dart';
-import 'package:reading_game/infrastructure/content/content_writer.dart';
-import 'package:reading_game/infrastructure/content/file_content_sink.dart';
-import 'package:reading_game/infrastructure/content/file_content_source.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/infrastructure/content/content_writer.dart';
+import 'package:grisbie/infrastructure/content/file_content_sink.dart';
+import 'package:grisbie/infrastructure/content/file_content_source.dart';
 
 import '../support/disk_content.dart';
 

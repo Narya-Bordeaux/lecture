@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/adventure_opening.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 /// La page de garde d'une aventure.
 ///

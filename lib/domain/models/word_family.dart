@@ -1,6 +1,6 @@
-import 'package:reading_game/domain/models/lexicon.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/domain/models/word.dart';
+import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/word.dart';
 
 /// Une famille de sens, et la direction qu'elle ouvre.
 ///

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/adventure_opening.dart';
-import 'package:reading_game/ui/pages/adventure_opening_page.dart';
-import 'package:reading_game/ui/pages/adventure_page.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/ui/pages/adventure_opening_page.dart';
+import 'package:grisbie/ui/pages/adventure_page.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
 

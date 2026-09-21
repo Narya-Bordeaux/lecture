@@ -1,4 +1,4 @@
-import 'package:reading_game/domain/models/word.dart';
+import 'package:grisbie/domain/models/word.dart';
 
 /// Le vocabulaire du jeu, chaque mot defini une seule fois.
 ///

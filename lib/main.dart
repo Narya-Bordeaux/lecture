@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:reading_game/infrastructure/content/asset_content_source.dart';
-import 'package:reading_game/infrastructure/content/content_repository.dart';
-import 'package:reading_game/ui/pages/adventure_page.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/infrastructure/content/asset_content_source.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/ui/pages/adventure_page.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,11 +15,11 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const ReadingGameApp());
+  runApp(const GrisbieApp());
 }
 
-class ReadingGameApp extends StatelessWidget {
-  const ReadingGameApp({super.key});
+class GrisbieApp extends StatelessWidget {
+  const GrisbieApp({super.key});
 
   /// L'aventure du niveau test, seule disponible a ce stade.
   ///

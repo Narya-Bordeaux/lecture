@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/ui/widgets/scene_layout.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/ui/widgets/scene_layout.dart';
 
 /// Ces tests portent sur le placement de l'illustration et, par consequent, sur
 /// celui des zones de depot qui y sont ancrees.

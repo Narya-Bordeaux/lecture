@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/application/area_editor.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
+import 'package:grisbie/application/area_editor.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
 
 /// Une zone de reference, au milieu de l'illustration et loin des bords.
 RelativeArea centered() {

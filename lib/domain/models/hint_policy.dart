@@ -1,4 +1,4 @@
-import 'package:reading_game/domain/models/hint.dart';
+import 'package:grisbie/domain/models/hint.dart';
 
 /// A partir de combien d'erreurs sur un meme mot l'aide se debloque.
 ///

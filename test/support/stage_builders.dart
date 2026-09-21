@@ -1,8 +1,8 @@
-import 'package:reading_game/domain/models/narrative.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/narrative.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 
 /// Fabriques d'etapes pour les tests.
 ///

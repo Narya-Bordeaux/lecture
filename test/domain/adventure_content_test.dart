@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/application/stage_engine.dart';
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/word.dart';
+import 'package:grisbie/application/stage_engine.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/word.dart';
 
 import '../support/disk_content.dart';
 

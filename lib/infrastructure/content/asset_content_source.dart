@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart' show AssetBundle, rootBundle;
-import 'package:reading_game/domain/repositories/content_source.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 
 /// Lit les fichiers de contenu embarques dans l'application.
 class AssetContentSource implements ContentSource {

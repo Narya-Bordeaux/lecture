@@ -8,7 +8,7 @@
 /// simples, pas de vocabulaire d'interface (« valider », « selectionner »).
 abstract final class UiStringsFr {
   /// Titre de l'application.
-  static const String appTitle = 'Les aventures du chat Grisbie';
+  static const String appTitle = 'Les Aventures de Grisbie';
 
   /// Invitation affichee au-dessus des etiquettes.
   static const String dragInvitation = 'Pose les mots au bon endroit';

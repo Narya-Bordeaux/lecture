@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:reading_game/domain/models/hint.dart';
-import 'package:reading_game/domain/models/hint_policy.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/hint.dart';
+import 'package:grisbie/domain/models/hint_policy.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 
 /// Une direction ouverte : la famille completee et le lieu qu'elle dessert.
 class AvailableDestination {

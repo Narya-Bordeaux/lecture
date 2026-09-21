@@ -1,4 +1,4 @@
-package fr.naryabordeaux.reading_game
+package fr.naryabordeaux.grisbie
 
 import io.flutter.embedding.android.FlutterActivity
 

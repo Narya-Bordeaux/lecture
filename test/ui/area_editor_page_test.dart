@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
-import 'package:reading_game/ui/pages/area_editor_page.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/ui/pages/area_editor_page.dart';
 
 import '../support/stage_builders.dart' as build;
 

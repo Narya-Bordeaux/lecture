@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/character.dart';
-import 'package:reading_game/domain/models/content_index.dart';
-import 'package:reading_game/domain/models/lexicon.dart';
-import 'package:reading_game/domain/repositories/adventure_repository.dart';
-import 'package:reading_game/domain/repositories/content_source.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/character.dart';
+import 'package:grisbie/domain/models/content_index.dart';
+import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 
 /// Assemble une aventure a partir des fichiers de contenu.
 ///

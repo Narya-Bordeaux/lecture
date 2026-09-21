@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/repositories/content_source.dart';
-import 'package:reading_game/infrastructure/content/content_repository.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
 
 import '../support/disk_content.dart';
 

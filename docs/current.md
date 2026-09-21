@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.2+18** — 21 septembre 2026
+**Version : 0.9.3+19** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -49,12 +49,37 @@ Découpage en six étapes, les deux premières faites :
 **Ce qui bloque Firebase** : rien n'est encore dans le dépôt, et l'intégration
 n'est pas testable en session cloud faute de SDK Android. Les préalables sont
 listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
+Les noms, eux, sont fixés depuis 0.9.3 — `Noms_et_identifiants.md`. Le premier
+geste côté dépôt sera de **séparer le jeu de l'outil d'auteur par des saveurs
+Gradle** : sans elles, un `google-services.json` déposé dans `android/` partirait
+dans le jeu des enfants, et un test l'interdit donc pour l'instant.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.9.3+19 — Le jeu prend son nom
+- **Grisbie partout** : package Dart `grisbie`, `applicationId` Android
+  `fr.naryabordeaux.grisbie`, libellé « Grisbie » sous l'icône, titre
+  « Les Aventures de Grisbie ». Le manifeste affichait encore `reading_game`.
+- L'`applicationId` devient **définitif à la première publication** : c'était le
+  moment ou jamais.
+- `docs/Noms_et_identifiants.md` fixe la table de vérité, et
+  `test/infrastructure/android_packaging_test.dart` la contrôle — rien d'autre
+  ne regardait ces valeurs, aucun build Android n'étant possible ici.
+- Signature de release câblée par `android/key.properties` (modèle commenté
+  fourni, clé jamais versionnée). Fichier absent, le build retombe sur la clé de
+  debug.
+- **Aucun `google-services.json` toléré dans `android/`**, vérifié par test : le
+  SDK Firebase s'initialise seul dès qu'il est présent, et les deux points
+  d'entrée partagent le dossier Android.
+- Firebase : le produit retenu est **Cloud Storage**, pas Firestore. Projets
+  `narya-grisbie-dev` et `narya-grisbie-prod`.
+- L'historique ancien de ce fichier est retiré, conformément à la règle des deux
+  ou trois dernières versions ; il reste entier dans `versions.md`.
+- 155 tests au vert.
 
 ### 0.9.2+18 — Écrire sur un vrai disque, et le relire avec le jeu
 - `FileContentSink` écrit le contenu dans un dossier, en créant les répertoires
@@ -84,172 +109,26 @@ aucun mot d'une famille donnée.
 - Rien ne l'utilise encore — c'est le socle de l'outil de création.
 - 144 tests au vert.
 
-### 0.9.0+16 — Outil de calage des zones, et un démarrage cassé
-- **`lib/main.dart` demandait encore `grisbie_beach`** après le renommage de
-  0.8.0 : le jeu n'aurait pas démarré sur l'appareil, avec 119 tests au vert.
-  Corrigé, et `test/infrastructure/startup_test.dart` monte désormais la garde.
-- **Mode auteur** — `lib/main_author.dart`, second point d'entrée : l'étape
-  réelle en aperçu inerte, des poignées pour déplacer et redimensionner les
-  zones au doigt, le JSON copié dans le presse-papiers. Le jeu livré n'en
-  contient aucune trace.
-- `AreaEditor` (Dart pur) porte toute la géométrie : bords, taille minimale de
-  48 points, arrondi au centième, chevauchement jugé sur les valeurs arrondies.
-- Une étape sans zone posée en reçoit par défaut, réparties et disjointes.
-- `BackgroundImageSize` extrait : la scène de jeu et l'outil partagent une
-  seule résolution d'image, sans quoi le calage porterait sur une autre
-  géométrie que le jeu.
-- Mesure consignée : la bande haute mangée par le bandeau vaut 14,3 % sur
-  tablette, 11 % sur petit téléphone, rien sur téléphone allongé. D'où la
-  règle `top` ≥ 0,15.
-- 140 tests au vert.
-
-### 0.8.0+15 — Contenu entièrement en français, le mot est sa propre clé
-- `Word` n'a plus d'identifiant : son `text` le désigne partout. Une aventure
-  cite `"arrêt"`, plus `"bus_stop"`. La rustine `garage_word` disparaît.
-- Les identifiants d'étapes, de familles et de personnages passent en français
-  (`maison`, `en_bus`, `marchande`). Seuls les noms de champs JSON restent
-  anglais, puisqu'ils portent directement les champs Dart.
-- Le doublon détecté au chargement est désormais celui de l'orthographe :
-  deux entrées « arrêt » sont refusées, et le message nomme le mot.
-- Le découpage suit les sons et non les lettres. Le test qui exigeait qu'il
-  reconstitue l'orthographe est retiré : il interdisait `["a", "rê"]`.
-- Fichiers renommés : `grisbie_plage.json`, `lexicon/nourriture.json`,
-  `lexicon/lieux.json`.
-- 119 tests au vert.
-
-### 0.7.1+14 — Plus d'écran de texte redondant au départ
-- Le lieu de départ n'a plus de récit d'arrivée : il répétait la page de garde,
-  et faisait enchaîner deux écrans de texte avant de jouer.
-- Après « C'est parti ! », le jeu commence directement.
-- Un test vérifie que le lieu de départ ne redit pas la page de garde.
-
-### 0.7.0+13 — Page de garde d'une aventure
-- `Adventure.opening` : un titre, une illustration horizontale et un texte,
-  montrés une fois avant le premier lieu.
-- Mise en page propre : le titre annonce, l'image occupe la largeur à ses
-  proportions, le texte se lit dessous, le bouton reste hors du défilement.
-- « Recommencer » repasse par la page de garde.
-- 118 tests au vert.
-
-### 0.6.3+12 — Intitulés au-dessus des zones, marge système en bas
-- L'intitulé d'une zone est posé **au-dessus** du cadre, libre de déborder
-  latéralement : « En voiture » s'abrégeait en « En voitu… ».
-- Le cadre est ainsi entièrement disponible pour les mots déposés.
-- L'illustration se cale au-dessus de la barre de navigation Android.
-- 108 tests au vert, dont un qui échoue si un intitulé peut être tronqué.
-
-### 0.6.2+11 — L'illustration et les zones débordaient de l'écran
-- L'illustration était recadrée pour remplir l'écran. Sur un 1080 × 2340, elle
-  devait mesurer 1560 px de large : 480 px sortaient, et les zones ancrées au
-  décor sortaient avec elles.
-- Elle est désormais montrée **en entier**, calée en bas, la bande du haut étant
-  comblée par `backgroundColor` — le bleu du ciel de l'image, invisible au
-  raccord.
-- `computeSceneRect` extraite en fonction pure, éprouvée sur quatre appareils
-  réels par `test/ui/scene_geometry_test.dart`.
-- 102 tests au vert.
-
-### 0.6.1+10 — Assets manquants : le jeu ne s'ouvrait plus
-- `pubspec.yaml` ne déclarait que `assets/content/adventures/`. Flutter
-  n'embarque pas les sous-dossiers : `index.json`, `characters.json` et les
-  trois lexiques n'étaient pas dans l'application, et le chargement échouait.
-- Les quatre répertoires sont déclarés.
-- `test/infrastructure/declared_assets_test.dart` compare les fichiers réels aux
-  déclarations du pubspec — le seul test qui regarde ce qui sera livré.
-- L'écran d'erreur montre le diagnostic en mode développement, au lieu de le
-  cacher derrière « Le jeu n'a pas pu s'ouvrir ».
-
-### 0.6.0+9 — Format de contenu en plusieurs fichiers
-- `index.json` (le sommaire), `lexicon/*.json` (le vocabulaire, chaque mot défini
-  une seule fois), `characters.json`, `adventures/*.json`.
-- Récit à deux temps par lieu : `onArrival` avant de jouer, `onCompletion` au
-  départ, affichés sur un écran dédié.
-- Rencontres : un `character` dans un lieu, et un classeur **sans destination**
-  pour le rebut d'une énigme.
-- Les mots sont portés par les familles ; `Stage.words` en est dérivé.
-- `docs/Format_fichier_aventure.md` : la spécification du format, pour qui écrit
-  du contenu sans toucher au code.
-- 78 tests au vert.
-
-### 0.5.0+8 — Listes pleines, une seule aide
-- Les listes sont pleines : une famille s'ouvre quand tous ses mots sont classés.
-  `goal` disparaît du contenu. Remplir une catégorie devient une aide en soi,
-  puisque les mots restants ne peuvent plus lui appartenir.
-- L'aide « illustration » est retirée : `Hint.illustration`,
-  `HintPolicy.illustrationThreshold` et `Word.illustrationAsset` supprimés.
-- Le découpage syllabique reste l'unique aide, dès la 1ʳᵉ erreur.
-
-### 0.4.1+7 — Listes de sept mots, sans ambiguïté
-- Onze mots retirés, partagés entre deux familles : navette, car, voyageur pour
-  le bus ; ceinture, pneu, parking, capot, phare pour la voiture ; trottoir,
-  semelle, lacet pour la marche.
-- `radio` et `clé` ajoutés à « En voiture », qui manquait de vocabulaire propre.
-- Trois listes de sept mots, objectif abaissé de 5 à 4.
-- Spécification : une section sur le champ lexical des familles, qui doivent
-  être disjointes — contrainte plus forte qu'il n'y paraît.
-
-### 0.4.0+6 — Réserve de dix mots par famille
-- Trois listes de dix mots ; six sont proposés à la fois, les autres attendent.
-- Un mot bien classé est remplacé **sur place** par un mot de la réserve ; les
-  autres mots ne bougent pas. Un mot mal classé ne déclenche rien.
-- Objectif réglable par famille (`goal`), fixé à 5 : sans lui, il faudrait près
-  de trente classements pour ouvrir un chemin.
-- La zone affiche l'avancement vers l'objectif (« 3 / 5 »), pas vers la réserve.
-- 65 tests au vert.
-
-### 0.3.0+5 — Interface du niveau test
-- Décor plein écran, six étiquettes en grille 2 × 3, trois zones translucides
-  ancrées sur le bus, la voiture et le sentier.
-- Glisser-déposer : le mot juste se range dans sa zone, le mot faux revient à sa
-  case en tremblant et débloque son découpage syllabique.
-- Bouton « Partir » en bas, une fois une famille complète.
-- Contenu revu : famille « En bus » au lieu de « En train », mots choisis pour
-  qu'aucun ne se devine par le nom de sa famille.
-- 50 tests, dont l'étape réelle montée sur trois formats d'écran.
-
-### 0.2.0+4 — Moteur d'étape et niveau test
-- Domaine : `Word`, `WordFamily`, `Stage`, `Adventure`, `HintPolicy`, `Hint`.
-- Moteur `StageEngine` : placement, refus immédiat, comptage des erreurs par mot,
-  déblocage des aides, complétion d'une famille, ouverture des destinations,
-  départ à l'initiative de l'enfant.
-- Contenu `assets/content/adventures/grisbie_beach.json` : trois chemins au départ,
-  une étape imbriquée dans la gare, la plage en arrivée.
-- 31 tests au vert, `flutter analyze` sans erreur.
-- Spécification mise à jour (v0.5) d'après les décisions prises en session.
-
-### 0.1.2+3 — Flutter disponible dans l'environnement cloud
-- Hook de démarrage de session installant le SDK Flutter 3.47.5, version épinglée et
-  archive vérifiée. `flutter analyze` et `flutter test` sont désormais exécutables en
-  session cloud ; les builds ne le sont toujours pas.
-- Démarrage à froid 1 min 34 s, reprise à chaud 0,9 s.
-
-### 0.1.1+2 — Retrait de la plateforme iOS
-- Suppression du dossier `ios/`, entièrement généré et jamais personnalisé, pour une
-  plateforme non visée. Commande de régénération consignée dans `docs/TODO.md`.
-- `.metadata` mis en cohérence : entrée de migration `ios` retirée.
-
-### 0.1.0+1 — Mise en place du cadre de travail
-- Durcissement du `.gitignore` en vue d'une publication open source : `.vscode/`,
-  `.env` et variantes (avec exception `.env.example`), `.claude/settings.local.json`.
-- Ajout de `CLAUDE.md` : conventions du projet et règle de séparation moteur /
-  interface.
-- Ajout de `docs/current.md`, `docs/versions.md` et `docs/TODO.md`.
-- Passage de la version générée par défaut (1.0.0+1) à 0.1.0+1, le projet n'ayant
-  pas encore de code applicatif.
-
 ## Décisions prises
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
   a été supprimé du dépôt en 0.1.1. Seul `android/` est configuré à ce jour.
 - **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
   étant mineur, aucune donnée personnelle ne sort de la machine.
-- **Firebase Storage, en tuyau d'auteur seulement** : l'outil de création y
-  dépose le contenu, on le relit depuis le poste, et il finit commité dans
-  `assets/content/` comme aujourd'hui. **Le jeu livré ne contacte rien.** Le choix
-  répond au fait qu'un fichier écrit sur un téléphone est difficile à rapatrier.
+- **Firebase Storage, en tuyau d'auteur seulement** — et **Storage, pas
+  Firestore** : l'outil de création y dépose le contenu, on le relit depuis le
+  poste, et il finit commité dans `assets/content/` comme aujourd'hui. **Le jeu
+  livré ne contacte rien.** Le choix répond au fait qu'un fichier écrit sur un
+  téléphone est difficile à rapatrier. Deux projets, `narya-grisbie-dev` et
+  `narya-grisbie-prod`, où l'application Android est enregistrée sous
+  `fr.naryabordeaux.grisbie`.
   Précaution qui va avec : les deux points d'entrée partagent `pubspec.yaml`, et
   sur Android le SDK Firebase s'initialise seul dès que `google-services.json`
   est présent — ce fichier ne doit donc exister que dans la saveur « auteur ».
+  Tant que cette saveur n'existe pas, un test l'interdit partout.
+- **Le jeu s'appelle Grisbie**, et l'identifiant Android
+  `fr.naryabordeaux.grisbie` est **définitif dès la première publication** sur le
+  Play Store. Table de vérité dans `Noms_et_identifiants.md`, contrôlée par test.
 - **Le contenu est écrit en français, identifiants compris**, et **un mot est
   désigné par son orthographe** : `Word` n'a pas de clé technique. Deux mots de
   même orthographe deviennent impossibles, ce qu'ils étaient déjà en pratique.

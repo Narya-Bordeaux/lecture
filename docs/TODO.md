@@ -10,18 +10,25 @@ Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
 **À faire hors session cloud — ces points ne sont pas testables ici** (ni SDK
 Android, ni appareil, ni accès à votre console) :
 
-- [ ] Créer le projet Firebase et y enregistrer l'application Android sous
-      `fr.naryabordeaux.reading_game`.
+Les noms sont fixés par `Noms_et_identifiants.md` : projets `narya-grisbie-dev`
+et `narya-grisbie-prod`, application Android enregistrée sous
+`fr.naryabordeaux.grisbie`. Le produit retenu est **Cloud Storage**, pas
+Firestore.
+
+- [ ] Créer les deux projets Firebase et y enregistrer l'application Android.
 - [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
       le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que
       l'auteur n'y écrit, donc refuser tout accès anonyme est le bon réglage.
 - [ ] Trancher l'authentification : sans elle, le bucket est soit ouvert en
       écriture — à exclure — soit inaccessible. Un compte Google unique, celui de
       l'auteur, suffit pour un usage solo.
-- [ ] **Ne placer `google-services.json` que dans la saveur « auteur »** du build
-      Android. Sur Android, Firebase s'initialise seul dès que ce fichier est
-      présent, et enregistre un identifiant d'appareil auprès de Google : sans
-      cette précaution, le jeu livré aux enfants contacterait un serveur.
+- [ ] **Séparer le jeu de l'outil d'auteur par des saveurs Gradle**, avant de
+      poser le moindre `google-services.json` dans le dépôt. Sans saveurs, les
+      deux points d'entrée partagent le dossier `android/`, et le jeu livré aux
+      enfants embarquerait la configuration Firebase. En attendant,
+      `test/infrastructure/android_packaging_test.dart` interdit ce fichier
+      partout ; le jour venu, il devra n'autoriser que le dossier de la saveur
+      « auteur » — et non être supprimé.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer.
 
@@ -61,10 +68,28 @@ Mieux vaut la relancer que récupérer l'ancienne version dans l'historique git 
 fichiers de projet Xcode évoluent à chaque version de Flutter, un squelette conservé
 trop longtemps serait de toute façon périmé.
 
+## Avant publication sur le Play Store
+
+Les noms sont fixés et vérifiés par test. Ce qui reste ne se fait pas depuis le
+dépôt — voir `Noms_et_identifiants.md` pour le détail.
+
+- [ ] **Créer la clé de signature** et renseigner `android/key.properties`
+      d'après le modèle `key.properties.example`. Clé irremplaçable : la perdre
+      interdit toute mise à jour de l'application publiée.
+- [ ] **Dessiner l'icône** : c'est encore celle du modèle Flutter.
+- [ ] Déclarer l'audience cible « enfants » — le jeu relève de la politique
+      *Families* de Google Play, qui engage sur tout le reste.
+- [ ] **Rédiger et héberger une politique de confidentialité** : obligatoire et
+      sans exception pour cette audience, même si l'application n'émet rien.
+- [ ] Remplir le formulaire « sécurité des données ». Aucune donnée ne quittant
+      l'appareil, il est simple à remplir — à condition que ce soit toujours
+      vrai au moment de la publication.
+- [ ] Captures d'écran, visuel de fiche, classification du contenu.
+- [ ] Saisir le nom de la fiche : **Les Aventures de Grisbie**. Il ne figure pas
+      dans le dépôt.
+
 ## Avant publication en open source
 
-- [ ] Remplacer la description générée `"A new Flutter project."` dans
-      `pubspec.yaml`.
 - [ ] Étoffer le `README.md` : à qui s'adresse le jeu, ce qu'il apprend, comment le
       lancer.
 

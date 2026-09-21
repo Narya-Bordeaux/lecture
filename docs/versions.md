@@ -44,6 +44,42 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.3+19 — 21 septembre 2026 — Le jeu prend son nom
+
+Le projet s'appelait encore `reading_game` partout où il ne s'affichait pas, et
+`reading_game` était aussi ce qui se serait affiché sous l'icône. Quatre
+orthographes du même jeu cohabitaient : le package Dart, l'identifiant Android,
+le libellé du manifeste et le titre de l'application.
+
+Tout passe à **Grisbie**. Le moment n'est pas indifférent : l'`applicationId`
+Android devient définitif à la première publication sur le Play Store, une autre
+valeur serait ensuite une autre application, sans ses installations ni ses avis.
+
+- Package Dart `reading_game` → `grisbie`, dans les 35 fichiers qui l'importent.
+  `ReadingGameApp` devient `GrisbieApp`.
+- Android : `applicationId` et `namespace` en `fr.naryabordeaux.grisbie`, paquet
+  Kotlin déplacé, `android:label` à « Grisbie » — le modèle Flutter y avait
+  laissé `reading_game`.
+- `UiStringsFr.appTitle` en « Les Aventures de Grisbie », et la description
+  générée du `pubspec.yaml` enfin remplacée.
+- **Signature de la version publiée** câblée par `android/key.properties`, avec
+  son modèle commenté. Ni la clé ni ses mots de passe n'entrent dans le dépôt ;
+  fichier absent, le build retombe sur la clé de debug.
+- `docs/Noms_et_identifiants.md` : la table de vérité des noms, les quatre
+  couches à ne pas confondre, Firebase et la signature.
+- **`android_packaging_test.dart`** contrôle ce que l'application annoncera une
+  fois publiée — identifiant, namespace, paquet Kotlin, libellé. Aucun code Dart
+  ne lit ces valeurs, et aucun build Android n'est possible en session cloud :
+  rien d'autre ne les regardait.
+- Le même test **interdit tout `google-services.json` dans `android/`**. Sur
+  Android, le SDK Firebase s'initialise seul dès que ce fichier est présent ; les
+  deux points d'entrée partageant le dossier `android/`, le jeu livré aux enfants
+  l'embarquerait. Volontairement pas mis dans `.gitignore` : ignoré, il serait
+  présent au build sans que rien ne le signale.
+- Décision consignée : le produit Firebase retenu est **Cloud Storage**, pas
+  Firestore. Projets `narya-grisbie-dev` et `narya-grisbie-prod`.
+- 155 tests au vert.
+
 ### 0.9.2+18 — 21 septembre 2026 — Écrire sur un vrai disque
 
 Deuxième étape de l'outil de création. La précédente travaillait en mémoire et

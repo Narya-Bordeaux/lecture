@@ -1,0 +1,21 @@
+# Modele du fichier de signature de la version publiee.
+#
+# Copier ce fichier en « android/key.properties » et renseigner les quatre
+# valeurs. Le fichier reel est ignore par git, ainsi que les magasins de cles
+# (*.jks, *.keystore) : ni la cle ni ses mots de passe ne doivent entrer dans le
+# depot, qui est destine a l'open source.
+#
+# Creer la cle, une fois pour toutes :
+#
+#   keytool -genkey -v -keystore ~/grisbie-upload.jks \
+#           -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# Cette cle est irremplacable : la perdre interdit toute mise a jour de
+# l'application publiee, a moins d'avoir active la signature par Google Play.
+# En faire une sauvegarde hors du poste de developpement.
+
+storePassword=motDePasseDuMagasin
+keyPassword=motDePasseDeLaCle
+keyAlias=upload
+# Chemin absolu vers le magasin de cles, hors du depot.
+storeFile=/chemin/vers/grisbie-upload.jks

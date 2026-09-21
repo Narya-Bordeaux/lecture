@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:reading_game/infrastructure/content/asset_content_source.dart';
-import 'package:reading_game/infrastructure/content/content_repository.dart';
-import 'package:reading_game/main.dart';
-import 'package:reading_game/ui/pages/author_home_page.dart';
+import 'package:grisbie/infrastructure/content/asset_content_source.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/main.dart';
+import 'package:grisbie/ui/pages/author_home_page.dart';
 
 /// Point d'entree de l'outil d'auteur, distinct de celui du jeu.
 ///
@@ -37,7 +37,7 @@ class AuthorToolsApp extends StatelessWidget {
       home: AuthorHomePage(
         repository: ContentRepository(source: const AssetContentSource()),
         // La meme aventure que le jeu : l'outil cale ce qui sera joue.
-        adventureId: ReadingGameApp.defaultAdventureId,
+        adventureId: GrisbieApp.defaultAdventureId,
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/repositories/adventure_repository.dart';
-import 'package:reading_game/ui/pages/area_editor_page.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/ui/pages/area_editor_page.dart';
 
 /// Le sommaire de l'outil d'auteur : choisir l'etape dont on cale les zones.
 ///

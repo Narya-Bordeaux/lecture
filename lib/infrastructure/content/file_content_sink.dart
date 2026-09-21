@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:reading_game/domain/repositories/content_sink.dart';
+import 'package:grisbie/domain/repositories/content_sink.dart';
 
 /// Enregistre le contenu dans un dossier du systeme de fichiers.
 ///

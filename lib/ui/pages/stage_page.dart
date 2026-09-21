@@ -1,16 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:reading_game/application/stage_engine.dart';
-import 'package:reading_game/domain/models/hint.dart';
-import 'package:reading_game/domain/models/hint_policy.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
-import 'package:reading_game/ui/widgets/family_drop_zone.dart';
-import 'package:reading_game/ui/widgets/scene_layout.dart';
-import 'package:reading_game/ui/widgets/shake.dart';
-import 'package:reading_game/ui/widgets/word_label.dart';
+import 'package:grisbie/application/stage_engine.dart';
+import 'package:grisbie/domain/models/hint.dart';
+import 'package:grisbie/domain/models/hint_policy.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/family_drop_zone.dart';
+import 'package:grisbie/ui/widgets/scene_layout.dart';
+import 'package:grisbie/ui/widgets/shake.dart';
+import 'package:grisbie/ui/widgets/word_label.dart';
 
 /// L'ecran d'une etape : le decor, les mots a classer, les zones de depot et
 /// les departs possibles.

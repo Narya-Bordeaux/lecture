@@ -1,5 +1,5 @@
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/content_index.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/content_index.dart';
 
 /// Source des aventures, vue par l'interface.
 ///

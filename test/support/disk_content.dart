@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:reading_game/domain/models/adventure.dart';
-import 'package:reading_game/domain/models/content_index.dart';
-import 'package:reading_game/domain/repositories/adventure_repository.dart';
-import 'package:reading_game/domain/repositories/content_source.dart';
-import 'package:reading_game/infrastructure/content/content_repository.dart';
-import 'package:reading_game/infrastructure/content/file_content_source.dart';
+import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/content_index.dart';
+import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/infrastructure/content/file_content_source.dart';
 
 /// Lit les fichiers de contenu livres, comme le ferait un auteur.
 ///

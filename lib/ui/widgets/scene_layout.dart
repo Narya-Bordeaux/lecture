@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/ui/widgets/background_image_size.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/ui/widgets/background_image_size.dart';
 
 /// Un element a poser sur le decor, a un endroit donne de l'illustration.
 class SceneChild {

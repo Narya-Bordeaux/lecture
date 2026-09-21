@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/application/stage_engine.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
+import 'package:grisbie/application/stage_engine.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 
 import '../support/stage_builders.dart' as build;
 

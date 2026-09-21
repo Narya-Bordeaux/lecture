@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
-import 'package:reading_game/ui/widgets/word_label.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/word_label.dart';
 
 /// Un cadre translucide pose sur l'illustration, ou l'enfant depose les mots.
 ///

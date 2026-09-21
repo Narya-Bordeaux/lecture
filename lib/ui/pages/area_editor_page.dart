@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:reading_game/application/area_editor.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/ui/pages/stage_page.dart';
-import 'package:reading_game/ui/widgets/background_image_size.dart';
-import 'package:reading_game/ui/widgets/scene_layout.dart';
+import 'package:grisbie/application/area_editor.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
+import 'package:grisbie/ui/widgets/background_image_size.dart';
+import 'package:grisbie/ui/widgets/scene_layout.dart';
 
 /// Outil d'auteur : caler les zones de depot sur l'illustration d'une etape.
 ///

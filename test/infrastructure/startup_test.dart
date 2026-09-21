@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/main.dart';
+import 'package:grisbie/main.dart';
 
 import '../support/disk_content.dart';
 
@@ -15,10 +15,10 @@ void main() {
       final index = await buildDiskRepository().loadIndex();
 
       expect(
-        index.findAdventure(ReadingGameApp.defaultAdventureId),
+        index.findAdventure(GrisbieApp.defaultAdventureId),
         isNotNull,
         reason:
-            'main.dart demande "${ReadingGameApp.defaultAdventureId}", absente '
+            'main.dart demande "${GrisbieApp.defaultAdventureId}", absente '
             'de index.json : le jeu ne s\'ouvrirait pas.',
       );
     });
@@ -26,7 +26,7 @@ void main() {
     test('cette aventure se charge et se valide', () async {
       // Declaree ne suffit pas : son fichier doit exister et etre coherent.
       final adventure = await buildDiskRepository().loadAdventure(
-        ReadingGameApp.defaultAdventureId,
+        GrisbieApp.defaultAdventureId,
       );
 
       expect(adventure.validate(), isEmpty);

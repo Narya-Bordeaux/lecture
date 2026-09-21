@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 /// Un moment de recit, seul a l'ecran.
 ///

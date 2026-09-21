@@ -1,8 +1,8 @@
-import 'package:reading_game/domain/models/character.dart';
-import 'package:reading_game/domain/models/lexicon.dart';
-import 'package:reading_game/domain/models/narrative.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/character.dart';
+import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/models/narrative.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 
 /// Une etape du parcours : un lieu, des familles a remplir, et les chemins
 /// qu'elles ouvrent.

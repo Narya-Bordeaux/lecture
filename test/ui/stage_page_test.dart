@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reading_game/domain/models/relative_area.dart';
-import 'package:reading_game/domain/models/stage.dart';
-import 'package:reading_game/domain/models/word.dart';
-import 'package:reading_game/domain/models/word_family.dart';
-import 'package:reading_game/ui/pages/stage_page.dart';
-import 'package:reading_game/ui/widgets/family_drop_zone.dart';
-import 'package:reading_game/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
+import 'package:grisbie/ui/widgets/family_drop_zone.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/stage_builders.dart' as build;
 
