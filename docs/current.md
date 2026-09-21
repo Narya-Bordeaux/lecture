@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.11.0+24** — 21 septembre 2026
+**Version : 0.12.0+25** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -41,9 +41,11 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
 3. 🟡 **Textes et structure** — créer des lieux, leurs récits, leurs familles,
    leurs destinations, avec les erreurs signalées en direct. **Le moteur est
    fait** (0.10.0) : `validate()` classe chaque anomalie en *faux* ou
-   *incomplet*, et `loadDraft` ouvre une aventure inachevée. **L'interface
-   reste à écrire** : liste de lieux, et un graphe simple dont le format sera
-   précisé. Faisable en session cloud, sans Firebase.
+   *incomplet*, et `loadDraft` ouvre une aventure inachevée. Le lettrage du croquis est
+   calculé (0.12.0). **L'écran reste à écrire** : un bouton « ajouter » qui
+   demande combien de trajets partent d'un point, leur nature et leur nom, et
+   la suite qui s'affiche en dessous, cliquable. Faisable en session cloud,
+   sans Firebase.
 4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
    faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
    n'est pas dans le bundle, les assets étant scellés au build.
@@ -66,6 +68,23 @@ boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne propo
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.12.0+25 — Le lettrage du croquis
+- `AdventureOutline` (Dart pur) calcule le repérage `A`, `B1`, `C2` du croquis
+  papier, et la liste des points qui se déploient dans l'ordre de lecture.
+- **Règle donnée par le croquis, qui ne se devine pas** : `B1` donne `C1, C2`
+  mais `B2` donne `D1, D2`. La lettre ne marque pas la profondeur — chaque point
+  qui se déploie consomme la lettre suivante pour ses arrivées.
+- **Jamais stocké** : recalculé, et mouvant. Insérer un trajet fait passer `B2`
+  en `B3` — bon repère à l'écran, mauvais identifiant.
+- Encaisse ce qu'un brouillon a de sale : destination annoncée avant son lieu,
+  lieu atteint par deux chemins, classeur sans issue, lieu non relié, cycle, et
+  plus de vingt-six groupes.
+- **Le parseur de notation ne sera pas écrit** : la construction se fera par
+  boutons, et un langage dont personne ne se sert est un langage à maintenir
+  pour rien.
+- Rien n'est encore affiché : c'est le calcul que l'écran consommera.
+- 192 tests au vert, dont 15 nouveaux.
 
 ### 0.11.0+24 — Une fin se déclare
 - `Stage.isEnding` (`"ending": true`) remplace le `isTerminal` dérivé de
@@ -99,19 +118,6 @@ aucun mot d'une famille donnée.
   sur le contenu.
 - **Rien n'est visible** : l'interface de l'étape 3 reste à écrire.
 - 174 tests au vert, dont 16 nouveaux.
-
-### 0.9.6+22 — Les commandes ont un document
-- **Les deux saveurs se construisent et se lancent sur le poste.** Le montage
-  Android tient.
-- `docs/Commandes.md` : ce que l'on tape pour lancer et vérifier, avec pour
-  chaque commande ce qu'elle exige et ce qu'elle produit. **Une commande n'y
-  entre que le jour où elle a réellement été exécutée** — rien sur la
-  construction d'un paquet publiable ni sur la signature.
-- Dégroupage : trois endroits portaient leur propre copie des deux commandes de
-  lancement — la section « Construire » de `Noms_et_identifiants.md`, le README
-  de `src/auteur/` et un commentaire de `build.gradle.kts`. Tous renvoient
-  désormais au document, seul à les décrire.
-- 158 tests au vert, inchangés : rien de fonctionnel n'a bougé.
 
 ## Décisions prises
 

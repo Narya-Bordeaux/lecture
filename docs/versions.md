@@ -44,6 +44,45 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.12.0+25 — 21 septembre 2026 — Le lettrage du croquis
+
+`AdventureOutline` calcule le repérage `A`, `B1`, `C2` du croquis papier de
+l'auteur, et la liste des points qui se déploient, dans l'ordre où on les lit.
+
+La règle de lettrage ne se devine pas, et c'est le croquis qui l'a donnée : `B1`
+donne `C1, C2` tandis que `B2` donne `D1, D2`. **La lettre ne marque pas la
+profondeur** — chaque point qui se déploie consomme la lettre suivante pour le
+groupe de ses arrivées. Un test la fige sur l'arbre exact de la photo.
+
+**Le lettrage ne se stocke jamais.** Il se recalcule, et il bouge : insérer un
+trajet avant un autre fait passer `B2` en `B3`. Excellent repérage à l'écran,
+très mauvais identifiant — les identifiants restent français, explicites et
+choisis par l'auteur.
+
+Ce qu'il encaisse, parce qu'un brouillon n'est jamais propre :
+
+- une destination annoncée **avant** que son lieu existe : le trajet s'affiche,
+  sans flèche d'arrivée ;
+- un lieu atteint par **deux chemins** : une seule lettre, les deux trajets la
+  citent ;
+- un **classeur sans issue** — le « garde-le » d'une rencontre : visible, mais
+  n'ouvrant rien ;
+- un lieu **qu'aucun chemin n'atteint** : montré à part plutôt que disparu, sans
+  quoi un lieu créé puis oublié serait impossible à relier ;
+- un **cycle**, qui ne fait pas tourner le rendu sans fin ;
+- **plus de vingt-six groupes**, où les lettres se doublent en `AA`, `AB` —
+  deux groupes homonymes rendraient deux lieux indiscernables.
+
+Dart pur, dans `lib/application/`. Rien n'est encore affiché : c'est le calcul
+que l'écran de construction consommera.
+
+Décision prise en chemin : **le parseur de notation ne sera pas écrit.** L'auteur
+construira son parcours par boutons plutôt qu'en collant du texte, et un langage
+dont personne ne se sert est un langage à maintenir pour rien. Seul le rendu —
+ce lettrage — avait un emploi.
+
+- 192 tests au vert, dont 15 nouveaux.
+
 ### 0.11.0+24 — 21 septembre 2026 — Une fin se déclare
 
 Le croquis d'une aventure sur papier portait une ligne que le format ne savait
