@@ -134,6 +134,14 @@ aucun mot d'une famille donnée.
   sur Android le SDK Firebase s'initialise seul dès que `google-services.json`
   est présent. D'où les deux saveurs `jeu` et `auteur`, et l'unique emplacement
   autorisé pour ce fichier.
+- **Un compte Google unique pour le bucket**, celui de l'auteur. L'usage est
+  solo : personne d'autre n'a de contenu à déposer, et un bucket ouvert en
+  écriture serait trouvé sans avoir à être connu. La règle nomme un UID, jamais
+  une adresse e-mail — le dépôt part en open source. Marche à suivre dans
+  `TODO.md`.
+- **« Mission » et « aventure » désignent la même chose** : une journée de
+  Grisbie, avec ses étapes. Le contenu et le code ne connaissent qu'`Adventure`,
+  et c'est le seul mot à employer.
 - **Le jeu s'appelle Grisbie**, et l'identifiant Android
   `fr.naryabordeaux.grisbie` est **définitif dès la première publication** sur le
   Play Store. Table de vérité dans `Noms_et_identifiants.md`, contrôlée par test.

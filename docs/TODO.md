@@ -17,16 +17,55 @@ du jeu**. Le produit retenu est **Cloud Storage**, pas Firestore. Les saveurs
 Android existent depuis 0.9.4 et **les deux builds tournent sur le poste** ;
 `android/app/src/auteur/` attend le fichier.
 
-- [ ] Créer les deux projets Firebase et y enregistrer l'application Android.
-- [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
-      le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que
-      l'auteur n'y écrit, donc refuser tout accès anonyme est le bon réglage.
-- [ ] Trancher l'authentification : sans elle, le bucket est soit ouvert en
-      écriture — à exclure — soit inaccessible. Un compte Google unique, celui de
-      l'auteur, suffit pour un usage solo.
+L'authentification est tranchée : **un compte Google unique, celui de l'auteur**.
+L'usage est solo, personne d'autre n'a de contenu à déposer.
+
+Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
+
+- [ ] Créer `narya-grisbie-dev`, et y enregistrer l'application Android sous
+      `fr.naryabordeaux.grisbie.auteur`.
+- [ ] Activer Cloud Storage et **poser immédiatement une règle qui refuse
+      tout** — avant même de savoir à qui on ouvrira. Un bucket ouvert n'a pas
+      besoin d'être connu pour être trouvé.
+
+      ```
+      rules_version = '2';
+      service firebase.storage {
+        match /b/{bucket}/o {
+          match /{allPaths=**} {
+            allow read, write: if false;
+          }
+        }
+      }
+      ```
+
+- [ ] Activer le fournisseur **Google** dans Authentication, puis s'y connecter
+      une première fois : l'UID n'existe pas avant. Il apparaît ensuite dans
+      Authentication › Users.
+- [ ] Remplacer la règle par celle-ci, l'UID collé en clair. **Ne pas y mettre
+      d'adresse e-mail** : ce dépôt part en open source, et un UID ne désigne
+      personne hors du projet.
+
+      ```
+      rules_version = '2';
+      service firebase.storage {
+        match /b/{bucket}/o {
+          // Seul l'auteur depose et relit. Le jeu livre aux enfants ne
+          // contacte pas Firebase : rien d'autre n'a affaire ici.
+          match /{allPaths=**} {
+            allow read, write: if request.auth != null
+                && request.auth.uid == 'UID_DE_L_AUTEUR';
+          }
+        }
+      }
+      ```
+
 - [ ] Déposer `google-services.json` dans `android/app/src/auteur/`, et nulle
       part ailleurs — `android_packaging_test.dart` le refuse ailleurs. Il est
       ignoré par git : c'est voulu, il porte les clés du projet de l'auteur.
+- [ ] `narya-grisbie-prod` plus tard, à l'identique. Une seule saveur auteur
+      existe, donc un seul `google-services.json` à la fois : on bascule en
+      remplaçant le fichier.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer. Les saveurs le rendent structurellement improbable, elles ne le
       démontrent pas.
