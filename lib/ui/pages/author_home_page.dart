@@ -3,6 +3,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
+import 'package:grisbie/ui/pages/outline_page.dart';
 
 /// Le sommaire de l'outil d'auteur : choisir l'etape dont on cale les zones.
 ///
@@ -52,10 +53,28 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
               .where((stage) => stage.families.isNotEmpty)
               .toList(growable: false);
 
-          return ListView.separated(
-            itemCount: stages.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) => _buildTile(stages[index]),
+          return Column(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.account_tree_outlined),
+                title: const Text('Construire le parcours'),
+                subtitle: const Text('Les lieux et les trajets qui les relient'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<Adventure>(
+                    builder: (_) => OutlinePage(adventure: adventure),
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: stages.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  itemBuilder: (context, index) => _buildTile(stages[index]),
+                ),
+              ),
+            ],
           );
         },
       ),

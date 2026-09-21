@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.12.0+25** — 21 septembre 2026
+**Version : 0.13.0+26** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -38,14 +38,12 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    par test qu'aucun champ ne disparaît à l'enregistrement.
 2. ✅ **L'écriture sur un vrai disque** — `FileContentSink`, `FileContentSource`,
    et l'aller-retour complet jusqu'au chargement par le jeu.
-3. 🟡 **Textes et structure** — créer des lieux, leurs récits, leurs familles,
-   leurs destinations, avec les erreurs signalées en direct. **Le moteur est
-   fait** (0.10.0) : `validate()` classe chaque anomalie en *faux* ou
-   *incomplet*, et `loadDraft` ouvre une aventure inachevée. Le lettrage du croquis est
-   calculé (0.12.0). **L'écran reste à écrire** : un bouton « ajouter » qui
-   demande combien de trajets partent d'un point, leur nature et leur nom, et
-   la suite qui s'affiche en dessous, cliquable. Faisable en session cloud,
-   sans Firebase.
+3. 🟡 **Textes et structure** — `validate()` classe chaque anomalie en *faux* ou
+   *incomplet* (0.10.0), `loadDraft` ouvre une aventure inachevée, le lettrage du
+   croquis est calculé (0.12.0), et **l'écran de construction existe** (0.13.0) :
+   bouton « Ajouter », nombre de trajets, nature, nom, et la suite cliquable.
+   **Reste l'enregistrement** — l'écran travaille en mémoire et rien ne l'écrit.
+   Les récits d'arrivée et de départ restent aussi à saisir.
 4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
    faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
    n'est pas dans le bundle, les assets étant scellés au build.
@@ -68,6 +66,25 @@ boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne propo
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.13.0+26 — L'écran de construction du parcours
+- **`OutlinePage`** : un point, sa lettre, ses trajets dessous, un bouton
+  **Ajouter** qui demande combien de trajets en partent, leur nature — classique
+  ou personnage — et leur nom. Cliquer un trajet ajoute la suite depuis son
+  arrivée.
+- **`AdventureBuilder`** (Dart pur) porte la règle : *l'identifiant naît du nom,
+  puis s'en détache*. « La gare » donne `gare`, et renommer le lieu ne le touche
+  plus — sinon chaque renommage casserait les destinations qui le citent.
+- La règle reproduit les identifiants écrits à la main dans le contenu livré.
+  Les accents tombent : un identifiant finit dans un chemin de fichier.
+- Un homonyme est **suffixé, jamais écrasé**. Un trajet **personnage** pose
+  d'office son classeur de rebut. Ajouter un trajet à une fin la fait cesser
+  d'en être une.
+- Un lieu neuf naît **incomplet et jamais faux** : écrire ne produit pas d'écran
+  rouge.
+- **Rien n'est enregistré** : l'écran travaille en mémoire. Voir `TODO.md` pour
+  les trois manques.
+- 214 tests au vert, dont 22 nouveaux.
 
 ### 0.12.0+25 — Le lettrage du croquis
 - `AdventureOutline` (Dart pur) calcule le repérage `A`, `B1`, `C2` du croquis
@@ -98,26 +115,6 @@ aucun mot d'une famille donnée.
 - L'exception à la règle « pas de champ type d'étape » est consignée dans
   `CLAUDE.md` et `Format_fichier_aventure.md`, avec sa justification.
 - 177 tests au vert, dont 3 nouveaux.
-
-### 0.10.0+23 — Faux, ou seulement incomplet
-- Début de l'étape 3, par le moteur. Difficulté à traiter d'abord : **une
-  aventure en cours d'écriture est toujours invalide**, donc `validate()`
-  affiché tel quel donnerait un écran rouge permanent, qu'on apprendrait à
-  ignorer.
-- `validate()` renvoie désormais des **`ContentIssue`** : une `IssueSeverity`
-  (*faux* / *incomplet*) et l'endroit où corriger — étape, famille, mot.
-- **Faux** : mot ambigu, mot dans le nom de sa famille, zone qui déborde ou qui
-  en chevauche une autre, lieu de départ introuvable.
-- **Incomplet** : famille sans mots, mot sans découpage, lieu sans issue, lieu
-  non relié, et **destination annoncée avant que son lieu existe** — écrire
-  « le bus va au marché » puis créer le marché est une façon normale d'avancer.
-- **`ContentRepository.loadDraft`** : le jeu refuse toute aventure incomplète,
-  l'outil d'auteur doit l'ouvrir. Seul `validate()` est levé — un fichier absent
-  du sommaire échoue comme avant.
-- Le classement vit dans le domaine, pas dans l'interface : c'est un jugement
-  sur le contenu.
-- **Rien n'est visible** : l'interface de l'étape 3 reste à écrire.
-- 174 tests au vert, dont 16 nouveaux.
 
 ## Décisions prises
 

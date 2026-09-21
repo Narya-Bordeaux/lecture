@@ -16,7 +16,10 @@ class Stage {
   const Stage({
     required this.id,
     required this.locationName,
-    required this.families,
+    // Un lieu qu'on vient de poser n'a pas encore de famille : c'est un etat
+    // legitime depuis que la fin se declare, et `validate()` le signale comme
+    // incomplet.
+    this.families = const <WordFamily>[],
     this.narrative = Narrative.none,
     this.backgroundAsset,
     this.backgroundColor,

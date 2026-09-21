@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.12.0+25** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.13.0+26** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -165,6 +165,14 @@ technique anglaise n'ajoutait qu'un détour : il fallait savoir qu'« arrêt »
 s'appelait `bus_stop` pour l'employer. Seuls les noms de champs JSON restent en
 anglais, puisqu'ils portent directement les champs Dart.
 
+**L'identifiant naît du nom, puis s'en détache** — `AdventureBuilder.slugify`
+tire `gare` de « La gare », en retirant l'article de tête et les accents. La
+règle reproduit les identifiants que l'auteur écrivait déjà à la main, et les
+accents tombent parce qu'un identifiant finit dans un nom de fichier. Une fois
+créé, il **cesse de suivre le nom** : renommer un lieu ne le touche pas. Un
+identifiant qui suivrait casserait, à chaque renommage, toutes les destinations
+qui le citent.
+
 **Un mot est désigné par son orthographe.** `Word` n'a pas d'identifiant : son
 `text` est sa clé, dans le lexique comme dans les aventures. Conséquence assumée,
 deux mots de même orthographe ne peuvent coexister — ils seraient de toute façon
@@ -304,6 +312,14 @@ lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
 `test/infrastructure/startup_test.dart`. Aucun test ne démarre `main.dart` :
 renommer une aventure sans reprendre cette constante donnait un jeu qui ne
 s'ouvre pas, suite entièrement verte. C'est arrivé.
+
+**L'écran de construction du parcours** — `OutlinePage` reprend la forme du
+croquis papier de l'auteur : un point porte une lettre, ses trajets se lisent
+dessous, et chacun mène à un point qui se déploie plus bas. Le lettrage vient
+d'`AdventureOutline` et **ne se stocke jamais** : il bouge dès qu'on insère un
+trajet. La page ne décide rien — elle passe les demandes à `AdventureBuilder`
+et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
+modifiée à l'appelant ; rien ne l'enregistre encore.
 
 **Une seule résolution d'image** — `BackgroundImageSize` fournit les dimensions
 réelles d'une illustration, et sert à la fois à la scène de jeu et à l'outil de

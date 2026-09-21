@@ -44,6 +44,47 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.13.0+26 — 21 septembre 2026 — L'écran de construction du parcours
+
+L'outil d'auteur sait désormais bâtir une journée. Un point porte sa lettre, ses
+trajets se lisent dessous, et un bouton **Ajouter** demande combien de trajets
+en partent, leur nature — classique ou personnage — et leur nom. Ce qui est
+construit apparaît en dessous avec son lettrage, et cliquer un trajet ajoute la
+suite depuis son arrivée.
+
+**`AdventureBuilder`** (Dart pur) porte la règle tranchée avec l'auteur :
+*l'identifiant naît du nom, puis s'en détache*. « La gare » donne `gare` — on
+retire l'article de tête et les accents —, puis l'identifiant cesse de suivre le
+nom. Un identifiant qui suivrait casserait, à chaque renommage, toutes les
+destinations qui le citent, et le nom du fichier d'illustration avec.
+
+La règle reproduit d'ailleurs exactement les identifiants que l'auteur écrivait
+déjà à la main : `gare`, `garage`, `plage`, `maison`. Les accents tombent parce
+qu'un identifiant finit dans un chemin de fichier — `arret`, `marche`, `foret`
+restent lisibles.
+
+- Un homonyme est **suffixé, jamais écrasé** : deux « La gare » donnent `gare`
+  et `gare_2`.
+- Un trajet **de type personnage** pose d'office le classeur de rebut que la
+  spécification exige. Sans cela le lieu naîtrait à moitié, et il faudrait y
+  penser à chaque fois. Son intitulé reste provisoire — comment nommer ce second
+  classeur est une question ouverte du `TODO`.
+- Ajouter un trajet à une fin **la fait cesser d'en être une**, sinon le
+  marqueur et la structure se contrediraient.
+- Un lieu neuf naît **incomplet et jamais faux** : écrire ne produit pas d'écran
+  rouge, ce qui était tout l'objet de la distinction posée en 0.10.0.
+- `Stage.families` prend une valeur par défaut vide : un lieu qu'on vient de
+  poser est un état légitime depuis que la fin se déclare.
+
+**Ce qui n'est pas fait, et qu'il faut savoir** : l'écran travaille **en
+mémoire** et rend l'aventure modifiée à l'appelant. Rien ne l'enregistre. Trois
+manques sont consignés dans `TODO.md` — l'enregistrement, l'écriture de
+`characters.json` qu'un trajet personnage suppose, et le passage de
+`loadAdventure` à `loadDraft` dans l'outil, sans lequel une aventure devenue
+incomplète ne se rouvrirait plus.
+
+- 214 tests au vert, dont 22 nouveaux.
+
 ### 0.12.0+25 — 21 septembre 2026 — Le lettrage du croquis
 
 `AdventureOutline` calcule le repérage `A`, `B1`, `C2` du croquis papier de

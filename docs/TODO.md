@@ -72,10 +72,21 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 
 **Faisable en session cloud, et ne dépend pas de Firebase** :
 
-- [ ] Étape 3 : éditer textes et structure — lieux, récits, familles,
-      destinations, avec les erreurs signalées en direct (destination fantôme,
-      lieu inatteignable, cul-de-sac). `Adventure.validate()` sait déjà les
-      trouver, il reste à les montrer pendant l'édition.
+L'étape 3 est largement faite : `OutlinePage` construit le parcours, les
+anomalies s'affichent classées. Trois manques restent, découverts en la
+construisant :
+
+- [ ] **Enregistrer.** `OutlinePage` travaille en mémoire et rend l'aventure
+      modifiée à l'appelant ; personne ne l'écrit. `ContentWriter` et
+      `FileContentSink` existent — il manque le geste et le dossier où écrire.
+- [ ] **Écrire `characters.json`.** Un trajet de type personnage crée un
+      `Character` en mémoire, mais `ContentWriter` ne sait écrire que l'aventure
+      et le sommaire. Une rencontre créée par l'outil ne se rechargerait pas.
+- [ ] **Passer l'outil à `loadDraft`.** `AuthorHomePage` charge encore par
+      `loadAdventure`, qui refuse toute aventure incomplète : dès qu'un
+      brouillon sera enregistré, l'outil ne pourra plus le rouvrir.
+- [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
+      d'un personnage — l'écran ne les demande pas encore.
 - [ ] Étape 4 : l'image. Pendant l'édition elle doit se charger **par chemin de
       fichier**, les assets étant scellés au build ; `BackgroundImageSize` devra
       savoir faire les deux.
