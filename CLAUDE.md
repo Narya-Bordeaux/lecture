@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.9.6+22** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.10.0+23** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -182,6 +182,21 @@ implémentation ne peut réécrire `assets/` ; l'outil d'auteur passe donc par
 `test/infrastructure/content_writer_test.dart` compare le fichier écrit au
 fichier livré champ par champ et nomme ce qui manque — une sérialisation qui
 oublierait un champ ferait disparaître du contenu en silence.
+
+**Faux ou seulement incomplet** — `validate()` ne renvoie pas des chaînes mais
+des `ContentIssue`, chacune portant une `IssueSeverity` et l'endroit où corriger
+(étape, famille, mot). Une aventure en cours d'écriture est *toujours* invalide :
+tout signaler de la même façon donnerait à l'outil d'auteur un écran d'alerte
+permanent, qu'on apprendrait à ignorer. Le classement vit dans le domaine, jamais
+dans l'interface — décider qu'un mot ambigu est une faute alors qu'une famille
+vide ne l'est pas est un jugement sur le contenu. Détail dans
+`docs/Format_fichier_aventure.md` §6.
+
+**Le jeu refuse, l'outil tolère** — `ContentRepository.loadAdventure` échoue dès
+la moindre anomalie, et c'est le bon contrat : une aventure incomplète est
+injouable. `loadDraft` charge la même aventure sans opposer `validate()`, et
+c'est le seul contrôle qu'il lève — un fichier absent du sommaire ou illisible
+échoue là comme ailleurs.
 
 Ne jamais coder en dur une liste de mots dans un widget ou dans le moteur.
 

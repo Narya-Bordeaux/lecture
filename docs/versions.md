@@ -44,6 +44,48 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.10.0+23 — 21 septembre 2026 — Faux, ou seulement incomplet
+
+Début de l'étape 3 du chantier, par le moteur. L'outil d'auteur doit signaler
+les erreurs « en direct », et c'est là qu'une difficulté apparaît : **une
+aventure en cours d'écriture est toujours invalide**. Le premier lieu créé n'a
+pas de mots, aucune famille ne mène nulle part, le lieu qu'on vient d'ajouter
+n'est relié à rien. Afficher `validate()` tel quel donnerait un écran rouge
+permanent, que l'auteur apprendrait à ignorer en trois minutes — et le jour où
+une vraie faute s'y glisserait, elle passerait inaperçue.
+
+`validate()` ne renvoie donc plus des chaînes mais des `ContentIssue`, chacune
+portant sa nature et l'endroit où corriger : étape, famille, mot.
+
+**Faux** — un mot ambigu entre deux familles, un mot présent dans le nom de sa
+famille, une zone qui déborde ou qui en chevauche une autre, un lieu de départ
+introuvable. Rien de tout cela ne s'arrange en continuant d'écrire.
+
+**Incomplet** — une famille sans mots, un mot sans découpage, un lieu dont
+aucune famille ne mène encore ailleurs, un lieu que rien ne relie, et **une
+destination annoncée avant que son lieu existe**. Cette dernière est un choix :
+écrire « le bus va au marché » puis créer le marché est une façon normale
+d'avancer, et une promesse pas encore tenue est de toute façon indiscernable
+d'une faute de frappe. Les traiter en faute interdirait d'écrire le parcours
+dans l'ordre où il se raconte.
+
+Le classement vit dans le domaine, jamais dans l'interface : décider qu'un mot
+ambigu est une faute alors qu'une famille vide ne l'est pas est un jugement sur
+le contenu, pas une question d'affichage.
+
+Conséquence découverte en chemin : `loadAdventure` **refuse** une aventure
+présentant la moindre anomalie. C'est le bon contrat pour le jeu — une aventure
+incomplète est injouable, et mieux vaut un message clair qu'une partie bloquée
+devant l'enfant. Mais avec ce seul chemin, l'outil d'auteur n'aurait jamais pu
+rouvrir ce qu'il venait d'enregistrer. D'où `ContentRepository.loadDraft`, qui
+charge sans opposer `validate()` — et lève ce seul contrôle : un fichier absent
+du sommaire ou illisible y échoue comme ailleurs.
+
+Rien de tout cela n'est visible pour l'instant : l'interface de l'étape 3 reste
+à écrire.
+
+- 174 tests au vert, dont 16 nouveaux.
+
 ### 0.9.6+22 — 21 septembre 2026 — Les commandes ont un document
 
 **Les deux saveurs se construisent et se lancent sur le poste.** Le montage

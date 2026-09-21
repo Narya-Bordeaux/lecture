@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.6+22** — 21 septembre 2026
+**Version : 0.10.0+23** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -32,16 +32,18 @@ charger une image, saisir les textes, enregistrer la mise en place et
 l'articulation entre les lieux. Il tournera sur le téléphone et enregistrera par
 Firebase Storage — voir les décisions ci-dessous.
 
-Découpage en six étapes, les deux premières faites :
+Découpage en six étapes, les deux premières faites, la troisième entamée :
 
 1. ✅ **L'écriture et sa fidélité** — `ContentSink`, `ContentWriter`, et la preuve
    par test qu'aucun champ ne disparaît à l'enregistrement.
 2. ✅ **L'écriture sur un vrai disque** — `FileContentSink`, `FileContentSource`,
    et l'aller-retour complet jusqu'au chargement par le jeu.
-3. ⬜ **Textes et structure** — créer des lieux, leurs récits, leurs familles,
-   leurs destinations, avec les erreurs signalées en direct. **Entièrement
-   faisable en session cloud, et ne dépend pas de Firebase** : c'est la suite
-   naturelle.
+3. 🟡 **Textes et structure** — créer des lieux, leurs récits, leurs familles,
+   leurs destinations, avec les erreurs signalées en direct. **Le moteur est
+   fait** (0.10.0) : `validate()` classe chaque anomalie en *faux* ou
+   *incomplet*, et `loadDraft` ouvre une aventure inachevée. **L'interface
+   reste à écrire** : liste de lieux, et un graphe simple dont le format sera
+   précisé. Faisable en session cloud, sans Firebase.
 4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
    faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
    n'est pas dans le bundle, les assets étant scellés au build.
@@ -64,6 +66,26 @@ boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne propo
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.10.0+23 — Faux, ou seulement incomplet
+- Début de l'étape 3, par le moteur. Difficulté à traiter d'abord : **une
+  aventure en cours d'écriture est toujours invalide**, donc `validate()`
+  affiché tel quel donnerait un écran rouge permanent, qu'on apprendrait à
+  ignorer.
+- `validate()` renvoie désormais des **`ContentIssue`** : une `IssueSeverity`
+  (*faux* / *incomplet*) et l'endroit où corriger — étape, famille, mot.
+- **Faux** : mot ambigu, mot dans le nom de sa famille, zone qui déborde ou qui
+  en chevauche une autre, lieu de départ introuvable.
+- **Incomplet** : famille sans mots, mot sans découpage, lieu sans issue, lieu
+  non relié, et **destination annoncée avant que son lieu existe** — écrire
+  « le bus va au marché » puis créer le marché est une façon normale d'avancer.
+- **`ContentRepository.loadDraft`** : le jeu refuse toute aventure incomplète,
+  l'outil d'auteur doit l'ouvrir. Seul `validate()` est levé — un fichier absent
+  du sommaire échoue comme avant.
+- Le classement vit dans le domaine, pas dans l'interface : c'est un jugement
+  sur le contenu.
+- **Rien n'est visible** : l'interface de l'étape 3 reste à écrire.
+- 174 tests au vert, dont 16 nouveaux.
 
 ### 0.9.6+22 — Les commandes ont un document
 - **Les deux saveurs se construisent et se lancent sur le poste.** Le montage
@@ -91,29 +113,6 @@ aucun mot d'une famille donnée.
 - Rappel de la limite annoncée en 0.9.4 : le test avait bien vérifié que les
   libellés existaient, pas que Gradle accepterait la façon de les produire. Un
   test qui lit des fichiers ne remplace pas un build.
-- 158 tests au vert.
-
-### 0.9.4+20 — Deux saveurs Android, deux paquets
-- **`jeu` et `auteur`**, dans la dimension `usage`. La saveur auteur porte le
-  suffixe `.auteur` : les deux applications cohabitent sur le téléphone, et un
-  jeu construit par erreur avec elle ne porte pas l'identifiant publié — il est
-  donc impubliable, et l'erreur reste sans conséquence.
-- `google-services.json` a désormais **un emplacement légitime**,
-  `android/app/src/auteur/`, et un seul. Le test le refuse ailleurs. Il est
-  maintenant ignoré par git partout : le dépôt est destiné à l'open source, et
-  le test lit le disque, pas l'index — un fichier ignoré mais présent échoue
-  tout autant.
-- L'application Firebase est à enregistrer sous
-  `fr.naryabordeaux.grisbie.auteur`, **pas** sous l'identifiant du jeu.
-- Le libellé sous l'icône passe du manifeste aux saveurs (`@string/app_name`) :
-  « Grisbie » et « Grisbie auteur », sans quoi les deux icônes seraient
-  indiscernables.
-- **Une saveur ne choisit pas le point d'entrée Dart.** `main_author.dart`
-  vérifie `appFlavor` au démarrage et refuse la saveur du jeu ; le suffixe
-  couvre l'autre sens. `--flavor` devient obligatoire pour tout build.
-- **Non vérifié ici** : le test lit des fichiers, il ne lance pas Gradle. Il
-  attrape un nom qui dérive ou un fichier égaré, il ne prouve pas que le projet
-  Android compile. Premier vrai build à faire sur le poste.
 - 158 tests au vert.
 
 ## Décisions prises

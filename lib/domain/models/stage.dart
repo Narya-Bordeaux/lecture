@@ -1,4 +1,5 @@
 import 'package:grisbie/domain/models/character.dart';
+import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/word.dart';
@@ -139,53 +140,78 @@ class Stage {
     return null;
   }
 
-  /// Les incoherences de contenu, listees en clair.
+  /// Les incoherences de contenu, classees et situees.
   ///
   /// Le contenu pedagogique est destine a etre ecrit a la main, et a terme par
   /// des contributeurs exterieurs : mieux vaut un diagnostic precis qu'un
   /// comportement de jeu inexplicable.
-  List<String> validate() {
-    final issues = <String>[];
+  ///
+  /// Chaque anomalie dit si elle est **fausse** — a corriger tout de suite, car
+  /// continuer d'ecrire ne l'arrangera pas — ou seulement **incomplete**, ce
+  /// qui est l'etat normal d'un lieu qu'on vient de creer. Voir
+  /// [IssueSeverity].
+  List<ContentIssue> validate() {
+    final issues = <ContentIssue>[];
     final owners = <String, String>{};
 
     for (final family in families) {
       if (family.words.isEmpty) {
-        issues.add('La famille "${family.id}" ne contient aucun mot.');
+        // Une famille qu'on vient de creer n'a pas encore ses mots.
+        issues.add(ContentIssue.incomplete(
+          'La famille "${family.id}" ne contient aucun mot.',
+          stageId: id,
+          familyId: family.id,
+        ));
       }
 
       for (final word in family.words) {
         // Un mot classable dans deux familles de la meme etape est exactement
-        // le « mot ambigu » que la specification proscrit.
+        // le « mot ambigu » que la specification proscrit : le jeu refuserait
+        // une bonne reponse.
         final owner = owners[word.text];
         if (owner != null) {
-          issues.add(
+          issues.add(ContentIssue.wrong(
             'Le mot "${word.text}" est ambigu : il appartient aux familles '
             '"$owner" et "${family.id}".',
-          );
+            stageId: id,
+            familyId: family.id,
+            wordText: word.text,
+          ));
         }
         owners[word.text] = family.id;
 
         if (word.syllables.isEmpty) {
-          issues.add('Le mot "${word.text}" n\'a pas de decoupage.');
+          // Le mot est pose, ses syllabes restent a taper.
+          issues.add(ContentIssue.incomplete(
+            'Le mot "${word.text}" n\'a pas de decoupage.',
+            stageId: id,
+            familyId: family.id,
+            wordText: word.text,
+          ));
         }
 
         // Un mot dont le texte se retrouve dans le nom de sa famille se classe
         // en comparant les lettres, sans comprendre le sens.
         if (family.label.toLowerCase().contains(word.text.toLowerCase())) {
-          issues.add(
+          issues.add(ContentIssue.wrong(
             'Le mot "${word.text}" apparait dans le nom de sa famille '
             '"${family.label}" : il se classerait sans etre compris.',
-          );
+            stageId: id,
+            familyId: family.id,
+            wordText: word.text,
+          ));
         }
       }
     }
 
-    // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac :
-    // l'enfant y resterait bloque, sans depart possible.
+    // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac. Fatal
+    // dans une aventure finie, mais tout lieu neuf l'est jusqu'a ce qu'on le
+    // relie : c'est du travail restant, pas une faute.
     if (families.isNotEmpty && !families.any((family) => family.leadsSomewhere)) {
-      issues.add(
+      issues.add(ContentIssue.incomplete(
         'Aucune famille ne mene ailleurs : l\'etape serait sans issue.',
-      );
+        stageId: id,
+      ));
     }
 
     issues.addAll(_validateAreas());
@@ -194,8 +220,11 @@ class Stage {
   }
 
   /// Verifie les zones de depot posees sur l'illustration.
-  List<String> _validateAreas() {
-    final issues = <String>[];
+  ///
+  /// Ces anomalies sont toujours des fautes : une zone mal posee ne se repare
+  /// pas en continuant d'ecrire, et le doigt de l'enfant en paierait le prix.
+  List<ContentIssue> _validateAreas() {
+    final issues = <ContentIssue>[];
     final placed = <WordFamily>[];
 
     for (final family in families) {
@@ -203,16 +232,20 @@ class Stage {
       if (area == null) continue;
 
       if (area.overflows) {
-        issues.add(
+        issues.add(ContentIssue.wrong(
           'La zone de la famille "${family.id}" deborde de l\'illustration.',
-        );
+          stageId: id,
+          familyId: family.id,
+        ));
       }
       for (final other in placed) {
         if (area.overlaps(other.area!)) {
-          issues.add(
+          issues.add(ContentIssue.wrong(
             'Les zones des familles "${other.id}" et "${family.id}" se '
             'chevauchent : le depot serait ambigu.',
-          );
+            stageId: id,
+            familyId: family.id,
+          ));
         }
       }
       placed.add(family);

@@ -341,6 +341,27 @@ Sont détectés :
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
 - une zone qui déborde de l'illustration, ou qui en chevauche une autre.
 
+### Faux, ou seulement incomplet
+
+Le jeu refuse tout : une aventure qui présente la moindre de ces anomalies est
+injouable, et rien ne sert de la lancer. Mais chaque anomalie porte aussi sa
+nature, pour l'outil d'auteur, qui doit pouvoir ouvrir un travail en cours.
+
+**Faux** — ne s'arrangera pas en continuant d'écrire : un mot ambigu, un mot
+présent dans le nom de sa famille, une zone qui déborde ou qui en chevauche une
+autre, un lieu de départ introuvable.
+
+**Incomplet** — état normal d'un lieu qu'on vient de créer : une famille sans
+mots, un mot sans découpage, un lieu dont aucune famille ne mène encore
+ailleurs, un lieu que rien ne relie, une destination annoncée avant que son lieu
+existe.
+
+Cette dernière mérite un mot. Écrire « le bus va au marché » puis créer le marché
+est une façon normale d'avancer. Une promesse pas encore tenue et une faute de
+frappe sont de toute façon **indiscernables** : les traiter en faute
+interdirait d'écrire le parcours dans l'ordre où il se raconte. C'est donc à la
+relecture, et au refus du jeu, qu'une destination fantôme se voit.
+
 ## 7. Les pièges de contenu, qui eux ne sont pas détectables
 
 Le jeu ne peut pas juger du sens. Ces points relèvent de la relecture humaine.

@@ -1,5 +1,6 @@
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/character.dart';
+import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/stage.dart';
 
@@ -67,29 +68,43 @@ class Adventure {
   Stage? findStage(String stageId) => stages[stageId];
 
   /// Les incoherences de contenu sur l'ensemble de l'aventure.
-  List<String> validate() {
-    final issues = <String>[];
+  ///
+  /// Chaque anomalie dit si elle est fausse ou seulement incomplete — voir
+  /// [IssueSeverity]. Une aventure jouable n'en presente aucune.
+  List<ContentIssue> validate() {
+    final issues = <ContentIssue>[];
 
     if (!stages.containsKey(startStageId)) {
-      issues.add('L\'etape de depart "$startStageId" est introuvable.');
+      // Sans point d'entree, l'aventure ne s'ouvre pas du tout. Aucun lieu
+      // existant n'est en cause, d'ou l'absence de `stageId`.
+      issues.add(ContentIssue.wrong(
+        'L\'etape de depart "$startStageId" est introuvable.',
+      ));
     }
 
     for (final stage in stages.values) {
-      issues.addAll(stage.validate().map((issue) => '[${stage.id}] $issue'));
+      issues.addAll(stage.validate());
 
       for (final family in stage.families) {
         final destination = family.destinationStageId;
         if (destination != null && !stages.containsKey(destination)) {
-          issues.add(
-            '[${stage.id}] La famille "${family.id}" mene a l\'etape '
-            'inconnue "$destination".',
-          );
+          // Ecrire « le bus va au marche » puis creer le marche est une facon
+          // normale d'avancer. Une promesse pas encore tenue et une faute de
+          // frappe sont de toute facon indiscernables : les traiter en faute
+          // interdirait d'ecrire le parcours dans l'ordre ou il se raconte.
+          issues.add(ContentIssue.incomplete(
+            'La famille "${family.id}" mene a l\'etape inconnue '
+            '"$destination".',
+            stageId: stage.id,
+            familyId: family.id,
+          ));
         }
       }
     }
 
-    // Une etape qu'aucun chemin n'atteint est du contenu mort : l'enfant ne la
-    // verra jamais, et c'est presque toujours une erreur de saisie.
+    // Une etape qu'aucun chemin n'atteint est du contenu mort dans une
+    // aventure finie. Mais un lieu ecrit avant d'etre relie l'est aussi :
+    // c'est du travail restant, pas une faute.
     final reachable = <String>{startStageId};
     for (final stage in stages.values) {
       for (final family in stage.families) {
@@ -99,7 +114,10 @@ class Adventure {
     }
     for (final stageId in stages.keys) {
       if (!reachable.contains(stageId)) {
-        issues.add('L\'etape "$stageId" n\'est atteignable par aucun chemin.');
+        issues.add(ContentIssue.incomplete(
+          'Cette etape n\'est atteignable par aucun chemin.',
+          stageId: stageId,
+        ));
       }
     }
 

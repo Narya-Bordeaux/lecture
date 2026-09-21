@@ -37,6 +37,34 @@ class ContentRepository implements AdventureRepository {
 
   @override
   Future<Adventure> loadAdventure(String adventureId) async {
+    final adventure = await loadDraft(adventureId);
+
+    // Un contenu incoherent produirait un jeu bloque sans message : mieux vaut
+    // echouer ici, avec la liste des problemes. Le fichier est nomme, et non
+    // l'aventure : c'est lui que l'auteur doit ouvrir pour corriger.
+    final issues = adventure.validate();
+    if (issues.isNotEmpty) {
+      final file = (await loadIndex()).findAdventure(adventureId)!.file;
+      throw FormatException(
+        'Contenu invalide dans "$file" :\n- ${issues.join('\n- ')}',
+      );
+    }
+
+    return adventure;
+  }
+
+  /// La meme aventure, sans exiger qu'elle soit jouable.
+  ///
+  /// Une aventure en cours d'ecriture est incomplete par definition : le lieu
+  /// qu'on vient de creer n'a pas ses mots, et la destination qu'on vient
+  /// d'annoncer n'existe pas encore. [loadAdventure] la refuserait, et l'outil
+  /// d'auteur ne pourrait jamais rouvrir ce qu'il vient d'enregistrer.
+  ///
+  /// Tolerer l'incomplet n'est pas tolerer n'importe quoi : un fichier absent
+  /// du sommaire ou illisible echoue ici comme ailleurs. C'est `validate()`,
+  /// et lui seul, qui n'est plus opposable — a l'appelant de le consulter et
+  /// de montrer ce qu'il rapporte.
+  Future<Adventure> loadDraft(String adventureId) async {
     final index = await loadIndex();
     final entry = index.findAdventure(adventureId);
     if (entry == null) {
@@ -54,15 +82,6 @@ class ContentRepository implements AdventureRepository {
       lexicon: lexicon,
       characters: characters,
     );
-
-    // Un contenu incoherent produirait un jeu bloque sans message : mieux vaut
-    // echouer ici, avec la liste des problemes.
-    final issues = adventure.validate();
-    if (issues.isNotEmpty) {
-      throw FormatException(
-        'Contenu invalide dans "${entry.file}" :\n- ${issues.join('\n- ')}',
-      );
-    }
 
     return adventure;
   }
