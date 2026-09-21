@@ -428,13 +428,18 @@ class Stage {
     int? visibleWordCount,
     bool? isEnding,
     int? drawCount,
+    bool clearBackgroundAsset = false,
   }) {
     return Stage(
       id: id ?? this.id,
       locationName: locationName ?? this.locationName,
       narrative: narrative ?? this.narrative,
       families: families ?? this.families,
-      backgroundAsset: backgroundAsset ?? this.backgroundAsset,
+      // `??` garde l'ancienne valeur : sans ce geste explicite, retirer une
+      // illustration serait sans effet, et l'auteur croirait l'avoir fait.
+      backgroundAsset: clearBackgroundAsset
+          ? null
+          : backgroundAsset ?? this.backgroundAsset,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,

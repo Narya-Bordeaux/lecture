@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Un moment de recit, seul a l'ecran.
 ///
@@ -33,8 +34,8 @@ class StoryMomentPage extends StatelessWidget {
         fit: StackFit.expand,
         children: <Widget>[
           if (backgroundAsset != null)
-            Image.asset(
-              backgroundAsset!,
+            ContentImage(
+              path: backgroundAsset!,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stack) => const SizedBox.shrink(),
             ),

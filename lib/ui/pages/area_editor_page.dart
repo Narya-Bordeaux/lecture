@@ -18,6 +18,10 @@ import 'package:grisbie/ui/widgets/scene_layout.dart';
 ///
 /// Toute la geometrie est deleguee a [AreaEditor], en Dart pur : cette page ne
 /// fait que traduire des gestes en fractions de l'illustration.
+///
+/// Rend **l'etape calee**, ou `null` si l'auteur renonce. Le bouton « Copier »
+/// reste : ecrire le JSON a la main dans le contenu livre est encore la seule
+/// facon d'enregistrer un calage, tant que rien n'ecrit l'aventure editee.
 class AreaEditorPage extends StatefulWidget {
   const AreaEditorPage({required this.stage, super.key});
 
@@ -180,6 +184,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
             onToggle: () => setState(() => _panelOpen = !_panelOpen),
             onCopy: () => _copy(editor.export()),
             onClose: () => Navigator.of(context).pop(),
+            onApply: () => Navigator.of(context).pop(_previewStage),
           ),
         ),
       ],
@@ -303,6 +308,7 @@ class _EditorPanel extends StatelessWidget {
     required this.onToggle,
     required this.onCopy,
     required this.onClose,
+    required this.onApply,
   });
 
   final bool open;
@@ -311,6 +317,9 @@ class _EditorPanel extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onCopy;
   final VoidCallback onClose;
+
+  /// Rend l'etape calee a l'appelant, qui la repose dans l'aventure.
+  final VoidCallback onApply;
 
   @override
   Widget build(BuildContext context) {
@@ -339,10 +348,11 @@ class _EditorPanel extends StatelessWidget {
                   ),
                 ),
                 TextButton(onPressed: onCopy, child: const Text('Copier')),
+                TextButton(onPressed: onApply, child: const Text('Garder')),
                 IconButton(
                   onPressed: onClose,
                   icon: const Icon(Icons.close, color: Colors.white),
-                  tooltip: 'Fermer',
+                  tooltip: 'Fermer sans garder',
                 ),
               ],
             ),

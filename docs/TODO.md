@@ -92,12 +92,14 @@ construisant :
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
-- [ ] **Cliquer le titre d'une carte** ouvre le lieu : charger son
-      illustration, et y poser les zones de dépôt. C'est l'outil de calage
-      existant, rebranché sur l'aventure éditée au lieu du contenu livré
-      (étapes 4 et 6). L'image devra se charger **par chemin de fichier**
-      pendant l'édition, les assets étant scellés au build ;
-      `BackgroundImageSize` devra savoir faire les deux.
+- [ ] **Choisir l'image dans l'appareil.** L'éditeur de lieu demande
+      aujourd'hui un chemin au clavier, ce qui est juste mais pénible. Un
+      sélecteur suppose une **dépendance tierce** — `file_picker` ou
+      `image_picker`, la première du projet — partagée par les deux saveurs,
+      donc embarquée dans le jeu livré aux enfants même s'il ne l'appelle
+      jamais. À arbitrer avant d'écrire quoi que ce soit. Il faudra aussi
+      décider **où l'image copiée vit** avant d'être commitée dans
+      `assets/pictures/`. Rien de tout cela n'est testable en session cloud.
 - [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
       famille : saisie des mots et de leur découpage, unicité d'orthographe
       garantie (étape 5). Depuis 0.17.0 c'est une `WordList` qu'on édite, et

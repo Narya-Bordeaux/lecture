@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Fournit les dimensions reelles d'une illustration, une fois le fichier
 /// decode.
@@ -10,6 +11,10 @@ import 'package:flutter/material.dart';
 ///
 /// [builder] recoit `null` tant que l'image n'est pas decodee, et lorsqu'elle
 /// est absente : une illustration manquante ne doit pas empecher de jouer.
+///
+/// L'illustration vient du bundle ou du disque selon son chemin — voir
+/// [contentImageProvider]. Pendant l'edition elle n'est pas encore dans le
+/// bundle, et le calage doit pourtant deja fonctionner dessus.
 class BackgroundImageSize extends StatefulWidget {
   const BackgroundImageSize({
     required this.builder,
@@ -17,6 +22,7 @@ class BackgroundImageSize extends StatefulWidget {
     super.key,
   });
 
+  /// Chemin de l'illustration : un asset du bundle, ou un fichier du disque.
   final String? asset;
   final Widget Function(BuildContext context, Size? imageSize) builder;
 
@@ -53,7 +59,7 @@ class _BackgroundImageSizeState extends State<BackgroundImageSize> {
       return;
     }
 
-    final provider = AssetImage(asset);
+    final provider = contentImageProvider(asset);
     if (provider == _provider) return;
 
     _detach();

@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.18.0+32** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.19.0+33** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -346,6 +346,26 @@ naturellement séparées plutôt que d'élaguer après coup.
 l'état qu'il renvoie. Décider dans un widget si un mot est bien placé dupliquerait
 le moteur et ferait diverger les deux.
 
+**Bundle ou disque : une seule règle** — `contentImageProvider` (dans
+`lib/ui/widgets/content_image.dart`) décide d'où vient une illustration. Un
+chemin commençant par `assets/` vient du bundle, tout le reste du disque. Les
+assets étant **scellés au build**, une image que l'auteur vient d'ajouter sur
+son téléphone n'y est pas et n'y sera qu'après un commit ; l'édition doit
+pourtant déjà fonctionner dessus. Les quatre endroits qui affichent une image —
+scène de jeu, calage, page de garde, moment de récit — passent par là. Deux
+règles séparées finiraient par diverger, et l'auteur calerait ses zones sur une
+image que le jeu ne montre pas.
+
+**Choisir le fichier reste à faire** : l'éditeur demande un chemin au clavier.
+Un sélecteur d'images suppose une dépendance tierce — la première du projet —
+et ne se teste pas en session cloud. À arbitrer, voir `docs/TODO.md`.
+
+**`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
+retirer une illustration serait sans effet et que l'auteur croirait l'avoir
+fait. D'où `Stage.copyWith(clearBackgroundAsset: true)`, et `Adventure`
+`withStage` / `withOpening` plutôt qu'un `copyWith` : `withStage` refuse un
+identifiant inconnu, qui ajouterait un lieu fantôme au lieu d'en corriger un.
+
 **Assets : déclarer chaque répertoire** — Flutter n'embarque pas les
 sous-dossiers ; une entrée `assets/` terminée par `/` ne prend que les fichiers
 de ce répertoire. Ajouter un sous-dossier de contenu sans l'inscrire dans
@@ -378,6 +398,20 @@ d'`AdventureOutline` et **ne se stocke jamais** : il bouge dès qu'on insère un
 trajet. La page ne décide rien — elle passe les demandes à `AdventureBuilder`
 et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
+
+**Cliquer le titre ouvre ce que le lieu porte** — `StageEditorPage` : le nom,
+l'illustration, les zones de dépôt et les deux moments de récit. **Les listes
+de mots n'y sont pas** : elles appartiennent à un *trajet*, pas à un lieu, et
+une même liste sert à plusieurs endroits — les mettre là laisserait croire
+qu'on les modifie pour ce lieu seul. Le calage (`AreaEditorPage`) s'ouvre
+depuis là, sur l'étape **en cours d'édition**, illustration comprise, et rend
+l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
+
+**La page de garde a sa carte, au-dessus du premier lieu** — plus discrète et
+sans lettre : ce n'est pas un point du parcours, rien n'en part. Elle existe
+même quand il n'y a pas de page de garde, sans quoi il n'y aurait aucun endroit
+où en créer une. `OpeningEdit` enveloppe le résultat de son éditeur parce que
+**renoncer et retirer la page donneraient tous deux `null`**.
 
 **Une fin garde sa carte, mais perd son bouton** — la journée s'y arrête, et
 proposer d'en repartir contredirait ce que la carte vient d'annoncer. Sa carte

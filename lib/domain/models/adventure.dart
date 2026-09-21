@@ -71,6 +71,46 @@ class Adventure {
 
   Stage? findStage(String stageId) => stages[stageId];
 
+  /// La meme aventure, ce lieu remplace.
+  ///
+  /// L'outil d'auteur travaille en memoire et rend l'aventure modifiee ;
+  /// reconstruire l'aventure a la main a chaque edition en perdrait un champ
+  /// le jour ou il s'en ajoute un.
+  ///
+  /// Le lieu doit exister : un identifiant mal repris ajouterait un lieu
+  /// fantome au lieu d'en corriger un, et l'auteur ne verrait sa faute que
+  /// bien plus tard. C'est aussi ce qui tient bon au renommage : l'identifiant
+  /// ne suit pas le nom, le lieu rebaptise garde donc sa place.
+  Adventure withStage(Stage stage) {
+    if (!stages.containsKey(stage.id)) {
+      throw StateError('Lieu inconnu : "${stage.id}".');
+    }
+
+    return Adventure(
+      id: id,
+      title: title,
+      startStageId: startStageId,
+      opening: opening,
+      stages: Map<String, Stage>.unmodifiable(
+        Map<String, Stage>.of(stages)..[stage.id] = stage,
+      ),
+    );
+  }
+
+  /// La meme aventure, avec cette page de garde — ou sans, si elle est nulle.
+  ///
+  /// Une methode a part plutot qu'un `copyWith` : `??` ne saurait pas en
+  /// retirer une, alors que renoncer a la page de garde est un geste legitime.
+  Adventure withOpening(AdventureOpening? opening) {
+    return Adventure(
+      id: id,
+      title: title,
+      startStageId: startStageId,
+      opening: opening,
+      stages: stages,
+    );
+  }
+
   /// Les lieux qui closent le parcours.
   ///
   /// Une fin porte un ecran, une illustration et un texte : plusieurs chemins

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/application/adventure_outline.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
+import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
+import 'package:grisbie/ui/pages/stage_editor_page.dart';
 
 /// Construire le parcours d'une aventure, point par point.
 ///
@@ -53,6 +57,37 @@ class _OutlinePageState extends State<OutlinePage> {
     });
   }
 
+  /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
+  ///
+  /// Les mots n'y sont pas — ils appartiennent au trajet, et une meme liste
+  /// sert a plusieurs lieux.
+  Future<void> _editStage(OutlineBlock block) async {
+    final stage = _adventure.findStage(block.stageId);
+    if (stage == null) return;
+
+    final edited = await Navigator.of(context).push<Stage>(
+      MaterialPageRoute<Stage>(builder: (_) => StageEditorPage(stage: stage)),
+    );
+    if (edited == null) return;
+
+    setState(() => _adventure = _adventure.withStage(edited));
+  }
+
+  /// Ouvre le seuil de l'aventure, qu'il existe deja ou non.
+  Future<void> _editOpening() async {
+    final edit = await Navigator.of(context).push<OpeningEdit>(
+      MaterialPageRoute<OpeningEdit>(
+        builder: (_) => AdventureOpeningEditorPage(
+          adventureTitle: _adventure.title,
+          opening: _adventure.opening,
+        ),
+      ),
+    );
+    if (edit == null) return;
+
+    setState(() => _adventure = _adventure.withOpening(edit.opening));
+  }
+
   @override
   Widget build(BuildContext context) {
     final outline = AdventureOutline.of(_adventure);
@@ -71,12 +106,19 @@ class _OutlinePageState extends State<OutlinePage> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: <Widget>[
           _IssueSummary(issues: issues),
+          // Le seuil de la journee, avant le premier lieu — comme a l'ecran
+          // du jeu. Il n'a pas de trajet : on n'en repart pas, on y entre.
+          _OpeningCard(
+            opening: _adventure.opening,
+            onTap: _editOpening,
+          ),
           for (final block in outline.blocks)
             _BlockCard(
               block: block,
               isDetached: detached.contains(block.stageId),
               issues: issues.where((i) => i.stageId == block.stageId).toList(),
               onAddTrips: () => _addTrips(block),
+              onOpen: () => _editStage(block),
             ),
         ],
       ),
@@ -130,6 +172,59 @@ class _IssueSummary extends StatelessWidget {
   }
 }
 
+/// Le seuil de l'aventure, pose au-dessus du premier lieu.
+///
+/// Une carte plus discrete que celles des lieux, et sans lettre : ce n'est pas
+/// un point du parcours, rien n'en part. Elle existe meme quand il n'y a pas
+/// de page de garde — sans quoi il n'y aurait aucun endroit ou en creer une.
+class _OpeningCard extends StatelessWidget {
+  const _OpeningCard({required this.opening, required this.onTap});
+
+  final AdventureOpening? opening;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final opening = this.opening;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: <Widget>[
+              const Icon(Icons.auto_stories_outlined, size: 18),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Page de garde',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    if (opening == null)
+                      _Note('Aucune. L\'aventure commence au premier lieu.')
+                    else ...<Widget>[
+                      if (opening.title != null) _Note(opening.title!),
+                      if (opening.imageAsset == null)
+                        _Note('Pas encore d\'illustration.'),
+                    ],
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Un point du parcours, avec les trajets qui en partent.
 class _BlockCard extends StatelessWidget {
   const _BlockCard({
@@ -137,6 +232,7 @@ class _BlockCard extends StatelessWidget {
     required this.isDetached,
     required this.issues,
     required this.onAddTrips,
+    required this.onOpen,
   });
 
   final OutlineBlock block;
@@ -146,6 +242,9 @@ class _BlockCard extends StatelessWidget {
 
   final List<ContentIssue> issues;
   final VoidCallback onAddTrips;
+
+  /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -161,9 +260,15 @@ class _BlockCard extends StatelessWidget {
                 _Letter(block.letter),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    block.locationName,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  child: InkWell(
+                    onTap: onOpen,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        block.locationName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
                   ),
                 ),
                 if (block.isEncounter)

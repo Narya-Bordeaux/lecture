@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// La page de garde d'une aventure.
 ///
@@ -57,12 +58,14 @@ class AdventureOpeningPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          image,
+                        child: SizedBox(
                           width: double.infinity,
-                          fit: BoxFit.fitWidth,
-                          errorBuilder: (context, error, stack) =>
-                              const SizedBox.shrink(),
+                          child: ContentImage(
+                            path: image,
+                            fit: BoxFit.fitWidth,
+                            errorBuilder: (context, error, stack) =>
+                                const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ],

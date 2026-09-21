@@ -44,6 +44,57 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.19.0+33 — 21 septembre 2026 — Ce qu'un lieu porte, et le seuil de la journée
+
+L'écran du parcours disait **où** l'on va. Il dit maintenant aussi **ce qu'il y
+a** une fois sur place : cliquer le titre d'une carte ouvre le lieu.
+
+**`StageEditorPage`** — le nom, l'illustration, les zones de dépôt et les deux
+moments de récit. Les listes de mots n'y sont pas, et c'est une décision : elles
+appartiennent à un **trajet**, pas à un lieu, et une même liste sert à plusieurs
+endroits. Les mettre là laisserait croire qu'on les modifie pour ce lieu seul.
+
+Le calage des zones s'ouvre depuis là, sur l'étape **en cours d'édition** —
+illustration comprise — et rend l'étape calée. Sans cela l'auteur poserait ses
+zones sur l'image d'avant. `AreaEditorPage` gagne donc un bouton « Garder » à
+côté de « Copier », qui reste : recoller le JSON à la main est encore la seule
+façon d'enregistrer quoi que ce soit.
+
+**La page de garde a sa carte**, au-dessus du premier lieu, plus discrète et
+sans lettre : ce n'est pas un point du parcours, rien n'en part. Elle existe
+même quand il n'y a pas de page de garde — sans quoi il n'y aurait aucun endroit
+où en créer une — et elle se retire, pour ne pas refaire le cul-de-sac signalé
+en 0.18.0 avec les fins.
+
+`OpeningEdit` enveloppe le résultat de son éditeur : **renoncer** et **retirer
+la page** donneraient tous deux `null`, et ce ne sont pas les mêmes gestes.
+
+**Bundle ou disque : une seule règle.** Les assets sont scellés au build, donc
+une image que l'auteur vient d'ajouter sur son téléphone n'y est pas — et
+l'édition doit pourtant déjà fonctionner dessus. `contentImageProvider` tranche
+sur le préfixe `assets/`, et les **quatre** endroits qui affichaient une image
+passent désormais par là : scène de jeu, calage, page de garde, moment de récit.
+Deux règles séparées finiraient par diverger, et l'auteur calerait ses zones sur
+une image que le jeu ne montre pas.
+
+**Ce qui n'est pas fait, et pourquoi.** L'éditeur demande un chemin **au
+clavier**. Choisir le fichier dans l'appareil suppose une dépendance tierce — la
+première du projet, partagée par les deux saveurs, donc embarquée dans le jeu
+livré aux enfants même s'il ne l'appelle jamais — et ne se teste pas en session
+cloud. C'est un arbitrage, pas un oubli : il est posé dans `TODO.md`.
+
+- `Stage.copyWith(clearBackgroundAsset: true)` : `??` garde l'ancienne valeur,
+  si bien que retirer une illustration aurait été sans effet et que l'auteur
+  aurait cru l'avoir fait.
+- `Adventure.withStage` refuse un identifiant inconnu : il ajouterait un lieu
+  fantôme au lieu d'en corriger un, et la faute ne se verrait que bien plus
+  tard. C'est aussi ce qui tient bon au renommage, l'identifiant ne suivant pas
+  le nom.
+- `Adventure.withOpening` plutôt qu'un `copyWith`, pour la même raison qu'au
+  point précédent : `??` ne saurait pas retirer la page de garde.
+
+299 tests au vert, dont 28 nouveaux. `flutter analyze` sans remarque.
+
 ### 0.18.0+32 — 21 septembre 2026 — Une fin est une fin, et elle se partage
 
 Deux remarques d'usage sur l'écran de construction, qui vont ensemble.

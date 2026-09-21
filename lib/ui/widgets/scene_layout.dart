@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/ui/widgets/background_image_size.dart';
+import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Un element a poser sur le decor, a un endroit donne de l'illustration.
 class SceneChild {
@@ -124,8 +125,8 @@ class SceneLayout extends StatelessWidget {
                       top: imageRect.top,
                       width: imageRect.width,
                       height: imageRect.height,
-                      child: Image.asset(
-                        backgroundAsset!,
+                      child: ContentImage(
+                        path: backgroundAsset!,
                         fit: BoxFit.fill,
                         errorBuilder: (context, error, stack) =>
                             ColoredBox(color: backgroundColor),

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.18.0+32** — 21 septembre 2026
+**Version : 0.19.0+33** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -45,16 +45,19 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    croquis est calculé (0.12.0), et **l'écran de construction marche** (0.14.0) :
    bouton « Ajouter », nombre de trajets, nature, nom, et chaque arrivée devient
    une carte prolongeable en dessous. Une aventure se crée aussi à partir de
-   rien. **Reste l'enregistrement** — l'écran travaille en mémoire et rien ne
-   l'écrit. Les récits d'arrivée et de départ restent aussi à saisir.
-4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
-   faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
-   n'est pas dans le bundle, les assets étant scellés au build.
+   rien, et **les récits se saisissent** depuis 0.19.0, avec le nom du lieu et
+   son illustration. **Reste l'enregistrement** — l'écran travaille en mémoire
+   et rien ne l'écrit.
+4. 🟡 **L'image** — **l'afficher est fait** : `contentImageProvider` lit le
+   bundle ou le disque selon le chemin, ce qui lève la contrainte des assets
+   scellés au build. **La choisir reste à faire** : l'éditeur demande un chemin
+   au clavier, et un sélecteur suppose une dépendance tierce — à arbitrer.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
-6. ⬜ **Rebrancher le calage** sur l'aventure éditée, et enregistrer au lieu de
-   copier.
+6. 🟡 **Rebrancher le calage** — **fait** : il s'ouvre depuis l'éditeur de
+   lieu, sur l'étape en cours d'édition, et rend l'étape calée.
+   **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
 
 **Ce qui bloque Firebase** : rien n'est encore dans le dépôt, et l'intégration
 n'est pas testable en session cloud faute de SDK Android. Les préalables sont
@@ -77,6 +80,22 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.19.0+33 — Ce qu'un lieu porte, et le seuil de la journée
+- **Cliquer le titre d'une carte ouvre le lieu** (`StageEditorPage`) : nom,
+  illustration, zones de dépôt, et les deux moments de récit.
+- **Les listes de mots n'y sont pas** : elles appartiennent au trajet, pas au
+  lieu, et une même liste sert à plusieurs endroits.
+- Le calage s'ouvre de là, **sur l'étape en cours d'édition** — sinon l'auteur
+  poserait ses zones sur l'image d'avant — et rend l'étape calée.
+- **La page de garde a sa carte**, au-dessus du premier lieu, sans lettre : on
+  n'en repart pas, on y entre. Elle existe même vide, et elle se retire.
+- **Bundle ou disque, une seule règle** (`contentImageProvider`) : les assets
+  sont scellés au build, une image fraîchement ajoutée vient du disque. Les
+  quatre endroits qui affichent une image passent par là.
+- **Choisir le fichier dans l'appareil reste à faire** : l'éditeur demande un
+  chemin au clavier. Un sélecteur suppose une dépendance tierce, à arbitrer.
+- 299 tests au vert, dont 28 nouveaux.
 
 ### 0.18.0+32 — Une fin est une fin, et elle se partage
 - **Une fin ne propose plus « Ajouter des trajets »** : sa carte contredisait
@@ -103,28 +122,6 @@ un travail d'auteur, pas de code.
   tris uniques peuvent s'ouvrir depuis un carrefour, chacun avec sa liste du
   reste. Un test le fixe, la confusion étant facile.
 - 265 tests au vert, dont 2 nouveaux.
-
-### 0.17.0+30 — Des listes plus grandes que la partie
-- **Une liste est réutilisable et plus grande que ce qu'une partie en montre.**
-  À l'entrée d'un lieu, le moteur tire quelques mots de chaque liste, après
-  avoir retiré ceux qu'elle partage avec ses voisines. Rejouer la même journée
-  ne redonne plus les mêmes mots.
-- **La règle du mot ambigu change de main.** Elle tenait à la vigilance de
-  l'auteur — 0.4.1 avait élagué onze mots partagés à la main — elle est
-  désormais appliquée par la machine, avant que le mot n'atteigne l'écran.
-  Écrire le même mot dans deux listes devient la façon de le déclarer ambigu
-  *ici*.
-- Ce que `validate()` signale, c'est le **manque** que l'exclusion laisse :
-  *incomplet* s'il faut écrire d'autres mots, *faux* si une liste est
-  entièrement absorbée par ses voisines.
-- **Un troisième objet, `WordList`**, entre le lexique (qui refuse le doublon)
-  et la famille (propre à un lieu). Il manquait : un mot doit pouvoir
-  appartenir à plusieurs thèmes.
-- Le contenu livré est **migré mot pour mot**, et son comportement est
-  inchangé : sans `drawCount`, une liste joue entière.
-- C'est le tri unique qui y gagne le plus : une seule liste d'objets
-  hétéroclites peut servir tous les tris uniques, chacun retranchant son thème.
-- 263 tests au vert, dont 23 nouveaux.
 
 
 ## Décisions prises

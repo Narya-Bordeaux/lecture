@@ -100,6 +100,107 @@ void main() {
     });
   });
 
+  group('Ouvrir un lieu', () {
+    testWidgets('cliquer le titre ouvre ce que le lieu porte', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Devant la maison'));
+      await tester.pumpAndSettle();
+
+      // Tout sauf les mots : ceux-la appartiennent au trajet.
+      expect(find.text('Le lieu'), findsOneWidget);
+      expect(find.text('L\'illustration'), findsOneWidget);
+      expect(find.text('Le récit'), findsOneWidget);
+    });
+
+    testWidgets('le lieu renommé revient sur sa carte', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Devant la maison'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Sur le perron');
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sur le perron'), findsOneWidget);
+      expect(find.text('Devant la maison'), findsNothing);
+    });
+
+    testWidgets('renoncer laisse la carte intacte', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('La gare').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Perdu');
+      await tester.tap(find.byTooltip('Fermer sans enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Perdu'), findsNothing);
+      expect(find.text('La gare'), findsWidgets);
+    });
+  });
+
+  group('La page de garde', () {
+    testWidgets('elle se lit au-dessus du premier lieu', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Page de garde'), findsOneWidget);
+      expect(find.text('Grisbie part à la plage'), findsOneWidget);
+
+      // Au-dessus du premier lieu, comme a l'ecran du jeu : c'est un seuil.
+      final opening = tester.getTopLeft(find.text('Page de garde'));
+      final first = tester.getTopLeft(find.text('Devant la maison'));
+      expect(opening.dy, lessThan(first.dy));
+    });
+
+    testWidgets('sans page de garde, la carte le dit', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      expect(find.text('Page de garde'), findsOneWidget);
+      expect(find.textContaining('Aucune'), findsOneWidget);
+    });
+
+    testWidgets('elle s\'écrit, et apparaît aussitôt', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Page de garde'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('openingTitle')),
+        'Grisbie s\'en va',
+      );
+      await tester.enterText(
+        find.byKey(const Key('openingText')),
+        'Ce matin, il fait beau.',
+      );
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Grisbie s\'en va'), findsOneWidget);
+    });
+
+    testWidgets('elle se retire, sans quoi elle serait un cul-de-sac',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Page de garde'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Retirer la page de garde'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Grisbie part à la plage'), findsNothing);
+      expect(find.textContaining('Aucune'), findsOneWidget);
+    });
+  });
+
   group('Ajouter des trajets', () {
     testWidgets('l\'arrivee devient une carte en dessous', (tester) async {
       await pumpOutline(tester, realAdventure);

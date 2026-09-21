@@ -6,9 +6,11 @@ import 'package:grisbie/ui/pages/area_editor_page.dart';
 import 'package:grisbie/ui/pages/new_adventure_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 
-/// Le sommaire de l'outil d'auteur : choisir l'etape dont on cale les zones.
+/// Le sommaire de l'outil d'auteur.
 ///
-/// Une etape sans famille n'y figure pas : il n'y a rien a y poser.
+/// Deux entrees pour creer, puis la liste des etapes du contenu livre dont on
+/// cale les zones. Une etape sans famille n'y figure pas : il n'y a rien a y
+/// poser.
 class AuthorHomePage extends StatefulWidget {
   const AuthorHomePage({
     required this.repository,
@@ -116,8 +118,12 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
         '${illustrated ? '' : ' — pas d\'illustration'}',
       ),
       trailing: const Icon(Icons.open_in_full),
+      // Le calage sur le contenu livre : il rend l'etape calee, mais rien ici
+      // ne la garde — c'est « Copier » qui sert, le JSON etant recolle a la
+      // main dans le fichier d'aventure. Passer par « Construire le parcours »
+      // garde le calage en memoire jusqu'a la fin de la session.
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(
+        MaterialPageRoute<Stage>(
           builder: (_) => AreaEditorPage(stage: stage),
         ),
       ),
