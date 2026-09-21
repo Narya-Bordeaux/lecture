@@ -8,8 +8,10 @@ import 'package:grisbie/ui/pages/add_trips_page.dart';
 /// Construire le parcours d'une aventure, point par point.
 ///
 /// Reprend la forme du croquis papier de l'auteur : un point porte une lettre,
-/// les trajets qui en partent se lisent en dessous, et chacun mene a un point
-/// qui se deploie a son tour plus bas.
+/// les trajets qui en partent se lisent en dessous, et **chaque arrivee devient
+/// a son tour une carte plus bas**, prete a etre prolongee. Un lieu qu'on vient
+/// de creer n'a pas encore de trajet : il a quand meme sa carte, sans quoi il
+/// serait invisible et impossible a prolonger.
 ///
 /// L'aventure ne quitte pas la memoire : cette page la modifie et la rend a
 /// l'appelant. L'enregistrement est un autre sujet, et un autre ecran.
@@ -25,16 +27,20 @@ class OutlinePage extends StatefulWidget {
 class _OutlinePageState extends State<OutlinePage> {
   late Adventure _adventure = widget.adventure;
 
-  Future<void> _addTrips(String stageId, String locationName) async {
+  Future<void> _addTrips(OutlineBlock block) async {
     final trips = await Navigator.of(context).push<List<NewTrip>>(
       MaterialPageRoute<List<NewTrip>>(
-        builder: (_) => AddTripsPage(locationName: locationName),
+        builder: (_) => AddTripsPage(
+          locationName: block.locationName,
+          existingTrips:
+              block.trips.map((trip) => trip.label).toList(growable: false),
+        ),
       ),
     );
     if (trips == null || trips.isEmpty) return;
 
     setState(() {
-      _adventure = AdventureBuilder(_adventure).addTrips(stageId, trips);
+      _adventure = AdventureBuilder(_adventure).addTrips(block.stageId, trips);
     });
   }
 
@@ -42,6 +48,7 @@ class _OutlinePageState extends State<OutlinePage> {
   Widget build(BuildContext context) {
     final outline = AdventureOutline.of(_adventure);
     final issues = _adventure.validate();
+    final detached = outline.detachedStageIds.toSet();
 
     return Scaffold(
       appBar: AppBar(
@@ -58,14 +65,10 @@ class _OutlinePageState extends State<OutlinePage> {
           for (final block in outline.blocks)
             _BlockCard(
               block: block,
+              isDetached: detached.contains(block.stageId),
               issues: issues.where((i) => i.stageId == block.stageId).toList(),
-              onAddTrips: _addTrips,
+              onAddTrips: () => _addTrips(block),
             ),
-          _UnwrittenPlaces(
-            outline: outline,
-            adventure: _adventure,
-            onAddTrips: _addTrips,
-          ),
         ],
       ),
     );
@@ -122,13 +125,18 @@ class _IssueSummary extends StatelessWidget {
 class _BlockCard extends StatelessWidget {
   const _BlockCard({
     required this.block,
+    required this.isDetached,
     required this.issues,
     required this.onAddTrips,
   });
 
   final OutlineBlock block;
+
+  /// Vrai si aucun chemin ne mene ici : l'enfant ne le verra jamais.
+  final bool isDetached;
+
   final List<ContentIssue> issues;
-  final void Function(String stageId, String locationName) onAddTrips;
+  final VoidCallback onAddTrips;
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +157,9 @@ class _BlockCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                if (block.isEncounter) const Icon(Icons.person_outline, size: 18),
+                if (block.isEncounter)
+                  const Icon(Icons.person_outline, size: 18),
+                if (block.isEnding) const Icon(Icons.flag_outlined, size: 18),
                 // La case du croquis : le recit qui accompagne le depart.
                 Icon(
                   block.hasTransitionText
@@ -159,16 +169,22 @@ class _BlockCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (isDetached) _Note('Aucun chemin ne mène ici.'),
+            if (block.isEnding) _Note('Fin de l\'aventure.'),
             const SizedBox(height: 8),
+            if (block.trips.isEmpty && !block.isEnding)
+              _Note('Aucun trajet ne part d\'ici pour l\'instant.'),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
             const SizedBox(height: 4),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
-                onPressed: () => onAddTrips(block.stageId, block.locationName),
+                onPressed: onAddTrips,
                 icon: const Icon(Icons.add),
-                label: const Text('Ajouter'),
+                label: Text(
+                  block.trips.isEmpty ? 'Ajouter des trajets' : 'Ajouter',
+                ),
               ),
             ),
           ],
@@ -178,79 +194,39 @@ class _BlockCard extends StatelessWidget {
   }
 
   Widget _buildTrip(BuildContext context, OutlineTrip trip) {
-    final destination = trip.destinationStageId;
-
-    return InkWell(
-      // Cliquer un trajet, c'est ajouter la suite depuis son arrivee. Un
-      // classeur sans issue ne mene nulle part : il n'est pas cliquable.
-      onTap: destination == null ? null : () => onAddTrips(destination, trip.label),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: <Widget>[
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: <Widget>[
+          const SizedBox(width: 8),
+          const Icon(Icons.subdirectory_arrow_right, size: 16),
+          const SizedBox(width: 8),
+          if (trip.destinationLetter != null) ...<Widget>[
+            _Letter(trip.destinationLetter!, small: true),
             const SizedBox(width: 8),
-            const Icon(Icons.subdirectory_arrow_right, size: 16),
-            const SizedBox(width: 8),
-            if (trip.destinationLetter != null) ...<Widget>[
-              _Letter(trip.destinationLetter!, small: true),
-              const SizedBox(width: 8),
-            ],
-            Expanded(child: Text(trip.label)),
-            if (trip.leadsToEncounter)
-              const Icon(Icons.person_outline, size: 16),
-            if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
-            if (destination == null)
-              Text(
-                'sans issue',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
           ],
-        ),
+          Expanded(child: Text(trip.label)),
+          if (trip.leadsToEncounter) const Icon(Icons.person_outline, size: 16),
+          if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
+          if (trip.destinationStageId == null)
+            Text('sans issue', style: Theme.of(context).textTheme.bodySmall),
+        ],
       ),
     );
   }
 }
 
-/// Les lieux qu'aucun chemin n'atteint, montres a part plutot que disparus.
-class _UnwrittenPlaces extends StatelessWidget {
-  const _UnwrittenPlaces({
-    required this.outline,
-    required this.adventure,
-    required this.onAddTrips,
-  });
+/// Une precision discrete sous le titre d'un point.
+class _Note extends StatelessWidget {
+  const _Note(this.text);
 
-  final AdventureOutline outline;
-  final Adventure adventure;
-  final void Function(String stageId, String locationName) onAddTrips;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    if (outline.detachedStageIds.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const SizedBox(height: 16),
-        Text(
-          'Lieux non reliés',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Aucun chemin n\'y mène : l\'enfant ne les verra jamais.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        for (final stageId in outline.detachedStageIds)
-          ListTile(
-            leading: _Letter(outline.letterOf(stageId)!),
-            title: Text(adventure.findStage(stageId)!.locationName),
-            trailing: const Icon(Icons.add),
-            onTap: () => onAddTrips(
-              stageId,
-              adventure.findStage(stageId)!.locationName,
-            ),
-          ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, left: 8),
+      child: Text(text, style: Theme.of(context).textTheme.bodySmall),
     );
   }
 }
@@ -282,10 +258,8 @@ class _IssueLine extends StatelessWidget {
           Expanded(
             child: Text(
               issue.message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: color),
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
             ),
           ),
         ],

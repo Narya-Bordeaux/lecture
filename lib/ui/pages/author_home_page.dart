@@ -3,6 +3,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
+import 'package:grisbie/ui/pages/new_adventure_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 
 /// Le sommaire de l'outil d'auteur : choisir l'etape dont on cale les zones.
@@ -56,9 +57,17 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
           return Column(
             children: <Widget>[
               ListTile(
+                leading: const Icon(Icons.add_circle_outline),
+                title: const Text('Nouvelle aventure'),
+                subtitle: const Text('Partir d\'une page blanche'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _startNewAdventure(context),
+              ),
+              const Divider(height: 1),
+              ListTile(
                 leading: const Icon(Icons.account_tree_outlined),
                 title: const Text('Construire le parcours'),
-                subtitle: const Text('Les lieux et les trajets qui les relient'),
+                subtitle: Text('« ${adventure.title} »'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<Adventure>(
@@ -77,6 +86,20 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Cree une aventure neuve et enchaine aussitot sur son parcours.
+  ///
+  /// Rien ne l'enregistre encore : elle vit le temps de la session.
+  Future<void> _startNewAdventure(BuildContext context) async {
+    final fresh = await askForNewAdventure(context);
+    if (fresh == null || !context.mounted) return;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<Adventure>(
+        builder: (_) => OutlinePage(adventure: fresh),
       ),
     );
   }

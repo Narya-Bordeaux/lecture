@@ -184,6 +184,49 @@ void main() {
     });
   });
 
+  group('Une aventure a partir de zero', () {
+    test('elle se reduit a son point de depart', () {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Grisbie va au marché',
+        startName: 'Devant la maison',
+      );
+
+      expect(fresh.id, 'grisbie_va_au_marche');
+      expect(fresh.stages, hasLength(1));
+      expect(fresh.startStageId, 'devant_la_maison');
+      expect(fresh.startStage.locationName, 'Devant la maison');
+    });
+
+    test('elle est incomplete, jamais fausse', () {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+
+      // Commencer une aventure ne doit pas ouvrir sur un ecran rouge.
+      expect(
+        fresh.validate().where((i) => i.severity == IssueSeverity.wrong),
+        isEmpty,
+      );
+      expect(fresh.validate(), isNotEmpty);
+    });
+
+    test('on la prolonge aussitot, trajet par trajet', () {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Devant la maison',
+      );
+
+      final built = AdventureBuilder(fresh).addTrips(
+        fresh.startStageId,
+        const <NewTrip>[NewTrip(name: 'En bus'), NewTrip(name: 'À pied')],
+      );
+
+      expect(built.stages, hasLength(3));
+      expect(built.startStage.families, hasLength(2));
+    });
+  });
+
   group('L\'identifiant se detache du nom', () {
     test('renommer le lieu ne touche pas son identifiant', () {
       final built = AdventureBuilder(emptyAdventureAt('maison'))

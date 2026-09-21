@@ -99,9 +99,20 @@ void main() {
     });
 
     test('les blocs se lisent dans l\'ordre du croquis', () {
+      // **Tout lieu a son bloc**, y compris ceux qui n'ont pas encore de
+      // trajet : un lieu qu'on vient de creer doit apparaitre en dessous,
+      // sinon on ne peut plus lui ajouter la suite. C'est le point qui
+      // manquait, et qui rendait l'ecran inutilisable.
       expect(
         outline.blocks.map((block) => block.letter).toList(),
-        <String>['A', 'B1', 'B2', 'B3', 'C1'],
+        <String>[
+          'A',
+          'B1', 'B2', 'B3',
+          'C1', 'C2',
+          'D1', 'D2',
+          'E1', 'E2',
+          'F1',
+        ],
       );
     });
 
@@ -119,11 +130,26 @@ void main() {
       );
     });
 
-    test('une fin ne se deploie pas', () {
-      expect(
-        outline.blocks.any((block) => block.stageId == 'marche'),
-        isFalse,
-      );
+    test('une fin a son bloc, mais ne se deploie pas', () {
+      final marche =
+          outline.blocks.firstWhere((block) => block.stageId == 'marche');
+
+      expect(marche.isEnding, isTrue);
+      expect(marche.trips, isEmpty);
+    });
+
+    test('un lieu sans trajet a quand meme son bloc', () {
+      // Sans cela, ajouter un trajet ferait apparaitre un lieu invisible.
+      final outline = AdventureOutline.of(adventureOf(<Stage>[
+        stage(id: 'depart', families: <WordFamily>[
+          trip('en_bus', 'En bus', to: 'gare'),
+        ]),
+        stage(id: 'gare', families: const <WordFamily>[]),
+      ]));
+
+      expect(outline.blocks.map((b) => b.letter), <String>['A', 'B1']);
+      expect(outline.blocks.last.trips, isEmpty);
+      expect(outline.blocks.last.isEnding, isFalse);
     });
   });
 
@@ -138,6 +164,8 @@ void main() {
       ]));
 
       expect(outline.letterOf('gare'), 'B1');
+      // Un seul bloc pour la gare, bien que deux trajets y menent.
+      expect(outline.blocks, hasLength(2));
       // Le second trajet pointe la meme lettre, il n'en invente pas une autre.
       expect(
         outline.blocks.first.trips.map((trip) => trip.destinationLetter),
@@ -204,6 +232,7 @@ void main() {
       expect(outline.letterOf('depart'), 'A');
       expect(outline.letterOf('retour'), 'B1');
       expect(outline.blocks, hasLength(2));
+      expect(outline.blocks.map((b) => b.stageId), <String>['depart', 'retour']);
     });
 
     test('au-dela de vingt-six groupes, les lettres se doublent', () {

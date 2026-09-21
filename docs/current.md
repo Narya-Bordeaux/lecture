@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.13.0+26** — 21 septembre 2026
+**Version : 0.14.0+27** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -40,10 +40,11 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    et l'aller-retour complet jusqu'au chargement par le jeu.
 3. 🟡 **Textes et structure** — `validate()` classe chaque anomalie en *faux* ou
    *incomplet* (0.10.0), `loadDraft` ouvre une aventure inachevée, le lettrage du
-   croquis est calculé (0.12.0), et **l'écran de construction existe** (0.13.0) :
-   bouton « Ajouter », nombre de trajets, nature, nom, et la suite cliquable.
-   **Reste l'enregistrement** — l'écran travaille en mémoire et rien ne l'écrit.
-   Les récits d'arrivée et de départ restent aussi à saisir.
+   croquis est calculé (0.12.0), et **l'écran de construction marche** (0.14.0) :
+   bouton « Ajouter », nombre de trajets, nature, nom, et chaque arrivée devient
+   une carte prolongeable en dessous. Une aventure se crée aussi à partir de
+   rien. **Reste l'enregistrement** — l'écran travaille en mémoire et rien ne
+   l'écrit. Les récits d'arrivée et de départ restent aussi à saisir.
 4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
    faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
    n'est pas dans le bundle, les assets étant scellés au build.
@@ -66,6 +67,23 @@ boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne propo
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.14.0+27 — Toute arrivée devient une carte
+- **Le défaut qui rendait l'écran inutilisable** : je n'affichais que les lieux
+  ayant déjà des trajets. Un lieu qu'on vient de créer n'en a aucun — ajouter
+  trois directions ne faisait donc rien apparaître en dessous.
+- Corrigé dans `AdventureOutline` : **tout lieu a son bloc**, fin comprise.
+  Chaque arrivée devient une carte plus bas, avec sa lettre et son bouton.
+- **La page d'ajout rappelle ce qui part déjà d'ici** : elle s'ouvrait vide sur
+  un lieu qui avait trois directions.
+- **Créer une aventure à partir de rien** : un titre, un lieu de départ, et on
+  construit de proche en proche (`NewAdventurePage`).
+- La section « Lieux non reliés » disparaît, remplacée par une mention sur la
+  carte du lieu concerné.
+- Piège consigné : un `ListView` ne construit que les cartes visibles ; les
+  tests d'écran agrandissent la fenêtre, sans quoi ils cherchent des widgets
+  qui n'existent pas dans l'arbre.
+- 223 tests au vert, dont 9 nouveaux.
 
 ### 0.13.0+26 — L'écran de construction du parcours
 - **`OutlinePage`** : un point, sa lettre, ses trajets dessous, un bouton
@@ -102,19 +120,6 @@ aucun mot d'une famille donnée.
   pour rien.
 - Rien n'est encore affiché : c'est le calcul que l'écran consommera.
 - 192 tests au vert, dont 15 nouveaux.
-
-### 0.11.0+24 — Une fin se déclare
-- `Stage.isEnding` (`"ending": true`) remplace le `isTerminal` dérivé de
-  l'absence de famille. Motif : **un lieu créé et pas encore écrit n'a pas de
-  famille non plus**, et passait donc pour une fin sans que rien ne le signale.
-- Information en double avec la structure — assumée, parce qu'elle est
-  **vérifiable** : une fin qui porte des familles est *fausse*, un lieu sans
-  famille qui ne se déclare pas fin est *incomplet*. Les deux ne peuvent pas
-  mentir l'un sur l'autre.
-- `rue`, `garage` et `plage` sont marqués dans le contenu livré.
-- L'exception à la règle « pas de champ type d'étape » est consignée dans
-  `CLAUDE.md` et `Format_fichier_aventure.md`, avec sa justification.
-- 177 tests au vert, dont 3 nouveaux.
 
 ## Décisions prises
 

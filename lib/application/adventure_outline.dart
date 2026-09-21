@@ -41,7 +41,7 @@ class AdventureOutline {
       while (queue.isNotEmpty) {
         final stageId = queue.removeAt(0);
         final stage = adventure.findStage(stageId);
-        if (stage == null || stage.families.isEmpty) continue;
+        if (stage == null) continue;
 
         // Les arrivees encore sans lettre, dans l'ordre des trajets.
         final newcomers = <String>[];
@@ -64,12 +64,17 @@ class AdventureOutline {
           queue.addAll(newcomers);
         }
 
+        // **Tout lieu a son bloc**, meme sans trajet. Un lieu qu'on vient de
+        // creer n'en a pas encore : ne pas l'afficher le rendrait invisible et
+        // impossible a prolonger, ce qui est precisement ce qu'on vient
+        // d'ajouter un trajet pour faire.
         blocks.add(OutlineBlock(
           stageId: stageId,
           letter: letters[stageId]!,
           locationName: stage.locationName,
           hasTransitionText: stage.narrative.onCompletion != null,
           isEncounter: stage.isEncounter,
+          isEnding: stage.isEnding,
           trips: List<OutlineTrip>.unmodifiable(
             stage.families.map((family) => _tripOf(family, letters, adventure)),
           ),
@@ -152,6 +157,7 @@ class OutlineBlock {
     required this.locationName,
     required this.hasTransitionText,
     required this.isEncounter,
+    required this.isEnding,
     required this.trips,
   });
 
@@ -168,6 +174,11 @@ class OutlineBlock {
   /// Vrai si un personnage attend ici.
   final bool isEncounter;
 
+  /// Vrai si le lieu clot le parcours. Il n'a alors aucun trajet.
+  final bool isEnding;
+
+  /// Les trajets qui partent d'ici. Vide pour un lieu pas encore ecrit, comme
+  /// pour une fin.
   final List<OutlineTrip> trips;
 }
 

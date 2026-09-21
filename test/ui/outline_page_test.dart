@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 
 import '../support/disk_content.dart';
@@ -13,9 +13,30 @@ import '../support/disk_content.dart';
 /// le test tournerait sans fin.
 
 Future<void> pumpOutline(WidgetTester tester, Adventure adventure) async {
+  // Un `ListView` ne construit que les cartes visibles : sur la fenetre de
+  // test par defaut, les lieux du bas n'existeraient pas dans l'arbre et les
+  // recherches echoueraient sans que rien ne soit casse. On regarde donc tout
+  // le parcours d'un coup.
+  tester.view.physicalSize = const Size(1200, 4000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
   await tester.pumpWidget(
     MaterialApp(home: OutlinePage(adventure: adventure)),
   );
+  await tester.pumpAndSettle();
+}
+
+/// Ajoute un trajet depuis le premier point de l'ecran.
+Future<void> addTripFromStart(WidgetTester tester, String name) async {
+  final button = find.text('Ajouter').evaluate().isNotEmpty
+      ? find.text('Ajouter')
+      : find.text('Ajouter des trajets');
+  await tester.tap(button.first);
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byType(TextField).first, name);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Créer'));
   await tester.pumpAndSettle();
 }
 
@@ -40,11 +61,31 @@ void main() {
       expect(find.text('En bus'), findsOneWidget);
       expect(find.text('En voiture'), findsOneWidget);
       expect(find.text('À pied'), findsOneWidget);
-      // Chacun montre le reperage de son arrivee. « B1 » paraît deux fois :
-      // sous le trajet qui y mene, et en tete du bloc de la gare, qui se
-      // deploie a son tour. « B3 » est la rue, qui ne se deploie pas encore.
+    });
+
+    testWidgets('chaque arrivee a sa propre carte plus bas', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      // « B1 » paraît deux fois : sous le trajet qui y mene, et en tete de la
+      // carte de ce lieu. C'est ce qui permet de le prolonger.
       expect(find.text('B1'), findsNWidgets(2));
-      expect(find.text('B3'), findsOneWidget);
+      expect(find.text('B2'), findsNWidgets(2));
+      expect(find.text('B3'), findsNWidgets(2));
+
+      // Les lieux d'arrivee sont bien la, avec leur nom.
+      expect(find.text('La gare'), findsWidgets);
+      expect(find.text('Le garage'), findsWidgets);
+      expect(find.text('La rue'), findsWidgets);
+    });
+
+    testWidgets('un lieu sans trajet le dit, et propose d\'en ajouter',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      // « La rue », « Le garage » et « La plage » sont des fins : elles
+      // l'annoncent, et proposent quand meme de prolonger la journee.
+      expect(find.text('Fin de l\'aventure.'), findsWidgets);
+      expect(find.text('Ajouter des trajets'), findsWidgets);
     });
 
     testWidgets('une aventure jouable ne montre aucune alerte', (tester) async {
@@ -53,46 +94,59 @@ void main() {
       expect(find.text('Cette aventure est jouable.'), findsOneWidget);
       expect(find.textContaining('à corriger'), findsNothing);
     });
-
-    testWidgets('chaque point offre d\'ajouter la suite', (tester) async {
-      await pumpOutline(tester, realAdventure);
-
-      // Un bouton par point qui se deploie : maison, gare, boutique.
-      expect(find.text('Ajouter'), findsWidgets);
-    });
   });
 
   group('Ajouter des trajets', () {
-    testWidgets('le parcours s\'allonge, et le lettrage suit', (tester) async {
+    testWidgets('l\'arrivee devient une carte en dessous', (tester) async {
       await pumpOutline(tester, realAdventure);
+      await addTripFromStart(tester, 'En vélo');
 
-      // Depuis le depart, qui propose deja trois directions.
-      await tester.tap(find.text('Ajouter').first);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(AddTripsPage), findsOneWidget);
-      expect(find.textContaining('Devant la maison'), findsOneWidget);
-
-      await tester.enterText(find.byType(TextField).first, 'En vélo');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer'));
-      await tester.pumpAndSettle();
-
-      // Le trajet apparait sous le depart, avec la lettre de son arrivee.
-      expect(find.text('En vélo'), findsOneWidget);
-      expect(find.text('B4'), findsOneWidget);
+      // Le trajet sous le depart, et la carte de son arrivee plus bas : c'est
+      // exactement ce qui manquait, et qui rendait l'ecran inutilisable.
+      expect(find.text('En vélo'), findsNWidgets(2));
+      expect(find.text('B4'), findsNWidgets(2));
+      expect(
+        find.text('Aucun trajet ne part d\'ici pour l\'instant.'),
+        findsWidgets,
+      );
     });
 
-    testWidgets('un lieu neuf est annonce a finir, jamais a corriger',
+    testWidgets('on prolonge aussitot le lieu qui vient de naitre',
+        (tester) async {
+      // Sur une aventure neuve, le lieu qui vient de naitre est le seul sans
+      // trajet : son bouton est donc le seul a dire « Ajouter des trajets ».
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+      await addTripFromStart(tester, 'En bus');
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Depuis « En bus »'), findsOneWidget);
+    });
+
+    testWidgets('la page d\'ajout rappelle ce qui part deja d\'ici',
         (tester) async {
       await pumpOutline(tester, realAdventure);
 
       await tester.tap(find.text('Ajouter').first);
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'En vélo');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer'));
-      await tester.pumpAndSettle();
+
+      // Sans ce rappel, la page paraît vide alors que trois trajets existent,
+      // et laisse croire qu'ils ont disparu.
+      expect(
+        find.textContaining('En bus, En voiture, À pied'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('un lieu neuf est annonce a finir, jamais a corriger',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+      await addTripFromStart(tester, 'En vélo');
 
       // C'est tout l'interet de la distinction : ecrire ne doit pas produire
       // d'ecran rouge, sans quoi on apprendrait a l'ignorer.
@@ -106,7 +160,6 @@ void main() {
 
       await tester.tap(find.text('Ajouter').first);
       await tester.pumpAndSettle();
-
       await tester.tap(find.text('3'));
       await tester.pumpAndSettle();
 
@@ -127,6 +180,44 @@ void main() {
         ),
       );
       expect(create.onPressed, isNull);
+    });
+  });
+
+  group('Partir d\'une page blanche', () {
+    testWidgets('une aventure neuve montre son seul point de depart',
+        (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Grisbie va au marché',
+        startName: 'Devant la maison',
+      );
+      await pumpOutline(tester, fresh);
+
+      expect(find.text('Grisbie va au marché'), findsOneWidget);
+      expect(find.text('A'), findsOneWidget);
+      expect(find.text('Devant la maison'), findsOneWidget);
+      expect(
+        find.text('Aucun trajet ne part d\'ici pour l\'instant.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('elle se construit de proche en proche', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'En bus');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer'));
+      await tester.pumpAndSettle();
+
+      // Un trajet, et son arrivee en carte : la page blanche se remplit.
+      expect(find.text('En bus'), findsNWidgets(2));
+      expect(find.text('B1'), findsNWidgets(2));
     });
   });
 }

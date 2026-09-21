@@ -9,10 +9,20 @@ import 'package:grisbie/application/adventure_builder.dart';
 ///
 /// Renvoie les trajets demandes, ou `null` si l'auteur renonce.
 class AddTripsPage extends StatefulWidget {
-  const AddTripsPage({required this.locationName, super.key});
+  const AddTripsPage({
+    required this.locationName,
+    this.existingTrips = const <String>[],
+    super.key,
+  });
 
   /// Le lieu d'ou partent ces trajets, rappele en tete.
   final String locationName;
+
+  /// Ce qui part deja d'ici, rappele pour qu'on ajoute au lieu de recommencer.
+  ///
+  /// Sans ce rappel, ouvrir l'ajout sur un lieu qui a deja trois directions
+  /// presente une page vide, et laisse croire qu'elles ont disparu.
+  final List<String> existingTrips;
 
   /// Au-dela, l'etape proposerait trop de directions a un enfant de six ans,
   /// et les zones de depot ne tiendraient plus sur l'illustration.
@@ -81,6 +91,18 @@ class _AddTripsPageState extends State<AddTripsPage> {
             'Depuis « ${widget.locationName} »',
             style: Theme.of(context).textTheme.titleMedium,
           ),
+          if (widget.existingTrips.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              'Partent déjà d\'ici : ${widget.existingTrips.join(', ')}.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Ce que vous ajoutez ici s\'ajoute à ces trajets.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
           const SizedBox(height: 24),
           const Text('Combien de trajets partent d\'ici ?'),
           const SizedBox(height: 8),

@@ -35,6 +35,27 @@ class NewTrip {
 class AdventureBuilder {
   const AdventureBuilder(this.adventure);
 
+  /// Une aventure neuve, reduite a son point de depart.
+  ///
+  /// Elle est **incomplete et non fausse** : le lieu de depart n'a ni trajet ni
+  /// marqueur de fin, ce qui est exactement l'etat d'un travail qui commence.
+  /// C'est a l'auteur de la prolonger, trajet par trajet.
+  static Adventure createAdventure({
+    required String title,
+    required String startName,
+  }) {
+    final startId = slugify(startName);
+
+    return Adventure(
+      id: slugify(title),
+      title: title,
+      startStageId: startId,
+      stages: Map<String, Stage>.unmodifiable(<String, Stage>{
+        startId: Stage(id: startId, locationName: startName),
+      }),
+    );
+  }
+
   final Adventure adventure;
 
   /// Les articles qu'on retire en tete d'un nom pour en tirer l'identifiant.

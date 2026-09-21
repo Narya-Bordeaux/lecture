@@ -44,6 +44,41 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.14.0+27 — 21 septembre 2026 — Toute arrivée devient une carte
+
+Essayé sur l'appareil, l'écran de 0.13.0 s'est révélé inutilisable, et pour une
+raison que je n'avais pas vue : **je n'affichais que les lieux ayant déjà des
+trajets**. Or un lieu qu'on vient de créer n'en a aucun. Ajouter trois
+directions ne faisait donc rien apparaître en dessous, et il devenait impossible
+de les prolonger — précisément ce que l'écran existe pour faire.
+
+Corrigé à la racine, dans `AdventureOutline` : **tout lieu a son bloc**, avec ou
+sans trajet, fin comprise. Chaque arrivée devient donc une carte plus bas, avec
+sa lettre et son propre bouton. Un lieu sans trajet le dit (« Aucun trajet ne
+part d'ici pour l'instant »), une fin l'annonce, et l'un comme l'autre proposent
+de prolonger la journée.
+
+Deuxième correction, du même défaut d'usage : **la page d'ajout rappelle ce qui
+part déjà du point**. Elle s'ouvrait vide sur un lieu qui avait trois
+directions, et laissait croire qu'elles avaient disparu.
+
+**Créer une aventure à partir de rien** : `AdventureBuilder.createAdventure`
+et `NewAdventurePage` — un titre, un lieu de départ, deux champs. L'aventure
+neuve est incomplète et jamais fausse, et se construit ensuite de proche en
+proche. Accessible depuis le sommaire de l'outil d'auteur.
+
+- La section « Lieux non reliés » disparaît : elle faisait doublon avec les
+  cartes. Un lieu que rien n'atteint le dit désormais sur la sienne.
+- Piège consigné : un `ListView` ne construit que les cartes visibles. Sur la
+  fenêtre de test par défaut, les lieux du bas n'existent pas dans l'arbre et
+  les recherches échouent **sans que rien ne soit cassé**. Les tests d'écran
+  agrandissent donc la fenêtre.
+
+Rien n'est toujours enregistré : c'est le manque suivant, et le plus criant
+maintenant qu'on peut créer une journée entière.
+
+- 223 tests au vert, dont 9 nouveaux.
+
 ### 0.13.0+26 — 21 septembre 2026 — L'écran de construction du parcours
 
 L'outil d'auteur sait désormais bâtir une journée. Un point porte sa lettre, ses
