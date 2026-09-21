@@ -12,8 +12,8 @@ fait échouer la suite.
 | Élément | Valeur | Où elle vit |
 |---|---|---|
 | Nom de la fiche Play Store | **Les Aventures de Grisbie** | Play Console, **pas dans le dépôt** |
-| Nom sous l'icône, jeu | **Grisbie** | `resValue` de la saveur `jeu`, `android/app/build.gradle.kts` |
-| Nom sous l'icône, outil d'auteur | **Grisbie auteur** | `resValue` de la saveur `auteur` |
+| Nom sous l'icône, jeu | **Grisbie** | `android/app/src/jeu/res/values/strings.xml` |
+| Nom sous l'icône, outil d'auteur | **Grisbie auteur** | `android/app/src/auteur/res/values/strings.xml` |
 | Identifiant Android **définitif** | `fr.naryabordeaux.grisbie` | `applicationId` et `namespace`, `android/app/build.gradle.kts` |
 | Identifiant de l'outil d'auteur | `fr.naryabordeaux.grisbie.auteur` | `applicationIdSuffix` de la saveur `auteur` |
 | Saveurs Gradle | `jeu`, `auteur` | dimension `usage`, `android/app/build.gradle.kts` |
@@ -26,8 +26,17 @@ fait échouer la suite.
 | Pseudo de cette app dans Firebase | Grisbie auteur – Android | console Firebase |
 
 Le manifeste ne porte plus de libellé en dur : `android:label="@string/app_name"`,
-et chaque saveur nomme son application. Sans cela, les deux icônes seraient
-indiscernables sur l'écran d'accueil de l'auteur.
+et chaque saveur nomme son application par un fichier de ressources. Sans cela,
+les deux icônes seraient indiscernables sur l'écran d'accueil de l'auteur.
+
+Ces libellés ont d'abord été écrits en `resValue()` dans `build.gradle.kts`.
+**AGP 9 désactive cette fonctionnalité par défaut** et refuse alors de configurer
+le projet (« Product Flavor jeu contains custom resource values, but the feature
+is disabled »). Plutôt que de rallumer un drapeau que les versions suivantes
+d'AGP éteindront encore, les libellés sont de vraies ressources : le recouvrement
+par saveur est le mécanisme Android le plus ancien et le plus stable, et un
+libellé d'application **est** une ressource. Le test refuse désormais tout
+`resValue(` dans le fichier de build.
 
 ## Construire
 

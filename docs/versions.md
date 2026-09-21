@@ -44,6 +44,38 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.5+21 — 21 septembre 2026 — Les saveurs configurent enfin
+
+Le premier vrai build des saveurs, sur le poste de développement, s'est arrêté
+avant même de compiler :
+
+```
+Product Flavor jeu contains custom resource values, but the feature is disabled.
+```
+
+Les libellés sous l'icône étaient écrits en `resValue()` dans
+`build.gradle.kts`. **AGP 9 désactive cette fonctionnalité par défaut**, et
+refuse de configurer le projet quand une saveur s'en sert.
+
+Deux corrections possibles : rallumer le drapeau
+(`buildFeatures { resValues = true }`), ou ne plus en dépendre. La seconde est
+retenue. AGP éteint ces fonctionnalités implicites l'une après l'autre au fil
+des versions, tandis que le recouvrement de ressources par saveur est le
+mécanisme Android le plus ancien et le plus stable qui soit. Et un libellé
+d'application **est** une ressource : sa place est dans `res/values/`.
+
+- `android/app/src/jeu/res/values/strings.xml` et son équivalent pour la saveur
+  auteur portent `app_name` — « Grisbie » et « Grisbie auteur ».
+- Le test lit désormais ces deux fichiers, et **refuse tout `resValue(`** dans le
+  fichier de build : la panne ne peut pas revenir par distraction.
+
+Cette version corrige la précédente, et rien d'autre. Elle illustre la limite
+annoncée en 0.9.4 : un test qui lit des fichiers ne remplace pas un build. Il
+avait bien vérifié que les libellés existaient, pas que Gradle accepterait la
+façon de les produire.
+
+- 158 tests au vert.
+
 ### 0.9.4+20 — 21 septembre 2026 — Deux saveurs Android
 
 La version précédente interdisait `google-services.json` partout, faute de

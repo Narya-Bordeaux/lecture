@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.4+20** — 21 septembre 2026
+**Version : 0.9.5+21** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -51,15 +51,31 @@ n'est pas testable en session cloud faute de SDK Android. Les préalables sont
 listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
 Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
 depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
-un seul emplacement autorisé pour `google-services.json`. Tout cela
-(`Noms_et_identifiants.md`) attend d'être confronté à un vrai build : aucun
-n'est possible ici.
+un seul emplacement autorisé pour `google-services.json`
+(`Noms_et_identifiants.md`). Une première tentative de build sur le poste a
+échoué à la configuration Gradle (`resValue` éteint par AGP 9), corrigée en
+0.9.5 : **le build reste à reprendre**, et lui seul dira si le montage tient.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.9.5+21 — Les saveurs configurent enfin
+- Le premier vrai build s'arrêtait avant de compiler : « Product Flavor jeu
+  contains custom resource values, but the feature is disabled ». **AGP 9
+  désactive `resValue()` par défaut**, et les libellés sous l'icône s'écrivaient
+  ainsi.
+- Ils deviennent de vraies ressources, `src/jeu/res/values/strings.xml` et
+  `src/auteur/res/values/strings.xml`. Plutôt que de rallumer un drapeau que les
+  versions suivantes d'AGP éteindront encore : le recouvrement par saveur est le
+  mécanisme le plus stable d'Android, et un libellé **est** une ressource.
+- Le test lit ces deux fichiers et **refuse tout `resValue(`** dans le build.
+- Rappel de la limite annoncée en 0.9.4 : le test avait bien vérifié que les
+  libellés existaient, pas que Gradle accepterait la façon de les produire. Un
+  test qui lit des fichiers ne remplace pas un build.
+- 158 tests au vert.
 
 ### 0.9.4+20 — Deux saveurs Android, deux paquets
 - **`jeu` et `auteur`**, dans la dimension `usage`. La saveur auteur porte le
@@ -104,21 +120,6 @@ aucun mot d'une famille donnée.
 - L'historique ancien de ce fichier est retiré, conformément à la règle des deux
   ou trois dernières versions ; il reste entier dans `versions.md`.
 - 155 tests au vert.
-
-### 0.9.2+18 — Écrire sur un vrai disque, et le relire avec le jeu
-- `FileContentSink` écrit le contenu dans un dossier, en créant les répertoires
-  manquants : un dossier vierge n'a ni `adventures/` ni `lexicon/`.
-- `FileContentSource` le relit — les assets étant scellés au build, l'outil ne
-  peut pas relire par eux ce qu'il vient d'enregistrer.
-- **Test de bout en bout** : écrire l'aventure dans un dossier temporaire, la
-  recharger avec `ContentRepository`, et retrouver les mêmes étapes et les
-  mêmes zones. Les tests précédents travaillaient en mémoire et ne voyaient
-  ni les chemins ni les dossiers absents.
-- `ContentWriter.writeIndex` : une aventure que le sommaire n'annonce pas est
-  introuvable pour le jeu.
-- Le `DiskContentSource` des tests s'appuie désormais sur `FileContentSource`,
-  au lieu d'en être une seconde version.
-- 150 tests au vert.
 
 ## Décisions prises
 

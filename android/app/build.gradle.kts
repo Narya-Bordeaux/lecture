@@ -44,8 +44,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Repris de « pubspec.yaml » : la version 0.9.4+20 donne versionName
-        // « 0.9.4 » et versionCode 20. Le Play Store exige un versionCode
+        // Repris de « pubspec.yaml » : la version 0.9.5+21 donne versionName
+        // « 0.9.5 » et versionCode 21. Le Play Store exige un versionCode
         // strictement croissant, d'ou la regle « jamais reinitialise » du
         // numero de build (voir docs/versions.md).
         versionCode = flutter.versionCode
@@ -73,12 +73,21 @@ android {
     // suffixe ci-dessous protege l'autre sens : un jeu compile par erreur avec
     // la saveur auteur ne porte pas l'identifiant publie, il est donc
     // impubliable.
+    // Ce qui s'affiche sous l'icone n'est pas ici : chaque saveur apporte son
+    // « app_name » par un fichier de ressources, « src/<saveur>/res/values/
+    // strings.xml », que le manifeste lit via @string/app_name.
+    //
+    // Ces libelles ont d'abord ete ecrits en « resValue » dans ce fichier. AGP 9
+    // desactive cette fonctionnalite par defaut et refuse alors de configurer le
+    // projet : « Product Flavor jeu contains custom resource values, but the
+    // feature is disabled ». Plutot que de rallumer un drapeau que les versions
+    // suivantes d'AGP eteindront encore, les libelles sont passes en ressources
+    // — le recouvrement par saveur est le mecanisme Android le plus stable, et
+    // un libelle d'application **est** une ressource.
     flavorDimensions += "usage"
     productFlavors {
         create("jeu") {
             dimension = "usage"
-            // Ce qui s'affiche sous l'icone, sur l'ecran d'accueil.
-            resValue("string", "app_name", "Grisbie")
         }
         create("auteur") {
             dimension = "usage"
@@ -88,7 +97,6 @@ android {
             // celui du jeu — Firebase apparie sur l'applicationId exact.
             applicationIdSuffix = ".auteur"
             versionNameSuffix = "-auteur"
-            resValue("string", "app_name", "Grisbie auteur")
         }
     }
 

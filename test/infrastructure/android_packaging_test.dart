@@ -34,6 +34,20 @@ const String gameFlavor = 'jeu';
 /// Le seul dossier ou `google-services.json` a le droit d'exister.
 const String authorSourceSet = 'android/app/src/auteur';
 
+/// Le nom sous l'icone qu'une saveur apporte par ses ressources.
+///
+/// Renvoie `null` si la saveur ne nomme pas son application : la compilation
+/// Android echouerait alors sur un `@string/app_name` introuvable.
+String? readLauncherLabel(String flavor) {
+  final strings = File('android/app/src/$flavor/res/values/strings.xml');
+  if (!strings.existsSync()) return null;
+
+  final label = RegExp(r'<string name="app_name">([^<]*)</string>')
+      .firstMatch(strings.readAsStringSync());
+
+  return label?.group(1);
+}
+
 void main() {
   late String buildGradle;
 
@@ -82,10 +96,17 @@ void main() {
       // application, sans quoi les deux icones seraient indiscernables sur
       // l'ecran d'accueil de l'auteur.
       expect(manifest, contains('android:label="@string/app_name"'));
-      expect(buildGradle, contains('resValue("string", "app_name", "Grisbie")'));
+
+      // Les libelles sont des **ressources**, non des « resValue » de Gradle :
+      // AGP 9 desactive cette fonctionnalite par defaut et refuse alors de
+      // configurer le projet. C'est arrive, au premier vrai build.
+      expect(readLauncherLabel(gameFlavor), 'Grisbie');
+      expect(readLauncherLabel(authorFlavor), 'Grisbie auteur');
       expect(
         buildGradle,
-        contains('resValue("string", "app_name", "Grisbie auteur")'),
+        isNot(contains('resValue(')),
+        reason: 'resValue exige buildFeatures.resValues, eteint par defaut '
+            'depuis AGP 9 : le projet ne se configure plus.',
       );
     });
   });

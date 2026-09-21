@@ -16,9 +16,11 @@ et `narya-grisbie-prod`, application Android enregistrée sous
 du jeu**. Le produit retenu est **Cloud Storage**, pas Firestore. Les saveurs
 Android existent depuis 0.9.4, `android/app/src/auteur/` attend le fichier.
 
-- [ ] **Premier build réel des deux saveurs**, sur le poste : rien de tout cela
-      n'a jamais été compilé, aucun SDK Android n'étant disponible en session
-      cloud. `flutter run --flavor jeu -t lib/main.dart`, puis la saveur auteur.
+- [ ] **Reprendre le build des deux saveurs**, sur le poste :
+      `flutter run --flavor jeu -t lib/main.dart`, puis la saveur auteur. La
+      première tentative s'est arrêtée à la configuration Gradle (`resValue`
+      éteint par AGP 9), corrigée en 0.9.5 ; rien n'a encore été compilé, aucun
+      SDK Android n'étant disponible en session cloud.
 - [ ] Créer les deux projets Firebase et y enregistrer l'application Android.
 - [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
       le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que

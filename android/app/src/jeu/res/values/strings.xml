@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Le nom du jeu tel qu'il s'affiche sous l'icone, sur l'ecran d'accueil.
+
+  Court par necessite : l'ecran d'accueil tronque au-dela d'une douzaine de
+  caracteres. A ne pas confondre avec le nom de la fiche Play Store, « Les
+  Aventures de Grisbie », qui se saisit en console et ne figure pas dans le
+  depot. Voir docs/Noms_et_identifiants.md.
+-->
+<resources>
+    <string name="app_name">Grisbie</string>
+</resources>

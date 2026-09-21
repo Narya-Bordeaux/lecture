@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Le nom de l'outil d'auteur sous l'icone.
+
+  Il doit differer de celui du jeu : les deux applications cohabitent sur le
+  telephone de l'auteur, et deux icones du meme nom seraient indiscernables.
+  Voir docs/Noms_et_identifiants.md.
+-->
+<resources>
+    <string name="app_name">Grisbie auteur</string>
+</resources>

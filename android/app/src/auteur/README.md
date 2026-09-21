@@ -37,5 +37,11 @@ flutter run --flavor auteur -t lib/main_author.dart
 
 `lib/main_author.dart` refuse de démarrer si la saveur n'est pas celle-ci.
 
+`res/values/strings.xml` porte le nom affiché sous l'icône, « Grisbie auteur ».
+Il doit différer de celui du jeu, sans quoi les deux icônes seraient
+indiscernables.
+
 Les fichiers de ce dossier qui ne sont ni dans `res/`, ni dans `kotlin/`, ni dans
 `assets/` — ce README compris — sont ignorés par le système de build Android.
+`google-services.json` fait exception : c'est le greffon Google Services qui va
+le chercher ici, à cet emplacement précis.
