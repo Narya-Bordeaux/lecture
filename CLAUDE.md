@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.8.0+15** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.9.0+16** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -182,6 +182,14 @@ chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
 repérées en fractions de l'image, jamais en pixels, pour rester collées au décor
 quelle que soit la taille de l'écran.
 
+Ces fractions ne s'écrivent pas à la main : `lib/main_author.dart` est un
+**second point d'entrée**, l'outil de calage. Il monte l'étape réelle en aperçu
+inerte — décor, bandeau, cadres — et pose par-dessus des poignées de
+déplacement. Le JSON produit part dans le presse-papiers. Le jeu livré n'en
+contient aucune trace : pas de bouton caché, pas de geste secret. La géométrie
+vit dans `AreaEditor` (`lib/application/`, Dart pur) ; la page ne fait que
+traduire des gestes en fractions.
+
 **Réserve et listes pleines** — une famille a plus de mots que l'étape n'en
 montre (`Stage.visibleWordCount`). Un mot bien classé est remplacé sur place par
 un mot de la réserve. Les listes sont **pleines** : une famille s'ouvre quand
@@ -234,6 +242,17 @@ d'affilée dont le second redit le premier font attendre l'enfant pour rien. Sa 
 en page diffère des moments de récit : le titre annonce, l'image occupe la
 largeur à ses proportions — elle peut être horizontale —, le texte se lit
 dessous. C'est un seuil, pas une transition.
+
+**Ce que `main.dart` demande doit exister** — l'identifiant d'aventure du
+lancement est exposé (`ReadingGameApp.defaultAdventureId`) et vérifié par
+`test/infrastructure/startup_test.dart`. Aucun test ne démarre `main.dart` :
+renommer une aventure sans reprendre cette constante donnait un jeu qui ne
+s'ouvre pas, suite entièrement verte. C'est arrivé.
+
+**Une seule résolution d'image** — `BackgroundImageSize` fournit les dimensions
+réelles d'une illustration, et sert à la fois à la scène de jeu et à l'outil de
+calage. Deux résolutions séparées finiraient par diverger, et l'auteur calerait
+ses zones sur une géométrie qui n'est pas celle du jeu.
 
 **Tests de widget et lecture disque** — `testWidgets` fait tourner une horloge
 simulée, où une lecture de fichier réelle ne se résout **jamais** : le test

@@ -22,7 +22,11 @@ class ReadingGameApp extends StatelessWidget {
   const ReadingGameApp({super.key});
 
   /// L'aventure du niveau test, seule disponible a ce stade.
-  static const String _defaultAdventureId = 'grisbie_beach';
+  ///
+  /// Publique pour etre eprouvee : un identifiant absent d'`index.json`
+  /// produirait un jeu qui ne s'ouvre pas, sans qu'aucun test ne le voie —
+  /// aucun d'eux ne demarre `main.dart`.
+  static const String defaultAdventureId = 'grisbie_plage';
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class ReadingGameApp extends StatelessWidget {
         repository: ContentRepository(
           source: const AssetContentSource(),
         ),
-        adventureId: _defaultAdventureId,
+        adventureId: defaultAdventureId,
       ),
     );
   }

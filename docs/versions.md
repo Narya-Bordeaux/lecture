@@ -44,6 +44,49 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.0+16 — 21 septembre 2026 — Outil de calage des zones
+
+Poser les zones de dépôt sur une illustration demandait d'ouvrir l'image dans
+un éditeur, de relever des pixels et de diviser à la main. Six décors restent à
+traiter, trois zones chacun : une soixantaine de divisions, chacune une
+occasion de se tromper d'un chiffre.
+
+`lib/main_author.dart` est un second point d'entrée — sous Android Studio,
+« Run 'main_author.dart' » au lieu de `main.dart`. Il affiche l'étape réelle en
+aperçu inerte, décor et bandeau des mots compris, et pose par-dessus des
+poignées de déplacement et de redimensionnement. « Copier » met le JSON dans le
+presse-papiers. Le jeu livré aux enfants n'en contient aucune trace : ni bouton
+caché, ni geste secret à découvrir par mégarde.
+
+Voir le bandeau réel est le point : une zone posée trop haut passe dessous, et
+le doigt y est intercepté avant d'atteindre la cible, sans aucun message. La
+mesure a d'ailleurs surpris — la contrainte est la plus forte sur les écrans
+**les moins** allongés, où l'illustration occupe toute la hauteur : 14,3 % de
+bande perdue sur une tablette, 11 % sur un petit téléphone, rien sur un
+téléphone allongé où le bandeau flotte dans le ciel. D'où la règle consignée
+dans le format : `top` jamais en dessous de 0,15 pour une image en 2:3.
+
+`AreaEditor` porte toute la géométrie, en Dart pur : contrainte aux bords,
+taille minimale de 48 points — la cible qu'un doigt d'enfant peut viser —,
+arrondi au centième, et chevauchement jugé sur les valeurs **arrondies**, celles
+qui seront réellement écrites. Un détail vérifié par un test : arrondir `left`
+et `width` séparément peut faire dépasser leur somme, et le jeu refuserait
+alors de charger ce que l'auteur vient d'exporter.
+
+`BackgroundImageSize` est extrait de `SceneLayout` pour que la scène de jeu et
+l'outil partagent une seule résolution d'image. Deux versions finiraient par
+diverger, et l'auteur calerait ses zones sur une géométrie qui n'est pas celle
+du jeu.
+
+**Un bug de démarrage découvert au passage** : `main.dart` demandait encore
+`grisbie_beach` après le renommage de 0.8.0. Le jeu n'aurait pas démarré sur
+l'appareil, avec la suite entièrement verte — aucun test ne lance `main.dart`.
+C'est la quatrième fois que ce motif se présente dans ce projet. L'identifiant
+est désormais public et `test/infrastructure/startup_test.dart` vérifie qu'il
+existe dans `index.json` et que son aventure se charge.
+
+140 tests au vert.
+
 ### 0.8.0+15 — 21 septembre 2026 — Contenu en français, le mot est sa propre clé
 
 Le jeu apprend à lire le français, mais son lexique s'écrivait en anglais :

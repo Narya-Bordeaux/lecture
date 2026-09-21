@@ -247,11 +247,40 @@ top     │          │ height
   ▼        width
 ```
 
-Pour trouver les valeurs : ouvrir l'image, repérer l'élément, et diviser sa
-position par la largeur (ou la hauteur) totale. Un élément commençant à 300
-pixels sur une image large de 1024 donne `left: 0.29`.
+**N'écrivez pas ces nombres à la main : l'outil de calage les produit.** Lancez
+`lib/main_author.dart` au lieu de `lib/main.dart` — sous Android Studio, clic
+droit sur le fichier puis « Run 'main_author.dart' ». Choisissez le lieu, posez
+les cadres au doigt sur l'illustration réelle, et appuyez sur « Copier » : le
+JSON des quatre fractions part dans le presse-papiers, prêt à coller.
 
-Deux zones ne doivent pas se chevaucher, sinon le dépôt devient ambigu.
+L'outil affiche l'étape telle qu'elle sera jouée — décor, bandeau des mots,
+cadres et intitulés. C'est ce qui permet de voir le piège que le calcul ne
+montre pas : **une zone posée trop haut passe sous le bandeau des mots**, et le
+doigt de l'enfant y est intercepté avant d'atteindre la cible, sans aucun
+message. Si un cadre disparaît derrière le bandeau dans l'outil, il faut le
+descendre.
+
+La hauteur perdue en haut dépend du format de l'appareil, et pas dans le sens
+qu'on croit — la contrainte est la plus forte sur les écrans **les moins**
+allongés, où l'illustration occupe toute la hauteur :
+
+| Appareil | Bande inutilisable en haut de l'image |
+|---|---|
+| Tablette 768 × 1024 | 14,3 % |
+| Petit téléphone 360 × 640 | 11,0 % |
+| Téléphone courant 390 × 844 | aucune |
+| Téléphone allongé 412 × 915 | aucune |
+
+Règle simple pour une illustration en 2:3 : **ne descendez pas `top` en dessous
+de 0,15.**
+
+L'outil empêche par construction une zone de sortir de l'illustration ou de
+devenir plus petite que 48 points — la cible qu'un doigt d'enfant peut viser —
+et signale en rouge deux zones qui se chevauchent, le dépôt y étant ambigu.
+
+Au besoin, les valeurs restent calculables à la main : diviser la position d'un
+élément par la largeur (ou la hauteur) totale de l'image. Un élément commençant
+à 300 pixels sur une image large de 1024 donne `left: 0.29`.
 
 ## 5. Une rencontre
 

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.8.0+15** — 21 septembre 2026
+**Version : 0.9.0+16** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -29,6 +29,25 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.9.0+16 — Outil de calage des zones, et un démarrage cassé
+- **`lib/main.dart` demandait encore `grisbie_beach`** après le renommage de
+  0.8.0 : le jeu n'aurait pas démarré sur l'appareil, avec 119 tests au vert.
+  Corrigé, et `test/infrastructure/startup_test.dart` monte désormais la garde.
+- **Mode auteur** — `lib/main_author.dart`, second point d'entrée : l'étape
+  réelle en aperçu inerte, des poignées pour déplacer et redimensionner les
+  zones au doigt, le JSON copié dans le presse-papiers. Le jeu livré n'en
+  contient aucune trace.
+- `AreaEditor` (Dart pur) porte toute la géométrie : bords, taille minimale de
+  48 points, arrondi au centième, chevauchement jugé sur les valeurs arrondies.
+- Une étape sans zone posée en reçoit par défaut, réparties et disjointes.
+- `BackgroundImageSize` extrait : la scène de jeu et l'outil partagent une
+  seule résolution d'image, sans quoi le calage porterait sur une autre
+  géométrie que le jeu.
+- Mesure consignée : la bande haute mangée par le bandeau vaut 14,3 % sur
+  tablette, 11 % sur petit téléphone, rien sur téléphone allongé. D'où la
+  règle `top` ≥ 0,15.
+- 140 tests au vert.
 
 ### 0.8.0+15 — Contenu entièrement en français, le mot est sa propre clé
 - `Word` n'a plus d'identifiant : son `text` le désigne partout. Une aventure
