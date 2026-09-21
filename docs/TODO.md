@@ -3,6 +3,42 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
+## Outil de création d'une journée
+
+Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
+
+**À faire hors session cloud — ces points ne sont pas testables ici** (ni SDK
+Android, ni appareil, ni accès à votre console) :
+
+- [ ] Créer le projet Firebase et y enregistrer l'application Android sous
+      `fr.naryabordeaux.reading_game`.
+- [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
+      le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que
+      l'auteur n'y écrit, donc refuser tout accès anonyme est le bon réglage.
+- [ ] Trancher l'authentification : sans elle, le bucket est soit ouvert en
+      écriture — à exclure — soit inaccessible. Un compte Google unique, celui de
+      l'auteur, suffit pour un usage solo.
+- [ ] **Ne placer `google-services.json` que dans la saveur « auteur »** du build
+      Android. Sur Android, Firebase s'initialise seul dès que ce fichier est
+      présent, et enregistre un identifiant d'appareil auprès de Google : sans
+      cette précaution, le jeu livré aux enfants contacterait un serveur.
+- [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
+      supposer.
+
+**Faisable en session cloud, et ne dépend pas de Firebase** :
+
+- [ ] Étape 3 : éditer textes et structure — lieux, récits, familles,
+      destinations, avec les erreurs signalées en direct (destination fantôme,
+      lieu inatteignable, cul-de-sac). `Adventure.validate()` sait déjà les
+      trouver, il reste à les montrer pendant l'édition.
+- [ ] Étape 4 : l'image. Pendant l'édition elle doit se charger **par chemin de
+      fichier**, les assets étant scellés au build ; `BackgroundImageSize` devra
+      savoir faire les deux.
+- [ ] Étape 5 : le lexique — saisie des mots et de leur découpage, unicité
+      d'orthographe garantie.
+- [ ] Étape 6 : rebrancher le calage des zones sur l'aventure éditée, et
+      enregistrer au lieu de copier dans le presse-papiers.
+
 ## Cadre de travail
 
 - [ ] Aligner le SDK du poste de développement sur la version épinglée par le hook
@@ -36,7 +72,6 @@ trop longtemps serait de toute façon périmé.
 
 - [ ] Répondre aux questions ouvertes de la spécification (déclenchement et ordre des
       aides, forme de la carte, contenu d'une étape, niveaux, suivi des progrès).
-- [ ] Définir le format JSON du contenu pédagogique dans `assets/content/`.
 
 ## Développement
 

@@ -15,18 +15,44 @@ Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décr
 par `docs/Format_fichier_aventure.md`. Une rencontre avec un personnage existe,
 dans la boutique de la gare.
 
+**Un outil d'auteur existe**, sur un second point d'entrée `lib/main_author.dart`.
+Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON. Le
+jeu livré n'en contient aucune trace.
+
 Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 119 tests.
+Seul le comportement est prouvé, par 150 tests.
 
 ## Chantier en cours
 
-**Niveau test « Grisbie va à la plage »** — reste à juger le rendu réel sur
-appareil, puis à traiter la suite du parcours : la gare n'a pas de décor et ses
-zones n'ont pas de position, l'étape s'y affiche donc sur fond uni.
+**Un outil qui crée une journée entière**, au lieu de recopier des coordonnées :
+charger une image, saisir les textes, enregistrer la mise en place et
+l'articulation entre les lieux. Il tournera sur le téléphone et enregistrera par
+Firebase Storage — voir les décisions ci-dessous.
 
-Un réglage attend un avis : le **tirage libre**, qui peut ne proposer aucun mot
-d'une famille donnée. Les six thèmes proposés (station-service, garage, marché,
-école, loueur de vélos, forêt) restent à écrire.
+Découpage en six étapes, les deux premières faites :
+
+1. ✅ **L'écriture et sa fidélité** — `ContentSink`, `ContentWriter`, et la preuve
+   par test qu'aucun champ ne disparaît à l'enregistrement.
+2. ✅ **L'écriture sur un vrai disque** — `FileContentSink`, `FileContentSource`,
+   et l'aller-retour complet jusqu'au chargement par le jeu.
+3. ⬜ **Textes et structure** — créer des lieux, leurs récits, leurs familles,
+   leurs destinations, avec les erreurs signalées en direct. **Entièrement
+   faisable en session cloud, et ne dépend pas de Firebase** : c'est la suite
+   naturelle.
+4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
+   faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
+   n'est pas dans le bundle, les assets étant scellés au build.
+5. ⬜ **Le lexique** — saisir mots et découpages, unicité garantie.
+6. ⬜ **Rebrancher le calage** sur l'aventure éditée, et enregistrer au lieu de
+   copier.
+
+**Ce qui bloque Firebase** : rien n'est encore dans le dépôt, et l'intégration
+n'est pas testable en session cloud faute de SDK Android. Les préalables sont
+listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
+
+Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
+boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
+aucun mot d'une famille donnée.
 
 ## Dernières modifications
 
@@ -215,9 +241,21 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
   a été supprimé du dépôt en 0.1.1. Seul `android/` est configuré à ce jour.
-- **Pas de serveur** : la progression reste sur l'appareil. Le public étant mineur,
-  aucune donnée personnelle ne sort de la machine. Un backend n'est pas exclu à
-  terme, mais ce serait une décision à part entière.
+- **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
+  étant mineur, aucune donnée personnelle ne sort de la machine.
+- **Firebase Storage, en tuyau d'auteur seulement** : l'outil de création y
+  dépose le contenu, on le relit depuis le poste, et il finit commité dans
+  `assets/content/` comme aujourd'hui. **Le jeu livré ne contacte rien.** Le choix
+  répond au fait qu'un fichier écrit sur un téléphone est difficile à rapatrier.
+  Précaution qui va avec : les deux points d'entrée partagent `pubspec.yaml`, et
+  sur Android le SDK Firebase s'initialise seul dès que `google-services.json`
+  est présent — ce fichier ne doit donc exister que dans la saveur « auteur ».
+- **Le contenu est écrit en français, identifiants compris**, et **un mot est
+  désigné par son orthographe** : `Word` n'a pas de clé technique. Deux mots de
+  même orthographe deviennent impossibles, ce qu'ils étaient déjà en pratique.
+- **Le découpage syllabique suit les sons, pas les lettres** : `["a", "rê"]` pour
+  « arrêt ». Il n'a donc pas à reconstituer l'orthographe, et **aucun test ne doit
+  l'exiger** — un tel contrôle interdirait les découpages recherchés.
 - **Contenu pédagogique séparé du code** : les mots, familles et niveaux vivent dans
   `assets/content/` en JSON.
 - **Le classement est libre, le départ est choisi** : compléter une famille ouvre sa

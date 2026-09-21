@@ -15,7 +15,10 @@ y sont listés explicitement comme ouverts.
 
 **Version actuelle : 0.9.2+18** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
-n'est pas encore enregistrée.
+n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
+d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
+réelle. Le chantier en cours l'étend à la création d'une journée entière, voir
+`docs/current.md`.
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
