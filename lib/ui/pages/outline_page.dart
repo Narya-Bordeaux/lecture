@@ -3,6 +3,7 @@ import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/application/adventure_outline.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
@@ -20,9 +21,12 @@ import 'package:grisbie/ui/pages/stage_editor_page.dart';
 /// L'aventure ne quitte pas la memoire : cette page la modifie et la rend a
 /// l'appelant. L'enregistrement est un autre sujet, et un autre ecran.
 class OutlinePage extends StatefulWidget {
-  const OutlinePage({required this.adventure, super.key});
+  const OutlinePage({required this.adventure, this.pictures, super.key});
 
   final Adventure adventure;
+
+  /// De quoi choisir une illustration dans l'appareil, transmise aux editeurs.
+  final PictureLibrary? pictures;
 
   @override
   State<OutlinePage> createState() => _OutlinePageState();
@@ -66,7 +70,12 @@ class _OutlinePageState extends State<OutlinePage> {
     if (stage == null) return;
 
     final edited = await Navigator.of(context).push<Stage>(
-      MaterialPageRoute<Stage>(builder: (_) => StageEditorPage(stage: stage)),
+      MaterialPageRoute<Stage>(
+        builder: (_) => StageEditorPage(
+          stage: stage,
+          pictures: widget.pictures,
+        ),
+      ),
     );
     if (edited == null) return;
 
@@ -80,6 +89,7 @@ class _OutlinePageState extends State<OutlinePage> {
         builder: (_) => AdventureOpeningEditorPage(
           adventureTitle: _adventure.title,
           opening: _adventure.opening,
+          pictures: widget.pictures,
         ),
       ),
     );

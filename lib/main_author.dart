@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/infrastructure/pictures/device_picture_library.dart';
 import 'package:grisbie/main.dart';
 import 'package:grisbie/ui/pages/author_home_page.dart';
 
@@ -56,6 +57,10 @@ class AuthorToolsApp extends StatelessWidget {
       ),
       home: AuthorHomePage(
         repository: ContentRepository(source: const AssetContentSource()),
+        // La photothegue de l'appareil. **Le seul endroit du depot qui la
+        // construise**, et il est dans l'outil d'auteur : le jeu n'a aucun
+        // chemin vers elle.
+        pictures: DevicePictureLibrary(),
         // La meme aventure que le jeu : l'outil cale ce qui sera joue.
         adventureId: GrisbieApp.defaultAdventureId,
       ),

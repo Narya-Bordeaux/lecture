@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
 
 import '../support/disk_content.dart';
@@ -14,7 +15,11 @@ import '../support/disk_content.dart';
 /// depuis le trajet, pas depuis le lieu.
 
 /// Monte l'editeur et rend ce qu'il renvoie a la fermeture.
-Future<Stage?> pumpEditor(WidgetTester tester, Stage stage) async {
+Future<Stage?> pumpEditor(
+  WidgetTester tester,
+  Stage stage, {
+  PictureLibrary? pictures,
+}) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -27,7 +32,10 @@ Future<Stage?> pumpEditor(WidgetTester tester, Stage stage) async {
           onPressed: () async {
             result = await Navigator.of(context).push<Stage>(
               MaterialPageRoute<Stage>(
-                builder: (_) => StageEditorPage(stage: stage),
+                builder: (_) => StageEditorPage(
+                  stage: stage,
+                  pictures: pictures,
+                ),
               ),
             );
           },
@@ -87,6 +95,63 @@ void main() {
       await pumpEditor(tester, realAdventure.startStage);
 
       expect(find.text('Placer les zones'), findsOneWidget);
+    });
+  });
+
+  group('Choisir une image dans l\'appareil', () {
+    testWidgets('sans photothegue, le champ reste seul', (tester) async {
+      // Une plateforme sans selecteur — ou un test — garde la saisie au
+      // clavier plutot qu'un bouton qui ne ferait rien.
+      await pumpEditor(tester, realAdventure.startStage);
+
+      expect(find.text('Choisir une image'), findsNothing);
+    });
+
+    testWidgets('l\'image choisie remplit le chemin', (tester) async {
+      final pictures = FakePictureLibrary('/rangees/gare_1.jpg');
+      await pumpEditor(
+        tester,
+        realAdventure.findStage('gare')!,
+        pictures: pictures,
+      );
+
+      await tester.tap(find.text('Choisir une image'));
+      await tester.pumpAndSettle();
+
+      // Le chemin est celui de la **copie rangee** : le fichier du selecteur
+      // vit dans un cache qu'Android peut purger.
+      expect(find.text('/rangees/gare_1.jpg'), findsOneWidget);
+      // Le fichier est nomme d'apres le lieu, pas d'apres la photo.
+      expect(pictures.askedFor, 'gare');
+    });
+
+    testWidgets('une image de travail se signale comme telle', (tester) async {
+      await pumpEditor(
+        tester,
+        realAdventure.findStage('gare')!,
+        pictures: FakePictureLibrary('/rangees/gare_1.jpg'),
+      );
+
+      await tester.tap(find.text('Choisir une image'));
+      await tester.pumpAndSettle();
+
+      // C'est l'etat normal tant que le depot ne l'a pas recue : une mention,
+      // pas une alerte. L'indication du champ dit deja « assets/pictures/ »,
+      // d'ou une recherche sur ce qui est propre a la mention.
+      expect(find.textContaining('Image de travail'), findsOneWidget);
+    });
+
+    testWidgets('renoncer laisse le chemin d\'avant', (tester) async {
+      await pumpEditor(
+        tester,
+        realAdventure.startStage,
+        pictures: FakePictureLibrary(null),
+      );
+
+      await tester.tap(find.text('Choisir une image'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('assets/pictures/Grisbie_plage2.jpg'), findsOneWidget);
     });
   });
 
@@ -186,4 +251,21 @@ Future<void> _withEditor(
   await tester.pumpAndSettle();
 
   await act(tester);
+}
+
+/// Une photothegue qui rend toujours la meme image, sans appareil ni greffon.
+class FakePictureLibrary implements PictureLibrary {
+  FakePictureLibrary(this.path);
+
+  /// Ce que le selecteur rendra. Nul : l'auteur a referme sans choisir.
+  final String? path;
+
+  /// Le nom demande au dernier appel, pour verifier d'ou il vient.
+  String? askedFor;
+
+  @override
+  Future<String?> pickPicture({required String baseName}) async {
+    askedFor = baseName;
+    return path;
+  }
 }

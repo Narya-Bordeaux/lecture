@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.19.1+34** — 21 septembre 2026
+**Version : 0.20.0+35** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -48,10 +48,11 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    rien, et **les récits se saisissent** depuis 0.19.0, avec le nom du lieu et
    son illustration. **Reste l'enregistrement** — l'écran travaille en mémoire
    et rien ne l'écrit.
-4. 🟡 **L'image** — **l'afficher est fait** : `contentImageProvider` lit le
-   bundle ou le disque selon le chemin, ce qui lève la contrainte des assets
-   scellés au build. **La choisir reste à faire** : l'éditeur demande un chemin
-   au clavier, et un sélecteur suppose une dépendance tierce — à arbitrer.
+4. 🟡 **L'image** — **la choisir et l'afficher sont faits** :
+   `contentImageProvider` lit le bundle ou le disque selon le chemin, et
+   `PictureLibrary` ouvre la photothèque de l'appareil. **Reste à l'éprouver
+   sur un téléphone** — aucun greffon ne tourne ici — et à **rapatrier** les
+   images de travail dans `assets/pictures/`.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
@@ -81,6 +82,20 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.20.0+35 — Choisir l'illustration dans l'appareil
+- **L'éditeur ouvre la photothèque.** Les deux premières dépendances tierces
+  entrent avec : `image_picker` et `path_provider`, de l'équipe Flutter.
+- **`image_picker` pour le public visé** : sur Android 13+ il passe par le
+  Photo Picker du système, qui ne demande aucune permission.
+- Ces greffons sont **embarqués dans le jeu**, qui ne les appelle jamais — et
+  `author_only_test.dart` le vérifie plutôt que de le promettre.
+- **L'image est recopiée** : le sélecteur rend un fichier de cache qu'Android
+  peut purger. L'horodatage du nom évite qu'une seconde photo s'efface derrière
+  le cache d'images de Flutter.
+- **Rien n'a été exécuté** : aucun des deux greffons ne tourne en session
+  cloud. À éprouver sur l'appareil, voir `TODO.md`.
+- 313 tests au vert, dont 14 nouveaux.
+
 ### 0.19.1+34 — Un lieu ne raconte pas son départ
 - **`Narrative` perd `onCompletion`.** L'enfant clique un trajet, et c'est le
   lieu d'arrivée qui raconte, avec son propre texte.
@@ -91,27 +106,16 @@ un travail d'auteur, pas de code.
   doivent revenir, c'est dans le `onArrival` du lieu suivant.
 - 299 tests au vert.
 
-### 0.19.0+33 — Ce qu'un lieu porte, et le seuil de la journée
-- **Cliquer le titre d'une carte ouvre le lieu** (`StageEditorPage`) : nom,
-  illustration, zones de dépôt, et les deux moments de récit.
-- **Les listes de mots n'y sont pas** : elles appartiennent au trajet, pas au
-  lieu, et une même liste sert à plusieurs endroits.
-- Le calage s'ouvre de là, **sur l'étape en cours d'édition** — sinon l'auteur
-  poserait ses zones sur l'image d'avant — et rend l'étape calée.
-- **La page de garde a sa carte**, au-dessus du premier lieu, sans lettre : on
-  n'en repart pas, on y entre. Elle existe même vide, et elle se retire.
-- **Bundle ou disque, une seule règle** (`contentImageProvider`) : les assets
-  sont scellés au build, une image fraîchement ajoutée vient du disque. Les
-  quatre endroits qui affichent une image passent par là.
-- **Choisir le fichier dans l'appareil reste à faire** : l'éditeur demande un
-  chemin au clavier. Un sélecteur suppose une dépendance tierce, à arbitrer.
-- 299 tests au vert, dont 28 nouveaux.
-
 
 ## Décisions prises
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
   a été supprimé du dépôt en 0.1.1. Seul `android/` est configuré à ce jour.
+- **Deux dépendances tierces, pour l'outil d'auteur seulement** :
+  `image_picker` et `path_provider`, de l'équipe Flutter. Embarquées dans le
+  jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui, et un test
+  l'exige. `image_picker` passe par le Photo Picker d'Android 13+, qui ne
+  demande aucune permission.
 - **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
   étant mineur, aucune donnée personnelle ne sort de la machine.
 - **Firebase Storage, en tuyau d'auteur seulement** — et **Storage, pas

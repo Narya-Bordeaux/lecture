@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
 import 'package:grisbie/ui/pages/new_adventure_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
@@ -15,11 +16,18 @@ class AuthorHomePage extends StatefulWidget {
   const AuthorHomePage({
     required this.repository,
     required this.adventureId,
+    this.pictures,
     super.key,
   });
 
   final AdventureRepository repository;
   final String adventureId;
+
+  /// De quoi choisir une illustration dans l'appareil.
+  ///
+  /// Injectee ici et transmise de proche en proche : aucun ecran ne la
+  /// construit, et les tests en passent une fausse — ou aucune.
+  final PictureLibrary? pictures;
 
   @override
   State<AuthorHomePage> createState() => _AuthorHomePageState();
@@ -73,7 +81,10 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<Adventure>(
-                    builder: (_) => OutlinePage(adventure: adventure),
+                    builder: (_) => OutlinePage(
+                      adventure: adventure,
+                      pictures: widget.pictures,
+                    ),
                   ),
                 ),
               ),
@@ -101,7 +112,10 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
 
     await Navigator.of(context).push(
       MaterialPageRoute<Adventure>(
-        builder: (_) => OutlinePage(adventure: fresh),
+        builder: (_) => OutlinePage(
+          adventure: fresh,
+          pictures: widget.pictures,
+        ),
       ),
     );
   }

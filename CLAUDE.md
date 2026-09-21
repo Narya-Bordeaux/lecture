@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.19.1+34** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.20.0+35** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -31,6 +31,18 @@ sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
 `fr.naryabordeaux.grisbie` pour Android — **cet identifiant sera définitif dès la
 première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 éléments sans reprendre le document.
+
+**Deux dépendances tierces, et deux seulement** — `image_picker` et
+`path_provider`, toutes deux publiées par l'équipe Flutter. Elles ne servent
+qu'à l'outil d'auteur : choisir l'illustration d'un lieu dans l'appareil.
+Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
+les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
+`test/infrastructure/author_only_test.dart` exige qu'elles ne soient importées
+que par `lib/infrastructure/pictures/`, que `DevicePictureLibrary` ne se
+construise que dans `main_author.dart`, et que `main.dart` ne mène à aucun
+écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
+général : sur Android 13 et au-delà il passe par le Photo Picker du système,
+qui **ne demande aucune permission**.
 
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
@@ -356,9 +368,22 @@ scène de jeu, calage, page de garde, moment de récit — passent par là. Deux
 règles séparées finiraient par diverger, et l'auteur calerait ses zones sur une
 image que le jeu ne montre pas.
 
-**Choisir le fichier reste à faire** : l'éditeur demande un chemin au clavier.
-Un sélecteur d'images suppose une dépendance tierce — la première du projet —
-et ne se teste pas en session cloud. À arbitrer, voir `docs/TODO.md`.
+**Choisir l'image dans l'appareil** — `PictureLibrary` (domaine) est une
+interface, injectée par constructeur et transmise de proche en proche depuis
+`main_author.dart` ; `DevicePictureLibrary` (infrastructure) l'implémente avec
+`image_picker`. Nulle, le bouton ne paraît pas et le champ reste saisissable au
+clavier : c'est le cas des tests et de toute plateforme sans photothèque.
+
+**L'image choisie est recopiée** (`PictureStore`) : le sélecteur rend un
+fichier de **cache**, qu'Android peut purger en cours de session — l'image
+disparaîtrait sans que rien ne l'explique. Le nom de la copie porte un
+horodatage, sans lequel une seconde photo pour le même lieu écrirait au même
+chemin : le cache d'images de Flutter, qui indexe par chemin, continuerait
+d'afficher l'ancienne et le geste paraîtrait sans effet.
+
+Une image ainsi prise est **une image de travail** : l'éditeur le dit sous le
+champ. Le jeu ne la verra qu'une fois copiée dans `assets/pictures/` et le
+contenu recompilé.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir

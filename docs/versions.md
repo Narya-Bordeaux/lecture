@@ -44,6 +44,50 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.20.0+35 — 21 septembre 2026 — Choisir l'illustration dans l'appareil
+
+L'éditeur de lieu demandait un chemin au clavier. Il ouvre maintenant la
+photothèque : **les deux premières dépendances tierces du projet** entrent avec,
+`image_picker` et `path_provider`, toutes deux publiées par l'équipe Flutter.
+
+**`image_picker` plutôt qu'un sélecteur de fichiers général**, et pour une
+raison qui tient au public : sur Android 13 et au-delà il passe par le Photo
+Picker du système, qui **ne demande aucune permission**. L'application ne voit
+que l'image choisie.
+
+**Le `pubspec.yaml` étant partagé, ces greffons sont embarqués dans le jeu**,
+qui ne les appelle jamais. Ce n'est pas une promesse :
+`author_only_test.dart` exige qu'ils ne soient importés que par
+`lib/infrastructure/pictures/`, que `DevicePictureLibrary` ne se construise que
+dans `main_author.dart`, et que `main.dart` ne mène à aucun écran d'auteur.
+Même idée que le test qui interdit `google-services.json` hors de la saveur
+auteur : la garantie ne peut pas tenir à la seule bonne volonté.
+
+**L'image choisie est recopiée** (`PictureStore`). Le sélecteur rend un fichier
+de **cache**, qu'Android peut purger en cours de session : l'illustration
+disparaîtrait sans que rien ne l'explique. Le nom de la copie porte un
+horodatage — sans lui, une seconde photo pour le même lieu écrirait au même
+chemin, et le cache d'images de Flutter, qui indexe par chemin, continuerait
+d'afficher l'ancienne. Le geste paraîtrait sans effet.
+
+**Le découpage suit la règle du projet** : `PictureLibrary` est une interface du
+domaine, injectée par constructeur et transmise depuis `main_author.dart` ;
+`DevicePictureLibrary` l'implémente dans l'infrastructure. Nulle, le bouton ne
+paraît pas et le champ reste saisissable au clavier — les tests passent une
+fausse photothèque, et ne touchent ni appareil ni greffon. Le rangement, lui,
+ne suppose qu'un disque : il est éprouvé pour de vrai, sur un dossier temporaire.
+
+Une image ainsi prise est **une image de travail**, et l'éditeur le dit sous le
+champ : le jeu ne la verra qu'une fois copiée dans `assets/pictures/` et le
+contenu recompilé.
+
+**Rien de tout cela n'a été exécuté** — ni `image_picker` ni `path_provider` ne
+tournent en session cloud. La vérification sur l'appareil est dans `TODO.md`,
+avec le manque qui reste : rapatrier les images de travail dans le dépôt, ce
+qui est le même geste que l'enregistrement du contenu.
+
+313 tests au vert, dont 14 nouveaux. `flutter analyze` sans remarque.
+
 ### 0.19.1+34 — 21 septembre 2026 — Un lieu ne raconte pas son départ
 
 Correction d'un modèle faux, signalée à l'usage. Une étape avait deux moments

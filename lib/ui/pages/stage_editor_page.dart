@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
@@ -17,9 +18,15 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 ///
 /// Rend l'etape modifiee, ou `null` si l'auteur renonce.
 class StageEditorPage extends StatefulWidget {
-  const StageEditorPage({required this.stage, super.key});
+  const StageEditorPage({required this.stage, this.pictures, super.key});
 
   final Stage stage;
+
+  /// De quoi choisir une illustration dans l'appareil.
+  ///
+  /// Nulle, le champ reste saisissable au clavier et le bouton ne paraît pas :
+  /// c'est le cas des tests, et de toute plateforme sans photothegue.
+  final PictureLibrary? pictures;
 
   @override
   State<StageEditorPage> createState() => _StageEditorPageState();
@@ -70,6 +77,20 @@ class _StageEditorPageState extends State<StageEditorPage> {
       backgroundAsset: _backgroundPath.isEmpty ? null : _backgroundPath,
       clearBackgroundAsset: _backgroundPath.isEmpty,
     );
+  }
+
+  /// Demande une image a l'appareil et la pose sur le lieu.
+  ///
+  /// Le chemin obtenu est celui de la **copie rangee**, pas celui du fichier
+  /// d'origine : l'image doit survivre a une purge du cache.
+  Future<void> _pickPicture() async {
+    final pictures = widget.pictures;
+    if (pictures == null) return;
+
+    final path = await pictures.pickPicture(baseName: widget.stage.id);
+    if (path == null || !mounted) return;
+
+    setState(() => _background.text = path);
   }
 
   /// Ouvre le calage des zones sur l'etape en cours d'edition.
@@ -144,6 +165,25 @@ class _StageEditorPageState extends State<StageEditorPage> {
           // L'apercu et le bouton de calage suivent ce qui est saisi.
           onChanged: (_) => setState(() {}),
         ),
+        if (widget.pictures != null) ...<Widget>[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: _pickPicture,
+              icon: const Icon(Icons.photo_library_outlined),
+              label: const Text('Choisir une image'),
+            ),
+          ),
+        ],
+        if (path.isNotEmpty && !path.startsWith('assets/'))
+          // Dit ou en est l'image, sans en faire une alerte : c'est l'etat
+          // normal tant que le depot ne l'a pas recue.
+          _Note(
+            'Image de travail, prise dans l\'appareil. Le jeu ne la verra '
+            'qu\'une fois copiée dans « assets/pictures/ » et le contenu '
+            'recompilé.',
+          ),
         if (path.isNotEmpty) ...<Widget>[
           const SizedBox(height: 12),
           ClipRRect(

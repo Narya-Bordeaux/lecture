@@ -92,14 +92,15 @@ construisant :
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
-- [ ] **Choisir l'image dans l'appareil.** L'éditeur de lieu demande
-      aujourd'hui un chemin au clavier, ce qui est juste mais pénible. Un
-      sélecteur suppose une **dépendance tierce** — `file_picker` ou
-      `image_picker`, la première du projet — partagée par les deux saveurs,
-      donc embarquée dans le jeu livré aux enfants même s'il ne l'appelle
-      jamais. À arbitrer avant d'écrire quoi que ce soit. Il faudra aussi
-      décider **où l'image copiée vit** avant d'être commitée dans
-      `assets/pictures/`. Rien de tout cela n'est testable en session cloud.
+- [ ] **Vérifier le choix d'image sur l'appareil.** Fait depuis 0.20.0, mais
+      **jamais exécuté** : ni `image_picker` ni `path_provider` ne tournent en
+      session cloud. À éprouver sur le téléphone — le Photo Picker s'ouvre-t-il
+      sans demander de permission, la copie survit-elle, l'aperçu s'affiche-t-il.
+- [ ] **Rapatrier les images de travail.** Une image choisie sur le téléphone
+      vit dans le dossier de l'application ; elle doit finir dans
+      `assets/pictures/` du dépôt. Le chemin stocké devra être réécrit au
+      passage. C'est le même manque que l'enregistrement du contenu, et sans
+      doute le même geste.
 - [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
       famille : saisie des mots et de leur découpage, unicité d'orthographe
       garantie (étape 5). Depuis 0.17.0 c'est une `WordList` qu'on édite, et
