@@ -44,6 +44,40 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.8.0+15 — 21 septembre 2026 — Contenu en français, le mot est sa propre clé
+
+Le jeu apprend à lire le français, mais son lexique s'écrivait en anglais :
+« arrêt » s'appelait `bus_stop`, « essence » `fuel`, et il avait fallu inventer
+`garage_word` parce que `garage` servait déjà de nom de lieu. Cette indirection
+sert à traduire une interface — or il n'y a rien à traduire ici, le contenu
+**est** la langue du jeu.
+
+`Word` n'a donc plus d'identifiant : son `text` le désigne partout, dans le
+lexique comme dans les aventures. Une famille s'écrit maintenant
+`"words": ["arrêt", "ticket", "horaire"]`, lisible d'un coup d'œil par un
+enseignant ou un parent. Les identifiants d'étapes, de familles et de
+personnages passent eux aussi en français (`maison`, `en_bus`, `marchande`).
+Seuls les noms de champs JSON restent en anglais, puisqu'ils portent
+directement les champs Dart.
+
+Conséquence assumée : deux mots de même orthographe ne peuvent plus coexister.
+Ils ne le pouvaient déjà pas en pratique — l'enfant ne voit que l'orthographe et
+n'aurait pas pu les distinguer. Le contrôle de doublon existant gagne au change :
+il détectait des clés techniques en double, il détecte désormais des **mots** en
+double, et nomme le fautif.
+
+Le découpage syllabique suit les sons et non les lettres, règle pédagogique
+retenue contre la syllabation graphique académique : `["a", "rê"]` pour
+« arrêt ». Le test qui exigeait que les syllabes reconstituent le mot est donc
+retiré — il interdisait précisément les découpages recherchés. Seule l'absence
+de découpage reste signalée ; l'orthographe et le son cohabitent à l'écran, le
+mot sur l'étiquette et son découpage juste en dessous.
+
+Fichiers renommés au passage : `adventures/grisbie_plage.json`,
+`lexicon/nourriture.json`, `lexicon/lieux.json`.
+
+119 tests au vert.
+
 ### 0.7.1+14 — 20 septembre 2026 — Plus d'écran de texte redondant au départ
 
 La page de garde annonçait « Grisbie part à la plage », et l'écran suivant le

@@ -20,9 +20,13 @@ assets/content/
 ```
 
 Le principe est simple : **un mot n'est défini qu'une fois**, dans le lexique.
-Les aventures ne font que le nommer. C'est ce qui évite qu'un même mot se
+Les aventures ne font que le citer. C'est ce qui évite qu'un même mot se
 retrouve découpé `gâ-teau` à un endroit et `gât-eau` à un autre — l'enfant
 verrait les deux.
+
+Tout s'écrit en français, y compris les noms internes. Le jeu n'a pas vocation
+à être traduit : **un mot est désigné par son orthographe**, pas par une clé
+technique. On écrit `"gâteau"` dans une aventure, et c'est tout.
 
 ## 1. Le sommaire — `index.json`
 
@@ -30,14 +34,14 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 
 ```json
 {
-  "lexicons": ["lexicon/transport.json", "lexicon/food.json"],
+  "lexicons": ["lexicon/transport.json", "lexicon/nourriture.json"],
   "characters": "characters.json",
   "adventures": [
     {
-      "id": "grisbie_beach",
+      "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
       "cover": "assets/pictures/Grisbie_plage.jpg",
-      "file": "adventures/grisbie_beach.json"
+      "file": "adventures/grisbie_plage.json"
     }
   ]
 }
@@ -63,32 +67,43 @@ en domaines n'a aucun effet sur le jeu, il sert seulement à s'y retrouver.
 
 ```json
 {
-  "domain": "food",
+  "domain": "nourriture",
   "words": [
-    { "id": "cake", "text": "gâteau", "syllables": ["gâ", "teau"] },
-    { "id": "apple", "text": "pomme", "syllables": ["pomme"] }
+    { "text": "gâteau", "syllables": ["gâ", "teau"] },
+    { "text": "pomme", "syllables": ["pomme"] }
   ]
 }
 ```
 
-- `id` — le nom interne du mot, utilisé par les aventures. Sans espace ni
-  accent, et **unique dans tout le jeu**.
-- `text` — le mot tel que l'enfant le lit, accents compris.
-- `syllables` — le découpage, dans l'ordre. Mis bout à bout, il doit
-  reconstituer exactement le mot : `["gâ", "teau"]` donne bien `gâteau`.
+- `text` — le mot tel que l'enfant le lit, accents compris. **C'est lui qui
+  identifie le mot** : c'est ce qu'on écrira dans les aventures, et il doit
+  être unique dans tout le jeu.
+- `syllables` — le découpage, dans l'ordre. Un mot d'une seule syllabe s'écrit
+  `["pomme"]`.
+
+**Le découpage suit les sons, pas les lettres.** C'est une règle pédagogique et
+non la syllabation graphique académique : on écrit `["a", "rê"]` pour « arrêt »,
+`["é", "ssence"]` pour « essence ». Le découpage n'a donc pas à reconstituer
+l'orthographe du mot, et rien ne le vérifie — c'est votre jugement qui fait foi.
+L'enfant voit de toute façon les deux : le mot écrit sur l'étiquette, et son
+découpage juste en dessous.
 
 Le découpage n'est jamais calculé par le jeu. Le français n'a pas de règle de
-syllabation assez sûre pour être automatisée, et une syllabe fausse tromperait
-l'enfant sur le point même qu'on cherche à travailler. Un mot d'une seule
-syllabe s'écrit `["pomme"]`.
+syllabation assez sûre pour être automatisée, et une coupe fausse tromperait
+l'enfant sur le point même qu'on cherche à travailler.
+
+> **Deux mots de même orthographe sont impossibles.** « La marche » et « il
+> marche » ne peuvent pas coexister : à l'écran, l'enfant ne verrait qu'une
+> seule étiquette, sans moyen de les distinguer. Le chargement refuse le
+> doublon en nommant le mot.
 
 ## 3. Les personnages — `characters.json`
 
 ```json
 {
   "characters": [
-    { "id": "fisherman", "name": "Le pêcheur" },
-    { "id": "shopkeeper", "name": "La marchande de journaux", "portrait": "assets/pictures/marchande.png" }
+    { "id": "pecheur", "name": "Le pêcheur" },
+    { "id": "marchande", "name": "La marchande de journaux", "portrait": "assets/pictures/marchande.png" }
   ]
 }
 ```
@@ -104,9 +119,9 @@ Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 
 ```json
 {
-  "id": "grisbie_beach",
+  "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
-  "startStageId": "home",
+  "startStageId": "maison",
   "stages": [ … ]
 }
 ```
@@ -149,7 +164,7 @@ son premier lieu.
 
 ```json
 {
-  "id": "gas_station",
+  "id": "station_service",
   "location": "La station-service",
   "background": "assets/pictures/station.jpg",
   "narrative": {
@@ -182,10 +197,10 @@ le contenu réel.
 
 ```json
 {
-  "id": "fuel",
+  "id": "le_plein",
   "label": "Le plein",
-  "words": ["petrol", "oil", "air", "pump"],
-  "destination": "coast_road",
+  "words": ["essence", "huile", "pompe", "bidon"],
+  "destination": "route_de_la_cote",
   "area": { "left": 0.05, "top": 0.35, "width": 0.3, "height": 0.16 }
 }
 ```
@@ -194,7 +209,7 @@ le contenu réel.
 |---|---|---|
 | `id` | oui | Nom interne |
 | `label` | oui | Le nom de la catégorie, lu par l'enfant |
-| `words` | oui | Les identifiants des mots, pris dans le lexique |
+| `words` | oui | Les mots, écrits tels qu'ils figurent dans le lexique |
 | `destination` | non | Le lieu qui s'ouvre quand la famille est complète |
 | `area` | non | Où poser la zone sur l'illustration |
 | `goal` | non | Combien de mots suffisent (toute la liste par défaut) |
@@ -245,18 +260,18 @@ une ne mène nulle part** :
 
 ```json
 {
-  "id": "harbour",
+  "id": "port",
   "location": "Le port",
   "character": {
-    "id": "fisherman",
+    "id": "pecheur",
     "line": "Aide-moi ! Trouve tout ce qui parle de la mer."
   },
   "families": [
-    { "id": "sea", "label": "Pour le pêcheur",
-      "words": ["wave", "sand", "shell", "boat", "fish", "seaweed", "crab"],
-      "destination": "beach", "area": { … } },
-    { "id": "keep", "label": "Garde-le",
-      "words": ["notebook", "hammer", "hen", "handlebar", "chalk", "fir", "sweet"],
+    { "id": "pour_le_pecheur", "label": "Pour le pêcheur",
+      "words": ["vague", "sable", "coquille", "bateau", "poisson", "algue", "crabe"],
+      "destination": "plage", "area": { … } },
+    { "id": "a_garder", "label": "Garde-le",
+      "words": ["cahier", "marteau", "poule", "guidon", "craie", "sapin", "bonbon"],
       "area": { … } }
   ]
 }
@@ -283,7 +298,9 @@ qu'une partie qui se bloque sans raison.
 Sont détectés :
 
 - un mot cité mais absent du lexique, **nommé** ;
-- un mot défini deux fois, dans le même fichier ou entre deux fichiers ;
+- **deux entrées de même orthographe**, dans le même fichier ou entre deux
+  fichiers : le mot étant sa propre clé, rien ne dirait lequel des deux
+  découpages s'applique ;
 - un personnage cité mais absent de `characters.json` ;
 - une destination qui désigne un lieu inexistant ;
 - un lieu qu'aucun chemin ne permet d'atteindre ;
@@ -298,6 +315,12 @@ Sont détectés :
 ## 7. Les pièges de contenu, qui eux ne sont pas détectables
 
 Le jeu ne peut pas juger du sens. Ces points relèvent de la relecture humaine.
+
+**Le découpage syllabique.** Il suit les sons, il peut donc légitimement
+s'écarter de l'orthographe : aucun contrôle automatique n'est possible sans
+interdire du même coup les découpages que vous voulez. Seule son absence est
+signalée. C'est le point à relire le plus attentivement, puisque c'est la seule
+aide du jeu.
 
 **Des familles au vocabulaire disjoint.** C'est la contrainte la plus coûteuse.
 « En bus » et « En voiture » partagent toute la mécanique — moteur, roue, frein,

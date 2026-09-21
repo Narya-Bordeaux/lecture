@@ -72,22 +72,22 @@ class StageState {
   final List<Word> _supply = <Word>[];
 
   /// Les mots deja poses dans leur famille.
-  Set<String> get placedWordIds => Set<String>.unmodifiable(_placements.keys);
+  Set<String> get placedWordTexts => Set<String>.unmodifiable(_placements.keys);
 
-  /// Ou chaque mot a ete pose : identifiant de mot vers identifiant de famille.
+  /// Ou chaque mot a ete pose : le mot vers l'identifiant de sa famille.
   Map<String, String> get placements => Map<String, String>.unmodifiable(
         _placements,
       );
 
   /// Nombre d'erreurs commises sur ce mot depuis le debut de l'etape.
-  int errorCountFor(String wordId) => _errorCounts[wordId] ?? 0;
+  int errorCountFor(String wordText) => _errorCounts[wordText] ?? 0;
 
   /// Les aides disponibles sur ce mot, qu'elles aient ete debloquees par les
   /// erreurs ou demandees par l'enfant.
-  Set<Hint> hintsFor(String wordId) {
+  Set<Hint> hintsFor(String wordText) {
     return <Hint>{
-      ..._hintPolicy.hintsFor(errorCountFor(wordId)),
-      ...?_requestedHints[wordId],
+      ..._hintPolicy.hintsFor(errorCountFor(wordText)),
+      ...?_requestedHints[wordText],
     };
   }
 
@@ -179,13 +179,13 @@ class StageEngine {
     }
   }
 
-  /// Tente de poser [wordId] dans [familyId].
+  /// Tente de poser [wordText] dans [familyId].
   ///
   /// Leve une [ArgumentError] si l'un des identifiants est inconnu ou si le mot
   /// est deja place, et une [StateError] si l'etape est terminee : ce sont des
   /// erreurs de programmation de l'interface, pas des coups de l'enfant.
   PlacementResult placeWord({
-    required String wordId,
+    required String wordText,
     required String familyId,
   }) {
     if (state.isFinished) {
@@ -194,11 +194,11 @@ class StageEngine {
       );
     }
 
-    final word = _stage.findWord(wordId);
+    final word = _stage.findWord(wordText);
     if (word == null) {
       throw ArgumentError.value(
-        wordId,
-        'wordId',
+        wordText,
+        'wordText',
         'Mot absent de l\'etape "${_stage.id}"',
       );
     }
@@ -212,20 +212,20 @@ class StageEngine {
       );
     }
 
-    if (state._placements.containsKey(wordId)) {
+    if (state._placements.containsKey(wordText)) {
       throw ArgumentError.value(
-        wordId,
-        'wordId',
-        'Mot deja place dans la famille "${state._placements[wordId]}"',
+        wordText,
+        'wordText',
+        'Mot deja place dans la famille "${state._placements[wordText]}"',
       );
     }
 
-    if (!family.accepts(wordId)) {
-      return _rejectPlacement(wordId);
+    if (!family.accepts(wordText)) {
+      return _rejectPlacement(wordText);
     }
 
-    state._placements[wordId] = familyId;
-    _refillSlotOf(wordId);
+    state._placements[wordText] = familyId;
+    _refillSlotOf(wordText);
 
     return PlacementResult(
       accepted: true,
@@ -239,18 +239,18 @@ class StageEngine {
   /// Le nouveau mot reprend exactement l'emplacement libere, et lui seul : les
   /// autres mots ne bougent pas, pour que l'enfant ne perde pas des yeux celui
   /// qu'il etait en train de dechiffrer.
-  void _refillSlotOf(String wordId) {
-    final slot = _slots.indexWhere((word) => word?.id == wordId);
+  void _refillSlotOf(String wordText) {
+    final slot = _slots.indexWhere((word) => word?.text == wordText);
     if (slot < 0) return;
 
     _slots[slot] = state._supply.isEmpty ? null : state._supply.removeAt(0);
   }
 
   /// Comptabilise l'erreur et retourne les aides qu'elle fait apparaitre.
-  PlacementResult _rejectPlacement(String wordId) {
-    final hintsBefore = state.hintsFor(wordId);
-    state._errorCounts[wordId] = state.errorCountFor(wordId) + 1;
-    final hintsAfter = state.hintsFor(wordId);
+  PlacementResult _rejectPlacement(String wordText) {
+    final hintsBefore = state.hintsFor(wordText);
+    state._errorCounts[wordText] = state.errorCountFor(wordText) + 1;
+    final hintsAfter = state.hintsFor(wordText);
 
     return PlacementResult(
       accepted: false,
@@ -259,15 +259,15 @@ class StageEngine {
   }
 
   /// Rend une aide disponible a la demande de l'enfant, sans erreur commise.
-  void requestHint({required String wordId, required Hint hint}) {
-    if (_stage.findWord(wordId) == null) {
+  void requestHint({required String wordText, required Hint hint}) {
+    if (_stage.findWord(wordText) == null) {
       throw ArgumentError.value(
-        wordId,
-        'wordId',
+        wordText,
+        'wordText',
         'Mot absent de l\'etape "${_stage.id}"',
       );
     }
-    state._requestedHints.putIfAbsent(wordId, () => <Hint>{}).add(hint);
+    state._requestedHints.putIfAbsent(wordText, () => <Hint>{}).add(hint);
   }
 
   /// Fait partir le chat vers [stageId], qui doit etre une destination ouverte.

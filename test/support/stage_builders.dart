@@ -10,10 +10,9 @@ import 'package:reading_game/domain/models/word_family.dart';
 /// du moteur n'ont pas besoin de ce detour : ils declarent leurs mots sur
 /// place, ce qui garde chaque test lisible d'un seul tenant.
 
-/// Un mot, avec un decoupage syllabique par defaut egal au mot entier.
-Word word(String id, String text, [List<String>? syllables]) {
+/// Un mot, dont le decoupage vaut par defaut le mot entier.
+Word word(String text, [List<String>? syllables]) {
   return Word(
-    id: id,
     text: text,
     syllables: syllables ?? <String>[text],
   );

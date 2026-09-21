@@ -44,7 +44,7 @@ class FamilyDropZone extends StatelessWidget {
 
   /// Appele quand un mot est lache sur la zone, qu'il soit juste ou non :
   /// c'est le moteur qui tranche, pas l'interface.
-  final void Function(String wordId) onWordDropped;
+  final void Function(String wordText) onWordDropped;
 
   @override
   Widget build(BuildContext context) {

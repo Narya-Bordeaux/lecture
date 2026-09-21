@@ -27,7 +27,7 @@ ContentRepository buildDiskRepository() {
 }
 
 /// L'aventure livree, mots et personnages resolus.
-Future<Adventure> loadRealAdventure([String id = 'grisbie_beach']) {
+Future<Adventure> loadRealAdventure([String id = 'grisbie_plage']) {
   return buildDiskRepository().loadAdventure(id);
 }
 

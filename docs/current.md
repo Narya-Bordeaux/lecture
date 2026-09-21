@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.7.1+14** — 20 septembre 2026
+**Version : 0.8.0+15** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -29,6 +29,20 @@ d'une famille donnée. Les six thèmes proposés (station-service, garage, march
 école, loueur de vélos, forêt) restent à écrire.
 
 ## Dernières modifications
+
+### 0.8.0+15 — Contenu entièrement en français, le mot est sa propre clé
+- `Word` n'a plus d'identifiant : son `text` le désigne partout. Une aventure
+  cite `"arrêt"`, plus `"bus_stop"`. La rustine `garage_word` disparaît.
+- Les identifiants d'étapes, de familles et de personnages passent en français
+  (`maison`, `en_bus`, `marchande`). Seuls les noms de champs JSON restent
+  anglais, puisqu'ils portent directement les champs Dart.
+- Le doublon détecté au chargement est désormais celui de l'orthographe :
+  deux entrées « arrêt » sont refusées, et le message nomme le mot.
+- Le découpage suit les sons et non les lettres. Le test qui exigeait qu'il
+  reconstitue l'orthographe est retiré : il interdisait `["a", "rê"]`.
+- Fichiers renommés : `grisbie_plage.json`, `lexicon/nourriture.json`,
+  `lexicon/lieux.json`.
+- 119 tests au vert.
 
 ### 0.7.1+14 — Plus d'écran de texte redondant au départ
 - Le lieu de départ n'a plus de récit d'arrivée : il répétait la page de garde,

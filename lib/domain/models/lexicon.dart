@@ -4,15 +4,18 @@ import 'package:reading_game/domain/models/word.dart';
 ///
 /// Un meme mot sert dans plusieurs etapes — « gateau » vaut pour la boutique
 /// d'une station-service comme pour un gouter. Le definir a chaque endroit
-/// finirait par produire deux decoupages syllabiques differents du meme mot,
-/// ce que l'enfant verrait. Ici il n'existe qu'une fois.
+/// finirait par produire deux decoupages differents du meme mot, ce que
+/// l'enfant verrait. Ici il n'existe qu'une fois.
+///
+/// La clef est le mot lui-meme : deux entrees de meme orthographe sont donc
+/// refusees, y compris lorsqu'elles portent des decoupages differents.
 class Lexicon {
   const Lexicon(this.words);
 
   /// Reunit plusieurs lexiques, charges par domaine.
   ///
-  /// Un identifiant present dans deux domaines est une erreur de contenu :
-  /// rien ne dit laquelle des deux definitions serait la bonne.
+  /// Un mot present dans deux domaines est une erreur de contenu : rien ne dit
+  /// laquelle des deux definitions serait la bonne.
   factory Lexicon.merge(Iterable<Lexicon> lexicons) {
     final merged = <String, Word>{};
     final duplicates = <String>[];
@@ -45,8 +48,8 @@ class Lexicon {
       // Un doublon a l'interieur d'un meme fichier est le cas le plus
       // frequent — une ligne copiee puis mal reprise. Sans ce controle, la
       // seconde definition ecraserait la premiere sans rien dire.
-      if (words.containsKey(word.id)) duplicates.add(word.id);
-      words[word.id] = word;
+      if (words.containsKey(word.text)) duplicates.add(word.text);
+      words[word.text] = word;
     }
 
     if (duplicates.isNotEmpty) {
@@ -63,16 +66,16 @@ class Lexicon {
 
   final Map<String, Word> words;
 
-  bool contains(String wordId) => words.containsKey(wordId);
+  bool contains(String wordText) => words.containsKey(wordText);
 
-  /// Le mot designe par [wordId], ou une erreur nommant le coupable.
+  /// Le mot designe par [wordText], ou une erreur le nommant.
   ///
   /// Une reference inconnue est une faute de frappe dans le contenu : mieux
   /// vaut echouer en la nommant que jouer une etape amputee d'un mot.
-  Word resolve(String wordId) {
-    final word = words[wordId];
+  Word resolve(String wordText) {
+    final word = words[wordText];
     if (word == null) {
-      throw FormatException('Mot inconnu dans le lexique : "$wordId"');
+      throw FormatException('Mot inconnu dans le lexique : "$wordText"');
     }
     return word;
   }

@@ -14,27 +14,27 @@ import '../support/stage_builders.dart' as build;
 /// mots, chacune menant a une destination distincte.
 Stage buildTestStage() {
   return build.stage(
-    id: 'home',
+    id: 'maison',
     location: 'Devant la maison',
     arrivalText: 'Grisbie veut aller a la plage.',
     families: <WordFamily>[
       build.family(
-        id: 'by_train',
+        id: 'en_train',
         label: 'En train',
         words: <Word>[
-          build.word('train', 'train'),
-          build.word('station', 'gare'),
+          build.word('train'),
+          build.word('gare'),
         ],
-        destination: 'station_hall',
+        destination: 'gare',
       ),
       build.family(
-        id: 'on_foot',
+        id: 'a_pied',
         label: 'A pied',
         words: <Word>[
-          build.word('shoe', 'chaussure', <String>['chau', 'ssure']),
-          build.word('sidewalk', 'trottoir', <String>['trot', 'toir']),
+          build.word('chaussure', <String>['chau', 'ssure']),
+          build.word('trottoir', <String>['trot', 'toir']),
         ],
-        destination: 'street',
+        destination: 'rue',
       ),
     ],
   );
@@ -54,38 +54,38 @@ void main() {
     test('accepte un mot pose dans sa famille', () {
       final engine = buildEngine();
 
-      final result = engine.placeWord(wordId: 'train', familyId: 'by_train');
+      final result = engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(result.accepted, isTrue);
-      expect(engine.state.placedWordIds, contains('train'));
+      expect(engine.state.placedWordTexts, contains('train'));
     });
 
     test('refuse un mot pose dans une autre famille', () {
       final engine = buildEngine();
 
-      final result = engine.placeWord(wordId: 'train', familyId: 'on_foot');
+      final result = engine.placeWord(wordText: 'train', familyId: 'a_pied');
 
       expect(result.accepted, isFalse);
-      expect(engine.state.placedWordIds, isNot(contains('train')));
+      expect(engine.state.placedWordTexts, isNot(contains('train')));
     });
 
     test('un mot refuse reste disponible pour un nouvel essai', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      final retry = engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'a_pied');
+      final retry = engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(retry.accepted, isTrue);
-      expect(engine.state.placedWordIds, contains('train'));
+      expect(engine.state.placedWordTexts, contains('train'));
     });
 
     test('un mot deja place ne peut pas etre replace', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(
-        () => engine.placeWord(wordId: 'train', familyId: 'on_foot'),
+        () => engine.placeWord(wordText: 'train', familyId: 'a_pied'),
         throwsArgumentError,
       );
     });
@@ -94,11 +94,11 @@ void main() {
       final engine = buildEngine();
 
       expect(
-        () => engine.placeWord(wordId: 'avion', familyId: 'by_train'),
+        () => engine.placeWord(wordText: 'avion', familyId: 'en_train'),
         throwsArgumentError,
       );
       expect(
-        () => engine.placeWord(wordId: 'train', familyId: 'en_fusee'),
+        () => engine.placeWord(wordText: 'train', familyId: 'en_fusee'),
         throwsArgumentError,
       );
     });
@@ -108,19 +108,19 @@ void main() {
     test('compte les erreurs mot par mot, sans les melanger', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      engine.placeWord(wordId: 'shoe', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'a_pied');
+      engine.placeWord(wordText: 'train', familyId: 'a_pied');
+      engine.placeWord(wordText: 'chaussure', familyId: 'en_train');
 
       expect(engine.state.errorCountFor('train'), 2);
-      expect(engine.state.errorCountFor('shoe'), 1);
-      expect(engine.state.errorCountFor('sidewalk'), 0);
+      expect(engine.state.errorCountFor('chaussure'), 1);
+      expect(engine.state.errorCountFor('trottoir'), 0);
     });
 
     test('un placement correct n\'incremente aucun compteur', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(engine.state.errorCountFor('train'), 0);
     });
@@ -130,7 +130,7 @@ void main() {
     test('la premiere erreur debloque le decoupage en syllabes', () {
       final engine = buildEngine();
 
-      final result = engine.placeWord(wordId: 'train', familyId: 'on_foot');
+      final result = engine.placeWord(wordText: 'train', familyId: 'a_pied');
 
       expect(result.unlockedHints, contains(Hint.syllables));
       expect(engine.state.hintsFor('train'), contains(Hint.syllables));
@@ -142,7 +142,7 @@ void main() {
       final engine = buildEngine();
 
       for (var attempt = 1; attempt <= 8; attempt++) {
-        engine.placeWord(wordId: 'train', familyId: 'on_foot');
+        engine.placeWord(wordText: 'train', familyId: 'a_pied');
       }
 
       expect(engine.state.hintsFor('train'), <Hint>{Hint.syllables});
@@ -152,8 +152,8 @@ void main() {
     test('une aide n\'est signalee comme nouvelle qu\'une seule fois', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      final second = engine.placeWord(wordId: 'train', familyId: 'on_foot');
+      engine.placeWord(wordText: 'train', familyId: 'a_pied');
+      final second = engine.placeWord(wordText: 'train', familyId: 'a_pied');
 
       expect(second.unlockedHints, isEmpty);
       expect(engine.state.hintsFor('train'), contains(Hint.syllables));
@@ -162,8 +162,8 @@ void main() {
     test('les aides restent acquises apres le placement correct', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'on_foot');
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'a_pied');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(engine.state.hintsFor('train'), contains(Hint.syllables));
     });
@@ -173,20 +173,20 @@ void main() {
         policy: const HintPolicy(syllablesThreshold: 2),
       );
 
-      final first = engine.placeWord(wordId: 'train', familyId: 'on_foot');
+      final first = engine.placeWord(wordText: 'train', familyId: 'a_pied');
       expect(first.unlockedHints, isEmpty);
 
-      final second = engine.placeWord(wordId: 'train', familyId: 'on_foot');
+      final second = engine.placeWord(wordText: 'train', familyId: 'a_pied');
       expect(second.unlockedHints, contains(Hint.syllables));
     });
 
     test('une aide peut etre demandee sans avoir commis d\'erreur', () {
       final engine = buildEngine();
 
-      engine.requestHint(wordId: 'shoe', hint: Hint.syllables);
+      engine.requestHint(wordText: 'chaussure', hint: Hint.syllables);
 
-      expect(engine.state.hintsFor('shoe'), contains(Hint.syllables));
-      expect(engine.state.errorCountFor('shoe'), 0);
+      expect(engine.state.hintsFor('chaussure'), contains(Hint.syllables));
+      expect(engine.state.errorCountFor('chaussure'), 0);
     });
   });
 
@@ -201,7 +201,7 @@ void main() {
     test('une famille partiellement remplie n\'ouvre rien', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
 
       expect(engine.state.completedFamilyIds, isEmpty);
       expect(engine.state.availableDestinations, isEmpty);
@@ -210,22 +210,22 @@ void main() {
     test('completer une famille rend sa destination disponible', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
-      final result = engine.placeWord(wordId: 'station', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
+      final result = engine.placeWord(wordText: 'gare', familyId: 'en_train');
 
-      expect(result.completedFamilyId, 'by_train');
-      expect(engine.state.completedFamilyIds, contains('by_train'));
+      expect(result.completedFamilyId, 'en_train');
+      expect(engine.state.completedFamilyIds, contains('en_train'));
       expect(
         engine.state.availableDestinations.map((d) => d.stageId),
-        contains('station_hall'),
+        contains('gare'),
       );
     });
 
     test('completer une famille ne termine pas l\'etape', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
-      engine.placeWord(wordId: 'station', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
+      engine.placeWord(wordText: 'gare', familyId: 'en_train');
 
       expect(engine.state.isFinished, isFalse);
       expect(engine.state.departedTo, isNull);
@@ -234,14 +234,14 @@ void main() {
     test('plusieurs destinations peuvent etre disponibles en meme temps', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
-      engine.placeWord(wordId: 'station', familyId: 'by_train');
-      engine.placeWord(wordId: 'shoe', familyId: 'on_foot');
-      engine.placeWord(wordId: 'sidewalk', familyId: 'on_foot');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
+      engine.placeWord(wordText: 'gare', familyId: 'en_train');
+      engine.placeWord(wordText: 'chaussure', familyId: 'a_pied');
+      engine.placeWord(wordText: 'trottoir', familyId: 'a_pied');
 
       expect(
         engine.state.availableDestinations.map((d) => d.stageId),
-        containsAll(<String>['station_hall', 'street']),
+        containsAll(<String>['gare', 'rue']),
       );
     });
   });
@@ -250,32 +250,32 @@ void main() {
     test('partir termine l\'etape et retient la destination choisie', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
-      engine.placeWord(wordId: 'station', familyId: 'by_train');
-      engine.departTo('station_hall');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
+      engine.placeWord(wordText: 'gare', familyId: 'en_train');
+      engine.departTo('gare');
 
       expect(engine.state.isFinished, isTrue);
-      expect(engine.state.departedTo, 'station_hall');
+      expect(engine.state.departedTo, 'gare');
     });
 
     test('partir vers une destination non disponible est refuse', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
 
-      expect(() => engine.departTo('station_hall'), throwsStateError);
+      expect(() => engine.departTo('gare'), throwsStateError);
       expect(engine.state.isFinished, isFalse);
     });
 
     test('plus aucun placement n\'est accepte apres le depart', () {
       final engine = buildEngine();
 
-      engine.placeWord(wordId: 'train', familyId: 'by_train');
-      engine.placeWord(wordId: 'station', familyId: 'by_train');
-      engine.departTo('station_hall');
+      engine.placeWord(wordText: 'train', familyId: 'en_train');
+      engine.placeWord(wordText: 'gare', familyId: 'en_train');
+      engine.departTo('gare');
 
       expect(
-        () => engine.placeWord(wordId: 'shoe', familyId: 'on_foot'),
+        () => engine.placeWord(wordText: 'chaussure', familyId: 'a_pied'),
         throwsStateError,
       );
     });
@@ -288,15 +288,15 @@ void main() {
       final engine = buildEngine();
 
       expect(
-        engine.visibleWords.whereType<Word>().map((word) => word.id).toSet(),
-        buildTestStage().words.map((word) => word.id).toSet(),
+        engine.visibleWords.whereType<Word>().map((word) => word.text).toSet(),
+        buildTestStage().words.map((word) => word.text).toSet(),
       );
       expect(engine.state.remainingInSupply, 0);
     });
 
     test('l\'ordre est reproductible a graine egale', () {
       List<String?> ids(StageEngine engine) =>
-          engine.visibleWords.map((word) => word?.id).toList();
+          engine.visibleWords.map((word) => word?.text).toList();
 
       expect(ids(buildEngine()), ids(buildEngine()));
     });

@@ -165,8 +165,8 @@ void main() {
         // bus, la plus haute et donc la plus exposee au recouvrement.
         for (final family in stage.families) {
           final word = witness.visibleWords.whereType<Word>().firstWhere(
-                (word) => family.accepts(word.id),
-                orElse: () => stage.findWord(family.wordIds.first)!,
+                (word) => family.accepts(word.text),
+                orElse: () => stage.findWord(family.wordTexts.first)!,
               );
           if (!witness.visibleWords.contains(word)) continue;
 
@@ -175,7 +175,7 @@ void main() {
             word: word.text,
             familyId: family.id,
           );
-          witness.placeWord(wordId: word.id, familyId: family.id);
+          witness.placeWord(wordText: word.text, familyId: family.id);
 
           expect(
             find.text(UiStringsFr.familyProgress(1, family.requiredCount)),
@@ -206,11 +206,11 @@ void main() {
           expect(visible, isNotEmpty, reason: 'Plus aucun mot propose');
 
           final word = visible.firstWhere(
-            (word) => family.accepts(word.id),
+            (word) => family.accepts(word.text),
             orElse: () => visible.first,
           );
           final target = witness.stage.families.firstWhere(
-            (candidate) => candidate.accepts(word.id),
+            (candidate) => candidate.accepts(word.text),
           );
 
           await dragWordOnto(
@@ -218,7 +218,7 @@ void main() {
             word: word.text,
             familyId: target.id,
           );
-          witness.placeWord(wordId: word.id, familyId: target.id);
+          witness.placeWord(wordText: word.text, familyId: target.id);
         }
 
         expect(

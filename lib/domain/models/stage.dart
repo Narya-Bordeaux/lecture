@@ -123,10 +123,10 @@ class Stage {
   /// Vrai si l'etape met en scene un personnage.
   bool get isEncounter => encounter != null;
 
-  Word? findWord(String wordId) {
+  Word? findWord(String wordText) {
     for (final family in families) {
       for (final word in family.words) {
-        if (word.id == wordId) return word;
+        if (word.text == wordText) return word;
       }
     }
     return null;
@@ -156,17 +156,17 @@ class Stage {
       for (final word in family.words) {
         // Un mot classable dans deux familles de la meme etape est exactement
         // le « mot ambigu » que la specification proscrit.
-        final owner = owners[word.id];
+        final owner = owners[word.text];
         if (owner != null) {
           issues.add(
-            'Le mot "${word.id}" est ambigu : il appartient aux familles '
+            'Le mot "${word.text}" est ambigu : il appartient aux familles '
             '"$owner" et "${family.id}".',
           );
         }
-        owners[word.id] = family.id;
+        owners[word.text] = family.id;
 
         if (word.syllables.isEmpty) {
-          issues.add('Le mot "${word.id}" n\'a pas de decoupage syllabique.');
+          issues.add('Le mot "${word.text}" n\'a pas de decoupage.');
         }
 
         // Un mot dont le texte se retrouve dans le nom de sa famille se classe

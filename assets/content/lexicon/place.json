@@ -1,9 +1,0 @@
-{
-  "domain": "place",
-  "words": [
-    { "id": "newspaper", "text": "journal", "syllables": ["jour", "nal"] },
-    { "id": "magazine", "text": "revue", "syllables": ["re", "vue"] },
-    { "id": "bench", "text": "banc", "syllables": ["banc"] },
-    { "id": "clock", "text": "pendule", "syllables": ["pen", "du", "le"] }
-  ]
-}

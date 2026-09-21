@@ -38,8 +38,8 @@ Map<String, String> buildFiles({
     'lexicon/test.json': '''
 { "domain": "test", "words": [
   ${lexiconWords ?? '''
-  { "id": "a", "text": "un", "syllables": ["un"] },
-  { "id": "b", "text": "deux", "syllables": ["deux"] }'''}
+  { "text": "un", "syllables": ["un"] },
+  { "text": "deux", "syllables": ["deux"] }'''}
 ] }''',
     'characters.json': characters ??
         '{ "characters": [ { "id": "guide", "name": "Le guide" } ] }',
@@ -56,7 +56,7 @@ Map<String, String> buildFiles({
       ${encounter ?? ''}
       "families": [
         { "id": "one", "label": "Famille",
-          "words": [${familyWords ?? '"a", "b"'}],
+          "words": [${familyWords ?? '"un", "deux"'}],
           "destination": "end" }
       ]
     },
@@ -100,14 +100,15 @@ void main() {
         'test',
       );
 
-      final word = adventure.startStage.findWord('a');
+      // L'aventure ne porte que le mot ; son decoupage vient du lexique.
+      final word = adventure.startStage.findWord('un');
       expect(word, isNotNull);
       expect(word!.text, 'un');
       expect(word.syllables, <String>['un']);
     });
 
-    test('un mot inconnu est signale par son identifiant', () async {
-      final files = buildFiles(familyWords: '"a", "fantome"');
+    test('un mot inconnu est signale en le nommant', () async {
+      final files = buildFiles(familyWords: '"un", "fantome"');
 
       expect(
         () => buildRepository(files).loadAdventure('test'),
@@ -122,16 +123,24 @@ void main() {
     });
 
     test('un mot defini deux fois dans le lexique est refuse', () async {
+      // Le mot etant sa propre clef, deux entrees de meme orthographe se
+      // contredisent : rien ne dirait lequel des deux decoupages s'applique.
       final files = buildFiles(
         lexiconWords: '''
-        { "id": "a", "text": "un", "syllables": ["un"] },
-        { "id": "a", "text": "autre", "syllables": ["au", "tre"] },
-        { "id": "b", "text": "deux", "syllables": ["deux"] }''',
+        { "text": "un", "syllables": ["un"] },
+        { "text": "un", "syllables": ["u", "n"] },
+        { "text": "deux", "syllables": ["deux"] }''',
       );
 
       expect(
         () => buildRepository(files).loadAdventure('test'),
-        throwsA(isA<FormatException>()),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('un'),
+          ),
+        ),
       );
     });
 
@@ -190,8 +199,8 @@ void main() {
       );
 
       expect(
-        adventure.startStage.words.map((word) => word.id),
-        <String>['a', 'b'],
+        adventure.startStage.words.map((word) => word.text),
+        <String>['un', 'deux'],
       );
     });
   });
@@ -240,7 +249,7 @@ void main() {
     test('l\'aventure de Grisbie se charge et se valide', () async {
       final adventure = await loadRealAdventure();
 
-      expect(adventure.id, 'grisbie_beach');
+      expect(adventure.id, 'grisbie_plage');
       expect(adventure.validate(), isEmpty);
     });
 
@@ -256,15 +265,15 @@ void main() {
 
     test('la rencontre de la boutique pose son enigme', () async {
       final adventure = await loadRealAdventure();
-      final shop = adventure.findStage('station_shop')!;
+      final shop = adventure.findStage('boutique')!;
 
       expect(shop.isEncounter, isTrue);
       expect(shop.encounter!.character.name, 'La marchande de journaux');
 
       // Le classeur de rebut ne mene nulle part : le remplir n'ouvre rien.
-      final keep = shop.findFamily('keep')!;
+      final keep = shop.findFamily('a_laisser')!;
       expect(keep.leadsSomewhere, isFalse);
-      expect(shop.findFamily('edible')!.leadsSomewhere, isTrue);
+      expect(shop.findFamily('a_manger')!.leadsSomewhere, isTrue);
     });
   });
 }

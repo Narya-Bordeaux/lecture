@@ -76,19 +76,19 @@ class _StagePageState extends State<StagePage> {
       ..clear()
       ..addEntries(
         widget.stage.words.map(
-          (word) => MapEntry(word.id, GlobalKey<ShakeState>()),
+          (word) => MapEntry(word.text, GlobalKey<ShakeState>()),
         ),
       );
   }
 
-  void _handleDrop({required String wordId, required String familyId}) {
+  void _handleDrop({required String wordText, required String familyId}) {
     // Un mot deja pose n'est plus deplacable : la garde evite de solliciter le
     // moteur pour un geste que l'interface ne devrait pas permettre.
-    if (_engine.state.placedWordIds.contains(wordId)) return;
+    if (_engine.state.placedWordTexts.contains(wordText)) return;
 
-    final result = _engine.placeWord(wordId: wordId, familyId: familyId);
+    final result = _engine.placeWord(wordText: wordText, familyId: familyId);
     if (!result.accepted) {
-      _shakeKeys[wordId]?.currentState?.shake();
+      _shakeKeys[wordText]?.currentState?.shake();
     }
     setState(() {});
   }
@@ -130,8 +130,8 @@ class _StagePageState extends State<StagePage> {
                       isOpen: _engine.state.completedFamilyIds.contains(
                         family.id,
                       ),
-                      onWordDropped: (wordId) => _handleDrop(
-                        wordId: wordId,
+                      onWordDropped: (wordText) => _handleDrop(
+                        wordText: wordText,
                         familyId: family.id,
                       ),
                     ),
@@ -182,7 +182,7 @@ class _WordTray extends StatelessWidget {
   static const int _columns = 3;
 
   final List<Word?> slots;
-  final Set<Hint> Function(String wordId) hintsFor;
+  final Set<Hint> Function(String wordText) hintsFor;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
 
   /// La consigne affichee au-dessus des mots. Par defaut une invitation
@@ -233,10 +233,10 @@ class _WordTray extends StatelessWidget {
                         child: word == null
                             ? const SizedBox.shrink()
                             : Shake(
-                                key: shakeKeys[word.id],
+                                key: shakeKeys[word.text],
                                 child: DraggableWordLabel(
                                   word: word,
-                                  hints: hintsFor(word.id),
+                                  hints: hintsFor(word.text),
                                 ),
                               ),
                       ),

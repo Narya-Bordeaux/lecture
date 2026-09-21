@@ -1,0 +1,9 @@
+{
+  "domain": "lieux",
+  "words": [
+    { "text": "journal", "syllables": ["jour", "nal"] },
+    { "text": "revue", "syllables": ["re", "vue"] },
+    { "text": "banc", "syllables": ["banc"] },
+    { "text": "pendule", "syllables": ["pen", "du", "le"] }
+  ]
+}

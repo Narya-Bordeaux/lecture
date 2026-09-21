@@ -14,7 +14,7 @@ import '../support/stage_builders.dart' as build;
 /// libere son emplacement, qu'un mot du reservoir vient reprendre.
 Stage buildSupplyStage({int? goal}) {
   return build.stage(
-    id: 'home',
+    id: 'maison',
     location: 'Devant la maison',
     visibleWordCount: 4,
     families: <WordFamily>[
@@ -22,18 +22,18 @@ Stage buildSupplyStage({int? goal}) {
         id: 'by_bus',
         label: 'En bus',
         words: <Word>[
-          for (var i = 1; i <= 6; i++) build.word('bus$i', 'bus$i'),
+          for (var i = 1; i <= 6; i++) build.word('bus$i'),
         ],
-        destination: 'station_hall',
+        destination: 'gare',
         goal: goal,
       ),
       build.family(
-        id: 'on_foot',
+        id: 'a_pied',
         label: 'A pied',
         words: <Word>[
-          for (var i = 1; i <= 6; i++) build.word('foot$i', 'foot$i'),
+          for (var i = 1; i <= 6; i++) build.word('foot$i'),
         ],
-        destination: 'street',
+        destination: 'rue',
         goal: goal,
       ),
     ],
@@ -48,10 +48,10 @@ StageEngine buildEngine({int? goal, int seed = 5}) {
 String placeFirstVisibleWord(StageEngine engine) {
   final word = engine.visibleWords.firstWhere((word) => word != null)!;
   final family = engine.stage.families.firstWhere(
-    (family) => family.accepts(word.id),
+    (family) => family.accepts(word.text),
   );
-  engine.placeWord(wordId: word.id, familyId: family.id);
-  return word.id;
+  engine.placeWord(wordText: word.text, familyId: family.id);
+  return word.text;
 }
 
 void main() {
@@ -66,7 +66,7 @@ void main() {
     test('les mots visibles sont tous differents', () {
       final engine = buildEngine();
 
-      final ids = engine.visibleWords.whereType<Word>().map((w) => w.id);
+      final ids = engine.visibleWords.whereType<Word>().map((w) => w.text);
       expect(ids.toSet(), hasLength(4));
     });
 
@@ -78,7 +78,7 @@ void main() {
 
     test('l\'ordre est reproductible a graine egale', () {
       List<String?> visibleIds(StageEngine engine) =>
-          engine.visibleWords.map((word) => word?.id).toList();
+          engine.visibleWords.map((word) => word?.text).toList();
 
       expect(visibleIds(buildEngine()), visibleIds(buildEngine()));
     });
@@ -92,7 +92,7 @@ void main() {
       expect(engine.visibleWords, hasLength(4));
       expect(engine.visibleWords.whereType<Word>(), hasLength(4));
       expect(
-        engine.visibleWords.whereType<Word>().map((w) => w.id),
+        engine.visibleWords.whereType<Word>().map((w) => w.text),
         isNot(contains(placedId)),
       );
       expect(engine.state.remainingInSupply, 7);
@@ -100,10 +100,10 @@ void main() {
 
     test('le mot arrive a la place laissee libre', () {
       final engine = buildEngine();
-      final before = engine.visibleWords.map((word) => word?.id).toList();
+      final before = engine.visibleWords.map((word) => word?.text).toList();
       final placedId = placeFirstVisibleWord(engine);
       final freedSlot = before.indexOf(placedId);
-      final after = engine.visibleWords.map((word) => word?.id).toList();
+      final after = engine.visibleWords.map((word) => word?.text).toList();
 
       expect(after[freedSlot], isNot(placedId));
       // Les autres mots n'ont pas bouge : l'enfant ne perd pas des yeux celui
@@ -121,7 +121,7 @@ void main() {
       for (var turn = 0; turn < 6; turn++) {
         placed.add(placeFirstVisibleWord(engine));
         final visibleIds =
-            engine.visibleWords.whereType<Word>().map((w) => w.id).toList();
+            engine.visibleWords.whereType<Word>().map((w) => w.text).toList();
         for (final id in placed) {
           expect(visibleIds, isNot(contains(id)));
         }
@@ -130,15 +130,15 @@ void main() {
 
     test('un mot mal classe ne declenche aucun remplacement', () {
       final engine = buildEngine();
-      final before = engine.visibleWords.map((word) => word?.id).toList();
+      final before = engine.visibleWords.map((word) => word?.text).toList();
 
       final word = engine.visibleWords.firstWhere((word) => word != null)!;
       final wrongFamily = engine.stage.families.firstWhere(
-        (family) => !family.accepts(word.id),
+        (family) => !family.accepts(word.text),
       );
-      engine.placeWord(wordId: word.id, familyId: wrongFamily.id);
+      engine.placeWord(wordText: word.text, familyId: wrongFamily.id);
 
-      expect(engine.visibleWords.map((word) => word?.id).toList(), before);
+      expect(engine.visibleWords.map((word) => word?.text).toList(), before);
       expect(engine.state.remainingInSupply, 8);
     });
 
@@ -167,33 +167,33 @@ void main() {
       expect(engine.stage.families.first.requiredCount, 2);
 
       // Deux mots bus suffisent, sans attendre les quatre autres.
-      engine.placeWord(wordId: 'bus1', familyId: 'by_bus');
+      engine.placeWord(wordText: 'bus1', familyId: 'by_bus');
       expect(engine.state.availableDestinations, isEmpty);
-      engine.placeWord(wordId: 'bus2', familyId: 'by_bus');
+      engine.placeWord(wordText: 'bus2', familyId: 'by_bus');
 
       expect(
         engine.state.availableDestinations.map((d) => d.stageId),
-        contains('station_hall'),
+        contains('gare'),
       );
     });
 
     test('un mot deja visible ou en reservoir reste classable apres', () {
       final engine = buildEngine(goal: 2);
 
-      engine.placeWord(wordId: 'bus1', familyId: 'by_bus');
-      engine.placeWord(wordId: 'bus2', familyId: 'by_bus');
+      engine.placeWord(wordText: 'bus1', familyId: 'by_bus');
+      engine.placeWord(wordText: 'bus2', familyId: 'by_bus');
       // L'objectif est atteint, mais rien n'empeche de continuer a jouer.
-      engine.placeWord(wordId: 'bus3', familyId: 'by_bus');
+      engine.placeWord(wordText: 'bus3', familyId: 'by_bus');
 
-      expect(engine.state.placedWordIds, contains('bus3'));
+      expect(engine.state.placedWordTexts, contains('bus3'));
       expect(engine.state.isFinished, isFalse);
     });
 
     test('le compte se fait par famille, sans melanger', () {
       final engine = buildEngine(goal: 2);
 
-      engine.placeWord(wordId: 'bus1', familyId: 'by_bus');
-      engine.placeWord(wordId: 'foot1', familyId: 'on_foot');
+      engine.placeWord(wordText: 'bus1', familyId: 'by_bus');
+      engine.placeWord(wordText: 'foot1', familyId: 'a_pied');
 
       expect(engine.state.availableDestinations, isEmpty);
     });

@@ -23,12 +23,12 @@ class WordFamily {
   /// Construit la famille en resolvant ses mots dans le lexique.
   factory WordFamily.fromJson(Map<String, dynamic> json, Lexicon lexicon) {
     final area = json['area'];
-    final wordIds = (json['words'] as List<dynamic>).cast<String>();
+    final wordTexts = (json['words'] as List<dynamic>).cast<String>();
 
     return WordFamily(
       id: json['id'] as String,
       label: json['label'] as String,
-      words: List<Word>.unmodifiable(wordIds.map(lexicon.resolve)),
+      words: List<Word>.unmodifiable(wordTexts.map(lexicon.resolve)),
       destinationStageId: json['destination'] as String?,
       area: area == null
           ? null
@@ -60,7 +60,7 @@ class WordFamily {
   /// Vrai si completer cette famille ouvre un chemin.
   bool get leadsSomewhere => destinationStageId != null;
 
-  Set<String> get wordIds => words.map((word) => word.id).toSet();
+  Set<String> get wordTexts => words.map((word) => word.text).toSet();
 
   /// Le nombre de mots reellement demande pour ouvrir la destination.
   int get requiredCount {
@@ -70,7 +70,7 @@ class WordFamily {
   }
 
   /// Vrai si ce mot appartient a la famille.
-  bool accepts(String wordId) => words.any((word) => word.id == wordId);
+  bool accepts(String wordText) => words.any((word) => word.text == wordText);
 
   WordFamily copyWith({
     String? id,
@@ -94,7 +94,7 @@ class WordFamily {
     return <String, dynamic>{
       'id': id,
       'label': label,
-      'words': words.map((word) => word.id).toList(),
+      'words': words.map((word) => word.text).toList(),
       if (destinationStageId != null) 'destination': destinationStageId,
       if (area != null) 'area': area!.toJson(),
       if (goal != null) 'goal': goal,

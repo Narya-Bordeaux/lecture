@@ -16,17 +16,17 @@ import '../support/stage_builders.dart' as build;
 /// decor, et une image absente du bundle de test ferait echouer le rendu.
 Stage buildTestStage() {
   return build.stage(
-    id: 'home',
+    id: 'maison',
     location: 'Devant la maison',
     families: <WordFamily>[
       build.family(
-        id: 'by_bus',
+        id: 'en_bus',
         label: 'En bus',
         words: <Word>[
-          build.word('bus_stop', 'arrêt', <String>['ar', 'rêt']),
-          build.word('ticket', 'ticket', <String>['tic', 'ket']),
+          build.word('arrêt', <String>['ar', 'rêt']),
+          build.word('ticket', <String>['tic', 'ket']),
         ],
-        destination: 'station_hall',
+        destination: 'gare',
         area: const RelativeArea(
           left: 0.04,
           top: 0.35,
@@ -35,13 +35,13 @@ Stage buildTestStage() {
         ),
       ),
       build.family(
-        id: 'on_foot',
+        id: 'a_pied',
         label: 'À pied',
         words: <Word>[
-          build.word('shoe', 'chaussure', <String>['chaus', 'sure']),
-          build.word('path', 'sentier', <String>['sen', 'tier']),
+          build.word('chaussure', <String>['chaus', 'sure']),
+          build.word('sentier', <String>['sen', 'tier']),
         ],
-        destination: 'street',
+        destination: 'rue',
         area: const RelativeArea(
           left: 0.55,
           top: 0.35,
@@ -122,7 +122,7 @@ void main() {
   ) async {
     await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'by_bus');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
 
     // Le mot reste affiche, mais range dans la zone : une seule occurrence.
     expect(find.text('arrêt'), findsOneWidget);
@@ -134,7 +134,7 @@ void main() {
   ) async {
     await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'on_foot');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'a_pied');
 
     // Aucune zone n'a progresse : le mot est revenu dans la grille.
     expect(find.text(UiStringsFr.familyProgress(0, 2)), findsNWidgets(2));
@@ -148,7 +148,7 @@ void main() {
 
     expect(find.text('ar - rêt'), findsNothing);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'on_foot');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'a_pied');
 
     expect(find.text('ar - rêt'), findsOneWidget);
   });
@@ -158,7 +158,7 @@ void main() {
   ) async {
     await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'by_bus');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
 
     expect(find.text(UiStringsFr.destinationOpened), findsNothing);
   });
@@ -168,8 +168,8 @@ void main() {
   ) async {
     final departures = await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'by_bus');
-    await dragWordOnto(tester, word: 'ticket', familyId: 'by_bus');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
+    await dragWordOnto(tester, word: 'ticket', familyId: 'en_bus');
 
     expect(find.text(UiStringsFr.destinationOpened), findsOneWidget);
     expect(find.text(UiStringsFr.departTo('en bus')), findsOneWidget);
@@ -180,12 +180,12 @@ void main() {
   testWidgets('le bouton de depart annonce l\'etape choisie', (tester) async {
     final departures = await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'by_bus');
-    await dragWordOnto(tester, word: 'ticket', familyId: 'by_bus');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
+    await dragWordOnto(tester, word: 'ticket', familyId: 'en_bus');
     await tester.tap(find.text(UiStringsFr.departTo('en bus')));
     await tester.pumpAndSettle();
 
-    expect(departures, <String>['station_hall']);
+    expect(departures, <String>['gare']);
   });
 
   testWidgets('deux familles completes proposent deux departs', (
@@ -193,10 +193,10 @@ void main() {
   ) async {
     await pumpStagePage(tester);
 
-    await dragWordOnto(tester, word: 'arrêt', familyId: 'by_bus');
-    await dragWordOnto(tester, word: 'ticket', familyId: 'by_bus');
-    await dragWordOnto(tester, word: 'chaussure', familyId: 'on_foot');
-    await dragWordOnto(tester, word: 'sentier', familyId: 'on_foot');
+    await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
+    await dragWordOnto(tester, word: 'ticket', familyId: 'en_bus');
+    await dragWordOnto(tester, word: 'chaussure', familyId: 'a_pied');
+    await dragWordOnto(tester, word: 'sentier', familyId: 'a_pied');
 
     expect(find.text(UiStringsFr.departTo('en bus')), findsOneWidget);
     expect(find.text(UiStringsFr.departTo('à pied')), findsOneWidget);

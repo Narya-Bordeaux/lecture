@@ -1,7 +1,7 @@
 {
-  "id": "grisbie_beach",
+  "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
-  "startStageId": "home",
+  "startStageId": "maison",
   "opening": {
     "title": "Grisbie part à la plage",
     "image": "assets/pictures/Grisbie_plage.jpg",
@@ -9,7 +9,7 @@
   },
   "stages": [
     {
-      "id": "home",
+      "id": "maison",
       "location": "Devant la maison",
       "background": "assets/pictures/Grisbie_plage2.jpg",
       "backgroundColor": "#4ab8fd",
@@ -19,35 +19,38 @@
       "visibleWordCount": 6,
       "families": [
         {
-          "id": "by_bus",
+          "id": "en_bus",
           "label": "En bus",
           "words": [
-            "bus_stop", "ticket", "timetable", "shelter", "line",
-            "terminus", "counter"
+            "arrêt", "ticket", "horaire", "abri", "ligne",
+            "terminus", "guichet"
           ],
-          "destination": "station_hall",
+          "destination": "gare",
           "area": { "left": 0.02, "top": 0.29, "width": 0.32, "height": 0.16 }
         },
         {
-          "id": "by_car",
+          "id": "en_voiture",
           "label": "En voiture",
           "words": [
-            "wheel", "fuel", "boot", "garage_word", "horn", "radio", "key"
+            "volant", "essence", "coffre", "garage", "klaxon", "radio", "clé"
           ],
           "destination": "garage",
           "area": { "left": 0.37, "top": 0.39, "width": 0.27, "height": 0.15 }
         },
         {
-          "id": "on_foot",
+          "id": "a_pied",
           "label": "À pied",
-          "words": ["shoe", "path", "step", "stride", "leg", "heel", "walk"],
-          "destination": "street",
+          "words": [
+            "chaussure", "sentier", "marche", "pas", "jambe", "talon",
+            "promenade"
+          ],
+          "destination": "rue",
           "area": { "left": 0.66, "top": 0.42, "width": 0.30, "height": 0.18 }
         }
       ]
     },
     {
-      "id": "station_hall",
+      "id": "gare",
       "location": "La gare",
       "narrative": {
         "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir",
@@ -56,47 +59,47 @@
       "visibleWordCount": 4,
       "families": [
         {
-          "id": "take_the_train",
+          "id": "prendre_le_train",
           "label": "Prendre le train",
-          "words": ["platform", "rail_ticket"],
-          "destination": "beach"
+          "words": ["quai", "billet"],
+          "destination": "plage"
         },
         {
-          "id": "buy_something",
+          "id": "acheter",
           "label": "Acheter quelque chose",
-          "words": ["cake", "newspaper"],
-          "destination": "station_shop"
+          "words": ["gâteau", "journal"],
+          "destination": "boutique"
         }
       ]
     },
     {
-      "id": "station_shop",
+      "id": "boutique",
       "location": "La boutique de la gare",
       "narrative": {
         "onArrival": "Grisbie pousse la porte de la boutique.",
         "onCompletion": "Le sac est plein de bonnes choses. Direction la mer !"
       },
       "character": {
-        "id": "shopkeeper",
+        "id": "marchande",
         "line": "Tu pars en voyage ? Prends ce qui se mange, et laisse-moi le reste !"
       },
       "visibleWordCount": 6,
       "families": [
         {
-          "id": "edible",
+          "id": "a_manger",
           "label": "Ce qui se mange",
-          "words": ["cake", "sweet", "juice", "biscuit", "apple", "bread"],
-          "destination": "beach"
+          "words": ["gâteau", "bonbon", "jus", "biscuit", "pomme", "pain"],
+          "destination": "plage"
         },
         {
-          "id": "keep",
+          "id": "a_laisser",
           "label": "Laisse-le",
-          "words": ["newspaper", "magazine", "bench", "clock", "wheel", "key"]
+          "words": ["journal", "revue", "banc", "pendule", "volant", "clé"]
         }
       ]
     },
     {
-      "id": "street",
+      "id": "rue",
       "location": "La rue",
       "narrative": {
         "onArrival": "Grisbie marche sur le trottoir. La plage est encore loin..."
@@ -112,7 +115,7 @@
       "families": []
     },
     {
-      "id": "beach",
+      "id": "plage",
       "location": "La plage",
       "narrative": {
         "onArrival": "Grisbie court sur le sable : la mer est là !"

@@ -22,7 +22,7 @@ void main() {
     test('l\'etape de depart propose trois chemins', () {
       final start = adventure.startStage;
 
-      expect(start.id, 'home');
+      expect(start.id, 'maison');
       expect(start.families, hasLength(3));
     });
 
@@ -31,13 +31,13 @@ void main() {
       // voiture » partage presque tout son vocabulaire avec « En bus », donc
       // sa liste est plus courte. Rien n'impose de les egaliser.
       final sizes = adventure.startStage.families
-          .map((family) => family.wordIds.length)
+          .map((family) => family.wordTexts.length)
           .toSet();
 
       expect(sizes, isNotEmpty);
       for (final family in adventure.startStage.families) {
         expect(
-          family.wordIds.length,
+          family.wordTexts.length,
           greaterThanOrEqualTo(family.requiredCount),
           reason:
               'La famille "${family.id}" demande plus de mots qu\'elle n\'en a',
@@ -67,7 +67,7 @@ void main() {
           isNull,
           reason: 'La famille "${family.id}" raccourcit sa liste',
         );
-        expect(family.requiredCount, family.wordIds.length);
+        expect(family.requiredCount, family.wordTexts.length);
       }
     });
 
@@ -90,8 +90,8 @@ void main() {
       // se classerait en comparant les lettres, sans comprendre le sens.
       for (final stage in adventure.stages.values) {
         for (final family in stage.families) {
-          for (final wordId in family.wordIds) {
-            final word = stage.findWord(wordId)!;
+          for (final wordText in family.wordTexts) {
+            final word = stage.findWord(wordText)!;
             expect(
               family.label.toLowerCase().contains(word.text.toLowerCase()),
               isFalse,
@@ -103,7 +103,7 @@ void main() {
     });
 
     test('la gare ouvre a son tour deux directions', () {
-      final station = adventure.findStage('station_hall');
+      final station = adventure.findStage('gare');
 
       expect(station, isNotNull);
       expect(station!.isTerminal, isFalse);
@@ -111,21 +111,19 @@ void main() {
     });
 
     test('la plage est une etape terminale', () {
-      expect(adventure.findStage('beach')!.isTerminal, isTrue);
+      expect(adventure.findStage('plage')!.isTerminal, isTrue);
     });
 
-    test('chaque mot possede un decoupage syllabique', () {
+    test('chaque mot possede un decoupage', () {
+      // Le decoupage suit les sons, pas les lettres : « arret » se coupe en
+      // « a » et « rê ». Il n'a donc pas a reconstituer l'orthographe, et rien
+      // ne le controle — seule son absence est une faute de contenu.
       for (final stage in adventure.stages.values) {
         for (final word in stage.words) {
           expect(
             word.syllables,
             isNotEmpty,
-            reason: 'Mot sans syllabes : ${word.id}',
-          );
-          expect(
-            word.syllables.join(),
-            equalsIgnoringCase(word.text.replaceAll('-', '')),
-            reason: 'Les syllabes de "${word.text}" ne le reconstituent pas',
+            reason: 'Mot sans decoupage : ${word.text}',
           );
         }
       }
@@ -139,23 +137,23 @@ void main() {
       // Premiere etape : classer assez de mots « bus » pour ouvrir la gare.
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
       final busFamily = adventure.startStage.families.firstWhere(
-        (family) => family.id == 'by_bus',
+        (family) => family.id == 'en_bus',
       );
-      for (final wordId in busFamily.wordIds.take(busFamily.requiredCount)) {
-        home.placeWord(wordId: wordId, familyId: 'by_bus');
+      for (final wordText in busFamily.wordTexts.take(busFamily.requiredCount)) {
+        home.placeWord(wordText: wordText, familyId: 'en_bus');
       }
 
       expect(home.state.availableDestinations, hasLength(1));
-      home.departTo('station_hall');
+      home.departTo('gare');
 
       // Seconde etape : l'etape imbriquee, dans la gare.
       final station = StageEngine(
         stage: adventure.findStage(home.state.departedTo!)!,
         random: Random(1),
       );
-      station.placeWord(wordId: 'platform', familyId: 'take_the_train');
-      station.placeWord(wordId: 'rail_ticket', familyId: 'take_the_train');
-      station.departTo('beach');
+      station.placeWord(wordText: 'quai', familyId: 'prendre_le_train');
+      station.placeWord(wordText: 'billet', familyId: 'prendre_le_train');
+      station.departTo('plage');
 
       final beach = adventure.findStage(station.state.departedTo!)!;
       expect(beach.locationName, 'La plage');
@@ -167,20 +165,20 @@ void main() {
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
 
       // L'enfant ouvre deux chemins avant de se decider.
-      for (final familyId in <String>['on_foot', 'by_bus']) {
+      for (final familyId in <String>['a_pied', 'en_bus']) {
         final family = adventure.startStage.families.firstWhere(
           (family) => family.id == familyId,
         );
-        for (final wordId in family.wordIds.take(family.requiredCount)) {
-          home.placeWord(wordId: wordId, familyId: familyId);
+        for (final wordText in family.wordTexts.take(family.requiredCount)) {
+          home.placeWord(wordText: wordText, familyId: familyId);
         }
       }
 
       expect(home.state.availableDestinations, hasLength(2));
       expect(home.state.isFinished, isFalse);
 
-      home.departTo('street');
-      expect(home.state.departedTo, 'street');
+      home.departTo('rue');
+      expect(home.state.departedTo, 'rue');
     });
   });
 }

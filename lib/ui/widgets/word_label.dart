@@ -117,7 +117,7 @@ class DraggableWordLabel extends StatelessWidget {
       label: UiStringsFr.wordSemantics(word.text),
       button: true,
       child: Draggable<String>(
-        data: word.id,
+        data: word.text,
         // Le mot suit le doigt legerement au-dessus : a cet age la main cache
         // volontiers ce qu'elle deplace.
         dragAnchorStrategy: (draggable, context, position) {

@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.7.1+14** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.8.0+15** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée.
 
@@ -136,6 +136,17 @@ définit chaque mot **une seule fois**, `characters.json` porte les personnages,
 `adventures/*.json` assemble le tout par références. Un mot défini à deux endroits
 finirait découpé de deux façons différentes ; le chargement refuse le doublon.
 
+**Tout le contenu est en français, identifiants compris** — ids d'étapes, de
+familles, de personnages. Le jeu n'a pas vocation à être traduit, et une clé
+technique anglaise n'ajoutait qu'un détour : il fallait savoir qu'« arrêt »
+s'appelait `bus_stop` pour l'employer. Seuls les noms de champs JSON restent en
+anglais, puisqu'ils portent directement les champs Dart.
+
+**Un mot est désigné par son orthographe.** `Word` n'a pas d'identifiant : son
+`text` est sa clé, dans le lexique comme dans les aventures. Conséquence assumée,
+deux mots de même orthographe ne peuvent coexister — ils seraient de toute façon
+indiscernables à l'écran. Le chargement refuse le doublon en nommant le mot.
+
 Raison : le contenu doit pouvoir évoluer sans recompilation, être relu par un
 enseignant ou un parent, et le dépôt étant destiné à l'open source, c'est le point
 d'entrée le plus accessible pour une contribution extérieure.
@@ -154,6 +165,13 @@ moteur :
 Le découpage syllabique est une donnée du contenu, jamais calculé : le français n'a
 pas de règle de syllabation assez sûre pour être automatisée, et une syllabe fausse
 tromperait l'enfant sur ce que le jeu cherche précisément à travailler.
+
+**Le découpage suit les sons, pas les lettres** — règle pédagogique choisie contre
+la syllabation graphique académique : `["a", "rê"]` pour « arrêt ». Il n'a donc pas
+à reconstituer l'orthographe, et **aucun test ne doit l'exiger** : un tel contrôle
+interdirait précisément les découpages recherchés. Seule l'absence de découpage est
+signalée. L'enfant voit les deux de toute façon, le mot écrit sur l'étiquette et son
+découpage juste en dessous.
 
 **Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
 bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
