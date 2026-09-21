@@ -4,6 +4,10 @@
     "lexicon/nourriture.json",
     "lexicon/lieux.json"
   ],
+  "lists": [
+    "lists/transport.json",
+    "lists/quotidien.json"
+  ],
   "characters": "characters.json",
   "adventures": [
     {

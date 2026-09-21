@@ -1,0 +1,37 @@
+{
+  "domain": "quotidien",
+  "lists": [
+    {
+      "id": "achats_gare",
+      "name": "Ce qu'on achète à la gare",
+      "words": [
+        "gâteau",
+        "journal"
+      ]
+    },
+    {
+      "id": "nourriture",
+      "name": "Ce qui se mange",
+      "words": [
+        "gâteau",
+        "bonbon",
+        "jus",
+        "biscuit",
+        "pomme",
+        "pain"
+      ]
+    },
+    {
+      "id": "objets_divers",
+      "name": "Des objets de toutes sortes",
+      "words": [
+        "journal",
+        "revue",
+        "banc",
+        "pendule",
+        "volant",
+        "clé"
+      ]
+    }
+  ]
+}

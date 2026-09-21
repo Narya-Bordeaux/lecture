@@ -21,15 +21,7 @@
         {
           "id": "en_bus",
           "label": "En bus",
-          "words": [
-            "arrêt",
-            "ticket",
-            "horaire",
-            "abri",
-            "ligne",
-            "terminus",
-            "guichet"
-          ],
+          "list": "bus",
           "destination": "gare",
           "area": {
             "left": 0.02,
@@ -41,15 +33,7 @@
         {
           "id": "en_voiture",
           "label": "En voiture",
-          "words": [
-            "volant",
-            "essence",
-            "coffre",
-            "garage",
-            "klaxon",
-            "radio",
-            "clé"
-          ],
+          "list": "voiture",
           "destination": "garage",
           "area": {
             "left": 0.37,
@@ -61,15 +45,7 @@
         {
           "id": "a_pied",
           "label": "À pied",
-          "words": [
-            "chaussure",
-            "sentier",
-            "marche",
-            "pas",
-            "jambe",
-            "talon",
-            "promenade"
-          ],
+          "list": "marche",
           "destination": "rue",
           "area": {
             "left": 0.66,
@@ -92,19 +68,13 @@
         {
           "id": "prendre_le_train",
           "label": "Prendre le train",
-          "words": [
-            "quai",
-            "billet"
-          ],
+          "list": "train",
           "destination": "plage"
         },
         {
           "id": "acheter",
           "label": "Acheter quelque chose",
-          "words": [
-            "gâteau",
-            "journal"
-          ],
+          "list": "achats_gare",
           "destination": "boutique"
         }
       ]
@@ -125,27 +95,13 @@
         {
           "id": "a_manger",
           "label": "Ce qui se mange",
-          "words": [
-            "gâteau",
-            "bonbon",
-            "jus",
-            "biscuit",
-            "pomme",
-            "pain"
-          ],
+          "list": "nourriture",
           "destination": "plage"
         },
         {
           "id": "a_laisser",
           "label": "Laisse-le",
-          "words": [
-            "journal",
-            "revue",
-            "banc",
-            "pendule",
-            "volant",
-            "clé"
-          ]
+          "list": "objets_divers"
         }
       ]
     },

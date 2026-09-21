@@ -2,6 +2,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/word_list.dart';
 
 /// La nature du lieu qu'un trajet atteint.
 enum TripKind {
@@ -146,10 +147,14 @@ class AdventureBuilder {
       final stageId = _freeId(slugify(trip.name), stages.keys.toSet());
       stages[stageId] = _arrivalOf(trip, stageId);
 
+      final familyId = _freeFamilyId(slugify(trip.name), families);
       families.add(WordFamily(
-        id: _freeFamilyId(slugify(trip.name), families),
+        id: familyId,
         label: trip.name,
-        words: const <Word>[],
+        // Une liste neuve, vide, nommee d'apres le trajet. L'auteur la
+        // remplira, et pourra la rattacher ailleurs : c'est le propre d'une
+        // liste que de servir a plusieurs lieux.
+        list: _newList(familyId, trip.name),
         destinationStageId: stageId,
       ));
     }
@@ -205,11 +210,21 @@ class AdventureBuilder {
               // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
               // peut-etre pas le geste le plus juste a six ans.
               label: 'Le reste',
-              words: const <Word>[],
+              list: _newList('${stageId}_le_reste', 'Le reste de $stageId'),
             ),
           ]),
         );
     }
+  }
+
+  /// Une liste vide, prete a recevoir des mots.
+  ///
+  /// **Pas `const`** : Dart canonise les constantes, et deux listes vides de
+  /// meme identifiant seraient litteralement le meme objet. Elles sont
+  /// immutables, donc rien ne pourrait diverger — mais il ne faut pas avoir a
+  /// le demontrer pour etre tranquille.
+  static WordList _newList(String id, String name) {
+    return WordList(id: id, name: name, words: <Word>[]);
   }
 
   /// Un identifiant de lieu libre, suffixe s'il est deja pris.

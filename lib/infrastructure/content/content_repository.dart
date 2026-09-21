@@ -4,6 +4,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/models/word_list_catalog.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 
@@ -28,6 +29,7 @@ class ContentRepository implements AdventureRepository {
 
   ContentIndex? _index;
   Lexicon? _lexicon;
+  WordListCatalog? _wordLists;
   Map<String, Character>? _characters;
 
   @override
@@ -74,12 +76,12 @@ class ContentRepository implements AdventureRepository {
       );
     }
 
-    final lexicon = await _loadLexicon(index);
+    final lists = await _loadWordLists(index);
     final characters = await _loadCharacters(index);
 
     final adventure = Adventure.fromJson(
       await _readJson(entry.file),
-      lexicon: lexicon,
+      lists: lists,
       characters: characters,
     );
 
@@ -95,6 +97,21 @@ class ContentRepository implements AdventureRepository {
       lexicons.add(Lexicon.fromJson(await _readJson(path)));
     }
     return _lexicon = Lexicon.merge(lexicons);
+  }
+
+  /// Les listes de mots de tous les domaines, reunies une fois pour la session.
+  ///
+  /// Les mots sont resolus au passage : une liste cite le lexique, elle ne
+  /// redefinit rien.
+  Future<WordListCatalog> _loadWordLists(ContentIndex index) async {
+    if (_wordLists != null) return _wordLists!;
+
+    final lexicon = await _loadLexicon(index);
+    final catalogs = <WordListCatalog>[];
+    for (final path in index.wordListFiles) {
+      catalogs.add(WordListCatalog.fromJson(await _readJson(path), lexicon));
+    }
+    return _wordLists = WordListCatalog.merge(catalogs);
   }
 
   Future<Map<String, Character>> _loadCharacters(ContentIndex index) async {

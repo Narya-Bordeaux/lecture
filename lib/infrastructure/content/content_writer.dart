@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_index.dart';
+import 'package:grisbie/domain/models/word_list.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
 
 /// Enregistre le contenu sous la forme exacte que le chargement relit.
@@ -33,6 +34,21 @@ class ContentWriter {
     required String path,
   }) {
     return _write(path, adventure.toJson());
+  }
+
+  /// Ecrit un fichier de listes de mots.
+  ///
+  /// Les listes vivent a cote des aventures et non dedans : c'est ce qui leur
+  /// permet de servir a plusieurs. Enregistrer une aventure suppose donc
+  /// d'enregistrer aussi les listes qu'elle cite, sans quoi elle citerait des
+  /// listes que personne n'a ecrites.
+  Future<void> writeWordLists(
+    Iterable<WordList> lists, {
+    required String path,
+  }) {
+    return _write(path, <String, dynamic>{
+      'lists': lists.map((list) => list.toJson()).toList(),
+    });
   }
 
   /// Ecrit le fichier pere.

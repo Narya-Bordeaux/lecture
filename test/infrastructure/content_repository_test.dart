@@ -30,6 +30,7 @@ Map<String, String> buildFiles({
     'index.json': '''
 {
   "lexicons": ["lexicon/test.json"],
+  "lists": ["lists/test.json"],
   "characters": "characters.json",
   "adventures": [
     { "id": "test", "title": "Essai", "file": "adventures/test.json" }
@@ -40,6 +41,11 @@ Map<String, String> buildFiles({
   ${lexiconWords ?? '''
   { "text": "un", "syllables": ["un"] },
   { "text": "deux", "syllables": ["deux"] }'''}
+] }''',
+    'lists/test.json': '''
+{ "domain": "test", "lists": [
+  { "id": "liste_une", "name": "La liste",
+    "words": [${familyWords ?? '"un", "deux"'}] }
 ] }''',
     'characters.json': characters ??
         '{ "characters": [ { "id": "guide", "name": "Le guide" } ] }',
@@ -55,8 +61,7 @@ Map<String, String> buildFiles({
       "narrative": { "onArrival": "Bonjour.", "onCompletion": "A bientot." },
       ${encounter ?? ''}
       "families": [
-        { "id": "one", "label": "Famille",
-          "words": [${familyWords ?? '"un", "deux"'}],
+        { "id": "one", "label": "Famille", "list": "liste_une",
           "destination": "end" }
       ]
     },
@@ -78,6 +83,7 @@ void main() {
       expect(index.adventures, hasLength(1));
       expect(index.adventures.first.title, 'Essai');
       expect(index.lexiconFiles, <String>['lexicon/test.json']);
+      expect(index.wordListFiles, <String>['lists/test.json']);
     });
 
     test('une aventure non declaree est refusee en la nommant', () async {

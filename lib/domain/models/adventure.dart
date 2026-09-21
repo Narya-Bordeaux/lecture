@@ -1,8 +1,9 @@
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
-import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word_list.dart';
+import 'package:grisbie/domain/models/word_list_catalog.dart';
 
 /// Une « journee » du chat Grisbie : un ensemble d'etapes reliees entre elles.
 ///
@@ -17,17 +18,20 @@ class Adventure {
     this.opening,
   });
 
-  /// Construit l'aventure en resolvant mots et personnages.
+  /// Construit l'aventure en resolvant listes et personnages.
+  ///
+  /// Une aventure ne contient que des references : elle cite des listes, qui
+  /// citent des mots. Rien n'y est defini deux fois.
   factory Adventure.fromJson(
     Map<String, dynamic> json, {
-    required Lexicon lexicon,
+    required WordListCatalog lists,
     required Map<String, Character> characters,
   }) {
     final stages = <String, Stage>{};
     for (final item in json['stages'] as List<dynamic>) {
       final stage = Stage.fromJson(
         item as Map<String, dynamic>,
-        lexicon: lexicon,
+        lists: lists,
         characters: characters,
       );
       stages[stage.id] = stage;
@@ -66,6 +70,21 @@ class Adventure {
   }
 
   Stage? findStage(String stageId) => stages[stageId];
+
+  /// Les listes que cette aventure cite, chacune une fois.
+  ///
+  /// Derivees des familles, et non declarees a part : une aventure qui
+  /// annoncerait ses listes en tete finirait par en annoncer une qu'elle
+  /// n'emploie plus. C'est ce qu'il faut enregistrer a cote d'elle.
+  List<WordList> get wordLists {
+    final byId = <String, WordList>{};
+    for (final stage in stages.values) {
+      for (final family in stage.families) {
+        byId[family.list.id] = family.list;
+      }
+    }
+    return List<WordList>.unmodifiable(byId.values);
+  }
 
   /// Les incoherences de contenu sur l'ensemble de l'aventure.
   ///

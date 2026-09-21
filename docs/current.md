@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.16.0+29** — 21 septembre 2026
+**Version : 0.17.0+30** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -12,7 +12,8 @@ est remplacé sur place par un mot de la réserve. La spécification est en vers
 de travail 0.8.
 
 Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décrits
-par `docs/Format_fichier_aventure.md`. La boutique de la gare est un **tri
+par `docs/Format_fichier_aventure.md`. Les mots y sont regroupés en **listes
+thématiques réutilisables**, qu'une famille cite au lieu de les porter. La boutique de la gare est un **tri
 unique** : l'enfant y trie entre une liste et tout le reste, et une marchande y
 pose la question — l'ornement, pas la mécanique.
 
@@ -49,7 +50,9 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
 4. ⬜ **L'image** — la choisir, la copier, l'afficher. Pendant l'édition il
    faudra la charger **par chemin de fichier** : une image fraîchement ajoutée
    n'est pas dans le bundle, les assets étant scellés au build.
-5. ⬜ **Le lexique** — saisir mots et découpages, unicité garantie.
+5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
+   et composer les listes thématiques. Le modèle est posé depuis 0.17.0
+   (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
 6. ⬜ **Rebrancher le calage** sur l'aventure éditée, et enregistrer au lieu de
    copier.
 
@@ -65,9 +68,37 @@ de la console.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
-aucun mot d'une famille donnée.
+aucun mot d'une famille donnée — question que 0.17.0 rend plus pressante, le
+tirage se faisant désormais à deux étages.
+
+**Les listes livrées font encore exactement la taille de la partie.** Le
+dispositif de 0.17.0 est en place et éprouvé, mais il ne rapportera rien tant
+qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
+un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.17.0+30 — Des listes plus grandes que la partie
+- **Une liste est réutilisable et plus grande que ce qu'une partie en montre.**
+  À l'entrée d'un lieu, le moteur tire quelques mots de chaque liste, après
+  avoir retiré ceux qu'elle partage avec ses voisines. Rejouer la même journée
+  ne redonne plus les mêmes mots.
+- **La règle du mot ambigu change de main.** Elle tenait à la vigilance de
+  l'auteur — 0.4.1 avait élagué onze mots partagés à la main — elle est
+  désormais appliquée par la machine, avant que le mot n'atteigne l'écran.
+  Écrire le même mot dans deux listes devient la façon de le déclarer ambigu
+  *ici*.
+- Ce que `validate()` signale, c'est le **manque** que l'exclusion laisse :
+  *incomplet* s'il faut écrire d'autres mots, *faux* si une liste est
+  entièrement absorbée par ses voisines.
+- **Un troisième objet, `WordList`**, entre le lexique (qui refuse le doublon)
+  et la famille (propre à un lieu). Il manquait : un mot doit pouvoir
+  appartenir à plusieurs thèmes.
+- Le contenu livré est **migré mot pour mot**, et son comportement est
+  inchangé : sans `drawCount`, une liste joue entière.
+- C'est le tri unique qui y gagne le plus : une seule liste d'objets
+  hétéroclites peut servir tous les tris uniques, chacun retranchant son thème.
+- 263 tests au vert, dont 23 nouveaux.
 
 ### 0.16.0+29 — Un troisième choix, et des listes bien à soi
 - **La liste du reste n'était pas globale**, mais elle était `const` — et Dart
@@ -100,22 +131,6 @@ aucun mot d'une famille donnée.
   `characters.json` à écrire.
 - 233 tests au vert, dont 10 nouveaux.
 
-### 0.14.0+27 — Toute arrivée devient une carte
-- **Le défaut qui rendait l'écran inutilisable** : je n'affichais que les lieux
-  ayant déjà des trajets. Un lieu qu'on vient de créer n'en a aucun — ajouter
-  trois directions ne faisait donc rien apparaître en dessous.
-- Corrigé dans `AdventureOutline` : **tout lieu a son bloc**, fin comprise.
-  Chaque arrivée devient une carte plus bas, avec sa lettre et son bouton.
-- **La page d'ajout rappelle ce qui part déjà d'ici** : elle s'ouvrait vide sur
-  un lieu qui avait trois directions.
-- **Créer une aventure à partir de rien** : un titre, un lieu de départ, et on
-  construit de proche en proche (`NewAdventurePage`).
-- La section « Lieux non reliés » disparaît, remplacée par une mention sur la
-  carte du lieu concerné.
-- Piège consigné : un `ListView` ne construit que les cartes visibles ; les
-  tests d'écran agrandissent la fenêtre, sans quoi ils cherchent des widgets
-  qui n'existent pas dans l'arbre.
-- 223 tests au vert, dont 9 nouveaux.
 
 ## Décisions prises
 
@@ -166,8 +181,12 @@ aucun mot d'une famille donnée.
   avec ses propres familles. Le modèle est récursif, un seul moteur sert partout.
 - **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, les
   personnages, les aventures. Un mot n'est défini qu'une fois.
-- **Leurres écrits à la main** : jamais tirés au hasard, sous peine de sortir un
-  mot appartenant vraiment au thème et de refuser une bonne réponse.
+- **Leurres écrits à la main** : jamais ramassés automatiquement, sous peine de
+  sortir un mot appartenant vraiment au thème et de refuser une bonne réponse.
+- **Listes réutilisables, plus grandes que la partie** : le moteur en tire
+  quelques mots à l'entrée du lieu, après avoir retiré ceux qui sont communs à
+  plusieurs listes du même lieu. Le mot ambigu n'est plus interdit à l'auteur,
+  il est retiré par la machine — et rejouer donne d'autres mots.
 
 ## Points ouverts
 

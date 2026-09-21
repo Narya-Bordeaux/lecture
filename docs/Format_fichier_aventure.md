@@ -9,20 +9,30 @@ du texte structuré par des accolades, des crochets et des guillemets. Les
 virgules et les guillemets comptent ; un éditeur de texte qui colore le JSON
 (VS Code, Notepad++) signale les oublis immédiatement.
 
-## Les quatre sortes de fichiers
+## Les cinq sortes de fichiers
 
 ```
 assets/content/
   index.json            ← le sommaire : ce qui existe
   lexicon/*.json        ← le vocabulaire, regroupé par domaine
+  lists/*.json          ← les listes de mots, par thème
   characters.json       ← les personnages
   adventures/*.json     ← les aventures et leurs lieux
 ```
 
 Le principe est simple : **un mot n'est défini qu'une fois**, dans le lexique.
-Les aventures ne font que le citer. C'est ce qui évite qu'un même mot se
+Tout le reste ne fait que le citer. C'est ce qui évite qu'un même mot se
 retrouve découpé `gâ-teau` à un endroit et `gât-eau` à un autre — l'enfant
 verrait les deux.
+
+Trois fichiers, trois questions distinctes, et c'est ce qui justifie qu'ils
+soient séparés :
+
+| Fichier | Répond à |
+|---|---|
+| `lexicon/*.json` | comment le mot s'écrit et se découpe |
+| `lists/*.json` | de quoi le mot parle |
+| `adventures/*.json` | où cette liste se pose, sous quel nom, vers quelle sortie |
 
 Tout s'écrit en français, y compris les noms internes. Le jeu n'a pas vocation
 à être traduit : **un mot est désigné par son orthographe**, pas par une clé
@@ -35,6 +45,7 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 ```json
 {
   "lexicons": ["lexicon/transport.json", "lexicon/nourriture.json"],
+  "lists": ["lists/transport.json", "lists/quotidien.json"],
   "characters": "characters.json",
   "adventures": [
     {
@@ -50,6 +61,7 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 | Champ | Obligatoire | Rôle |
 |---|---|---|
 | `lexicons` | oui | Les fichiers de vocabulaire à charger |
+| `lists` | non | Les fichiers de listes de mots à charger |
 | `characters` | non | Le fichier des personnages |
 | `adventures` | oui | Les aventures jouables |
 | `id` | oui | Nom interne, sans espace ni accent |
@@ -57,8 +69,10 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 | `cover` | non | Image de présentation |
 | `file` | oui | Où trouver l'aventure |
 
-**Toute nouvelle aventure ou tout nouveau fichier de vocabulaire doit être
-ajouté ici**, sinon le jeu ne le verra pas.
+**Tout nouveau fichier — aventure, vocabulaire, listes — doit être ajouté
+ici**, sinon le jeu ne le verra pas. Et s'il s'agit d'un nouveau *répertoire*,
+il faut aussi le déclarer dans `pubspec.yaml` : Flutter n'embarque pas les
+sous-dossiers qu'on ne lui nomme pas.
 
 ## 2. Le vocabulaire — `lexicon/*.json`
 
@@ -97,7 +111,48 @@ l'enfant sur le point même qu'on cherche à travailler.
 > seule étiquette, sans moyen de les distinguer. Le chargement refuse le
 > doublon en nommant le mot.
 
-## 3. Les personnages — `characters.json`
+## 3. Les listes de mots — `lists/*.json`
+
+Une liste rassemble les mots d'un **thème** : le bus, la nourriture, les objets
+d'une boutique. Un fichier peut en contenir plusieurs.
+
+```json
+{
+  "domain": "transport",
+  "lists": [
+    {
+      "id": "bus",
+      "name": "Le bus",
+      "words": ["arrêt", "ticket", "horaire", "abri", "ligne", "terminus"]
+    }
+  ]
+}
+```
+
+- `id` — le nom interne, cité par les familles d'une aventure.
+- `name` — un nom de travail, **pour vous**. L'enfant ne le voit jamais : ce
+  qu'il lit, c'est le `label` de la famille.
+- `words` — les mots, écrits tels qu'ils figurent dans le lexique.
+
+Deux propriétés font tout l'intérêt de cet objet.
+
+**Une liste sert à plusieurs endroits.** Le même thème peut être rejoué dans un
+autre lieu, dans une autre aventure : on cite son `id`, on ne recopie rien.
+C'est pourquoi les listes ne vivent pas *dans* les aventures.
+
+**Une liste est plus grande que la partie.** À l'entrée d'un lieu, le jeu n'en
+tire que quelques mots (`drawCount`, §5). Écrire vingt mots pour une partie qui
+en montre sept n'est pas du gâchis : c'est ce qui fait que **rejouer la même
+journée ne redonne pas les mêmes mots**.
+
+> **Un même mot peut appartenir à plusieurs listes**, et c'est justement ce que
+> le lexique interdit. « gâteau » est à la fois de la nourriture et de ce qu'on
+> achète à la gare. Il n'est défini qu'une fois, et cité deux fois.
+>
+> En revanche, un mot **répété dans la même liste** est refusé : il compterait
+> deux fois au tirage et pourrait s'afficher en double.
+
+## 4. Les personnages — `characters.json`
 
 ```json
 {
@@ -113,7 +168,7 @@ nom, son portrait. **Ce qu'il dit appartient au lieu où on le rencontre**, et
 s'écrit dans l'aventure. Le même personnage peut ainsi revenir ailleurs avec
 d'autres répliques.
 
-## 4. Une aventure — `adventures/*.json`
+## 5. Une aventure — `adventures/*.json`
 
 Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 
@@ -172,6 +227,7 @@ son premier lieu.
     "onCompletion": "Le réservoir est plein. En route vers la mer !"
   },
   "visibleWordCount": 6,
+  "drawCount": 7,
   "families": [ … ]
 }
 ```
@@ -184,14 +240,20 @@ son premier lieu.
 | `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
 | `narrative.onArrival` | non | Texte affiché en arrivant, **avant** de jouer |
 | `narrative.onCompletion` | non | Texte affiché au moment de repartir |
-| `visibleWordCount` | non | Combien de mots sont proposés à la fois (6 par défaut) |
+| `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
+| `drawCount` | non | Combien de mots **chaque famille** tire de sa liste (toute la liste par défaut) |
 | `character` | non | Le personnage rencontré ici |
 | `families` | oui | Les catégories à remplir |
 
+Ne pas confondre les deux nombres. `drawCount` dit combien de mots entrent en
+jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.
+`visibleWordCount` dit combien d'étiquettes tiennent **à l'écran** en même
+temps ; les autres attendent en réserve, et un mot bien classé libère sa place.
+
 **Il n'y a pas de champ indiquant le type du lieu.** La structure le dit : un
-lieu dont une famille n'a pas de `destination` fait un **tri unique** (§5), un
+lieu dont une famille n'a pas de `destination` fait un **tri unique** (§6), un
 lieu sans `families` est une fin. Rien à déclarer, donc rien qui puisse
-contredire le contenu réel — à une exception près, `ending`, expliquée au §6.
+contredire le contenu réel — à une exception près, `ending`, expliquée au §7.
 
 Le `character` ne dit rien du type du lieu : c'est un **ornement**, qu'on pose
 où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
@@ -202,7 +264,8 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 {
   "id": "le_plein",
   "label": "Le plein",
-  "words": ["essence", "huile", "pompe", "bidon"],
+  "list": "station_service",
+  "drawCount": 7,
   "destination": "route_de_la_cote",
   "area": { "left": 0.05, "top": 0.35, "width": 0.3, "height": 0.16 }
 }
@@ -212,10 +275,16 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 |---|---|---|
 | `id` | oui | Nom interne |
 | `label` | oui | Le nom de la catégorie, lu par l'enfant |
-| `words` | oui | Les mots, écrits tels qu'ils figurent dans le lexique |
+| `list` | oui | L'`id` de la liste (§3) où la famille puise ses mots |
+| `drawCount` | non | Combien de mots tirer ici, si autre chose que le `drawCount` du lieu |
 | `destination` | non | Le lieu qui s'ouvre quand la famille est complète |
 | `area` | non | Où poser la zone sur l'illustration |
 | `goal` | non | Combien de mots suffisent (toute la liste par défaut) |
+
+**Une famille ne porte pas ses mots, elle cite une liste.** La liste est un
+thème réutilisable ; la famille dit où ce thème se pose *ici* — sous quel nom
+l'enfant le lit, vers quelle sortie il mène, sur quelle partie de l'image on
+dépose. Deux lieux peuvent citer la même liste sans se gêner.
 
 **Une famille sans `destination` ne mène nulle part.** C'est le classeur de
 rebut d'une énigme : l'enfant y range ce qui ne répond pas à la question, et le
@@ -285,7 +354,7 @@ Au besoin, les valeurs restent calculables à la main : diviser la position d'un
 élément par la largeur (ou la hauteur) totale de l'image. Un élément commençant
 à 300 pixels sur une image large de 1024 donne `left: 0.29`.
 
-## 5. Un tri unique
+## 6. Un tri unique
 
 **C'est une autre mécanique de lecture, pas un ornement narratif.** Au lieu de
 trier entre plusieurs familles homogènes, l'enfant trie entre **une liste et son
@@ -315,10 +384,10 @@ ordinaire peut en porter un.
   },
   "families": [
     { "id": "pour_le_pecheur", "label": "Pour le pêcheur",
-      "words": ["vague", "sable", "coquille", "bateau", "poisson", "algue", "crabe"],
+      "list": "la_mer", "drawCount": 7,
       "destination": "plage", "area": { … } },
     { "id": "a_garder", "label": "Garde-le",
-      "words": ["cahier", "marteau", "poule", "guidon", "craie", "sapin", "bonbon"],
+      "list": "objets_divers", "drawCount": 7,
       "area": { … } }
   ]
 }
@@ -327,21 +396,27 @@ ordinaire peut en porter un.
 La réplique du personnage remplace la consigne habituelle au-dessus des mots :
 elle dit ce qu'il faut faire, et mieux qu'une phrase générique.
 
-**Les mots du reste sont écrits à la main, jamais tirés au hasard.** Le tirage
-automatique dans les autres listes exposerait à sortir un mot qui appartient
-vraiment au thème — l'enfant le classerait correctement et le jeu le
-refuserait. Punir une bonne réponse est la pire erreur possible ici. Écrits une
-fois, ces mots sont vérifiés une fois.
+**Les mots du reste s'écrivent, ils ne se devinent pas.** Il n'existe pas de
+« tout le vocabulaire du jeu moins le thème » : un ramassage automatique
+sortirait un mot appartenant vraiment au thème, l'enfant le classerait
+correctement et le jeu le refuserait. Punir une bonne réponse est la pire erreur
+possible ici.
 
-Comptez **autant de mots dans le reste que dans le thème**. Une liste du reste
-beaucoup plus grosse noierait le thème, les mots proposés étant tirés de
-l'ensemble.
+C'est précisément là que la liste réutilisable rapporte le plus. Une seule liste
+d'objets hétéroclites, écrite une fois et relue une fois, sert **tous** les tris
+uniques du jeu : chacun en retranche automatiquement son propre thème (§8, « Les
+mots communs »). Le danger que cette règle voulait éviter est exactement celui
+que le retrait supprime — à condition que le mot soit écrit dans les deux
+listes, et lui seul.
+
+Comptez **autant de mots tirés du reste que du thème** — deux `drawCount`
+égaux. Une moitié beaucoup plus fournie noierait l'autre.
 
 **Une seule sortie**, et le jeu le vérifie : un lieu qui aurait sa liste du
 reste et deux destinations ne serait plus un tri unique, mais un tri ordinaire
 affublé d'une liste de rebut. Le chargement le refuse.
 
-## 6. Les règles que le jeu vérifie tout seul
+## 7. Les règles que le jeu vérifie tout seul
 
 Au chargement, le contenu est contrôlé. En cas de problème, le jeu refuse de
 démarrer et affiche la liste précise des fautes — mieux vaut un message clair
@@ -357,8 +432,11 @@ Sont détectés :
 - une destination qui désigne un lieu inexistant ;
 - un lieu qu'aucun chemin ne permet d'atteindre ;
 - une famille vide ;
-- **un mot présent dans deux familles du même lieu** — c'est le « mot ambigu »
-  que la conception proscrit ;
+- une **liste citée mais introuvable**, ou un mot **répété dans une liste** ;
+- une famille dont la liste, **une fois les mots communs retirés**, ne contient
+  plus assez de mots pour le `drawCount` demandé ;
+- une famille dont la liste est **entièrement absorbée** par ses voisines : les
+  deux listes disent alors la même chose ;
 - **un mot qui apparaît dans le nom de sa famille** (« bus » dans « En bus ») :
   l'enfant le classerait en comparant les lettres, sans comprendre le sens ;
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
@@ -387,14 +465,14 @@ Le jeu refuse tout : une aventure qui présente la moindre de ces anomalies est
 injouable, et rien ne sert de la lancer. Mais chaque anomalie porte aussi sa
 nature, pour l'outil d'auteur, qui doit pouvoir ouvrir un travail en cours.
 
-**Faux** — ne s'arrangera pas en continuant d'écrire : un mot ambigu, un mot
-présent dans le nom de sa famille, une zone qui déborde ou qui en chevauche une
-autre, un lieu de départ introuvable.
+**Faux** — ne s'arrangera pas en continuant d'écrire : un mot présent dans le
+nom de sa famille, une liste entièrement absorbée par ses voisines, une zone qui
+déborde ou qui en chevauche une autre, un lieu de départ introuvable.
 
 **Incomplet** — état normal d'un lieu qu'on vient de créer : une famille sans
-mots, un mot sans découpage, un lieu dont aucune famille ne mène encore
-ailleurs, un lieu que rien ne relie, une destination annoncée avant que son lieu
-existe.
+mots, une liste à qui il manque quelques mots pour son tirage, un mot sans
+découpage, un lieu dont aucune famille ne mène encore ailleurs, un lieu que rien
+ne relie, une destination annoncée avant que son lieu existe.
 
 Cette dernière mérite un mot. Écrire « le bus va au marché » puis créer le marché
 est une façon normale d'avancer. Une promesse pas encore tenue et une faute de
@@ -402,7 +480,7 @@ frappe sont de toute façon **indiscernables** : les traiter en faute
 interdirait d'écrire le parcours dans l'ordre où il se raconte. C'est donc à la
 relecture, et au refus du jeu, qu'une destination fantôme se voit.
 
-## 7. Les pièges de contenu, qui eux ne sont pas détectables
+## 8. Les pièges de contenu, qui eux ne sont pas détectables
 
 Le jeu ne peut pas juger du sens. Ces points relèvent de la relecture humaine.
 
@@ -412,27 +490,55 @@ interdire du même coup les découpages que vous voulez. Seule son absence est
 signalée. C'est le point à relire le plus attentivement, puisque c'est la seule
 aide du jeu.
 
-**Des familles au vocabulaire disjoint.** C'est la contrainte la plus coûteuse.
-« En bus » et « En voiture » partagent toute la mécanique — moteur, roue, frein,
-siège, phare, ceinture — puisqu'un bus est une voiture en plus grand. Seuls
-tiennent les mots propres à l'usage : le transport collectif d'un côté (arrêt,
-ticket, guichet), la voiture familiale de l'autre (coffre, garage, radio, clé).
-Mieux vaut choisir des catégories franches — les fruits et les légumes, les
-animaux et les arbres — que deux parties d'un même lieu.
+**Des familles au vocabulaire disjoint.** C'est la contrainte la plus coûteuse,
+et le jeu n'en prend en charge que la moitié facile — voir « Les mots communs »
+ci-dessous. « En bus » et « En voiture » partagent toute la mécanique — moteur,
+roue, frein, siège, phare, ceinture — puisqu'un bus est une voiture en plus
+grand. Seuls tiennent les mots propres à l'usage : le transport collectif d'un
+côté (arrêt, ticket, guichet), la voiture familiale de l'autre (coffre, garage,
+radio, clé). Mieux vaut choisir des catégories franches — les fruits et les
+légumes, les animaux et les arbres — que deux parties d'un même lieu.
 
 **Les mots à double sens.** `tomate` n'a pas sa place entre « les fruits » et
 « les légumes ». `panier` irait au vélo comme au goûter. Ce sont les mots qu'on
 retire six mois plus tard, après avoir vu un enfant hésiter.
 
+Attention : ce piège-là subsiste entier. Le retrait automatique ne voit que
+l'orthographe. `klaxon` écrit dans la seule liste « voiture », alors qu'un bus
+en a un aussi, sera bel et bien proposé — et le jeu refusera l'enfant qui le
+classe au bus. Le jugement de sens reste le vôtre.
+
 **La longueur des mots.** Le public a 6-7 ans. `correspondance` et `terminus`
 ne se déchiffrent pas comme `pas` ou `clé`. La longueur est d'ailleurs un des
 axes prévus pour faire varier la difficulté.
 
-## 8. Ajouter un lieu : la marche à suivre
+### Les mots communs sont retirés, pas interdits
+
+Un mot présent dans **deux listes d'un même lieu** ne provoque plus de faute :
+il est **retiré des deux** avant le tirage, et ne peut donc pas arriver à
+l'écran. La règle n'a pas disparu, elle a changé de main — la machine l'applique
+au lieu de vous.
+
+Écrire `moteur` dans « le bus » **et** dans « la voiture » devient donc la façon
+de dire : *ce mot est ambigu ici*. Ailleurs, sans la liste voisine, il jouera
+normalement. C'est ce qui permet à une liste de servir à plusieurs lieux sans
+être taillée pour chacun.
+
+Ce que le jeu signale, c'est le **manque** que l'exclusion laisse : s'il ne
+reste plus assez de mots pour le `drawCount` demandé, c'est *incomplet* — il
+faut en écrire d'autres ; si la liste se vide entièrement, c'est *faux* — les
+deux listes disent la même chose.
+
+Comme l'exclusion se calcule **lieu par lieu**, « assez de mots » n'est jamais
+une propriété de la liste seule : la même liste tient dans un lieu et manque
+dans un autre, selon les listes qui la côtoient.
+
+## 9. Ajouter un lieu : la marche à suivre
 
 1. Écrire les mots manquants dans le fichier de lexique du bon domaine.
-2. Ajouter le lieu dans `stages`, avec son `id`, son `location` et ses
-   `families`.
-3. Faire pointer vers lui la `destination` d'une famille d'un lieu existant —
+2. Les rassembler en une liste dans `lists/`, ou citer une liste existante.
+3. Ajouter le lieu dans `stages`, avec son `id`, son `location` et ses
+   `families`, chacune citant sa liste.
+4. Faire pointer vers lui la `destination` d'une famille d'un lieu existant —
    sinon il restera inatteignable, et le jeu le signalera.
-4. Lancer `flutter test` : le contenu est vérifié automatiquement.
+5. Lancer `flutter test` : le contenu est vérifié automatiquement.

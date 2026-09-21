@@ -294,8 +294,12 @@ void main() {
         ],
       );
 
-      final filled = built.findStage('boutique')!.families.single
-          .copyWith(words: <Word>[word('vélo', const <String>['vé', 'lo'])]);
+      final boutique = built.findStage('boutique')!.families.single;
+      final filled = boutique.copyWith(
+        list: boutique.list.copyWith(
+          words: <Word>[word('vélo', const <String>['vé', 'lo'])],
+        ),
+      );
 
       expect(filled.words, hasLength(1));
       expect(built.findStage('kiosque')!.families.single.words, isEmpty);

@@ -44,6 +44,64 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.17.0+30 — 21 septembre 2026 — Des listes plus grandes que la partie
+
+Une idée de conception qui renverse une règle écrite : **une liste de mots est
+réutilisable et plus grande que ce qu'une partie en montre**. À l'entrée d'un
+lieu, le moteur en tire quelques mots, après avoir retiré ceux que la liste
+partage avec ses voisines. Rejouer la même journée ne redonne donc plus les
+mêmes mots.
+
+**La règle du mot ambigu n'est pas abandonnée, elle change de main.** Jusqu'ici
+un mot présent dans deux familles du même lieu était une *faute d'auteur*, que
+`validate()` signalait comme fausse — la version 0.4.1 avait retiré onze mots
+partagés entre « En bus » et « En voiture », à la main. Désormais
+`Stage.drawnWith` les retranche des deux côtés avant le tirage. Le résultat à
+l'écran est identique — aucun mot dans deux familles — mais il est garanti au
+lieu d'être surveillé. Écrire le même mot dans deux listes devient même la façon
+de déclarer qu'il est ambigu *ici* : ailleurs, sans la liste voisine, il joue.
+
+La machine ne prend en charge que la moitié facile : elle ne voit que
+l'orthographe. `klaxon` écrit dans la seule liste « voiture », alors qu'un bus en
+a un, sera toujours proposé et refusé à tort. Le champ lexical disjoint reste un
+travail d'auteur, et le format le dit.
+
+**Ce que `validate()` signale désormais, c'est le manque que l'exclusion
+laisse.** Pas assez de mots pour le nombre demandé est *incomplet* — le remède
+est d'en écrire d'autres, ce qui est le geste normal de l'écriture. Une liste
+entièrement absorbée par ses voisines est *faux* — les deux disent la même chose,
+et continuer d'écrire n'y changera rien. L'exclusion se calculant lieu par lieu,
+« assez de mots » n'est jamais une propriété de la liste seule : la même liste
+tient ici et manque là, selon ses voisines.
+
+**Un troisième objet, entre le lexique et la famille.** `WordList` (`id`, `name`,
+mots) est ce qui manquait : le lexique définit chaque mot une seule fois et
+refuse le doublon, alors qu'un mot doit pouvoir appartenir à plusieurs thèmes ;
+une famille porte un nom affiché, une destination et une zone, toutes choses
+propres à un lieu. Une famille **cite** désormais une liste (`"list": "bus"`) au
+lieu de porter ses mots. Les listes vivent dans `assets/content/lists/`, annoncées
+par le sommaire comme les lexiques.
+
+- `Stage.drawCount` donne le nombre de mots tirés par famille, `WordFamily.drawCount`
+  le remplace : les listes n'ont pas à être de la même taille d'un thème à l'autre.
+  Nul des deux côtés, la liste joue entière — d'où un contenu livré **au
+  comportement inchangé**, ses sept familles migrées mot pour mot.
+- À ne pas confondre avec `visibleWordCount`, qui compte les étiquettes à l'écran
+  et non les mots d'une famille.
+- Le tirage se fait dans `StageEngine`, avec le `Random` injecté : l'interface n'a
+  pas à connaître une règle de jeu, et les tests restent reproductibles.
+- `ContentWriter.writeWordLists` complète la symétrie lecture/écriture, avec le
+  même contrôle champ par champ : une aventure enregistrée sans ses listes
+  citerait des listes que personne n'a écrites.
+- Deux tests qui encodaient l'ancienne règle ont été réécrits plutôt que
+  supprimés : ils disent maintenant ce qui reste faux quand deux listes se
+  recouvrent entièrement.
+- C'est le tri unique qui y gagne le plus. Une seule liste d'objets hétéroclites
+  peut servir tous les tris uniques du jeu, chacun en retranchant son thème —
+  exactement le danger que la règle « jamais tirés au hasard » voulait éviter.
+
+263 tests au vert, dont 23 nouveaux. `flutter analyze` sans remarque.
+
 ### 0.16.0+29 — 21 septembre 2026 — Un troisième choix, et des listes bien à soi
 
 Deux remarques d'usage, dont une qui demandait d'abord une vérification.

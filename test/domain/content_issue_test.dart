@@ -53,7 +53,7 @@ Adventure adventureOf(List<Stage> stages, {String start = 'depart'}) {
 
 void main() {
   group('Ce qui est faux', () {
-    test('un mot revendique par deux familles de la meme etape', () {
+    test('deux listes qui ne disent plus que la meme chose', () {
       final adventure = adventureWith(<WordFamily>[
         family(
           id: 'en_bus',
@@ -70,10 +70,16 @@ void main() {
 
       final wrong = issuesOf(adventure, IssueSeverity.wrong);
 
-      // Le jeu refuserait une bonne reponse : la specification le proscrit.
-      expect(wrong, hasLength(1));
-      expect(wrong.single.message, contains('ticket'));
-      expect(wrong.single.stageId, 'depart');
+      // Le mot partage n'est plus une faute : il est retire des deux cotes
+      // avant le tirage, et ne peut donc plus arriver a l'ecran. Ce qui est
+      // faux, c'est ce qu'il laisse — les deux listes se vident entierement,
+      // et continuer d'ecrire n'y changera rien tant qu'elles se recouvrent.
+      expect(wrong, hasLength(2));
+      expect(
+        wrong.map((issue) => issue.familyId),
+        containsAll(<String>['en_bus', 'a_pied']),
+      );
+      expect(wrong.first.stageId, 'depart');
     });
 
     test('un mot qui apparait dans le nom de sa famille', () {

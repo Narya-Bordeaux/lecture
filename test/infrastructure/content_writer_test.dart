@@ -71,14 +71,28 @@ void expectNothingLost(Object? original, Object? written, {String path = ''}) {
 void main() {
   const adventurePath = 'adventures/grisbie_plage.json';
 
+  const listPaths = <String>['lists/transport.json', 'lists/quotidien.json'];
+
   late Adventure adventure;
   late Map<String, dynamic> originalFile;
+
+  /// Les listes livrees, telles qu'elles sont ecrites sur le disque.
+  final originalLists = <String, Map<String, dynamic>>{};
 
   setUpAll(() async {
     adventure = await loadRealAdventure();
     originalFile = jsonDecode(
       await const DiskContentSource().readFile(adventurePath),
     ) as Map<String, dynamic>;
+
+    for (final path in listPaths) {
+      final file = jsonDecode(await const DiskContentSource().readFile(path))
+          as Map<String, dynamic>;
+      for (final item in file['lists'] as List<dynamic>) {
+        final list = item as Map<String, dynamic>;
+        originalLists[list['id'] as String] = list;
+      }
+    }
   });
 
   group('Ecriture d\'une aventure', () {
@@ -152,6 +166,53 @@ void main() {
       expect(text.split('\n').length, greaterThan(20));
       expect(text, contains('\n  "title"'));
       expect(text.endsWith('\n'), isTrue);
+    });
+  });
+
+  group('Ecriture des listes de mots', () {
+    const writtenPath = 'lists/ecrites.json';
+
+    /// Les listes ecrites par l'outil, indexees par identifiant.
+    Future<Map<String, dynamic>> writeLists() async {
+      final sink = MemoryContentSink();
+      await ContentWriter(sink: sink).writeWordLists(
+        adventure.wordLists,
+        path: writtenPath,
+      );
+
+      final file = jsonDecode(sink.files[writtenPath]!) as Map<String, dynamic>;
+      return <String, dynamic>{
+        for (final item in file['lists'] as List<dynamic>)
+          (item as Map<String, dynamic>)['id'] as String: item,
+      };
+    }
+
+    test('aucune liste citee ne reste sans fichier', () async {
+      // Enregistrer une aventure sans ses listes la rendrait illisible au
+      // rechargement suivant : elle citerait des listes que personne n'a
+      // ecrites. C'est la panne que ce test interdit.
+      final written = await writeLists();
+
+      final cited = <String>{
+        for (final stage in adventure.stages.values)
+          for (final family in stage.families) family.list.id,
+      };
+      expect(written.keys, containsAll(cited));
+    });
+
+    test('rien de ce que contient un fichier de listes n\'est perdu', () async {
+      final written = await writeLists();
+
+      for (final entry in originalLists.entries) {
+        expect(
+          written.containsKey(entry.key),
+          isTrue,
+          reason: 'Liste perdue a l\'ecriture : "${entry.key}"',
+        );
+        // Le meme controle champ par champ que pour l'aventure : un mot qui
+        // disparaitrait a l'enregistrement ne se verrait nulle part ailleurs.
+        expectNothingLost(entry.value, written[entry.key]);
+      }
     });
   });
 }

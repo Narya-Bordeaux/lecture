@@ -141,16 +141,32 @@ class StageState {
 /// Volontairement sans dependance a Flutter, pour rester testable en Dart pur
 /// et reutilisable dans un autre contexte d'affichage.
 class StageEngine {
-  StageEngine({
+  /// Ouvre l'etape, ce qui **tire les mots de la partie**.
+  ///
+  /// Les listes d'un lieu sont reutilisables et plus grandes que la partie :
+  /// `Stage.drawnWith` en retire d'abord les mots communs a plusieurs listes —
+  /// ils seraient ambigus — puis en tire le nombre demande. Le moteur ne joue
+  /// donc jamais l'etape declaree, mais l'etape **tiree**, et deux entrees
+  /// dans le meme lieu ne donnent pas les memes mots.
+  ///
+  /// Le tirage a lieu ici, et non chez l'appelant : l'interface n'a pas a
+  /// connaitre une regle de jeu, et le [Random] injecte est deja la.
+  factory StageEngine({
     required Stage stage,
     HintPolicy hintPolicy = const HintPolicy(),
     Random? random,
-  })  : _stage = stage,
-        _random = random ?? Random(),
+  }) {
+    final draw = random ?? Random();
+    return StageEngine._(stage.drawnWith(draw), hintPolicy, draw);
+  }
+
+  StageEngine._(Stage stage, HintPolicy hintPolicy, this._random)
+      : _stage = stage,
         state = StageState._(stage, hintPolicy) {
     _fillInitialSlots();
   }
 
+  /// L'etape telle qu'elle se joue : listes reduites au tirage.
   final Stage _stage;
   final Random _random;
 

@@ -50,6 +50,7 @@ class ContentIndex {
   const ContentIndex({
     required this.lexiconFiles,
     required this.adventures,
+    this.wordListFiles = const <String>[],
     this.charactersFile,
   });
 
@@ -57,6 +58,9 @@ class ContentIndex {
     return ContentIndex(
       lexiconFiles: List<String>.unmodifiable(
         (json['lexicons'] as List<dynamic>? ?? <dynamic>[]).cast<String>(),
+      ),
+      wordListFiles: List<String>.unmodifiable(
+        (json['lists'] as List<dynamic>? ?? <dynamic>[]).cast<String>(),
       ),
       charactersFile: json['characters'] as String?,
       adventures: List<AdventureEntry>.unmodifiable(
@@ -69,6 +73,12 @@ class ContentIndex {
 
   /// Les fichiers de vocabulaire, un par domaine.
   final List<String> lexiconFiles;
+
+  /// Les fichiers de listes de mots, un par domaine.
+  ///
+  /// Separes des lexiques, et pour une raison de fond : un lexique definit
+  /// chaque mot une seule fois, alors qu'un mot appartient a plusieurs listes.
+  final List<String> wordListFiles;
 
   /// Le fichier des personnages, s'il y en a.
   final String? charactersFile;
@@ -85,6 +95,7 @@ class ContentIndex {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'lexicons': lexiconFiles,
+      if (wordListFiles.isNotEmpty) 'lists': wordListFiles,
       if (charactersFile != null) 'characters': charactersFile,
       'adventures': adventures.map((entry) => entry.toJson()).toList(),
     };

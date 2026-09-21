@@ -35,6 +35,7 @@ Map<String, String> buildDraftFiles() {
     'index.json': '''
 {
   "lexicons": ["lexicon/test.json"],
+  "lists": ["lists/test.json"],
   "characters": "characters.json",
   "adventures": [
     { "id": "brouillon", "title": "Brouillon", "file": "adventures/b.json" }
@@ -42,6 +43,8 @@ Map<String, String> buildDraftFiles() {
 }''',
     'lexicon/test.json':
         '{ "domain": "test", "words": [ { "text": "un", "syllables": ["un"] } ] }',
+    'lists/test.json':
+        '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", "words": [] } ] }',
     'characters.json': '{ "characters": [] }',
     'adventures/b.json': '''
 {
@@ -53,7 +56,7 @@ Map<String, String> buildDraftFiles() {
       "id": "depart",
       "location": "Depart",
       "families": [
-        { "id": "en_bus", "label": "En autocar", "words": [],
+        { "id": "en_bus", "label": "En autocar", "list": "vide",
           "destination": "marche" }
       ]
     }
@@ -106,9 +109,11 @@ void main() {
       final files = buildDraftFiles();
       // Le mot « un » se retrouve dans le nom de sa famille : c'est une faute,
       // pas un manque. Elle ne doit pas empecher d'ouvrir le fichier.
+      files['lists/test.json'] =
+          '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", '
+          '"words": ["un"] } ] }';
       files['adventures/b.json'] = files['adventures/b.json']!
-          .replaceAll('"label": "En autocar", "words": []',
-              '"label": "Chiffre un", "words": ["un"]');
+          .replaceAll('"label": "En autocar"', '"label": "Chiffre un"');
 
       final draft = await ContentRepository(
         source: MemoryContentSource(files),

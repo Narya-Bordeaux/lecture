@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.16.0+29** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.17.0+30** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -154,10 +154,20 @@ Ils vivent dans `assets/content/` en JSON et sont chargés par `lib/infrastructu
 quatre sortes de fichiers, champs, contrôles automatiques. Le lire avant de
 toucher au contenu, et le mettre à jour si le format change.
 
-Quatre fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
-définit chaque mot **une seule fois**, `characters.json` porte les personnages, et
-`adventures/*.json` assemble le tout par références. Un mot défini à deux endroits
-finirait découpé de deux façons différentes ; le chargement refuse le doublon.
+Cinq fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
+définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par thème,
+`characters.json` porte les personnages, et `adventures/*.json` assemble le tout
+par références. Un mot défini à deux endroits finirait découpé de deux façons
+différentes ; le chargement refuse le doublon.
+
+**Trois objets, trois questions** — et c'est ce qui justifie le troisième :
+`Word` dans le lexique dit **comment le mot s'écrit et se découpe**, `WordList`
+dit **de quoi il parle**, `WordFamily` dit **où cette liste se pose dans ce lieu**,
+sous quel nom et vers quelle sortie. Le lexique refuse le doublon, et pourtant un
+mot doit pouvoir appartenir à plusieurs thèmes ; une famille porte un nom affiché,
+une destination et une zone, toutes choses propres à un lieu. Il manquait l'objet
+du milieu. Une famille **cite** une liste (`"list": "bus"`), elle ne porte pas ses
+mots.
 
 **Tout le contenu est en français, identifiants compris** — ids d'étapes, de
 familles, de personnages. Le jeu n'a pas vocation à être traduit, et une clé
@@ -208,14 +218,28 @@ c'est le seul contrôle qu'il lève — un fichier absent du sommaire ou illisib
 
 Ne jamais coder en dur une liste de mots dans un widget ou dans le moteur.
 
-Deux règles issues de la spécification, à respecter dans les données comme dans le
-moteur :
-- Les mots **ambigus** (raisonnablement classables dans plusieurs familles présentes
-  à la même étape) sont à proscrire. `Stage.validate()` les détecte, et un test le
-  vérifie sur chaque aventure livrée.
-- Compléter une famille **ouvre** sa destination sans y envoyer l'enfant. Plusieurs
-  destinations peuvent être ouvertes à la fois ; seul un départ explicite termine
-  l'étape.
+**Le mot ambigu n'est plus interdit, il est retiré** — la règle n'a pas disparu,
+elle a changé de main. `Stage.drawnWith` retranche de chaque liste les mots
+qu'elle partage avec les autres listes du **même lieu**, avant le tirage : un mot
+ambigu ne peut donc plus arriver à l'écran, ce que la vigilance de l'auteur ne
+garantissait pas. Écrire le même mot dans deux listes devient la façon de
+déclarer qu'il est ambigu *ici* ; ailleurs, sans la liste voisine, il joue.
+
+La machine ne prend en charge que la moitié facile : elle ne voit que
+l'orthographe. `klaxon` écrit dans la seule liste « voiture », alors qu'un bus en
+a un, sera proposé et refusé à l'enfant qui le classe au bus. Le champ lexical
+disjoint reste un travail d'auteur (voir plus bas).
+
+Ce que `validate()` signale, c'est désormais le **manque** que l'exclusion
+laisse : pas assez de mots pour le `drawCount` demandé est *incomplet* — il faut
+en écrire d'autres ; une liste entièrement absorbée par ses voisines est *faux* —
+les deux disent la même chose. L'exclusion se calculant lieu par lieu, « assez de
+mots » n'est jamais une propriété de la liste seule.
+
+Une règle issue de la spécification, à respecter dans les données comme dans le
+moteur : compléter une famille **ouvre** sa destination sans y envoyer l'enfant.
+Plusieurs destinations peuvent être ouvertes à la fois ; seul un départ explicite
+termine l'étape.
 
 Le découpage syllabique est une donnée du contenu, jamais calculé : le français n'a
 pas de règle de syllabation assez sûre pour être automatisée, et une syllabe fausse
@@ -253,6 +277,19 @@ n'est utilisé nulle part — remplir entièrement une catégorie est en soi une
 puisque le choix se réduit pour les mots suivants. Les listes n'ont pas à être
 de la même taille d'une famille à l'autre.
 
+**Trois nombres à ne pas confondre.** `Stage.visibleWordCount` est le nombre
+d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à la
+maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
+`Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
+Nul des deux côtés, la liste joue entière : c'est le cas du contenu livré, dont
+le comportement n'a donc pas changé. `goal` reste le nombre de mots qui suffisent
+à ouvrir la destination.
+
+**Le tirage a lieu dans le moteur, pas dans l'interface** — `StageEngine`
+construit l'étape jouée par `stage.drawnWith(random)`, avec le `Random` injecté.
+L'interface n'a pas à connaître une règle de jeu, et une liste plus grande que la
+partie fait que **rejouer une journée ne redonne pas les mêmes mots**.
+
 **Une seule aide** — le découpage syllabique, dès la première erreur sur le mot.
 L'illustration a été écartée : avec trois familles, les possibilités se
 réduisent d'elles-mêmes et montrer l'image donnerait la réponse. Ne pas la
@@ -270,9 +307,12 @@ Corollaire vérifié par `validate()` : un tri unique **n'a qu'une seule sortie*
 celle que le thème ouvre. Deux en feraient un tri ordinaire affublé d'une liste
 de rebut, ce qui n'est plus la même mécanique.
 
-Les mots de la liste du reste sont écrits à la main, jamais tirés au hasard : un
-tirage pourrait sortir un mot appartenant vraiment au thème, et le jeu
-refuserait une bonne réponse.
+Les mots de la liste du reste **s'écrivent**, ils ne se devinent pas : il
+n'existe pas de « tout le vocabulaire moins le thème », et un ramassage
+automatique sortirait un mot appartenant vraiment au thème, que le jeu
+refuserait. C'est là que la liste réutilisable rapporte le plus : **une** liste
+d'objets hétéroclites sert tous les tris uniques du jeu, chacun en retranchant
+son propre thème par l'exclusion décrite plus haut.
 
 **Le personnage est un ornement** — un `character` et sa réplique se posent sur
 n'importe quel lieu, et ne définissent aucune mécanique. Un tri unique peut se

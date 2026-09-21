@@ -1,0 +1,52 @@
+{
+  "domain": "transport",
+  "lists": [
+    {
+      "id": "bus",
+      "name": "Le bus",
+      "words": [
+        "arrêt",
+        "ticket",
+        "horaire",
+        "abri",
+        "ligne",
+        "terminus",
+        "guichet"
+      ]
+    },
+    {
+      "id": "voiture",
+      "name": "La voiture",
+      "words": [
+        "volant",
+        "essence",
+        "coffre",
+        "garage",
+        "klaxon",
+        "radio",
+        "clé"
+      ]
+    },
+    {
+      "id": "marche",
+      "name": "La marche à pied",
+      "words": [
+        "chaussure",
+        "sentier",
+        "marche",
+        "pas",
+        "jambe",
+        "talon",
+        "promenade"
+      ]
+    },
+    {
+      "id": "train",
+      "name": "Le train",
+      "words": [
+        "quai",
+        "billet"
+      ]
+    }
+  ]
+}

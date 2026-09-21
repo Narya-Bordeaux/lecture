@@ -96,7 +96,9 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
       `BackgroundImageSize` devra savoir faire les deux.
 - [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
       famille : saisie des mots et de leur découpage, unicité d'orthographe
-      garantie (étape 5).
+      garantie (étape 5). Depuis 0.17.0 c'est une `WordList` qu'on édite, et
+      elle peut être citée ailleurs : l'écran devra dire quand une liste sert à
+      plusieurs lieux, sous peine de la modifier à l'insu de l'autre.
 - [ ] **Un bouton « Valider »**, à gauche d'« Ajouter », qui valide les listes.
       Reste à définir ce que « valider » arrête exactement — figer une liste
       close, ou seulement signaler qu'on la considère finie.
@@ -167,6 +169,14 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       zones placées, elles s'affichent sur fond uni.
 - [ ] Écrire les six thèmes proposés : station-service et garage (en voiture),
       marché et école (en bus), loueur de vélos et forêt (à pied).
+- [ ] **Étoffer les listes livrées et poser leur `drawCount`.** Depuis 0.17.0
+      une liste peut être plus grande que la partie, ce qui fait varier les
+      mots d'une partie à l'autre — mais les sept listes livrées font encore
+      exactement la taille jouée, et ne tirent donc rien. C'est du vocabulaire
+      à écrire, avec son découpage.
+- [ ] **Une liste d'objets hétéroclites, commune à tous les tris uniques.**
+      `objets_divers` existe déjà pour la boutique ; l'exclusion par lieu
+      permet de la partager, chaque tri unique en retranchant son thème.
 - [ ] Nommer la **liste du reste** d'un tri unique. L'outil propose
       « Le reste » ; le contenu livré dit « Laisse-le ». Les deux sont des tris
       par rejet, et deux gestes positifs seraient peut-être plus justes à six

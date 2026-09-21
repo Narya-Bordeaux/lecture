@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
-import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/word_list.dart';
+import 'package:grisbie/domain/models/word_list_catalog.dart';
 
 /// Une etape du parcours : un lieu, des familles a remplir, et les chemins
 /// qu'elles ouvrent.
@@ -26,6 +29,7 @@ class Stage {
     this.encounter,
     this.visibleWordCount = 6,
     this.isEnding = false,
+    this.drawCount,
   });
 
   /// Lit une couleur ecrite « #RRGGBB » dans le contenu.
@@ -40,7 +44,7 @@ class Stage {
   /// Construit l'etape en resolvant mots et personnages.
   factory Stage.fromJson(
     Map<String, dynamic> json, {
-    required Lexicon lexicon,
+    required WordListCatalog lists,
     required Map<String, Character> characters,
   }) {
     final encounter = json['character'] as Map<String, dynamic>?;
@@ -53,6 +57,7 @@ class Stage {
       backgroundColor: parseColor(json['backgroundColor']),
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       isEnding: json['ending'] as bool? ?? false,
+      drawCount: json['drawCount'] as int?,
       encounter: encounter == null
           ? null
           : Encounter(
@@ -66,7 +71,7 @@ class Stage {
         (json['families'] as List<dynamic>? ?? <dynamic>[])
             .map((item) => WordFamily.fromJson(
                   item as Map<String, dynamic>,
-                  lexicon,
+                  lists,
                 )),
       ),
     );
@@ -110,7 +115,21 @@ class Stage {
   ///
   /// Les autres attendent en reserve : un mot bien classe libere son
   /// emplacement, qu'un mot de la reserve vient reprendre.
+  ///
+  /// A ne pas confondre avec [drawCount] : celui-ci dit combien de mots
+  /// **chaque famille** met en jeu, celui-la combien d'etiquettes tiennent a
+  /// l'ecran, toutes familles confondues.
   final int visibleWordCount;
+
+  /// Combien de mots chaque famille tire de sa liste, sauf mention contraire.
+  ///
+  /// Nul, les listes jouent entieres — ce qu'il en reste une fois les mots
+  /// communs retires. C'est le comportement d'un contenu qui ne demande rien,
+  /// et celui du contenu livre.
+  ///
+  /// Une famille peut demander autre chose (`WordFamily.drawCount`) : les
+  /// listes n'ont pas a etre de la meme taille d'un theme a l'autre.
+  final int? drawCount;
 
   /// Tous les mots de l'etape, qui sont ceux de ses familles.
   ///
@@ -173,6 +192,59 @@ class Stage {
     return null;
   }
 
+  /// Combien de mots cette famille met en jeu ici.
+  ///
+  /// La famille l'emporte sur le defaut du lieu ; nul des deux cotes, la liste
+  /// joue entiere.
+  int? drawCountFor(WordFamily family) => family.drawCount ?? drawCount;
+
+  /// Les mots que cette famille partage avec les autres listes du lieu.
+  ///
+  /// Un mot present des deux cotes serait ambigu : l'enfant le classerait
+  /// justement, et le jeu refuserait sa reponse. Plutot que d'interdire le
+  /// partage a l'auteur — ce qui se verifiait a la main, liste contre liste —
+  /// on retire le mot des deux cotes avant qu'il n'arrive a l'ecran.
+  ///
+  /// Ecrire le meme mot dans deux listes devient ainsi la facon de declarer
+  /// qu'il est ambigu **ici** : ailleurs, sans la liste voisine, il jouera.
+  Set<String> sharedWordTextsIn(WordFamily family) {
+    final others = <String>{};
+    for (final other in families) {
+      if (identical(other, family) || other.id == family.id) continue;
+      others.addAll(other.list.wordTexts);
+    }
+    return family.list.wordTexts.intersection(others);
+  }
+
+  /// Ce qu'il reste a cette famille une fois les mots communs retires.
+  ///
+  /// C'est dans cette liste-la que le tirage puise, et c'est elle que
+  /// [validate] mesure : « assez de mots » n'est pas une propriete de la liste
+  /// mais de **la liste a ce lieu-la**, puisque les voisines changent d'un
+  /// lieu a l'autre.
+  WordList availableWordsIn(WordFamily family) {
+    return family.list.without(sharedWordTextsIn(family));
+  }
+
+  /// L'etape telle qu'elle se joue : chaque famille reduite a son tirage.
+  ///
+  /// Le lieu garde son identite — memes familles, memes noms, memes zones —
+  /// seules les listes retrecissent. Une liste etant plus grande que la
+  /// partie, deux entrees dans le meme lieu ne donnent pas les memes mots :
+  /// c'est ce qui permet de rejouer une journee sans la reciter.
+  Stage drawnWith(Random random) {
+    if (families.isEmpty) return this;
+
+    return copyWith(
+      families: List<WordFamily>.unmodifiable(<WordFamily>[
+        for (final family in families)
+          family.copyWith(
+            list: availableWordsIn(family).sample(drawCountFor(family), random),
+          ),
+      ]),
+    );
+  }
+
   /// Les incoherences de contenu, classees et situees.
   ///
   /// Le contenu pedagogique est destine a etre ecrit a la main, et a terme par
@@ -185,7 +257,6 @@ class Stage {
   /// [IssueSeverity].
   List<ContentIssue> validate() {
     final issues = <ContentIssue>[];
-    final owners = <String, String>{};
 
     for (final family in families) {
       if (family.words.isEmpty) {
@@ -197,22 +268,9 @@ class Stage {
         ));
       }
 
-      for (final word in family.words) {
-        // Un mot classable dans deux familles de la meme etape est exactement
-        // le « mot ambigu » que la specification proscrit : le jeu refuserait
-        // une bonne reponse.
-        final owner = owners[word.text];
-        if (owner != null) {
-          issues.add(ContentIssue.wrong(
-            'Le mot "${word.text}" est ambigu : il appartient aux familles '
-            '"$owner" et "${family.id}".',
-            stageId: id,
-            familyId: family.id,
-            wordText: word.text,
-          ));
-        }
-        owners[word.text] = family.id;
+      issues.addAll(_validateSupplyOf(family));
 
+      for (final word in family.words) {
         if (word.syllables.isEmpty) {
           // Le mot est pose, ses syllabes restent a taper.
           issues.add(ContentIssue.incomplete(
@@ -279,6 +337,51 @@ class Stage {
     return issues;
   }
 
+  /// Verifie qu'il reste de quoi jouer une fois l'exclusion faite.
+  ///
+  /// Le mot partage n'est plus une faute — c'est meme la facon de le declarer
+  /// ambigu ici. Ce qui devient une anomalie, c'est le **manque** qu'il
+  /// laisse : deux listes qui se recouvrent trop ne remplissent plus le lieu.
+  ///
+  /// Deux cas, et ils ne se corrigent pas de la meme facon :
+  ///
+  /// - il en manque quelques-uns — **incomplet**, le remede est d'en ecrire
+  ///   d'autres, ce qui est le geste normal de l'ecriture ;
+  /// - l'exclusion vide entierement la liste — **faux**, les deux listes
+  ///   disent alors la meme chose, et continuer d'ecrire n'y changera rien.
+  List<ContentIssue> _validateSupplyOf(WordFamily family) {
+    if (family.list.isEmpty) return const <ContentIssue>[];
+
+    final shared = sharedWordTextsIn(family);
+    final available = family.list.length - shared.length;
+
+    if (available == 0) {
+      return <ContentIssue>[
+        ContentIssue.wrong(
+          'Tous les mots de la famille "${family.id}" se retrouvent dans les '
+          'autres listes de ce lieu : apres exclusion il n\'en reste aucun a '
+          'jouer.',
+          stageId: id,
+          familyId: family.id,
+        ),
+      ];
+    }
+
+    // Rien n'a ete promis : l'auteur joue avec ce qui reste.
+    final required = drawCountFor(family);
+    if (required == null || available >= required) return const <ContentIssue>[];
+
+    return <ContentIssue>[
+      ContentIssue.incomplete(
+        'La famille "${family.id}" demande $required mots ; apres exclusion '
+        'des ${shared.length} mots communs aux autres listes du lieu, il n\'en '
+        'reste que $available.',
+        stageId: id,
+        familyId: family.id,
+      ),
+    ];
+  }
+
   /// Verifie les zones de depot posees sur l'illustration.
   ///
   /// Ces anomalies sont toujours des fautes : une zone mal posee ne se repare
@@ -324,6 +427,7 @@ class Stage {
     Encounter? encounter,
     int? visibleWordCount,
     bool? isEnding,
+    int? drawCount,
   }) {
     return Stage(
       id: id ?? this.id,
@@ -335,6 +439,7 @@ class Stage {
       encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
       isEnding: isEnding ?? this.isEnding,
+      drawCount: drawCount ?? this.drawCount,
     );
   }
 
@@ -352,6 +457,7 @@ class Stage {
       // pas a porter « ending: false ».
       if (isEnding) 'ending': true,
       'visibleWordCount': visibleWordCount,
+      if (drawCount != null) 'drawCount': drawCount,
       'families': families.map((family) => family.toJson()).toList(),
     };
   }
