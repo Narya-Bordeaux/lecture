@@ -20,9 +20,10 @@ Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON.
 jeu livré n'en contient aucune trace.
 
 **Les deux saveurs se construisent et se lancent** depuis le poste de
-développement — les builds restent impossibles en session cloud. Le rendu visuel
-n'a pas encore été jugé : position des zones, taille des étiquettes, lisibilité
-sur le décor. Le comportement, lui, est prouvé par 158 tests.
+développement — les builds restent impossibles en session cloud. **Le rendu réel
+a été jugé sur appareil et convient** : position des zones, taille des
+étiquettes, lisibilité sur le décor. C'était la première fois que le jeu était
+vu à l'écran ; jusque-là, seul son comportement était prouvé, par 158 tests.
 
 ## Chantier en cours
 

@@ -99,9 +99,6 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
 
 ## Développement
 
-- [ ] **Juger le rendu réel sur appareil** : le build tourne depuis 0.9.5, mais
-      rien n'a encore été dit de ce que l'on voit. Position des trois zones,
-      taille des étiquettes, lisibilité sur le décor.
 - [ ] Trancher le **tirage** : il est libre, donc aucun mot d'une famille donnée
       peut n'être à l'écran. Faut-il garantir au moins un mot par famille ?
 - [ ] Vérifier à l'usage que la fin d'étape ne devient pas trop facile : deux
