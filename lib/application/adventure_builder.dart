@@ -29,12 +29,29 @@ enum TripKind {
 
 /// Ce que l'auteur demande en ajoutant un trajet : un nom, et une nature.
 class NewTrip {
-  const NewTrip({required this.name, this.kind = TripKind.ordinary});
+  const NewTrip({
+    required this.name,
+    this.kind = TripKind.ordinary,
+    this.existingStageId,
+  });
 
-  /// Ce que l'enfant lira sur la zone de depot, et le nom du lieu atteint.
+  /// Ce que l'enfant lira sur la zone de depot.
+  ///
+  /// C'est aussi le nom du lieu atteint **quand on le cree** ; un trajet qui
+  /// rejoint un lieu deja ecrit ne le renomme pas.
   final String name;
 
   final TripKind kind;
+
+  /// Le lieu deja ecrit que ce trajet rejoint, au lieu d'en creer un.
+  ///
+  /// Sert d'abord aux **fins** : une fin porte un ecran, une illustration et un
+  /// texte, et deux chemins qui aboutissent au meme endroit doivent partager la
+  /// meme. Sans cela l'auteur ecrirait deux fois la meme arrivee, et les deux
+  /// finiraient par differer.
+  ///
+  /// [kind] est alors sans effet : le lieu existe, sa nature est deja fixee.
+  final String? existingStageId;
 }
 
 /// Construit un parcours en ajoutant des trajets, un point apres l'autre.
@@ -144,8 +161,7 @@ class AdventureBuilder {
     final families = List<WordFamily>.from(source.families);
 
     for (final trip in trips) {
-      final stageId = _freeId(slugify(trip.name), stages.keys.toSet());
-      stages[stageId] = _arrivalOf(trip, stageId);
+      final stageId = _arrivalIdOf(trip, stages);
 
       final familyId = _freeFamilyId(slugify(trip.name), families);
       families.add(WordFamily(
@@ -175,6 +191,26 @@ class AdventureBuilder {
       opening: adventure.opening,
       stages: Map<String, Stage>.unmodifiable(stages),
     );
+  }
+
+  /// L'identifiant du lieu qu'atteint ce trajet, cree au besoin.
+  ///
+  /// Rejoindre un lieu deja ecrit n'en cree aucun : c'est ce qui permet a
+  /// plusieurs chemins d'aboutir a la meme fin, avec un seul ecran a ecrire.
+  /// [stages] est enrichi au passage, si bien que deux trajets crees d'un coup
+  /// ne peuvent pas se donner le meme identifiant.
+  String _arrivalIdOf(NewTrip trip, Map<String, Stage> stages) {
+    final existing = trip.existingStageId;
+    if (existing != null) {
+      if (!stages.containsKey(existing)) {
+        throw StateError('Lieu inconnu : "$existing".');
+      }
+      return existing;
+    }
+
+    final stageId = _freeId(slugify(trip.name), stages.keys.toSet());
+    stages[stageId] = _arrivalOf(trip, stageId);
+    return stageId;
   }
 
   /// Le lieu qu'un trajet atteint, a sa naissance.

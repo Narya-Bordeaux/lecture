@@ -24,6 +24,7 @@ class AddTripsPage extends StatefulWidget {
   const AddTripsPage({
     required this.locationName,
     this.existingTrips = const <String>[],
+    this.existingEndings = const <String, String>{},
     this.allowsOneTripOnly = false,
     super.key,
   });
@@ -47,6 +48,16 @@ class AddTripsPage extends StatefulWidget {
   /// legitime, chacun ayant sa propre liste du reste.
   final bool allowsOneTripOnly;
 
+  /// Les fins deja ecrites, de leur identifiant vers leur nom.
+  ///
+  /// Une fin porte un ecran, une illustration et un texte : deux chemins qui
+  /// aboutissent au meme endroit doivent partager la meme, sans quoi l'auteur
+  /// ecrit deux fois la meme arrivee et les deux finissent par differer.
+  ///
+  /// Vide, la question ne se pose pas et l'ecran ne la pose pas : un choix
+  /// entre une seule possibilite n'est pas un choix.
+  final Map<String, String> existingEndings;
+
   /// Au-dela, l'etape proposerait trop de directions a un enfant de six ans,
   /// et les zones de depot ne tiendraient plus sur l'illustration.
   static const int maxTrips = 6;
@@ -60,8 +71,18 @@ class _AddTripsPageState extends State<AddTripsPage> {
     TextEditingController(),
   ];
 
+  /// La fin deja ecrite que chaque trajet rejoint, nulle pour en creer une.
+  ///
+  /// Parallele a [_names] : la nature vaut pour tout le lot, la destination se
+  /// choisit trajet par trajet.
+  final List<String?> _destinations = <String?>[null];
+
   /// La nature commune aux trajets de cet ajout.
   TripKind _kind = TripKind.ordinary;
+
+  /// Vrai quand il y a une fin existante a proposer.
+  bool get _offersEndings =>
+      _kind == TripKind.ending && widget.existingEndings.isNotEmpty;
 
   @override
   void dispose() {
@@ -75,9 +96,36 @@ class _AddTripsPageState extends State<AddTripsPage> {
     setState(() {
       while (_names.length < count) {
         _names.add(TextEditingController());
+        _destinations.add(null);
       }
       while (_names.length > count) {
         _names.removeLast().dispose();
+        _destinations.removeLast();
+      }
+    });
+  }
+
+  void _setKind(TripKind kind) {
+    setState(() {
+      _kind = kind;
+      // Une destination choisie pour une fin n'a aucun sens sur un trajet
+      // devenu ordinaire : elle le renverrait vers un lieu deja clos.
+      if (kind != TripKind.ending) {
+        _destinations.fillRange(0, _destinations.length, null);
+      }
+    });
+  }
+
+  /// Choisit la fin rejointe, et propose son nom tant que rien n'est saisi.
+  ///
+  /// Sans cette proposition, « Créer » reste eteint sans qu'on voie pourquoi.
+  /// Le nom reste modifiable : c'est ce que l'enfant lira sur la zone de
+  /// depot, et ce n'est pas forcement le nom du lieu.
+  void _setDestination(int index, String? stageId) {
+    setState(() {
+      _destinations[index] = stageId;
+      if (stageId != null && _names[index].text.trim().isEmpty) {
+        _names[index].text = widget.existingEndings[stageId] ?? '';
       }
     });
   }
@@ -86,10 +134,14 @@ class _AddTripsPageState extends State<AddTripsPage> {
   /// moins qu'un lieu appele « lieu ».
   List<NewTrip> get _trips {
     final trips = <NewTrip>[];
-    for (final controller in _names) {
-      final name = controller.text.trim();
+    for (var index = 0; index < _names.length; index++) {
+      final name = _names[index].text.trim();
       if (name.isEmpty) continue;
-      trips.add(NewTrip(name: name, kind: _kind));
+      trips.add(NewTrip(
+        name: name,
+        kind: _kind,
+        existingStageId: _offersEndings ? _destinations[index] : null,
+      ));
     }
     return trips;
   }
@@ -167,7 +219,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
         // les cacherait ; chacun s'explique donc en une ligne.
         RadioGroup<TripKind>(
           groupValue: _kind,
-          onChanged: (chosen) => setState(() => _kind = chosen!),
+          onChanged: (chosen) => _setKind(chosen!),
           child: const Column(
             children: <Widget>[
               _KindChoice(
@@ -208,16 +260,48 @@ class _AddTripsPageState extends State<AddTripsPage> {
   Widget _buildName(int index) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: TextField(
-        controller: _names[index],
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(
-          labelText: 'Trajet ${index + 1}',
-          hintText: 'En bus, La gare, Le guichetier…',
-          border: const OutlineInputBorder(),
-        ),
-        // Le bouton « Créer » s'active des qu'un nom est saisi.
-        onChanged: (_) => setState(() {}),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextField(
+            controller: _names[index],
+            textCapitalization: TextCapitalization.sentences,
+            decoration: InputDecoration(
+              labelText: 'Trajet ${index + 1}',
+              hintText: 'En bus, La gare, Le guichetier…',
+              border: const OutlineInputBorder(),
+            ),
+            // Le bouton « Créer » s'active des qu'un nom est saisi.
+            onChanged: (_) => setState(() {}),
+          ),
+          if (_offersEndings) _buildEndingChoice(index),
+        ],
+      ),
+    );
+  }
+
+  /// Ou mene ce trajet : vers une fin neuve, ou vers une fin deja ecrite.
+  ///
+  /// La destination se choisit trajet par trajet, contrairement a la nature :
+  /// d'un meme carrefour, un chemin peut rejoindre la plage et l'autre finir
+  /// sur une arrivee qui reste a ecrire.
+  Widget _buildEndingChoice(int index) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, left: 4),
+      child: DropdownButton<String?>(
+        value: _destinations[index],
+        isExpanded: true,
+        onChanged: (chosen) => _setDestination(index, chosen),
+        items: <DropdownMenuItem<String?>>[
+          const DropdownMenuItem<String?>(
+            child: Text('Une nouvelle fin'),
+          ),
+          for (final ending in widget.existingEndings.entries)
+            DropdownMenuItem<String?>(
+              value: ending.key,
+              child: Text(ending.value),
+            ),
+        ],
       ),
     );
   }

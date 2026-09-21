@@ -78,14 +78,18 @@ void main() {
       expect(find.text('La rue'), findsWidgets);
     });
 
-    testWidgets('un lieu sans trajet le dit, et propose d\'en ajouter',
+    testWidgets('une fin l\'annonce, et ne propose rien de plus',
         (tester) async {
       await pumpOutline(tester, realAdventure);
 
-      // « La rue », « Le garage » et « La plage » sont des fins : elles
-      // l'annoncent, et proposent quand meme de prolonger la journee.
-      expect(find.text('Fin de l\'aventure.'), findsWidgets);
-      expect(find.text('Ajouter des trajets'), findsWidgets);
+      // « La rue », « Le garage » et « La plage » sont des fins. Elles gardent
+      // leur carte — il y aura une image et un texte a y poser — mais rien
+      // n'en repart, et l'ecran ne doit pas laisser croire le contraire.
+      expect(find.text('Fin de l\'aventure.'), findsNWidgets(3));
+      expect(find.text('Ajouter des trajets'), findsNothing);
+
+      // Les trois lieux qui ne sont pas des fins le proposent, eux.
+      expect(find.text('Ajouter'), findsNWidgets(3));
     });
 
     testWidgets('une aventure jouable ne montre aucune alerte', (tester) async {
@@ -308,6 +312,59 @@ void main() {
         find.text('La journée s\'arrête là. Rien n\'en repart.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('les fins déjà écrites sont proposées', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Ajouter').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Une fin'));
+      await tester.pumpAndSettle();
+
+      // Une fin porte un écran, une image et un texte : deux chemins qui
+      // aboutissent au même endroit doivent pouvoir partager la même.
+      expect(find.text('Une nouvelle fin'), findsOneWidget);
+
+      await tester.tap(find.text('Une nouvelle fin'));
+      await tester.pumpAndSettle();
+      expect(find.text('La plage'), findsWidgets);
+      expect(find.text('Le garage'), findsWidgets);
+    });
+
+    testWidgets('choisir une fin existante remplit le nom du trajet',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Ajouter').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Une fin'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Une nouvelle fin'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('La plage').last);
+      await tester.pumpAndSettle();
+
+      // Sans quoi « Créer » reste éteint sans qu'on voie pourquoi : le nom
+      // reste modifiable, il est seulement proposé.
+      final field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller!.text, 'La plage');
+    });
+
+    testWidgets('sans fin écrite, rien à choisir', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Une fin'));
+      await tester.pumpAndSettle();
+
+      // Un choix entre une seule possibilite n'est pas un choix.
+      expect(find.text('Une nouvelle fin'), findsNothing);
     });
 
     testWidgets('un trajet « une fin » crée un lieu déjà achevé',

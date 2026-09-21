@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.17.1+31** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.18.0+32** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -371,13 +371,34 @@ s'ouvre pas, suite entièrement verte. C'est arrivé.
 **L'écran de construction du parcours** — `OutlinePage` reprend la forme du
 croquis papier de l'auteur : un point porte une lettre, ses trajets se lisent
 dessous, et **chaque arrivée devient à son tour une carte plus bas**, prête à
-être prolongée. Un lieu sans trajet — celui qu'on vient de créer, une fin — a
-donc sa carte comme les autres : ne pas l'afficher le rendait invisible et
-impossible à prolonger, ce qui vidait l'écran de son usage. Le lettrage vient
+être prolongée. Un lieu sans trajet — celui qu'on vient de créer — a donc sa
+carte comme les autres : ne pas l'afficher le rendait invisible et impossible à
+prolonger, ce qui vidait l'écran de son usage. Le lettrage vient
 d'`AdventureOutline` et **ne se stocke jamais** : il bouge dès qu'on insère un
 trajet. La page ne décide rien — elle passe les demandes à `AdventureBuilder`
 et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
+
+**Une fin garde sa carte, mais perd son bouton** — la journée s'y arrête, et
+proposer d'en repartir contredirait ce que la carte vient d'annoncer. Sa carte
+reste, elle : il y aura une illustration et un texte d'arrivée à y poser.
+`AdventureBuilder` continue d'accepter qu'on prolonge une fin — sans quoi le
+marqueur et la structure pourraient se contredire — mais l'écran ne l'offre
+plus. **Conséquence assumée : une fin créée par erreur ne se rouvre pas depuis
+cet écran** ; c'est noté dans `TODO.md`.
+
+**Le répertoire des fins** — une fin porte un écran, une illustration et un
+texte. Plusieurs chemins qui aboutissent au même endroit doivent donc partager
+la **même**, sans quoi l'auteur écrit deux fois la même arrivée et les deux
+finissent par différer. `NewTrip.existingStageId` relie un trajet à un lieu déjà
+écrit au lieu d'en créer un ; `AddTripsPage` propose les fins existantes
+(`Adventure.endings`) dès qu'il y en a. Le mécanisme vaut pour n'importe quel
+lieu — l'écran ne l'offre que pour les fins, les seules où la convergence est
+sûre de ne pas créer de boucle.
+
+Le nom saisi reste celui du **trajet**, jamais celui du lieu rejoint : c'est ce
+que l'enfant lit sur la zone de dépôt. L'écran le propose par commodité quand le
+champ est vide, et il reste modifiable.
 
 **L'ajout de trajets : la nature d'abord, une seule par lot** — `AddTripsPage`
 pose en tête ce que l'enfant trouvera au bout (plusieurs listes, tri unique,

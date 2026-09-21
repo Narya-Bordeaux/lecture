@@ -37,6 +37,12 @@ class _OutlinePageState extends State<OutlinePage> {
               .where((trip) => trip.destinationStageId != null)
               .map((trip) => trip.label)
               .toList(growable: false),
+          // Le repertoire des fins : plusieurs chemins peuvent aboutir a la
+          // meme, avec un seul ecran, une seule image et un seul texte.
+          existingEndings: <String, String>{
+            for (final ending in _adventure.endings)
+              ending.id: ending.locationName,
+          },
         ),
       ),
     );
@@ -183,17 +189,23 @@ class _BlockCard extends StatelessWidget {
               _Note('Aucun trajet ne part d\'ici pour l\'instant.'),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: onAddTrips,
-                icon: const Icon(Icons.add),
-                label: Text(
-                  block.trips.isEmpty ? 'Ajouter des trajets' : 'Ajouter',
+            // Une fin n'a pas de bouton : la journee s'y arrete, et proposer
+            // d'en repartir contredirait ce que la carte vient d'annoncer.
+            // Elle garde sa carte pour autant — il y aura une illustration et
+            // un texte d'arrivee a y poser.
+            if (!block.isEnding) ...<Widget>[
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: onAddTrips,
+                  icon: const Icon(Icons.add),
+                  label: Text(
+                    block.trips.isEmpty ? 'Ajouter des trajets' : 'Ajouter',
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

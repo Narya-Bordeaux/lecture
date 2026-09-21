@@ -44,6 +44,48 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.18.0+32 — 21 septembre 2026 — Une fin est une fin, et elle se partage
+
+Deux remarques d'usage sur l'écran de construction, qui vont ensemble.
+
+**Une fin ne propose plus de trajets.** Sa carte portait « Ajouter des
+trajets » comme les autres, ce qui contredisait la ligne du dessus : « Fin de
+l'aventure. » La carte reste — il y aura une illustration et un texte d'arrivée
+à y poser — mais le bouton disparaît. `AdventureBuilder` continue d'accepter
+qu'on prolonge une fin, sans quoi le marqueur et la structure pourraient se
+contredire ; c'est l'écran qui ne l'offre plus.
+
+Conséquence assumée, et notée dans `TODO.md` plutôt que passée sous silence :
+**une fin créée par erreur ne se rouvre plus depuis cet écran**. Le moteur sait
+le faire, il manque le geste — ailleurs que sur cette carte, puisque c'est
+précisément là qu'il n'a rien à faire.
+
+**Plusieurs chemins peuvent aboutir à la même fin.** C'est la demande qui
+compte : une fin porte un écran, une illustration et un texte, et deux chemins
+qui arrivent au même endroit doivent partager la même. Sans cela l'auteur écrit
+deux fois la même arrivée, et les deux finissent par différer.
+
+`NewTrip.existingStageId` relie un trajet à un lieu déjà écrit au lieu d'en
+créer un. `AddTripsPage` propose les fins existantes (`Adventure.endings`) dès
+qu'il y en a — et ne pose pas la question quand il n'y en a aucune, un choix
+entre une seule possibilité n'en étant pas un.
+
+- **Le nom saisi reste celui du trajet**, jamais celui du lieu rejoint : c'est
+  ce que l'enfant lit sur la zone de dépôt. L'écran le propose par commodité
+  quand le champ est vide, faute de quoi « Créer » restait éteint sans qu'on
+  voie pourquoi ; il reste modifiable.
+- La destination se choisit **trajet par trajet**, contrairement à la nature
+  (0.17.1) : d'un même carrefour, un chemin peut rejoindre la plage et l'autre
+  finir sur une arrivée qui reste à écrire.
+- Le mécanisme vaut pour n'importe quel lieu, pas seulement une fin. L'écran ne
+  l'offre que pour les fins : ce sont les seules où la convergence est sûre de
+  ne pas créer de boucle, et rien ne demande le reste aujourd'hui.
+- `AdventureOutline` gérait déjà une arrivée partagée — elle n'est lettrée
+  qu'une fois, et n'a donc qu'une carte. Un commentaire devenu faux depuis
+  0.14.0 (« une fin n'y figure pas ») est corrigé au passage.
+
+271 tests au vert, dont 6 nouveaux. `flutter analyze` sans remarque.
+
 ### 0.17.1+31 — 21 septembre 2026 — La nature d'un trajet se choisit une fois
 
 L'écran d'ajout posait la nature **trajet par trajet** : sous chaque nom, les

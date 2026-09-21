@@ -138,9 +138,11 @@ class AdventureOutline {
 
   final Map<String, String> _letters;
 
-  /// Les points qui se deploient, dans l'ordre de lecture du croquis.
+  /// Les points du parcours, dans l'ordre de lecture du croquis.
   ///
-  /// Une fin n'y figure pas : elle n'a rien a deployer.
+  /// **Tout lieu y figure**, fin comprise : une fin n'a rien a deployer, mais
+  /// elle porte un ecran, une illustration et un texte d'arrivee, et l'auteur
+  /// doit la voir. Un lieu atteint par deux chemins n'y figure qu'une fois.
   final List<OutlineBlock> blocks;
 
   /// Les lieux qu'aucun chemin n'atteint, a montrer a part.

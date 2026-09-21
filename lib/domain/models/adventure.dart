@@ -71,6 +71,18 @@ class Adventure {
 
   Stage? findStage(String stageId) => stages[stageId];
 
+  /// Les lieux qui closent le parcours.
+  ///
+  /// Une fin porte un ecran, une illustration et un texte : plusieurs chemins
+  /// qui aboutissent au meme endroit ont tout interet a partager la meme,
+  /// plutot que d'en ecrire deux identiques. L'outil d'auteur s'en sert pour
+  /// proposer celles qui existent deja.
+  List<Stage> get endings {
+    return List<Stage>.unmodifiable(
+      stages.values.where((stage) => stage.isEnding),
+    );
+  }
+
   /// Les listes que cette aventure cite, chacune une fois.
   ///
   /// Derivees des familles, et non declarees a part : une aventure qui

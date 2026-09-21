@@ -334,11 +334,79 @@ void main() {
       );
     });
 
-    test('on peut toujours la prolonger, elle cesse alors d\'etre une fin', () {
+    test('prolonger une fin la fait cesser d\'en etre une', () {
+      // Le moteur le permet et le doit : le marqueur et la structure ne
+      // peuvent pas se contredire. L'ecran, lui, ne le propose plus — une
+      // carte de fin n'a pas de bouton « Ajouter des trajets ».
       final prolonged = AdventureBuilder(built)
           .addTrips('plage', const <NewTrip>[NewTrip(name: 'Le retour')]);
 
       expect(prolonged.findStage('plage')!.isEnding, isFalse);
+    });
+  });
+
+  group('Plusieurs chemins vers la meme fin', () {
+    /// Un carrefour a deux sorties, dont l'une se termine deja a la plage.
+    Adventure forkEndingAtBeach() {
+      final forked = AdventureBuilder(emptyAdventureAt('carrefour')).addTrips(
+        'carrefour',
+        const <NewTrip>[NewTrip(name: 'En bus'), NewTrip(name: 'À pied')],
+      );
+      return AdventureBuilder(forked).addTrips(
+        'en_bus',
+        const <NewTrip>[NewTrip(name: 'La plage', kind: TripKind.ending)],
+      );
+    }
+
+    test('rejoindre une fin existante ne cree aucun lieu', () {
+      final before = forkEndingAtBeach();
+      final after = AdventureBuilder(before).addTrips(
+        'a_pied',
+        const <NewTrip>[
+          NewTrip(name: 'Le sentier', existingStageId: 'plage'),
+        ],
+      );
+
+      // Une fin porte un ecran, une image et un texte : deux chemins qui
+      // aboutissent au meme endroit doivent partager la meme, sans quoi il
+      // faudrait ecrire deux fois la meme arrivee.
+      expect(after.stages.keys, hasLength(before.stages.keys.length));
+      expect(
+        after.findStage('a_pied')!.families.single.destinationStageId,
+        'plage',
+      );
+    });
+
+    test('le nom saisi reste celui du trajet, pas celui du lieu', () {
+      final after = AdventureBuilder(forkEndingAtBeach()).addTrips(
+        'a_pied',
+        const <NewTrip>[
+          NewTrip(name: 'Le sentier', existingStageId: 'plage'),
+        ],
+      );
+
+      // C'est ce que l'enfant lit sur la zone de depot. Le lieu d'arrivee, lui,
+      // garde le nom qu'il avait.
+      expect(after.findStage('a_pied')!.families.single.label, 'Le sentier');
+      expect(after.findStage('plage')!.locationName, 'La plage');
+    });
+
+    test('un lieu qui n\'existe pas est refuse en le nommant', () {
+      expect(
+        () => AdventureBuilder(forkEndingAtBeach()).addTrips(
+          'a_pied',
+          const <NewTrip>[
+            NewTrip(name: 'Le sentier', existingStageId: 'montagne'),
+          ],
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            contains('montagne'),
+          ),
+        ),
+      );
     });
   });
 

@@ -84,6 +84,10 @@ construisant :
       brouillon sera enregistré, l'outil ne pourra plus le rouvrir.
 - [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
       d'un personnage — l'écran ne les demande pas encore.
+- [ ] **Rouvrir une fin créée par erreur.** Depuis 0.18.0 une carte de fin n'a
+      plus de bouton « Ajouter des trajets » : c'est juste, mais cela en fait
+      un cul-de-sac dans l'outil. `AdventureBuilder` sait pourtant prolonger
+      une fin ; il manque le geste, sans doute ailleurs que sur cette carte.
 
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :

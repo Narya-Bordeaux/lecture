@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.17.1+31** — 21 septembre 2026
+**Version : 0.18.0+32** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -78,6 +78,20 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.18.0+32 — Une fin est une fin, et elle se partage
+- **Une fin ne propose plus « Ajouter des trajets »** : sa carte contredisait
+  la ligne du dessus. La carte reste — une illustration et un texte d'arrivée
+  viendront s'y poser — mais rien n'en repart.
+- Conséquence notée dans `TODO.md` : une fin créée par erreur ne se rouvre plus
+  depuis cet écran. Le moteur sait le faire, il manque le geste.
+- **Plusieurs chemins peuvent aboutir à la même fin**
+  (`NewTrip.existingStageId`). Une fin porte un écran, une image et un texte :
+  deux arrivées identiques écrites deux fois finiraient par différer.
+  `AddTripsPage` propose les fins existantes dès qu'il y en a.
+- Le nom saisi reste celui du **trajet**, pas du lieu rejoint ; l'écran le
+  propose quand le champ est vide, et il reste modifiable.
+- 271 tests au vert, dont 6 nouveaux.
+
 ### 0.17.1+31 — La nature d'un trajet se choisit une fois
 - **La nature passe en tête de l'écran d'ajout, et vaut pour tout le lot.**
   Elle se choisissait trajet par trajet : demander trois directions affichait
@@ -111,20 +125,6 @@ un travail d'auteur, pas de code.
 - C'est le tri unique qui y gagne le plus : une seule liste d'objets
   hétéroclites peut servir tous les tris uniques, chacun retranchant son thème.
 - 263 tests au vert, dont 23 nouveaux.
-
-### 0.16.0+29 — Un troisième choix, et des listes bien à soi
-- **La liste du reste n'était pas globale**, mais elle était `const` — et Dart
-  canonise les constantes, donc deux tris uniques partageaient littéralement le
-  même objet. Immutable, donc sans conséquence, mais il ne faut pas avoir à le
-  démontrer : le `const` tombe, deux tests prouvent l'indépendance.
-- **Troisième choix structurel : « Une fin »** (`TripKind.ending`). Le seul lieu
-  qu'on puisse créer déjà achevé. Rien ne permettait de clore une journée.
-- Les trois choix passent en liste explicite : chacun **dit ce que l'enfant y
-  fera**. Ce sont trois mécaniques, pas trois habillages.
-- `RadioListTile` avait changé d'API ; les dépréciations sont traitées.
-- Le plan de navigation discuté (titre → image et zones, trajet → liste de mots,
-  bouton « Valider ») est consigné dans `TODO.md`, à arbitrer.
-- 240 tests au vert, dont 7 nouveaux.
 
 
 ## Décisions prises
