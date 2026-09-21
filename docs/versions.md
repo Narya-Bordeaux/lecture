@@ -44,6 +44,29 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.9.6+22 — 21 septembre 2026 — Les commandes ont un document
+
+**Les deux saveurs se construisent et se lancent sur le poste.** Le montage
+Android tient, et ce qui n'était qu'une configuration plausible devient un fait.
+
+D'où ce document : `docs/Commandes.md`, ce que l'on tape pour lancer et vérifier.
+Règle d'écriture reprise de `CLAUDE.md` — **une commande n'y entre que le jour où
+elle a réellement été exécutée avec succès**. Rien sur la construction d'un
+paquet publiable ni sur la signature : ces gestes n'ont jamais été faits.
+
+Chaque commande est donnée avec ce qu'elle exige et ce qu'elle produit. Une
+commande sans son contexte finit recopiée au mauvais endroit — et ici, la moitié
+d'entre elles ne tournent pas en session cloud.
+
+Le reste de la version est du dégroupage. La section « Construire » de
+`Noms_et_identifiants.md`, le README de `src/auteur/` et un commentaire de
+`build.gradle.kts` portaient chacun leur copie des deux commandes de lancement.
+Trois descriptions du même geste, promises à diverger. Elles renvoient désormais
+au document, qui est seul à les décrire. `Noms_et_identifiants.md` redevient ce
+qu'il doit être : une table de vérité, pas un manuel.
+
+- 158 tests au vert, inchangés — rien de fonctionnel n'a bougé.
+
 ### 0.9.5+21 — 21 septembre 2026 — Les saveurs configurent enfin
 
 Le premier vrai build des saveurs, sur le poste de développement, s'est arrêté

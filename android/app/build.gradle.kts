@@ -44,8 +44,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Repris de « pubspec.yaml » : la version 0.9.5+21 donne versionName
-        // « 0.9.5 » et versionCode 21. Le Play Store exige un versionCode
+        // Repris de « pubspec.yaml » : la version 0.9.6+22 donne versionName
+        // « 0.9.6 » et versionCode 22. Le Play Store exige un versionCode
         // strictement croissant, d'ou la regle « jamais reinitialise » du
         // numero de build (voir docs/versions.md).
         versionCode = flutter.versionCode
@@ -63,16 +63,14 @@ android {
     //
     // Le fichier ne vit donc que dans « src/auteur/ », et rien d'autre ne le lit.
     //
-    // Attention : une saveur ne choisit **pas** le point d'entree Dart. Les deux
-    // options sont independantes et doivent etre appariees a la main :
-    //
-    //   flutter run --flavor jeu    -t lib/main.dart
-    //   flutter run --flavor auteur -t lib/main_author.dart
-    //
-    // « main_author.dart » refuse de demarrer si l'appariement est faux. Le
+    // Attention : une saveur ne choisit **pas** le point d'entree Dart. Les
+    // commandes appariees sont dans « docs/Commandes.md » — elles ne sont pas
+    // recopiees ici, deux descriptions du meme geste finiraient par diverger.
+    // « main_author.dart » refuse de demarrer si l'appariement est faux, et le
     // suffixe ci-dessous protege l'autre sens : un jeu compile par erreur avec
     // la saveur auteur ne porte pas l'identifiant publie, il est donc
     // impubliable.
+    //
     // Ce qui s'affiche sous l'icone n'est pas ici : chaque saveur apporte son
     // « app_name » par un fichier de ressources, « src/<saveur>/res/values/
     // strings.xml », que le manifeste lit via @string/app_name.

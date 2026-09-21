@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.9.5+21** — 21 septembre 2026
+**Version : 0.9.6+22** — 21 septembre 2026
 
 ## Où en est le projet
 
@@ -19,8 +19,10 @@ dans la boutique de la gare.
 Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON. Le
 jeu livré n'en contient aucune trace.
 
-Le rendu visuel n'a jamais été vu : les builds sont impossibles en session cloud.
-Seul le comportement est prouvé, par 158 tests.
+**Les deux saveurs se construisent et se lancent** depuis le poste de
+développement — les builds restent impossibles en session cloud. Le rendu visuel
+n'a pas encore été jugé : position des zones, taille des étiquettes, lisibilité
+sur le décor. Le comportement, lui, est prouvé par 158 tests.
 
 ## Chantier en cours
 
@@ -52,15 +54,28 @@ listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
 Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
 depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
 un seul emplacement autorisé pour `google-services.json`
-(`Noms_et_identifiants.md`). Une première tentative de build sur le poste a
-échoué à la configuration Gradle (`resValue` éteint par AGP 9), corrigée en
-0.9.5 : **le build reste à reprendre**, et lui seul dira si le montage tient.
+(`Noms_et_identifiants.md`). **Les deux saveurs se construisent et se lancent**
+sur le poste depuis 0.9.5 : le montage tient. Ne manque plus que ce qui relève
+de la console.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer
 aucun mot d'une famille donnée.
 
 ## Dernières modifications
+
+### 0.9.6+22 — Les commandes ont un document
+- **Les deux saveurs se construisent et se lancent sur le poste.** Le montage
+  Android tient.
+- `docs/Commandes.md` : ce que l'on tape pour lancer et vérifier, avec pour
+  chaque commande ce qu'elle exige et ce qu'elle produit. **Une commande n'y
+  entre que le jour où elle a réellement été exécutée** — rien sur la
+  construction d'un paquet publiable ni sur la signature.
+- Dégroupage : trois endroits portaient leur propre copie des deux commandes de
+  lancement — la section « Construire » de `Noms_et_identifiants.md`, le README
+  de `src/auteur/` et un commentaire de `build.gradle.kts`. Tous renvoient
+  désormais au document, seul à les décrire.
+- 158 tests au vert, inchangés : rien de fonctionnel n'a bougé.
 
 ### 0.9.5+21 — Les saveurs configurent enfin
 - Le premier vrai build s'arrêtait avant de compiler : « Product Flavor jeu
@@ -99,27 +114,6 @@ aucun mot d'une famille donnée.
   attrape un nom qui dérive ou un fichier égaré, il ne prouve pas que le projet
   Android compile. Premier vrai build à faire sur le poste.
 - 158 tests au vert.
-
-### 0.9.3+19 — Le jeu prend son nom
-- **Grisbie partout** : package Dart `grisbie`, `applicationId` Android
-  `fr.naryabordeaux.grisbie`, libellé « Grisbie » sous l'icône, titre
-  « Les Aventures de Grisbie ». Le manifeste affichait encore `reading_game`.
-- L'`applicationId` devient **définitif à la première publication** : c'était le
-  moment ou jamais.
-- `docs/Noms_et_identifiants.md` fixe la table de vérité, et
-  `test/infrastructure/android_packaging_test.dart` la contrôle — rien d'autre
-  ne regardait ces valeurs, aucun build Android n'étant possible ici.
-- Signature de release câblée par `android/key.properties` (modèle commenté
-  fourni, clé jamais versionnée). Fichier absent, le build retombe sur la clé de
-  debug.
-- **Aucun `google-services.json` toléré dans `android/`**, vérifié par test : le
-  SDK Firebase s'initialise seul dès qu'il est présent, et les deux points
-  d'entrée partagent le dossier Android.
-- Firebase : le produit retenu est **Cloud Storage**, pas Firestore. Projets
-  `narya-grisbie-dev` et `narya-grisbie-prod`.
-- L'historique ancien de ce fichier est retiré, conformément à la règle des deux
-  ou trois dernières versions ; il reste entier dans `versions.md`.
-- 155 tests au vert.
 
 ## Décisions prises
 

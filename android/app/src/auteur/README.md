@@ -28,14 +28,8 @@ jour, c'est le signal qu'il faut découper cette saveur en deux.
 
 ## Construire
 
-Une saveur ne choisit **pas** le point d'entrée Dart : les deux options sont
-indépendantes et doivent être appariées.
-
-```bash
-flutter run --flavor auteur -t lib/main_author.dart
-```
-
-`lib/main_author.dart` refuse de démarrer si la saveur n'est pas celle-ci.
+La commande de lancement de cette saveur est dans `docs/Commandes.md`, avec le
+piège qui va avec : une saveur ne choisit **pas** le point d'entrée Dart.
 
 `res/values/strings.xml` porte le nom affiché sous l'icône, « Grisbie auteur ».
 Il doit différer de celui du jeu, sans quoi les deux icônes seraient

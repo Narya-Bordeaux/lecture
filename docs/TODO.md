@@ -14,13 +14,9 @@ Les noms sont fixés par `Noms_et_identifiants.md` : projets `narya-grisbie-dev`
 et `narya-grisbie-prod`, application Android enregistrée sous
 `fr.naryabordeaux.grisbie.auteur` — **l'identifiant suffixé de l'outil, pas celui
 du jeu**. Le produit retenu est **Cloud Storage**, pas Firestore. Les saveurs
-Android existent depuis 0.9.4, `android/app/src/auteur/` attend le fichier.
+Android existent depuis 0.9.4 et **les deux builds tournent sur le poste** ;
+`android/app/src/auteur/` attend le fichier.
 
-- [ ] **Reprendre le build des deux saveurs**, sur le poste :
-      `flutter run --flavor jeu -t lib/main.dart`, puis la saveur auteur. La
-      première tentative s'est arrêtée à la configuration Gradle (`resValue`
-      éteint par AGP 9), corrigée en 0.9.5 ; rien n'a encore été compilé, aucun
-      SDK Android n'étant disponible en session cloud.
 - [ ] Créer les deux projets Firebase et y enregistrer l'application Android.
 - [ ] Activer Cloud Storage et **écrire les règles de sécurité tout de suite** :
       le bucket s'ouvre par défaut pour quelques semaines. Personne d'autre que
@@ -103,8 +99,8 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
 
 ## Développement
 
-- [ ] **Juger le rendu réel sur appareil** : le jeu n'a jamais été vu à l'écran,
-      aucun build n'étant possible en session cloud. Position des trois zones,
+- [ ] **Juger le rendu réel sur appareil** : le build tourne depuis 0.9.5, mais
+      rien n'a encore été dit de ce que l'on voit. Position des trois zones,
       taille des étiquettes, lisibilité sur le décor.
 - [ ] Trancher le **tirage** : il est libre, donc aucun mot d'une famille donnée
       peut n'être à l'écran. Faut-il garantir au moins un mot par famille ?

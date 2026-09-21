@@ -40,29 +40,10 @@ libellé d'application **est** une ressource. Le test refuse désormais tout
 
 ## Construire
 
-Une saveur Gradle **ne choisit pas le point d'entrée Dart** : `--flavor` et `-t`
-sont deux options indépendantes, que rien n'oblige à apparier. Les deux
-commandes, à ne pas mélanger :
-
-```bash
-flutter run --flavor jeu    -t lib/main.dart
-flutter run --flavor auteur -t lib/main_author.dart
-```
-
-Les saveurs existant, **`--flavor` devient obligatoire** : `flutter build` ou
-`flutter run` sans elle s'arrête en le disant. `flutter analyze` et
-`flutter test` ne sont pas concernés, ils ne passent pas par Gradle.
-
-Deux garde-fous couvrent l'appariement, chacun dans un sens :
-
-- `lib/main_author.dart` vérifie au démarrage la constante `appFlavor` que
-  Flutter expose, et refuse de s'ouvrir sous la saveur du jeu — l'outil
-  n'y aurait pas sa configuration Firebase et aurait échoué plus tard, plus
-  loin.
-- Le **suffixe** couvre l'autre sens, celui qui compte : un jeu compilé par
-  erreur sous la saveur auteur porte `fr.naryabordeaux.grisbie.auteur`, donc
-  pas l'identifiant publié. Il est impubliable, et l'erreur reste sans
-  conséquence.
+Les commandes de lancement des deux saveurs sont dans **`Commandes.md`**, avec ce
+qu'elles exigent et les garde-fous qui couvrent l'appariement `--flavor` / `-t`.
+Elles ne sont pas répétées ici : deux descriptions du même geste finiraient par
+diverger.
 
 ## Quatre couches à ne pas confondre
 

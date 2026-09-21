@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.9.5+21** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.9.6+22** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -63,9 +63,9 @@ flutter analyze
 flutter test
 ```
 
-Elles ne passent pas par Gradle et ignorent donc les saveurs. Les commandes de
-build, elles, **exigent `--flavor`** depuis 0.9.4, et ne sont lançables que sur
-un poste équipé : `flutter run --flavor jeu -t lib/main.dart`.
+Elles ne passent pas par Gradle et ignorent donc les saveurs. **Toutes les
+commandes du projet sont dans `docs/Commandes.md`** — notamment celles de
+lancement, qui exigent `--flavor` et ne tournent que sur un poste équipé.
 
 La version du SDK est épinglée dans le hook. Pour en changer, mettre à jour
 ensemble `FLUTTER_VERSION` et `FLUTTER_ARCHIVE_SHA256`, dont l'empreinte se trouve
@@ -314,6 +314,7 @@ Tout changement de taille dans le bandeau doit être revalidé là.
 | `docs/current.md` | État courant, version, travail en cours |
 | `docs/versions.md` | Historique des versions et procédure de versioning |
 | `docs/TODO.md` | Backlog |
+| `docs/Commandes.md` | Ce que l'on tape : lancer, vérifier. Une commande n'y entre qu'une fois réellement exécutée |
 | `docs/Specification_jeu_decouverte_lecture.md` | Cadrage fonctionnel du jeu |
 | `docs/Format_fichier_aventure.md` | **Contrat** — structure des fichiers de contenu, pour qui écrit une aventure |
 | `docs/Noms_et_identifiants.md` | **Contrat** — table de vérité des noms, identifiants Android, Firebase, signature |
