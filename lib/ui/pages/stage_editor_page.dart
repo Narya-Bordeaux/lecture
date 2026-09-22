@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
@@ -22,7 +23,12 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 /// a l'ecran du parcours qui travaille en memoire. Un seul geste de l'outil
 /// ecrit sur le disque, et c'est lui seul qui porte le mot.
 class StageEditorPage extends StatefulWidget {
-  const StageEditorPage({required this.stage, this.pictures, super.key});
+  const StageEditorPage({
+    required this.stage,
+    this.pictures,
+    this.contentSource,
+    super.key,
+  });
 
   final Stage stage;
 
@@ -31,6 +37,14 @@ class StageEditorPage extends StatefulWidget {
   /// Nulle, le champ reste saisissable au clavier et le bouton ne paraît pas :
   /// c'est le cas des tests, et de toute plateforme sans photothegue.
   final PictureLibrary? pictures;
+
+  /// D'ou lire le contenu, illustrations comprises.
+  ///
+  /// Nulle, le bundle : c'est le cas du jeu et des tests. L'outil d'auteur y
+  /// passe la source ou il travaille, pour que l'apercu montre l'image qu'il
+  /// vient de deposer et non celle d'avant.
+  final ContentSource? contentSource;
+
 
   @override
   State<StageEditorPage> createState() => _StageEditorPageState();
@@ -104,7 +118,10 @@ class _StageEditorPageState extends State<StageEditorPage> {
   Future<void> _placeAreas() async {
     final placed = await Navigator.of(context).push<Stage>(
       MaterialPageRoute<Stage>(
-        builder: (_) => AreaEditorPage(stage: _edited),
+        builder: (_) => AreaEditorPage(
+          stage: _edited,
+          contentSource: widget.contentSource,
+        ),
       ),
     );
     if (placed == null) return;
@@ -163,7 +180,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
           controller: _background,
           decoration: const InputDecoration(
             labelText: 'Chemin de l\'image',
-            hintText: 'assets/pictures/…',
+            hintText: 'pictures/…',
             border: OutlineInputBorder(),
           ),
           // L'apercu et le bouton de calage suivent ce qui est saisi.
@@ -189,15 +206,9 @@ class _StageEditorPageState extends State<StageEditorPage> {
           // ferait croire le travail conserve, et l'auteur ne comprendrait pas
           // de retrouver son lieu sans illustration.
           _Note(
-            widget.pictures?.keepsPictures == false
-                ? 'Image de travail, choisie dans ce navigateur. Elle sert à '
-                    'caler les zones, mais disparaîtra en fermant l\'onglet — '
-                    'le calage, lui, est conservé. Le jeu ne la verra qu\'une '
-                    'fois copiée dans « assets/pictures/ » et le contenu '
-                    'recompilé.'
-                : 'Image de travail, prise dans l\'appareil. Le jeu ne la '
-                    'verra qu\'une fois copiée dans « assets/pictures/ » et le '
-                    'contenu recompilé.',
+            'Image de travail, déposée avec le contenu. Le jeu ne la verra '
+            'qu\'une fois le contenu rapatrié dans « assets/content/ » et '
+            'recompilé.',
           ),
         if (path.isNotEmpty) ...<Widget>[
           const SizedBox(height: 12),
@@ -205,6 +216,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
             borderRadius: BorderRadius.circular(8),
             child: ContentImage(
               path: path,
+              source: widget.contentSource,
               fit: BoxFit.fitWidth,
               errorBuilder: (context, error, stack) => _Note(
                 'Image introuvable — le jeu affichera un fond uni.',

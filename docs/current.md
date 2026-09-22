@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.27.0+43** — 22 septembre 2026
+**Version : 0.28.0+44** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -50,14 +50,12 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    comme par le téléchargement d'un navigateur. Depuis 0.24.0, **l'outil relit
    ce qu'il a écrit** : l'accueil liste les aventures du dossier de travail,
    contenu livré en repli, et les rouvre inachevées.
-4. 🟡 **L'image** — **la choisir et l'afficher sont faits, partout** :
-   `contentImageProvider` lit le bundle, le réseau ou le disque selon le
-   chemin, et depuis 0.26.0 le bouton existe aussi dans un navigateur.
-   **Restent deux manques** : l'image **ne voyage pas** — `ContentSaver`
-   n'écrit que du JSON, donc rien ne passe du poste au téléphone ni l'inverse,
-   et dans un navigateur elle meurt avec l'onglet — et il faut toujours la
-   **rapatrier** à la main dans `assets/pictures/`. À éprouver aussi sur un
-   téléphone : aucun greffon ne tourne en session cloud.
+4. ✅ **L'image** — **elle est devenue du contenu** (0.28.0). Choisie, elle
+   s'écrit aussitôt dans l'arbre sous `pictures/…`, par le même puits que le
+   JSON : elle voyage donc du poste au téléphone et redescendra avec le reste.
+   `ContentPictureImage` la lit par la source, d'où qu'elle vienne. **Reste à
+   l'éprouver** : le dépôt d'une image et son aperçu n'ont jamais été exécutés,
+   ni dans Chrome ni sur un téléphone.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
@@ -87,6 +85,22 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.28.0+44 — Une illustration est du contenu
+- **Elle voyage enfin.** Choisie, elle s'écrit aussitôt dans l'arbre de contenu
+  sous `pictures/…`, par le même puits que le JSON — dépôt distant ou dossier
+  de l'appareil.
+- `ContentSink.writeBytes` et `ContentSource.readBytes`, symétriques.
+- **L'aperçu vide dans Chrome est réparé par construction** : on ne lit plus le
+  chemin du sélecteur — un `blob:` que le système révoque aussitôt — mais ses
+  **octets**.
+- `PicturePicker` (choisir) et `StoredPictureLibrary` (ranger) : deux rôles
+  séparés, tous deux éprouvables sans appareil ni greffon.
+- **Une branche de plateforme en moins** : `local_image_provider_*` et
+  `picture_keeper_*` disparaissent.
+- Le contenu livré migre vers `assets/content/pictures/`, et les chemins
+  s'écrivent `pictures/…`.
+- 382 tests au vert ; les deux points d'entrée compilent pour le web.
 
 ### 0.27.0+43 — Une panne n'est pas une absence
 - **L'aventure était bien déposée, mais n'apparaissait pas.** Le repli de

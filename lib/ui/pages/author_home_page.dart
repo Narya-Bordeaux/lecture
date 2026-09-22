@@ -21,7 +21,7 @@ import 'package:grisbie/ui/pages/outline_page.dart';
 class AuthorHomePage extends StatefulWidget {
   const AuthorHomePage({
     required this.openRepository,
-    this.pictures,
+    this.openPictures,
     this.onSave,
     this.account,
     super.key,
@@ -39,11 +39,15 @@ class AuthorHomePage extends StatefulWidget {
   /// l'interface que le jeu emploie.
   final ContentRepository Function() openRepository;
 
-  /// De quoi choisir une illustration dans l'appareil.
+  /// De quoi choisir une illustration, **à neuf**.
   ///
-  /// Injectée ici et transmise de proche en proche : aucun écran ne la
-  /// construit, et les tests en passent une fausse — ou aucune.
-  final PictureLibrary? pictures;
+  /// Une fabrique pour la même raison que le dépôt : se connecter change
+  /// l'endroit où l'image sera rangée, et une photothèque construite une fois
+  /// pour toutes continuerait d'écrire sur l'appareil après la connexion.
+  ///
+  /// Elle peut rendre `null` — un navigateur non connecté n'a nulle part de
+  /// durable où ranger une image. Le bouton ne paraît alors pas.
+  final PictureLibrary? Function()? openPictures;
 
   /// Ce qui écrit une aventure. Nul, l'écran du parcours ne le propose pas.
   final Future<List<String>> Function(Adventure adventure)? onSave;
@@ -61,6 +65,7 @@ class AuthorHomePage extends StatefulWidget {
 class _AuthorHomePageState extends State<AuthorHomePage> {
   late ContentRepository _repository;
   late Future<ContentIndex> _index;
+  PictureLibrary? _pictures;
 
   @override
   void initState() {
@@ -75,6 +80,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
   void _reopen() {
     _repository = widget.openRepository();
     _index = _repository.loadIndex();
+    _pictures = widget.openPictures?.call();
   }
 
   void _reload() => setState(_reopen);
@@ -109,7 +115,8 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
       MaterialPageRoute<Adventure>(
         builder: (_) => OutlinePage(
           adventure: adventure,
-          pictures: widget.pictures,
+          pictures: _pictures,
+          contentSource: _repository.source,
           onSave: widget.onSave,
         ),
       ),

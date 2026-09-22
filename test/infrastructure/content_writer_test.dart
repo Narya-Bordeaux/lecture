@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
@@ -14,6 +15,13 @@ class MemoryContentSink implements ContentSink {
   @override
   Future<void> writeFile(String path, String contents) async {
     files[path] = contents;
+  }
+
+  /// Ces tests portent sur la fidelite du JSON ; les octets n'y servent qu'a
+  /// satisfaire le contrat.
+  @override
+  Future<void> writeBytes(String path, Uint8List contents) async {
+    files[path] = '<${contents.length} octets>';
   }
 }
 

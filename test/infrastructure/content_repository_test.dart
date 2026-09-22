@@ -1,23 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 
 import '../support/disk_content.dart';
-
-/// Une source de contenu tenue en memoire, pour eprouver le chargement sans
-/// toucher au disque ni aux fichiers livres.
-class MemoryContentSource implements ContentSource {
-  MemoryContentSource(this.files);
-
-  final Map<String, String> files;
-
-  @override
-  Future<String> readFile(String path) async {
-    final content = files[path];
-    if (content == null) throw StateError('Fichier absent : $path');
-    return content;
-  }
-}
+import '../support/memory_content.dart';
 
 /// Un contenu minimal mais valide, que chaque test deforme a sa guise.
 Map<String, String> buildFiles({
@@ -72,7 +57,7 @@ Map<String, String> buildFiles({
 }
 
 ContentRepository buildRepository(Map<String, String> files) {
-  return ContentRepository(source: MemoryContentSource(files));
+  return ContentRepository(source: MemoryContentFolder(files));
 }
 
 void main() {
@@ -264,7 +249,7 @@ void main() {
 
       expect(opening, isNotNull);
       expect(opening!.titleOr(adventure.title), 'Grisbie part à la plage');
-      expect(opening.imageAsset, 'assets/pictures/Grisbie_plage.jpg');
+      expect(opening.imageAsset, 'pictures/Grisbie_plage.jpg');
       expect(opening.text, isNotEmpty);
     });
 

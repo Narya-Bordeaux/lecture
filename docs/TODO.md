@@ -123,35 +123,31 @@ construisant :
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
-- [ ] **L'aperçu d'une image choisie dans Chrome ne s'affiche pas.** Constaté
-      le 22 septembre 2026 : le sélecteur s'ouvre, rend bien une adresse
-      `blob:…`, et l'aperçu échoue aussitôt sur `net::ERR_FILE_NOT_FOUND`.
-      Ce n'est **pas** la limite annoncée — celle-ci dit que l'image ne survit
-      pas à la fermeture de l'onglet, pas qu'elle ne s'affiche jamais.
-      Deux causes possibles, que l'on départage en collant l'adresse `blob:`
-      dans un nouvel onglet : si Chrome montre l'image, le tort est à la façon
-      dont Flutter la charge ; sinon, l'adresse a été révoquée aussitôt rendue.
-      **Le dépôt des images sur Storage rendrait la question sans objet** — une
-      adresse `https:` durable remplacerait le `blob:`.
+- [ ] **Éprouver le dépôt d'une image, et son aperçu.** Tout est écrit depuis
+      0.28.0 — l'image part dans l'arbre de contenu, par le même puits que le
+      JSON — mais **rien n'a été exécuté** : ni dans Chrome, ni sur un
+      téléphone. À vérifier : le fichier apparaît-il sous `content/pictures/`
+      dans la console, l'aperçu s'affiche-t-il, le calage des zones fonctionne-
+      t-il dessus, et l'image choisie sur le téléphone se voit-elle depuis le
+      poste.
 - [ ] **Vérifier le choix d'image sur l'appareil.** Fait depuis 0.20.0, mais
       **jamais exécuté** : ni `image_picker` ni `path_provider` ne tournent en
       session cloud. À éprouver sur le téléphone — le Photo Picker s'ouvre-t-il
       sans demander de permission, la copie survit-elle, l'aperçu s'affiche-t-il.
-- [ ] **Faire voyager les images, puis les rapatrier.** C'est le chantier qui
-      suit 0.26.0, et il tient en une phrase de l'auteur : *construire une
-      aventure depuis le téléphone ou l'ordinateur, l'enregistrer sur Storage,
-      puis la télécharger pour l'inclure au dépôt.* Le texte fait déjà ce
-      trajet ; l'image, non — `ContentSaver` n'écrit que du JSON. Sur le
-      téléphone elle reste dans les documents de l'application, dans un
-      navigateur elle meurt avec l'onglet.
+- [ ] **Tout rapatrier d'un bloc.** Le chantier tient en une phrase de
+      l'auteur : *construire une aventure depuis le téléphone ou l'ordinateur,
+      l'enregistrer sur Storage, puis la télécharger pour l'inclure au dépôt.*
+      Les deux premiers tiers sont faits ; la descente, non. Aujourd'hui les
+      fichiers descendent un par un, aux noms aplatis, à reposer à la main.
 
-      Trois morceaux, dans cet ordre :
-      - `ContentSink` ne sait écrire que du texte : il lui faut les octets.
-      - Déposer l'image sur le dépôt distant en même temps que le contenu, et
-        savoir l'y relire pour l'afficher.
+      Les deux premiers morceaux sont faits en 0.28.0 :
+      - ~~`ContentSink` ne sait écrire que du texte~~ — `writeBytes` existe.
+      - ~~Déposer l'image sur le dépôt et savoir l'y relire~~ — elle s'écrit
+        dans l'arbre de contenu dès qu'on la choisit.
       - **Tout redescendre d'un coup** — JSON et images — pour le déposer dans
-        le dépôt git. Le chemin stocké devra être réécrit en
-        `assets/pictures/…` au passage.
+        `assets/content/` du dépôt git. **Plus rien n'est à réécrire au
+        passage** depuis 0.28.0 : le dossier téléchargé *est* l'arbre de
+        contenu, illustrations comprises.
 
       Storage reste un **transit entre les appareils de l'auteur** : le jeu
       livré ne le contacte jamais, et l'enfant ne lit que le bundle.

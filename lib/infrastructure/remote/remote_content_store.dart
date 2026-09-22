@@ -38,8 +38,9 @@ class RemoteContentStore implements ContentSource, ContentSink {
   /// Au-dela, ce n'est plus un fichier de contenu.
   ///
   /// `getData` exige une borne : sans elle, un fichier inattendu remplirait la
-  /// memoire de l'appareil.
-  static const int maxFileBytes = 4 * 1024 * 1024;
+  /// memoire de l'appareil. La borne vaut aussi pour les illustrations, d'ou
+  /// une taille qui laisse passer une photo de telephone.
+  static const int maxFileBytes = 16 * 1024 * 1024;
 
   /// Le code par lequel Firebase dit « ce fichier n'existe pas ».
   ///
@@ -66,6 +67,22 @@ class RemoteContentStore implements ContentSource, ContentSink {
   }
 
   @override
+  Future<Uint8List> readBytes(String path) async {
+    final Uint8List? data;
+    try {
+      data = await storage.ref(pathFor(path)).getData(maxFileBytes);
+    } on FirebaseException catch (error) {
+      if (error.code == absenceCode) {
+        throw ContentFileNotFound(path, cause: error);
+      }
+      rethrow;
+    }
+
+    if (data == null) throw ContentFileNotFound(path);
+    return data;
+  }
+
+  @override
   Future<void> writeFile(String path, String contents) async {
     await storage.ref(pathFor(path)).putString(
           contents,
@@ -73,5 +90,31 @@ class RemoteContentStore implements ContentSource, ContentSink {
             contentType: 'application/json; charset=utf-8',
           ),
         );
+  }
+
+  @override
+  Future<void> writeBytes(String path, Uint8List bytes) async {
+    await storage.ref(pathFor(path)).putData(
+          bytes,
+          SettableMetadata(contentType: mediaTypeFor(path)),
+        );
+  }
+
+  /// Le type d'un fichier, deduit de son extension.
+  ///
+  /// Pur, et donc eprouvable. Sans type explicite, le depot rend
+  /// `application/octet-stream` et le navigateur refuse d'afficher l'image.
+  static String mediaTypeFor(String path) {
+    final dot = path.lastIndexOf('.');
+    final extension = dot < 0 ? '' : path.substring(dot + 1).toLowerCase();
+
+    return switch (extension) {
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      'gif' => 'image/gif',
+      'json' => 'application/json; charset=utf-8',
+      _ => 'application/octet-stream',
+    };
   }
 }

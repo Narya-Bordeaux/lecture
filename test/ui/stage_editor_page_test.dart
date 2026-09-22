@@ -83,7 +83,7 @@ void main() {
     testWidgets('le chemin de l\'illustration, modifiable', (tester) async {
       await pumpEditor(tester, realAdventure.startStage);
 
-      expect(find.text('assets/pictures/Grisbie_plage2.jpg'), findsOneWidget);
+      expect(find.text('pictures/Grisbie_plage2.jpg'), findsOneWidget);
     });
 
     testWidgets('un lieu sans famille ne propose pas de poser des zones',
@@ -111,7 +111,7 @@ void main() {
     });
 
     testWidgets('l\'image choisie remplit le chemin', (tester) async {
-      final pictures = FakePictureLibrary('/rangees/gare_1.jpg');
+      final pictures = FakePictureLibrary('pictures/gare_1.jpg');
       await pumpEditor(
         tester,
         realAdventure.findStage('gare')!,
@@ -121,9 +121,9 @@ void main() {
       await tester.tap(find.text('Choisir une image'));
       await tester.pumpAndSettle();
 
-      // Le chemin est celui de la **copie rangee** : le fichier du selecteur
-      // vit dans un cache qu'Android peut purger.
-      expect(find.text('/rangees/gare_1.jpg'), findsOneWidget);
+      // Le chemin est **relatif au dossier du contenu** : l'image y a ete
+      // ecrite, et voyagera avec le JSON.
+      expect(find.text('pictures/gare_1.jpg'), findsOneWidget);
       // Le fichier est nomme d'apres le lieu, pas d'apres la photo.
       expect(pictures.askedFor, 'gare');
     });
@@ -132,40 +132,20 @@ void main() {
       await pumpEditor(
         tester,
         realAdventure.findStage('gare')!,
-        pictures: FakePictureLibrary('/rangees/gare_1.jpg'),
+        pictures: FakePictureLibrary('pictures/gare_1.jpg'),
       );
 
       await tester.tap(find.text('Choisir une image'));
       await tester.pumpAndSettle();
 
-      // C'est l'etat normal tant que le depot ne l'a pas recue : une mention,
-      // pas une alerte. L'indication du champ dit deja « assets/pictures/ »,
-      // d'ou une recherche sur ce qui est propre a la mention.
+      // C'est l'etat normal tant que le depot git ne l'a pas recue : une
+      // mention, pas une alerte.
       expect(find.textContaining('Image de travail'), findsOneWidget);
-      // Sur un appareil, elle survit a la session : rien ne doit annoncer
-      // qu'elle va disparaitre.
-      expect(find.textContaining('fermant l\'onglet'), findsNothing);
-    });
-
-    testWidgets('dans un navigateur, la mention annonce la disparition',
-        (tester) async {
-      // Un navigateur n'a pas de disque ou ranger la copie : l'image tient a
-      // une adresse « blob: » qui meurt avec l'onglet. Le taire ferait croire
-      // le travail conserve, et l'auteur ne comprendrait pas de retrouver son
-      // lieu sans illustration.
-      await pumpEditor(
-        tester,
-        realAdventure.startStage,
-        pictures: FakePictureLibrary(
-          'blob:http://localhost/8f2c',
-          keepsPictures: false,
-        ),
+      expect(
+        find.textContaining('déposée avec le contenu'),
+        findsOneWidget,
+        reason: 'l\'image voyage avec le JSON, elle ne reste plus a part',
       );
-
-      await tester.tap(find.text('Choisir une image'));
-      await tester.pumpAndSettle();
-
-      expect(find.textContaining('fermant l\'onglet'), findsOneWidget);
     });
 
     testWidgets('renoncer laisse le chemin d\'avant', (tester) async {
@@ -178,7 +158,7 @@ void main() {
       await tester.tap(find.text('Choisir une image'));
       await tester.pumpAndSettle();
 
-      expect(find.text('assets/pictures/Grisbie_plage2.jpg'), findsOneWidget);
+      expect(find.text('pictures/Grisbie_plage2.jpg'), findsOneWidget);
     });
   });
 
@@ -282,14 +262,10 @@ Future<void> _withEditor(
 
 /// Une photothegue qui rend toujours la meme image, sans appareil ni greffon.
 class FakePictureLibrary implements PictureLibrary {
-  FakePictureLibrary(this.path, {this.keepsPictures = true});
+  FakePictureLibrary(this.path);
 
   /// Ce que le selecteur rendra. Nul : l'auteur a referme sans choisir.
   final String? path;
-
-  /// Vrai si l'image survit a la session, comme sur un appareil.
-  @override
-  final bool keepsPictures;
 
   /// Le nom demande au dernier appel, pour verifier d'ou il vient.
   String? askedFor;

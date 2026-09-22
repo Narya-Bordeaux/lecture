@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
@@ -28,6 +29,7 @@ class AdventureOpeningEditorPage extends StatefulWidget {
     required this.adventureTitle,
     this.opening,
     this.pictures,
+    this.contentSource,
     super.key,
   });
 
@@ -39,6 +41,14 @@ class AdventureOpeningEditorPage extends StatefulWidget {
 
   /// De quoi choisir une illustration dans l'appareil, si la plateforme sait.
   final PictureLibrary? pictures;
+
+  /// D'ou lire le contenu, illustrations comprises.
+  ///
+  /// Nulle, le bundle : c'est le cas du jeu et des tests. L'outil d'auteur y
+  /// passe la source ou il travaille, pour que l'apercu montre l'image qu'il
+  /// vient de deposer et non celle d'avant.
+  final ContentSource? contentSource;
+
 
   @override
   State<AdventureOpeningEditorPage> createState() =>
@@ -142,7 +152,7 @@ class _AdventureOpeningEditorPageState
             controller: _image,
             decoration: const InputDecoration(
               labelText: 'Chemin de l\'image',
-              hintText: 'assets/pictures/…',
+              hintText: 'pictures/…',
               helperText: 'Montrée en entier : elle peut être horizontale.',
               border: OutlineInputBorder(),
             ),
@@ -165,6 +175,7 @@ class _AdventureOpeningEditorPageState
               borderRadius: BorderRadius.circular(8),
               child: ContentImage(
                 path: _imagePath,
+                source: widget.contentSource,
                 fit: BoxFit.fitWidth,
                 errorBuilder: (context, error, stack) => Text(
                   'Image introuvable.',

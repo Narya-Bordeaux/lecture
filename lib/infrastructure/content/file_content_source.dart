@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
@@ -24,5 +25,13 @@ class FileContentSource implements ContentSource {
     if (!await file.exists()) throw ContentFileNotFound(path);
 
     return file.readAsString();
+  }
+
+  @override
+  Future<Uint8List> readBytes(String path) async {
+    final file = File('$directory/$path');
+    if (!await file.exists()) throw ContentFileNotFound(path);
+
+    return file.readAsBytes();
   }
 }

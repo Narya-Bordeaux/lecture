@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_index.dart';
@@ -44,6 +45,14 @@ class OverridingContentSource implements ContentSource {
   @override
   Future<String> readFile(String path) async {
     return overrides[path] ?? await base.readFile(path);
+  }
+
+  @override
+  Future<Uint8List> readBytes(String path) async {
+    final replaced = overrides[path];
+    if (replaced != null) return Uint8List.fromList(utf8.encode(replaced));
+
+    return base.readBytes(path);
   }
 }
 

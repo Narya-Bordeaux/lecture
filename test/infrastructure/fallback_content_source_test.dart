@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
@@ -21,6 +23,9 @@ class BrokenContentSource implements ContentSource {
 
   @override
   Future<String> readFile(String path) async => throw failure;
+
+  @override
+  Future<Uint8List> readBytes(String path) async => throw failure;
 }
 
 void main() {

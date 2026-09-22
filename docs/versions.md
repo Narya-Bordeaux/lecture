@@ -44,6 +44,51 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.28.0+44 — 22 septembre 2026 — Une illustration est du contenu
+
+**« Je devrais la trouver quelque part dans Storage, non ? »** La question de
+l'auteur désignait le manque exactement : rien n'envoyait jamais d'image.
+`ContentSaver` n'écrivait que du JSON, et le pont entre le poste et le
+téléphone ne portait donc que du texte. Une photo prise sur le téléphone
+n'arrivait jamais sur le poste ; une image choisie dans Chrome n'existait que
+dans la mémoire de l'onglet.
+
+**Le principe retenu : une illustration est du contenu.** Elle vit dans le même
+arbre que les aventures, part par le même puits et redescendra avec lui. Le
+chemin stocké devient `pictures/gare_….jpg`, relatif au dossier du contenu
+comme tous les autres, et le contenu livré migre vers
+`assets/content/pictures/`.
+
+Trois pièces, et la symétrie du projet les dictait :
+
+- `ContentSink.writeBytes` et `ContentSource.readBytes`, pendants l'un de
+  l'autre, sur les cinq implémentations.
+- `StoredPictureLibrary` écrit l'image choisie dans l'arbre et rend son chemin.
+  `PicturePicker` ne fait qu'ouvrir la photothèque et rendre des **octets** :
+  deux rôles séparés, et **tous deux éprouvables sans appareil ni greffon**, ce
+  que la version d'avant ne permettait pas.
+- `ContentPictureImage`, un `ImageProvider` à part entière qui lit par la
+  source. Un `ImageProvider` et non un `FutureBuilder` : c'est ce qui le fait
+  entrer dans le cache d'images de Flutter, la source faisant partie de son
+  identité — se connecter au dépôt doit bien redonner une autre image.
+
+**L'aperçu vide dans Chrome est réparé par construction**, sans qu'on l'ait
+traité pour lui-même. On ne lit plus le chemin rendu par le sélecteur — une
+adresse `blob:` que le système révoque aussitôt, d'où `ERR_FILE_NOT_FOUND` — on
+lit ses octets et on les écrit. Il n'y a plus de chemin à révoquer.
+
+**Et le code rétrécit.** Deux branches de plateforme disparaissent :
+`local_image_provider_io/web`, qui choisissaient entre un fichier et une
+adresse, et `picture_keeper_io/web`, ajoutés la version d'avant. Une image se
+lit désormais comme n'importe quel fichier de contenu, et « le disque » n'a
+plus à avoir un sens différent selon la plateforme.
+
+**Ce que cette version ne prouve pas** : rien de tout cela n'a été exécuté. Le
+dépôt d'une image et son aperçu restent à éprouver, dans Chrome comme sur un
+téléphone.
+
+382 tests au vert, et les deux points d'entrée compilent pour le web.
+
 ### 0.27.0+43 — 22 septembre 2026 — Une panne n'est pas une absence
 
 **Deux défauts, découverts en enregistrant une vraie aventure.** L'auteur a

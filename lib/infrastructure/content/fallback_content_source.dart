@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 
@@ -43,6 +45,15 @@ class FallbackContentSource implements ContentSource {
       // Un fichier jamais ecrit : c'est le cas ordinaire, pas une panne. Tout
       // le reste remonte, et se voit.
       return fallback.readFile(path);
+    }
+  }
+
+  @override
+  Future<Uint8List> readBytes(String path) async {
+    try {
+      return await preferred.readBytes(path);
+    } on ContentFileNotFound {
+      return fallback.readBytes(path);
     }
   }
 }

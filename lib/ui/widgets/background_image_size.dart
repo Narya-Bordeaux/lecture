@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Fournit les dimensions reelles d'une illustration, une fois le fichier
@@ -19,11 +20,15 @@ class BackgroundImageSize extends StatefulWidget {
   const BackgroundImageSize({
     required this.builder,
     this.asset,
+    this.source,
     super.key,
   });
 
-  /// Chemin de l'illustration : un asset du bundle, ou un fichier du disque.
+  /// Chemin de l'illustration, relatif au dossier du contenu.
   final String? asset;
+
+  /// D'ou lire le contenu. Nulle, le bundle : c'est le cas du jeu.
+  final ContentSource? source;
   final Widget Function(BuildContext context, Size? imageSize) builder;
 
   @override
@@ -45,7 +50,7 @@ class _BackgroundImageSizeState extends State<BackgroundImageSize> {
   @override
   void didUpdateWidget(BackgroundImageSize oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.asset != widget.asset) {
+    if (oldWidget.asset != widget.asset || oldWidget.source != widget.source) {
       _imageSize = null;
       _resolve();
     }
@@ -59,7 +64,7 @@ class _BackgroundImageSizeState extends State<BackgroundImageSize> {
       return;
     }
 
-    final provider = contentImageProvider(asset);
+    final provider = contentImageProvider(asset, source: widget.source);
     if (provider == _provider) return;
 
     _detach();

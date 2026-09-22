@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/ui/widgets/background_image_size.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Un element a poser sur le decor, a un endroit donne de l'illustration.
@@ -82,6 +83,7 @@ class SceneLayout extends StatelessWidget {
   const SceneLayout({
     required this.children,
     this.backgroundAsset,
+    this.contentSource,
     this.backgroundColor = const Color(0xFF9CC5E3),
     this.bottomInset = 0,
     super.key,
@@ -89,6 +91,9 @@ class SceneLayout extends StatelessWidget {
 
   final List<SceneChild> children;
   final String? backgroundAsset;
+
+  /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle.
+  final ContentSource? contentSource;
   final Color backgroundColor;
 
   /// Hauteur reservee en bas par le systeme, au-dessus de laquelle
@@ -99,6 +104,7 @@ class SceneLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return BackgroundImageSize(
       asset: backgroundAsset,
+      source: contentSource,
       builder: (context, imageSize) {
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -126,6 +132,7 @@ class SceneLayout extends StatelessWidget {
                       width: imageRect.width,
                       height: imageRect.height,
                       child: ContentImage(
+                        source: contentSource,
                         path: backgroundAsset!,
                         fit: BoxFit.fill,
                         errorBuilder: (context, error, stack) =>

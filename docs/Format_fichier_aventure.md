@@ -18,7 +18,15 @@ assets/content/
   lists/*.json          ← les listes de mots, par thème
   characters.json       ← les personnages
   adventures/*.json     ← les aventures et leurs lieux
+  pictures/*.jpg        ← les illustrations
 ```
+
+**Les illustrations sont du contenu**, et vivent donc dans le même dossier que
+le reste. Tout chemin d'image s'écrit **relatif à `assets/content/`** :
+`"pictures/gare.jpg"`, jamais `"assets/pictures/gare.jpg"`. C'est ce qui
+permet à l'outil d'auteur de les déposer sur le dépôt distant avec le JSON, de
+les afficher pendant l'édition, et de tout faire redescendre d'un bloc vers le
+dépôt git.
 
 Le principe est simple : **un mot n'est défini qu'une fois**, dans le lexique.
 Tout le reste ne fait que le citer. C'est ce qui évite qu'un même mot se
@@ -51,7 +59,7 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
     {
       "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
-      "cover": "assets/pictures/Grisbie_plage.jpg",
+      "cover": "pictures/Grisbie_plage.jpg",
       "file": "adventures/grisbie_plage.json"
     }
   ]
@@ -158,7 +166,7 @@ journée ne redonne pas les mêmes mots**.
 {
   "characters": [
     { "id": "pecheur", "name": "Le pêcheur" },
-    { "id": "marchande", "name": "La marchande de journaux", "portrait": "assets/pictures/marchande.png" }
+    { "id": "marchande", "name": "La marchande de journaux", "portrait": "pictures/marchande.png" }
   ]
 }
 ```
@@ -192,7 +200,7 @@ texte dessous.
 ```json
 "opening": {
   "title": "Grisbie part à la plage",
-  "image": "assets/pictures/Grisbie_plage.jpg",
+  "image": "pictures/Grisbie_plage.jpg",
   "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte."
 }
 ```
@@ -221,7 +229,7 @@ son premier lieu.
 {
   "id": "station_service",
   "location": "La station-service",
-  "background": "assets/pictures/station.jpg",
+  "background": "pictures/station.jpg",
   "narrative": {
     "onArrival": "La voiture a soif ! Grisbie s'arrête faire le plein."
   },

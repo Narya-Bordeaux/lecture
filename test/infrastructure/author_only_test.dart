@@ -43,17 +43,17 @@ void main() {
       importers,
       <String>[
         'lib/infrastructure/content/device_content_folder.dart',
-        'lib/infrastructure/pictures/device_picture_library.dart',
-        'lib/infrastructure/pictures/picture_keeper_io.dart',
+        'lib/infrastructure/pictures/device_picture_picker.dart',
       ],
     );
   });
 
-  test('un seul fichier construit la photothegue, et c\'est l\'outil', () {
+  test('un seul fichier ouvre la photothegue, et c\'est l\'outil', () {
     final builders = sources.entries
-        .where((entry) => entry.value.contains('DevicePictureLibrary('))
+        .where((entry) => entry.value.contains('DevicePicturePicker('))
         .map((entry) => entry.key)
-        .where((path) => path != 'lib/infrastructure/pictures/device_picture_library.dart')
+        .where((path) =>
+            path != 'lib/infrastructure/pictures/device_picture_picker.dart')
         .toList()
       ..sort();
 

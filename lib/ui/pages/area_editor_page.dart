@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:grisbie/application/area_editor.dart';
 import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/widgets/background_image_size.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
@@ -23,9 +24,12 @@ import 'package:grisbie/ui/widgets/scene_layout.dart';
 /// reste : ecrire le JSON a la main dans le contenu livre est encore la seule
 /// facon d'enregistrer un calage, tant que rien n'ecrit l'aventure editee.
 class AreaEditorPage extends StatefulWidget {
-  const AreaEditorPage({required this.stage, super.key});
+  const AreaEditorPage({required this.stage, this.contentSource, super.key});
 
   final Stage stage;
+
+  /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle.
+  final ContentSource? contentSource;
 
   /// Cote minimal d'une zone, en points : la cible d'accessibilite usuelle.
   static const double minimumSide = 48;
@@ -139,6 +143,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
             ),
           ),
           BackgroundImageSize(
+            source: widget.contentSource,
             asset: widget.stage.backgroundAsset,
             builder: (context, imageSize) {
               return LayoutBuilder(

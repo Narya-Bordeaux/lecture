@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:grisbie/domain/repositories/content_sink.dart';
 
@@ -22,5 +23,12 @@ class FileContentSink implements ContentSink {
     // prealable, la premiere aventure d'une installation neuve echouerait.
     await file.parent.create(recursive: true);
     await file.writeAsString(contents);
+  }
+
+  @override
+  Future<void> writeBytes(String path, Uint8List bytes) async {
+    final file = File('$directory/$path');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes);
   }
 }

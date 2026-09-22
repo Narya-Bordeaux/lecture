@@ -24,10 +24,23 @@ class BrowserContentSink implements ContentSink {
   static String downloadNameFor(String path) => path.replaceAll('/', '_');
 
   @override
-  Future<void> writeFile(String path, String contents) async {
+  Future<void> writeBytes(String path, Uint8List bytes) {
+    return _download(path, bytes, 'application/octet-stream');
+  }
+
+  @override
+  Future<void> writeFile(String path, String contents) {
+    return _download(
+      path,
+      Uint8List.fromList(utf8.encode(contents)),
+      'application/json',
+    );
+  }
+
+  Future<void> _download(String path, Uint8List bytes, String type) async {
     final blob = web.Blob(
-      <JSUint8Array>[Uint8List.fromList(utf8.encode(contents)).toJS].toJS,
-      web.BlobPropertyBag(type: 'application/json'),
+      <JSUint8Array>[bytes.toJS].toJS,
+      web.BlobPropertyBag(type: type),
     );
     final url = web.URL.createObjectURL(blob);
 

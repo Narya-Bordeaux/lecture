@@ -13,7 +13,7 @@
     {
       "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
-      "cover": "assets/pictures/Grisbie_plage.jpg",
+      "cover": "pictures/Grisbie_plage.jpg",
       "file": "adventures/grisbie_plage.json"
     }
   ]

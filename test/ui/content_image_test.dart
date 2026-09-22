@@ -1,70 +1,97 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
-/// D'ou vient une illustration : du bundle, ou du disque.
+import '../support/memory_content.dart';
+
+/// D'où vient une illustration.
 ///
-/// **Les assets sont scelles au build.** Une image que l'auteur vient d'ajouter
-/// sur son telephone n'y est pas, et n'y sera qu'apres un commit et une
-/// recompilation. Pendant l'edition elle vit donc sur le disque, et le jeu
-/// livre, lui, ne lit que le bundle.
+/// **Une illustration est du contenu**, au même titre qu'un fichier
+/// d'aventure : son chemin est relatif au dossier du contenu, et c'est la
+/// *source* qui sait où ce dossier se trouve — le bundle pour le jeu, un
+/// dossier de l'appareil ou le dépôt distant pour l'outil d'auteur.
+///
+/// Elle vivait à part jusqu'en 0.28.0 : un chemin de fichier sur l'appareil,
+/// une adresse `blob:` dans un navigateur. Elle ne voyageait donc pas avec le
+/// contenu — prise sur le téléphone, elle n'arrivait jamais sur le poste — et
+/// dans un onglet elle disparaissait avant même d'être affichée.
 ///
 /// Une seule fonction tranche, pour les quatre endroits qui affichent une
-/// image. Deux regles separees finiraient par diverger, et l'auteur calerait
+/// image. Deux règles séparées finiraient par diverger, et l'auteur calerait
 /// ses zones sur une image que le jeu ne montre pas.
-///
-/// **« Le disque » n'a pas le meme sens partout.** Sur un appareil c'est un
-/// fichier ; dans un navigateur il n'y en a pas, et le chemin est alors une
-/// adresse — celle d'un blob choisi par l'auteur, ou plus tard celle d'un
-/// fichier depose sur Firebase Storage. Ce fichier eprouve la branche
-/// appareil ; la branche web est choisie a la compilation et ne s'execute
-/// qu'en navigateur.
 
 void main() {
-  group('Ou chercher l\'illustration', () {
-    test('un chemin d\'asset vient du bundle', () {
+  group('Où chercher l\'illustration', () {
+    test('un chemin relatif se lit par la source du contenu', () {
+      // Le cas ordinaire depuis 0.28.0 : « pictures/gare_….jpg », comme
+      // « adventures/plage.json ».
+      expect(
+        contentImageProvider('pictures/gare_1.jpg'),
+        isA<ContentPictureImage>(),
+      );
+    });
+
+    test('la source passée est bien celle qui lira', () {
+      final folder = MemoryContentFolder();
+      final provider = contentImageProvider(
+        'pictures/gare_1.jpg',
+        source: folder,
+      ) as ContentPictureImage;
+
+      // Sans cela, l'outil montrerait l'image du bundle au lieu de celle qu'il
+      // vient de déposer sur le dépôt.
+      expect(provider.source, same(folder));
+      expect(provider.path, 'pictures/gare_1.jpg');
+    });
+
+    test('sans source, c\'est le bundle — le cas du jeu', () {
+      final provider =
+          contentImageProvider('pictures/gare_1.jpg') as ContentPictureImage;
+
+      expect(provider.source, isA<AssetContentSource>());
+    });
+
+    test('un chemin d\'asset vient du bundle, tel quel', () {
+      // Ce que le contenu livré écrivait avant la bascule. Le refuser
+      // casserait un contenu encore valide.
       expect(
         contentImageProvider('assets/pictures/Grisbie_plage.jpg'),
         isA<AssetImage>(),
       );
     });
 
-    test('tout autre chemin vient du disque', () {
-      // C'est le cas pendant l'edition : l'image est dans le dossier de
-      // l'application, pas encore dans le depot.
-      expect(
-        contentImageProvider('/data/user/0/fr.naryabordeaux.grisbie/gare.jpg'),
-        isA<FileImage>(),
-      );
-    });
-
-    test('une adresse reste une adresse, meme sur un appareil', () {
-      // L'outil d'auteur tournera aussi dans un navigateur, et le contenu
-      // finira depose sur un stockage distant : un chemin peut donc etre une
-      // adresse, y compris lu depuis un telephone.
+    test('une adresse reste une adresse', () {
+      // Rien n'en produit plus, mais un contenu écrit avant la bascule peut en
+      // porter : mieux vaut l'afficher que le refuser.
       expect(
         contentImageProvider('https://exemple.test/gare.jpg'),
         isA<NetworkImage>(),
       );
     });
 
-    test('le chemin du disque est conserve tel quel', () {
-      final provider =
-          contentImageProvider('/tmp/images/gare.jpg') as FileImage;
-
-      expect(provider.file.path, '/tmp/images/gare.jpg');
-    });
-
-    test('deux appels sur le meme chemin donnent le meme fournisseur', () {
-      // Sans cela le cache d'images rechargerait le fichier a chaque rendu, et
-      // l'apercu clignoterait a chaque geste de calage.
+    test('deux appels sur le même chemin donnent le même fournisseur', () {
+      // Sans cela le cache d'images rechargerait le fichier à chaque rendu, et
+      // l'aperçu clignoterait à chaque geste de calage.
       expect(
         contentImageProvider('assets/pictures/a.jpg'),
         contentImageProvider('assets/pictures/a.jpg'),
       );
       expect(
-        contentImageProvider('/tmp/a.jpg'),
-        contentImageProvider('/tmp/a.jpg'),
+        contentImageProvider('pictures/a.jpg'),
+        contentImageProvider('pictures/a.jpg'),
+      );
+    });
+
+    test('deux sources différentes donnent deux fournisseurs différents', () {
+      // Se connecter au dépôt change l'endroit où l'image est lue : garder le
+      // même fournisseur ferait afficher celle d'avant.
+      expect(
+        contentImageProvider('pictures/a.jpg', source: MemoryContentFolder()),
+        isNot(contentImageProvider(
+          'pictures/a.jpg',
+          source: MemoryContentFolder(),
+        )),
       );
     });
   });

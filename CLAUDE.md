@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.27.0+43** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.28.0+44** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -55,7 +55,7 @@ distant.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
 `test/infrastructure/author_only_test.dart` exige que les greffons ne soient
-importés que par l'infrastructure dédiée, que `DevicePictureLibrary` et
+importés que par l'infrastructure dédiée, que `DevicePicturePicker` et
 `AuthorRemote` ne se construisent que dans `main_author.dart`, que **rien
 n'initialise Firebase** hors de `author_remote.dart`, et que `main.dart` ne
 mène à aucun écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
@@ -207,7 +207,9 @@ toucher au contenu, et le mettre à jour si le format change.
 Cinq fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
 définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par thème,
 `characters.json` porte les personnages, et `adventures/*.json` assemble le tout
-par références. Un mot défini à deux endroits finirait découpé de deux façons
+par références. **`pictures/` s'y ajoute** : une illustration est du contenu, et
+tout chemin d'image s'écrit relatif à `assets/content/` — `pictures/gare.jpg`,
+jamais `assets/pictures/gare.jpg`. Un mot défini à deux endroits finirait découpé de deux façons
 différentes ; le chargement refuse le doublon.
 
 **Trois objets, trois questions** — et c'est ce qui justifie le troisième :
@@ -396,58 +398,57 @@ naturellement séparées plutôt que d'élaguer après coup.
 l'état qu'il renvoie. Décider dans un widget si un mot est bien placé dupliquerait
 le moteur et ferait diverger les deux.
 
-**Bundle, réseau ou disque : une seule règle** — `contentImageProvider` (dans
-`lib/ui/widgets/content_image.dart`) décide d'où vient une illustration. Un
-chemin commençant par `assets/` vient du bundle, une adresse (`http:`,
-`https:`, `blob:`) du réseau, et tout le reste du disque. Les
-assets étant **scellés au build**, une image que l'auteur vient d'ajouter sur
-son téléphone n'y est pas et n'y sera qu'après un commit ; l'édition doit
-pourtant déjà fonctionner dessus. Les quatre endroits qui affichent une image —
-scène de jeu, calage, page de garde, moment de récit — passent par là. Deux
-règles séparées finiraient par diverger, et l'auteur calerait ses zones sur une
-image que le jeu ne montre pas.
+**Une illustration est du contenu, et se lit par la source** —
+`contentImageProvider` (dans `lib/ui/widgets/content_image.dart`) rend un
+`ContentPictureImage`, qui lit les octets par `ContentSource.readBytes`. Le
+bundle pour le jeu, un dossier de l'appareil ou le dépôt distant pour l'outil.
+Les quatre endroits qui affichent une image — scène de jeu, calage, page de
+garde, moment de récit — passent par là. Deux règles séparées finiraient par
+diverger, et l'auteur calerait ses zones sur une image que le jeu ne montre pas.
 
-**« Le disque » n'a pas le même sens partout** : un navigateur n'en a pas. La
-branche est donc choisie **à la compilation**, par import conditionnel —
-`local_image_provider_io.dart` (un `FileImage`) là où `dart:io` existe,
-`local_image_provider_web.dart` (un `NetworkImage`) sinon. C'est ce qui permet
-au même code de tourner sur téléphone et dans Chrome.
+C'est un `ImageProvider` à part entière et non un `FutureBuilder` : c'est ce
+qui le fait entrer dans le cache d'images de Flutter, qui indexe par égalité du
+fournisseur. La **source fait partie de son identité** — se connecter au dépôt
+doit bien redonner une autre image.
 
-**Choisir l'image, partout** — `PictureLibrary` (domaine) est une interface,
-injectée par constructeur et transmise de proche en proche depuis
-`main_author.dart` ; `DevicePictureLibrary` (infrastructure) l'implémente avec
-`image_picker`. Nulle, le bouton ne paraît pas et le champ reste saisissable au
-clavier : c'est le cas des tests.
+Deux préfixes restent traités à part, et seulement pour ne pas casser un
+contenu écrit avant la bascule : `assets/` désigne le bundle directement, une
+adresse (`http:`, `https:`, `blob:`) se lit telle quelle. Rien n'en produit
+plus.
 
-**Le même greffon sert dans un navigateur** — `image_picker_for_web` est déjà
-dans le graphe, y ouvre le sélecteur de fichiers du système et rend une adresse
-`blob:`, que `contentImageProvider` sait afficher. L'outil en était privé, ce
-qui interdisait de charger une image depuis un poste, alors que c'est là qu'on
-travaille au clavier.
+**Ce que cela a remplacé** — l'image vivait à part : un chemin de fichier sur
+l'appareil, une adresse `blob:` dans un navigateur, et deux fichiers choisis
+par import conditionnel. Elle ne voyageait donc pas avec le contenu : prise sur
+le téléphone, elle n'arrivait jamais sur le poste ; choisie dans un onglet,
+elle disparaissait avant d'être affichée, le système révoquant l'adresse. Un
+`ContentSink.writeBytes` et un `ContentSource.readBytes` ont supprimé les deux
+problèmes et une branche de plateforme.
 
-**Ce qui diffère d'une plateforme à l'autre, c'est ce qu'on peut garder** —
-`PictureLibrary.keepsPictures`. Sur un appareil, l'image est recopiée et se
-retrouve d'une session à l'autre ; dans un navigateur, l'adresse `blob:` meurt
-avec l'onglet. `StageEditorPage` le dit, faute de quoi l'auteur croirait son
-travail conservé et ne comprendrait pas de rouvrir son lieu sans illustration.
-Le calage, lui, survit : ce sont des fractions rangées dans le JSON.
+**Choisir une image, et l'écrire dans le contenu** — deux interfaces de
+domaine, et c'est la séparation qui rend le tout éprouvable.
+`PicturePicker` ouvre la photothèque et rend des **octets** ;
+`StoredPictureLibrary` les écrit dans l'arbre de contenu par un `ContentSink`
+et rend le chemin `pictures/…`. `DevicePicturePicker` implémente le premier
+avec `image_picker`, qui sert aussi bien sur un appareil que dans un navigateur
+(`image_picker_for_web`).
 
-C'est l'interface qui porte cette différence, jamais un `kIsWeb` consulté dans
-un widget — l'écran n'a pas à savoir sur quoi il tourne, et un `kIsWeb` en dur
-ne s'éprouverait pas. Le choix de plateforme se fait par import conditionnel,
-`picture_keeper_io.dart` / `picture_keeper_web.dart`, comme pour l'affichage.
+**Des octets, jamais le chemin rendu par le greffon** : sur un appareil c'est un
+fichier de cache qu'Android peut purger, et dans un navigateur une adresse
+`blob:` que le système révoque aussitôt — c'était la cause de l'aperçu vide sur
+le web. Il n'y a plus de chemin à lire, donc plus rien à révoquer.
 
-**L'image choisie est recopiée** (`PictureStore`, côté `dart:io` seulement) :
-le sélecteur rend un
-fichier de **cache**, qu'Android peut purger en cours de session — l'image
-disparaîtrait sans que rien ne l'explique. Le nom de la copie porte un
-horodatage, sans lequel une seconde photo pour le même lieu écrirait au même
-chemin : le cache d'images de Flutter, qui indexe par chemin, continuerait
-d'afficher l'ancienne et le geste paraîtrait sans effet.
+**Le nom porte un horodatage**, sans lequel une seconde photo pour le même lieu
+écrirait au même chemin : le cache d'images de Flutter, qui indexe par chemin,
+continuerait d'afficher l'ancienne et le geste paraîtrait sans effet.
+
+**La photothèque est nulle quand il n'y a nulle part de durable où écrire** —
+un navigateur non connecté au dépôt, dont le seul puits est le téléchargement.
+Le bouton ne paraît alors pas et le champ reste saisissable au clavier ; c'est
+plus honnête que de proposer un geste dont l'effet disparaît aussitôt.
 
 Une image ainsi prise est **une image de travail** : l'éditeur le dit sous le
-champ. Le jeu ne la verra qu'une fois copiée dans `assets/pictures/` et le
-contenu recompilé.
+champ. Le jeu ne la verra qu'une fois le contenu rapatrié dans
+`assets/content/` et recompilé.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir
@@ -515,6 +516,11 @@ pour que le dossier se suffise : c'est ce qu'il faut sur un appareil, qui n'a
 rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convient
 quand la destination possède déjà le reste — un dépôt, ou le dossier de
 téléchargement d'un navigateur.
+
+**L'accueil reçoit aussi une fabrique de photothèque** — même raison que pour
+le dépôt : se connecter change l'endroit où l'image sera rangée, et une
+photothèque construite une fois pour toutes écrirait encore sur l'appareil
+après la connexion.
 
 **Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
 puits : le dépôt distant quand l'auteur y est connecté (`RemoteContentStore`),

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'package:grisbie/domain/repositories/content_source.dart';
 
@@ -15,5 +17,12 @@ class AssetContentSource implements ContentSource {
   @override
   Future<String> readFile(String path) {
     return (bundle ?? rootBundle).loadString('$basePath/$path');
+  }
+
+  /// Les octets d'un fichier du bundle — une illustration, en pratique.
+  @override
+  Future<Uint8List> readBytes(String path) async {
+    final data = await (bundle ?? rootBundle).load('$basePath/$path');
+    return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
   }
 }

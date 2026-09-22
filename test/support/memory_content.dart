@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
@@ -12,6 +15,9 @@ class MemoryContentFolder implements ContentSource, ContentSink {
 
   final Map<String, String> files;
 
+  /// Ce qui a ete ecrit en octets — une illustration, en pratique.
+  final Map<String, Uint8List> bytes = <String, Uint8List>{};
+
   @override
   Future<String> readFile(String path) async {
     final contents = files[path];
@@ -22,8 +28,23 @@ class MemoryContentFolder implements ContentSource, ContentSink {
   }
 
   @override
+  Future<Uint8List> readBytes(String path) async {
+    final written = bytes[path];
+    if (written != null) return written;
+
+    return Uint8List.fromList(utf8.encode(await readFile(path)));
+  }
+
+  @override
   Future<void> writeFile(String path, String contents) async {
     files[path] = contents;
+  }
+
+  @override
+  Future<void> writeBytes(String path, Uint8List contents) async {
+    bytes[path] = contents;
+    // Le fichier existe, quelle que soit la façon dont on le relit.
+    files[path] = '<${contents.length} octets>';
   }
 }
 
@@ -41,6 +62,13 @@ class SplitContentFolder implements ContentSource, ContentSink {
   Future<String> readFile(String path) => source.readFile(path);
 
   @override
+  Future<Uint8List> readBytes(String path) => source.readBytes(path);
+
+  @override
   Future<void> writeFile(String path, String contents) =>
       written.writeFile(path, contents);
+
+  @override
+  Future<void> writeBytes(String path, Uint8List contents) =>
+      written.writeBytes(path, contents);
 }

@@ -3,6 +3,7 @@ import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/application/adventure_outline.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
@@ -24,6 +25,7 @@ class OutlinePage extends StatefulWidget {
   const OutlinePage({
     required this.adventure,
     this.pictures,
+    this.contentSource,
     this.onSave,
     super.key,
   });
@@ -39,6 +41,14 @@ class OutlinePage extends StatefulWidget {
 
   /// De quoi choisir une illustration dans l'appareil, transmise aux editeurs.
   final PictureLibrary? pictures;
+
+  /// D'ou lire le contenu, illustrations comprises.
+  ///
+  /// Nulle, le bundle : c'est le cas du jeu et des tests. L'outil d'auteur y
+  /// passe la source ou il travaille, pour que l'apercu montre l'image qu'il
+  /// vient de deposer et non celle d'avant.
+  final ContentSource? contentSource;
+
 
   @override
   State<OutlinePage> createState() => _OutlinePageState();
@@ -119,6 +129,7 @@ class _OutlinePageState extends State<OutlinePage> {
         builder: (_) => StageEditorPage(
           stage: stage,
           pictures: widget.pictures,
+          contentSource: widget.contentSource,
         ),
       ),
     );
@@ -135,6 +146,7 @@ class _OutlinePageState extends State<OutlinePage> {
           adventureTitle: _adventure.title,
           opening: _adventure.opening,
           pictures: widget.pictures,
+          contentSource: widget.contentSource,
         ),
       ),
     );

@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
-import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
+
+import '../support/memory_content.dart';
 
 /// Le jeu refuse une aventure incomplete ; l'outil d'auteur doit l'ouvrir.
 ///
@@ -12,20 +13,6 @@ import 'package:grisbie/infrastructure/content/content_repository.dart';
 /// Mais une aventure en cours d'ecriture est incomplete par definition. Avec ce
 /// seul chemin, l'outil d'auteur ne pourrait jamais rouvrir ce qu'il vient
 /// d'enregistrer.
-
-/// Une source de contenu tenue en memoire.
-class MemoryContentSource implements ContentSource {
-  const MemoryContentSource(this.files);
-
-  final Map<String, String> files;
-
-  @override
-  Future<String> readFile(String path) async {
-    final content = files[path];
-    if (content == null) throw StateError('Fichier absent : $path');
-    return content;
-  }
-}
 
 /// Une aventure a laquelle il manque encore les mots d'une famille.
 ///
@@ -66,7 +53,7 @@ Map<String, String> buildDraftFiles() {
 }
 
 ContentRepository buildRepository() {
-  return ContentRepository(source: MemoryContentSource(buildDraftFiles()));
+  return ContentRepository(source: MemoryContentFolder(buildDraftFiles()));
 }
 
 void main() {
@@ -116,7 +103,7 @@ void main() {
           .replaceAll('"label": "En autocar"', '"label": "Chiffre un"');
 
       final draft = await ContentRepository(
-        source: MemoryContentSource(files),
+        source: MemoryContentFolder(files),
       ).loadDraft('brouillon');
 
       expect(
