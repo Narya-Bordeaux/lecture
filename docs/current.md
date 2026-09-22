@@ -65,16 +65,16 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    lieu, sur l'étape en cours d'édition, et rend l'étape calée.
    **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
 
-**Ce qui bloque Firebase** : le code est là depuis 0.23.0, mais le projet
-le projet `grisbie-43ee9` vient d'être créé, mais Storage n'y est pas activé et
-rien n'a jamais été exécuté. Les préalables sont
-listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
-Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
-depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
-un seul emplacement autorisé pour `google-services.json`
-(`Noms_et_identifiants.md`). **Les deux saveurs se construisent et se lancent**
-sur le poste depuis 0.9.5 : le montage tient. Ne manque plus que ce qui relève
-de la console.
+**Le dépôt distant fonctionne, éprouvé le 22 septembre 2026.** Dans Chrome, sur
+le projet `grisbie-43ee9` : connexion par e-mail, dépôt du contenu, relecture
+depuis le dépôt. L'outil liste les aventures qui n'existent que là, et les
+ouvre. C'était la première exécution réelle de tout ce qui a été écrit depuis
+0.23.0.
+
+Le dernier obstacle a été le **CORS**, et il ne se devinait pas : une origine
+précise ne suffit pas, parce que Firebase **redirige** vers
+`storage.googleapis.com` et que le navigateur revérifie l'autorisation sur la
+nouvelle adresse. Marche à suivre dans `Commandes.md`.
 
 Deux sujets antérieurs restent ouverts, sans être le chantier : la gare et la
 boutique n'ont ni décor ni zones placées, et le **tirage libre** peut ne proposer

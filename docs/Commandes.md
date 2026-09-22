@@ -103,14 +103,57 @@ leur `API_KEY` et leur `APP_ID`, le reste est commun.
 connecté, « Enregistrer » dépose le contenu sur le dépôt au lieu de l'appareil,
 et l'accueil affiche l'**UID** — celui que la règle du bucket doit nommer.
 
-**Jamais exécuté à ce jour.** Cette commande est écrite d'après la
-documentation de Firebase, pas d'après un lancement réussi ; c'est la seule de
-ce document dans ce cas, et elle en sortira ou y sera corrigée dès le premier
-essai.
+**Éprouvé le 22 septembre 2026**, dans Chrome : connexion, dépôt du contenu et
+relecture. L'outil liste les aventures du dépôt et les ouvre.
 
-`--dart-define-from-file`, en revanche, **est éprouvé** : un test jetable a
+## Autoriser le navigateur à lire le dépôt (CORS)
+
+**À faire une fois par bucket, et seulement pour le web.** Sans cela
+l'enregistrement réussit et la relecture échoue : Chrome reçoit la réponse et
+refuse de la laisser lire. Sur le téléphone la question ne se pose pas — il n'y
+a pas de navigateur entre l'application et le dépôt.
+
+Dans le **Cloud Shell** de la console Google Cloud (l'icône `>_`), projet
+`grisbie-43ee9`, sans rien installer :
+
+```bash
+cat > cors.json <<'JSON'
+[
+  {
+    "origin": ["*"],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Content-Length", "Content-Range",
+                       "Content-Encoding", "Content-Disposition",
+                       "Cache-Control", "Authorization",
+                       "x-goog-meta-firebaseStorageDownloadTokens"],
+    "maxAgeSeconds": 3600
+  }
+]
+JSON
+gcloud storage buckets update gs://grisbie-43ee9.firebasestorage.app --cors-file=cors.json
+gcloud storage buckets describe gs://grisbie-43ee9.firebasestorage.app --format="default(cors_config)"
+```
+
+**Pourquoi `*` et non `http://localhost:5000`** — une origine précise ne suffit
+pas, et c'est le piège qui a coûté le plus de temps. Firebase ne sert pas les
+fichiers lui-même : `firebasestorage.googleapis.com` **redirige** vers
+`storage.googleapis.com`. Après une redirection d'origine croisée, le
+navigateur exige l'autorisation sur la *nouvelle* adresse, avec une origine qui
+n'est plus celle de départ. La politique restreinte ne correspond donc plus, et
+seuls les fichiers non redirigés passent — d'où un `index.json` lisible et un
+`characters.json` refusé, symptôme déroutant s'il en est.
+
+**Ce que `*` n'ouvre pas** : aucun accès. Le CORS dit seulement à quelles pages
+le navigateur autorise la lecture d'une réponse ; il faut déjà posséder
+l'adresse exacte du fichier et son jeton. La règle du bucket, elle, ne bouge
+pas et n'accorde l'écriture qu'à l'UID de l'auteur.
+
+Après coup, recharger **en forçant** (Ctrl+Maj+R) : Chrome garde une heure le
+résultat de ses vérifications précédentes.
+
+`--dart-define-from-file` **est éprouvé** de son côté : un test jetable a
 vérifié que les six valeurs arrivent bien par le fichier, et qu'elles manquent
-sans lui. C'est le mécanisme qui est acquis, pas encore ce qu'il transporte.
+sans lui.
 
 ## Construire pour le web
 

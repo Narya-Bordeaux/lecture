@@ -85,38 +85,8 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
       la règle doit nommer, à comparer. **Piège attendu** : tant que la règle
       par défaut tient, la connexion réussit et le dépôt échoue.
-- [ ] **Le CORS du bucket — constaté, pas supposé.** L'écriture passe, la
-      lecture échoue : les fichiers sont bien sur le dépôt (`content/…`,
-      vérifié dans la console) et le navigateur refuse de les relire, faute de
-      politique CORS sur un bucket neuf. Depuis 0.27.0 l'échec se **voit** au
-      lieu de servir en silence le contenu livré, mais la cause reste entière.
-
-      Se règle depuis le **Cloud Shell** de la console Google Cloud, sans rien
-      installer. Lancer d'abord l'outil sur un port fixe
-      (`--web-port=5000`), pour que l'origine soit stable :
-
-      ```bash
-      cat > cors.json <<'JSON'
-      [
-        {
-          "origin": ["http://localhost:5000"],
-          "method": ["GET", "HEAD"],
-          "responseHeader": ["Content-Type", "Content-Length", "Content-Range",
-                             "Content-Encoding", "Content-Disposition",
-                             "Cache-Control",
-                             "x-goog-meta-firebaseStorageDownloadTokens"],
-          "maxAgeSeconds": 3600
-        }
-      ]
-      JSON
-      gcloud storage buckets update gs://grisbie-43ee9.firebasestorage.app \
-        --cors-file=cors.json
-      ```
-
-      Le CORS n'ouvre aucun accès : la règle du bucket exige toujours l'UID de
-      l'auteur. Il dit seulement quelles pages ont le droit de **lire la
-      réponse**. Sur le téléphone, la question ne se pose pas — il n'y a pas
-      de navigateur entre l'application et le dépôt.
+- [x] **Le CORS du bucket.** Fait, et éprouvé : le contenu se lit désormais
+      depuis le dépôt dans Chrome. La marche à suivre est dans `Commandes.md`.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer. `author_only_test.dart` le rend structurellement improbable —
       rien n'initialise Firebase hors de l'outil — mais ne le démontre pas.
@@ -153,6 +123,16 @@ construisant :
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
+- [ ] **L'aperçu d'une image choisie dans Chrome ne s'affiche pas.** Constaté
+      le 22 septembre 2026 : le sélecteur s'ouvre, rend bien une adresse
+      `blob:…`, et l'aperçu échoue aussitôt sur `net::ERR_FILE_NOT_FOUND`.
+      Ce n'est **pas** la limite annoncée — celle-ci dit que l'image ne survit
+      pas à la fermeture de l'onglet, pas qu'elle ne s'affiche jamais.
+      Deux causes possibles, que l'on départage en collant l'adresse `blob:`
+      dans un nouvel onglet : si Chrome montre l'image, le tort est à la façon
+      dont Flutter la charge ; sinon, l'adresse a été révoquée aussitôt rendue.
+      **Le dépôt des images sur Storage rendrait la question sans objet** — une
+      adresse `https:` durable remplacerait le `blob:`.
 - [ ] **Vérifier le choix d'image sur l'appareil.** Fait depuis 0.20.0, mais
       **jamais exécuté** : ni `image_picker` ni `path_provider` ne tournent en
       session cloud. À éprouver sur le téléphone — le Photo Picker s'ouvre-t-il
