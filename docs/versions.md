@@ -44,6 +44,65 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.23.0+38 — 22 septembre 2026 — Le dépôt distant
+
+Le pont entre le poste et le téléphone. L'outil dépose le contenu sur Firebase
+Storage et le relit, ce qui rend possible le partage voulu : écrire la structure
+et les textes au clavier, illustrer sur l'appareil.
+
+**Deux décisions consignées ont été renversées**, et il faut le dire avant le
+reste.
+
+**Pas de `google-services.json`.** Le greffon Gradle qui le produit **échoue
+quand le fichier manque** : l'appliquer aurait cassé la saveur `jeu`, qui n'a
+pas à en avoir. Les valeurs passent donc par `--dart-define` au lancement, et
+`Firebase.initializeApp` reçoit des `FirebaseOptions` explicites.
+
+Le gain dépasse le contournement. L'auto-initialisation d'Android — le SDK qui
+démarre seul dès qu'il trouve le fichier — **n'existe plus du tout**. Le jeu ne
+peut pas contacter Firebase même par mégarde, puisque rien ne l'initialise. Les
+saveurs servaient à contenir ce risque ; elles ne portent plus rien de Firebase.
+Et rien de secret n'entre dans le dépôt, qui se compile sans aucune de ces
+valeurs.
+
+**Connexion par e-mail et mot de passe, pas par Google.** Google sur Android
+exige d'enregistrer les empreintes SHA-1 des magasins de clés : ça marche en
+debug et ça casse en release, ce qui est le pire moment pour l'apprendre.
+L'e-mail se comporte à l'identique sur le web et sur un téléphone, sans greffon
+de plus. L'usage est solo, la règle du bucket nomme toujours un UID — que
+l'outil affiche une fois connecté, pour qu'on puisse le recopier.
+
+**Le dépôt distant est un dossier comme un autre.** `RemoteContentStore`
+implémente `ContentSource` *et* `ContentSink`, avec l'arborescence
+d'`assets/content/`. `ContentSaver` et `ContentRepository` n'ont pas bougé d'une
+ligne : ils ne savent rien du réseau. C'est le dividende des interfaces posées
+en 0.5.0 et 0.22.0.
+
+**Rien n'a été exécuté.** Ni la connexion, ni le dépôt d'un fichier, ni sa
+relecture : aucun greffon Firebase ne tourne en session cloud, et le projet
+`narya-grisbie-dev` n'existe pas encore. Ce qui est éprouvé ici est la mince
+part qui pourrait être fausse **sans** qu'un appareil le dise : la configuration
+du lancement et ce qui manque quand elle est incomplète, la traduction des refus
+de connexion, l'écran de connexion sur un faux compte. Le reste tient en deux
+appels à Firebase.
+
+La marche à suivre en console est réécrite dans `TODO.md` — elle a beaucoup
+maigri — et la commande de lancement est dans `Commandes.md`, signalée comme la
+seule de ce document qui n'ait jamais abouti.
+
+- `author_only_test.dart` gagne trois contrôles : Firebase n'est importé que par
+  `lib/infrastructure/remote/`, `AuthorRemote.connect` ne s'appelle que dans
+  `main_author.dart`, et **rien n'initialise Firebase** ailleurs qu'en un seul
+  endroit.
+- `AuthorAccount` (domaine) est une interface : l'écran de connexion s'éprouve
+  sans Firebase, sans réseau et sans compte.
+- Où va l'enregistrement se lit sur l'écran d'accueil, une fois, plutôt que
+  dans le message qui suit chaque enregistrement : c'est avant de travailler
+  qu'on veut le savoir.
+
+346 tests au vert, dont 14 nouveaux. `flutter analyze` sans remarque, et les
+deux points d'entrée compilent pour le web.
+
 ### 0.22.0+37 — 22 septembre 2026 — Enregistrer
 
 L'outil construisait un parcours, posait des illustrations, écrivait des récits

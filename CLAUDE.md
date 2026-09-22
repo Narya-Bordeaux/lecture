@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.22.0+37** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.23.0+38** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -37,16 +37,19 @@ sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
 première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 éléments sans reprendre le document.
 
-**Trois dépendances tierces, et trois seulement** — `image_picker` et
-`path_provider` (équipe Flutter), `web` (équipe Dart). Elles ne servent qu'à
-l'outil d'auteur : choisir l'illustration d'un lieu dans l'appareil, savoir où
-écrire, et rendre les fichiers par le téléchargement d'un navigateur.
+**Six dépendances tierces** — `image_picker` et `path_provider` (équipe
+Flutter), `web` (équipe Dart), `firebase_core`, `firebase_storage` et
+`firebase_auth`. Elles ne servent qu'à l'outil d'auteur : choisir
+l'illustration d'un lieu dans l'appareil, savoir où écrire, rendre les fichiers
+par le téléchargement d'un navigateur, et déposer le contenu sur le dépôt
+distant.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
 `test/infrastructure/author_only_test.dart` exige que les greffons ne soient
-importés que par l'infrastructure dédiée, que `DevicePictureLibrary` ne se
-construise que dans `main_author.dart`, et que `main.dart` ne mène à aucun
-écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
+importés que par l'infrastructure dédiée, que `DevicePictureLibrary` et
+`AuthorRemote` ne se construisent que dans `main_author.dart`, que **rien
+n'initialise Firebase** hors de `author_remote.dart`, et que `main.dart` ne
+mène à aucun écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
 général : sur Android 13 et au-delà il passe par le Photo Picker du système,
 qui **ne demande aucune permission**.
 
@@ -54,13 +57,29 @@ qui **ne demande aucune permission**.
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
 compte ou d'une télémétrie doit être posée à l'utilisateur, jamais introduite d'office.
 
-**Deux saveurs Android**, `jeu` et `auteur` — le jeu ne contacte rien, l'outil
-d'auteur dépose le contenu sur Firebase Storage. Sur Android, le SDK Firebase
-s'initialise seul dès que `google-services.json` est présent : ce fichier ne vit
-donc que dans `android/app/src/auteur/`, et un test le refuse ailleurs. La saveur
-auteur porte le suffixe `.auteur`, ce qui rend impubliable un jeu construit par
-erreur avec elle. **Une saveur ne choisit pas le point d'entrée Dart** : `--flavor`
-et `-t` s'apparient à la main, voir `docs/Noms_et_identifiants.md`.
+**Firebase ne s'initialise jamais tout seul** — et c'est le point structurant.
+Le montage d'abord prévu passait par `google-services.json`, qu'Android lit au
+démarrage sans qu'on le lui demande : les saveurs servaient à contenir ce
+risque. Il a été écarté en 0.23.0 pour deux raisons. Le greffon Gradle qui
+produit ce fichier **échoue quand il manque**, ce qui aurait cassé la saveur
+`jeu`. Et des `FirebaseOptions` explicites suppriment l'auto-initialisation :
+le jeu **ne peut pas** contacter Firebase, même par mégarde, puisque rien ne
+l'initialise. `author_only_test.dart` le vérifie. Les valeurs arrivent par
+`--dart-define` au lancement (`docs/Commandes.md`) : rien dans le dépôt, rien à
+ignorer par git, et le projet se compile sans elles.
+
+**La connexion se fait par e-mail et mot de passe**, pas par Google. Google sur
+Android exige d'enregistrer les empreintes SHA-1 des magasins de clés — ça
+marche en debug et ça casse en release. L'e-mail se comporte à l'identique sur
+le web et sur un téléphone, sans greffon de plus. L'usage est solo : un compte
+créé à la main dans la console, et la règle du bucket nomme son UID, que l'outil
+affiche une fois connecté.
+
+**Deux saveurs Android**, `jeu` et `auteur` — la saveur auteur porte le suffixe
+`.auteur`, ce qui fait cohabiter les deux applications sur le téléphone et rend
+impubliable un jeu construit par erreur avec elle. Elles ne portent plus rien de
+Firebase depuis 0.23.0. **Une saveur ne choisit pas le point d'entrée Dart** :
+`--flavor` et `-t` s'apparient à la main, voir `docs/Noms_et_identifiants.md`.
 
 ## 2. Environnement
 
@@ -462,9 +481,25 @@ quand la destination possède déjà le reste — un dépôt, ou le dossier de
 téléchargement d'un navigateur.
 
 **Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
-puits : un dossier de l'appareil (`DeviceContentSink`), ou le téléchargement du
+puits : le dépôt distant quand l'auteur y est connecté (`RemoteContentStore`),
+sinon un dossier de l'appareil (`DeviceContentSink`) ou le téléchargement du
 navigateur (`BrowserContentSink`). Les écrans ne connaissent qu'un rappel
 `onSave`, nul quand il n'y a nulle part où écrire.
+
+**Le dépôt distant est un dossier comme un autre** — `RemoteContentStore`
+implémente `ContentSource` *et* `ContentSink`, avec la même arborescence
+qu'`assets/content/`. C'est ce qui permet à `ContentSaver` et
+`ContentRepository` de ne rien savoir du réseau : le pont entre le poste et le
+téléphone n'a demandé aucune ligne de leur part.
+
+**Ce que l'écran d'accueil dit, et pourquoi là** — où va l'enregistrement se
+lit sur `AuthorHomePage`, une fois, plutôt que dans le message qui suit chaque
+enregistrement : c'est **avant** de travailler qu'on veut le savoir. L'UID y
+figure aussi, parce que c'est lui que la règle du bucket doit nommer.
+
+**L'interface ne sait rien du fournisseur** — `AuthorAccount` (domaine) est une
+interface ; `AuthorSession` l'implémente avec `firebase_auth`. C'est ce qui rend
+l'écran de connexion éprouvable sans Firebase, sans réseau et sans compte.
 
 **Le téléchargement est un dépannage, et il se voit** : un navigateur ne crée
 pas de dossier, chaque fichier descend séparément et son nom porte le chemin

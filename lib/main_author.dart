@@ -9,6 +9,7 @@ import 'package:grisbie/infrastructure/content/content_saver.dart';
 import 'package:grisbie/infrastructure/content/content_writer.dart';
 import 'package:grisbie/infrastructure/content/device_content_sink.dart';
 import 'package:grisbie/infrastructure/pictures/device_picture_library.dart';
+import 'package:grisbie/infrastructure/remote/author_remote.dart';
 import 'package:grisbie/main.dart';
 import 'package:grisbie/ui/pages/author_home_page.dart';
 
@@ -24,7 +25,7 @@ const String authorFlavor = 'auteur';
 /// 'main_author.dart' » — ouvre l'outil de calage des zones. Le jeu livre aux
 /// enfants n'en contient aucune trace : aucun bouton cache, aucun geste secret
 /// a decouvrir par megarde.
-void main() {
+Future<void> main() async {
   // Une saveur Gradle ne choisit **pas** le point d'entree Dart : « --flavor »
   // et « -t » sont deux options independantes, que rien n'oblige a apparier.
   // Lance avec la saveur du jeu, l'outil n'aurait pas la configuration Firebase
@@ -46,7 +47,11 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const AuthorToolsApp());
+  // Le depot distant, s'il est configure. Absent, l'outil enregistre sur
+  // l'appareil : une capacite manquante ne casse rien.
+  final remote = await AuthorRemote.connect();
+
+  runApp(AuthorToolsApp(remote: remote));
 }
 
 /// Ou va le contenu enregistre, selon la plateforme.
@@ -58,8 +63,21 @@ void main() {
 /// rien d'autre. Dans un navigateur, le telechargement, et seulement ce qui
 /// vient d'etre ecrit : la destination est un depot qui possede deja le
 /// lexique.
-Future<List<String>> saveAdventure(Adventure adventure) async {
+Future<List<String>> saveAdventure(
+  Adventure adventure, {
+  AuthorRemote? remote,
+}) async {
   const source = AssetContentSource();
+
+  // Connecte, le contenu part sur le depot : c'est ce qui fait communiquer le
+  // poste et le telephone. Il faut y recopier ce que l'outil ne touche pas,
+  // comme sur un appareil — le depot distant part vide.
+  if (remote != null && remote.account.isSignedIn) {
+    return ContentSaver(
+      source: source,
+      writer: ContentWriter(sink: remote.store),
+    ).save(adventure);
+  }
 
   if (kIsWeb) {
     return ContentSaver(
@@ -75,7 +93,10 @@ Future<List<String>> saveAdventure(Adventure adventure) async {
 }
 
 class AuthorToolsApp extends StatelessWidget {
-  const AuthorToolsApp({super.key});
+  const AuthorToolsApp({this.remote, super.key});
+
+  /// Le depot distant, nul quand le lancement ne l'a pas configure.
+  final AuthorRemote? remote;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +118,8 @@ class AuthorToolsApp extends StatelessWidget {
         // la structure et les textes au clavier sur un poste, les images sur
         // le telephone.
         pictures: kIsWeb ? null : DevicePictureLibrary(),
-        onSave: saveAdventure,
+        account: remote?.account,
+        onSave: (adventure) => saveAdventure(adventure, remote: remote),
         // La meme aventure que le jeu : l'outil cale ce qui sera joue.
         adventureId: GrisbieApp.defaultAdventureId,
       ),

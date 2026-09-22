@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.22.0+37** — 22 septembre 2026
+**Version : 0.23.0+38** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -60,8 +60,8 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    lieu, sur l'étape en cours d'édition, et rend l'étape calée.
    **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
 
-**Ce qui bloque Firebase** : rien n'est encore dans le dépôt, et l'intégration
-n'est pas testable en session cloud faute de SDK Android. Les préalables sont
+**Ce qui bloque Firebase** : le code est là depuis 0.23.0, mais le projet
+`narya-grisbie-dev` n'existe pas encore, et rien n'a jamais été exécuté. Les préalables sont
 listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
 Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
 depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
@@ -82,6 +82,21 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.23.0+38 — Le dépôt distant
+- **L'outil dépose le contenu sur Firebase Storage et le relit.** C'est le pont
+  entre le poste et le téléphone.
+- **Pas de `google-services.json`** : le greffon Gradle qui le produit échoue
+  quand il manque, et aurait cassé la saveur `jeu`. Des options explicites, par
+  `--dart-define`. Conséquence : **l'auto-initialisation d'Android n'existe
+  plus du tout**, et un test l'exige.
+- **Connexion par e-mail**, pas par Google : Google sur Android suppose des
+  empreintes SHA-1 qui marchent en debug et cassent en release.
+- `RemoteContentStore` est un `ContentSource` **et** un `ContentSink` :
+  `ContentSaver` et `ContentRepository` n'ont pas bougé d'une ligne.
+- **Rien n'a été exécuté** : le projet Firebase n'existe pas encore. Marche à
+  suivre réécrite dans `TODO.md`.
+- 346 tests au vert, dont 14 nouveaux.
+
 ### 0.22.0+37 — Enregistrer
 - **Le trou du chantier est comblé** : `ContentSaver` écrit une aventure et
   tout ce dont elle a besoin — sommaire, listes, lexique recopié.
@@ -98,21 +113,6 @@ un travail d'auteur, pas de code.
 - **Rien n'a été exécuté** sur appareil ni dans un navigateur.
 - 332 tests au vert, dont 18 nouveaux.
 
-### 0.21.0+36 — Le web, et ce qu'il fallait démêler pour lui
-- **`web/` est ajouté, et les deux points d'entrée compilent.** L'outil
-  d'auteur doit tourner dans Chrome : la structure et les textes au clavier sur
-  un poste, le téléphone pour les images.
-- **`CLAUDE.md` affirmait à tort que le build web était impossible ici.**
-  Corrigé — et c'est le seul contrôle qui attrape un `dart:io` mal placé, que
-  `analyze` et `test` ne voient pas.
-- **Un navigateur n'a pas de disque** : `contentImageProvider` a désormais
-  trois branches — bundle, réseau, disque — la dernière choisie à la
-  compilation par import conditionnel.
-- **Pas de photothèque dans un navigateur** : le champ de saisie reste, et
-  c'est le partage voulu.
-- **Rien n'a été ouvert dans un navigateur** : compiler n'est pas fonctionner.
-- 314 tests au vert.
-
 
 ## Décisions prises
 
@@ -128,6 +128,12 @@ un travail d'auteur, pas de code.
   demande aucune permission.
 - **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
   étant mineur, aucune donnée personnelle ne sort de la machine.
+- **Firebase ne s'initialise jamais tout seul** : des `FirebaseOptions`
+  explicites passées au lancement, pas de `google-services.json`. Le jeu ne
+  peut pas contacter Firebase même par mégarde, puisque rien ne l'initialise —
+  garantie plus forte que celle que les saveurs donnaient.
+- **Connexion de l'auteur par e-mail et mot de passe** : Google sur Android
+  exige des empreintes SHA-1 par magasin de clés, qui cassent en release.
 - **Firebase Storage, en tuyau d'auteur seulement** — et **Storage, pas
   Firestore** : l'outil de création y dépose le contenu, on le relit depuis le
   poste, et il finit commité dans `assets/content/` comme aujourd'hui. **Le jeu

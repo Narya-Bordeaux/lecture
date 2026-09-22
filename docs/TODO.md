@@ -7,23 +7,24 @@ n'existe plus que dans `versions.md`.
 
 Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
 
-**À faire hors session cloud — ces points ne sont pas testables ici** (ni SDK
-Android, ni appareil, ni accès à votre console) :
+**À faire dans votre console — ces points ne sont pas testables ici** :
 
 Les noms sont fixés par `Noms_et_identifiants.md` : projets `narya-grisbie-dev`
-et `narya-grisbie-prod`, application Android enregistrée sous
-`fr.naryabordeaux.grisbie.auteur` — **l'identifiant suffixé de l'outil, pas celui
-du jeu**. Le produit retenu est **Cloud Storage**, pas Firestore. Les saveurs
-Android existent depuis 0.9.4 et **les deux builds tournent sur le poste** ;
-`android/app/src/auteur/` attend le fichier.
+et `narya-grisbie-prod`. Le produit retenu est **Cloud Storage**, pas Firestore.
 
-L'authentification est tranchée : **un compte Google unique, celui de l'auteur**.
-L'usage est solo, personne d'autre n'a de contenu à déposer.
+Deux choses ont changé en 0.23.0, et allègent beaucoup cette liste :
+
+- **Pas de `google-services.json`.** Le greffon Gradle qui le lit échoue quand
+  le fichier manque, ce qui aurait cassé la saveur `jeu`. Les valeurs passent
+  par `--dart-define` au lancement. Rien à déposer dans le dépôt, rien à
+  ignorer par git — et l'auto-initialisation d'Android n'existe plus du tout.
+- **Connexion par e-mail et mot de passe**, pas par Google. Google sur Android
+  exige d'enregistrer les empreintes SHA-1 des magasins de clés : ça marche en
+  debug et ça casse en release. L'e-mail se comporte à l'identique partout.
 
 Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 
-- [ ] Créer `narya-grisbie-dev`, et y enregistrer l'application Android sous
-      `fr.naryabordeaux.grisbie.auteur`.
+- [ ] Créer le projet `narya-grisbie-dev`.
 - [ ] Activer Cloud Storage et **poser immédiatement une règle qui refuse
       tout** — avant même de savoir à qui on ouvrira. Un bucket ouvert n'a pas
       besoin d'être connu pour être trouvé.
@@ -39,9 +40,9 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       }
       ```
 
-- [ ] Activer le fournisseur **Google** dans Authentication, puis s'y connecter
-      une première fois : l'UID n'existe pas avant. Il apparaît ensuite dans
-      Authentication › Users.
+- [ ] Dans Authentication, activer le fournisseur **E-mail/Mot de passe**, puis
+      **créer le compte de l'auteur à la main** (Users › Add user). Son UID
+      apparaît aussitôt dans la liste.
 - [ ] Remplacer la règle par celle-ci, l'UID collé en clair. **Ne pas y mettre
       d'adresse e-mail** : ce dépôt part en open source, et un UID ne désigne
       personne hors du projet.
@@ -60,15 +61,19 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       }
       ```
 
-- [ ] Déposer `google-services.json` dans `android/app/src/auteur/`, et nulle
-      part ailleurs — `android_packaging_test.dart` le refuse ailleurs. Il est
-      ignoré par git : c'est voulu, il porte les clés du projet de l'auteur.
-- [ ] `narya-grisbie-prod` plus tard, à l'identique. Une seule saveur auteur
-      existe, donc un seul `google-services.json` à la fois : on bascule en
-      remplaçant le fichier.
+- [ ] Enregistrer une application **Web** dans le projet, et relever les six
+      valeurs de sa configuration. Elles se passent au lancement — la commande
+      complète est dans `Commandes.md`. Une application Android peut être
+      enregistrée de la même façon, pour ses propres valeurs.
+- [ ] **Lancer l'outil avec ces valeurs, et vérifier que tout marche.** Rien
+      n'a jamais été exécuté : ni la connexion, ni le dépôt d'un fichier, ni
+      sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
+      la règle doit nommer, à comparer.
+- [ ] `narya-grisbie-prod` plus tard, à l'identique. Changer de projet se fait
+      en changeant les valeurs de lancement, sans toucher au dépôt.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
-      supposer. Les saveurs le rendent structurellement improbable, elles ne le
-      démontrent pas.
+      supposer. `author_only_test.dart` le rend structurellement improbable —
+      rien n'initialise Firebase hors de l'outil — mais ne le démontre pas.
 
 **Faisable en session cloud, et ne dépend pas de Firebase** :
 

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/domain/repositories/author_account.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
+import 'package:grisbie/ui/pages/author_sign_in_page.dart';
 import 'package:grisbie/ui/pages/new_adventure_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 
@@ -18,6 +20,7 @@ class AuthorHomePage extends StatefulWidget {
     required this.adventureId,
     this.pictures,
     this.onSave,
+    this.account,
     super.key,
   });
 
@@ -35,6 +38,12 @@ class AuthorHomePage extends StatefulWidget {
   /// C'est le point d'entree qui sait ou l'on ecrit : un dossier sur un
   /// appareil, le telechargement d'un navigateur.
   final Future<List<String>> Function(Adventure adventure)? onSave;
+
+  /// Le compte de l'auteur sur le depot distant.
+  ///
+  /// Nul quand le lancement n'a pas configure de depot : l'outil enregistre
+  /// alors sur l'appareil, et n'en parle pas.
+  final AuthorAccount? account;
 
   @override
   State<AuthorHomePage> createState() => _AuthorHomePageState();
@@ -97,6 +106,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
                 ),
               ),
               const Divider(height: 1),
+              _buildAccountTile(context),
               Expanded(
                 child: ListView.separated(
                   itemCount: stages.length,
@@ -127,6 +137,61 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
         ),
       ),
     );
+  }
+
+  /// Ou va l'enregistrement, et de quoi en changer.
+  ///
+  /// Le dire **ici**, une fois, plutot que dans le message qui suit chaque
+  /// enregistrement : c'est avant de travailler qu'on veut le savoir.
+  Widget _buildAccountTile(BuildContext context) {
+    final account = widget.account;
+    if (account == null) {
+      // Aucun depot configure au lancement : rien a proposer, et rien a
+      // expliquer sur un ecran de travail.
+      return const SizedBox.shrink();
+    }
+
+    final signedIn = account.isSignedIn;
+
+    return Column(
+      children: <Widget>[
+        ListTile(
+          leading: Icon(signedIn ? Icons.cloud_done_outlined : Icons.cloud_off),
+          title: Text(
+            signedIn
+                ? 'Enregistrement : le dépôt distant'
+                : 'Enregistrement : cet appareil',
+          ),
+          subtitle: Text(
+            signedIn
+                // L'UID est ce que la regle du bucket doit nommer : le montrer
+                // evite d'aller le chercher dans la console.
+                ? 'Connecté — identifiant ${account.userId}'
+                : 'Se connecter pour déposer sur le dépôt.',
+          ),
+          trailing: signedIn
+              ? TextButton(
+                  onPressed: () async {
+                    await account.signOut();
+                    if (mounted) setState(() {});
+                  },
+                  child: const Text('Se déconnecter'),
+                )
+              : const Icon(Icons.chevron_right),
+          onTap: signedIn ? null : () => _signIn(context, account),
+        ),
+        const Divider(height: 1),
+      ],
+    );
+  }
+
+  Future<void> _signIn(BuildContext context, AuthorAccount account) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => AuthorSignInPage(account: account),
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Widget _buildTile(Stage stage) {

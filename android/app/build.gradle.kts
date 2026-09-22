@@ -44,8 +44,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Repris de « pubspec.yaml » : la version 0.22.0+37 donne versionName
-        // « 0.22.0 » et versionCode 37. Le Play Store exige un versionCode
+        // Repris de « pubspec.yaml » : la version 0.23.0+38 donne versionName
+        // « 0.23.0 » et versionCode 38. Le Play Store exige un versionCode
         // strictement croissant, d'ou la regle « jamais reinitialise » du
         // numero de build (voir docs/versions.md).
         versionCode = flutter.versionCode

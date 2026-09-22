@@ -61,6 +61,45 @@ void main() {
     expect(builders, <String>['lib/main_author.dart']);
   });
 
+  test('Firebase n\'est importe que par l\'infrastructure distante', () {
+    final importers = sources.entries
+        .where((entry) => entry.value.contains('package:firebase_'))
+        .map((entry) => entry.key)
+        .where((path) => !path.startsWith('lib/infrastructure/remote/'))
+        .toList()
+      ..sort();
+
+    // Le jeu livre aux enfants ne contacte rien. Les greffons sont pourtant
+    // embarques — le pubspec est partage — donc la garantie doit se verifier.
+    expect(importers, isEmpty);
+  });
+
+  test('un seul fichier monte le depot distant, et c\'est l\'outil', () {
+    final builders = sources.entries
+        .where((entry) => entry.value.contains('AuthorRemote.connect('))
+        .map((entry) => entry.key)
+        .where((path) => path != 'lib/infrastructure/remote/author_remote.dart')
+        .toList()
+      ..sort();
+
+    expect(builders, <String>['lib/main_author.dart']);
+  });
+
+  test('rien n\'initialise Firebase hors du montage du depot', () {
+    // **C'est la garantie de fond.** Le montage prevu passait par
+    // « google-services.json », qu'Android lit au demarrage sans qu'on le lui
+    // demande : le jeu aurait contacte Firebase sans que personne ne l'appelle.
+    // Des options explicites suppriment cette initialisation automatique, et ce
+    // test verifie qu'un seul endroit initialise quoi que ce soit.
+    final initialisers = sources.entries
+        .where((entry) => entry.value.contains('Firebase.initializeApp'))
+        .map((entry) => entry.key)
+        .toList()
+      ..sort();
+
+    expect(initialisers, <String>['lib/infrastructure/remote/author_remote.dart']);
+  });
+
   test('le jeu ne mene pas aux ecrans d\'auteur', () {
     // `main.dart` ouvre l'aventure, et rien d'autre. Un import d'ecran
     // d'auteur signalerait un bouton cache — ou un geste a decouvrir par
@@ -71,5 +110,7 @@ void main() {
     expect(game, isNot(contains('outline_page')));
     expect(game, isNot(contains('area_editor_page')));
     expect(game, isNot(contains('stage_editor_page')));
+    expect(game, isNot(contains('author_sign_in_page')));
+    expect(game, isNot(contains('infrastructure/remote/')));
   });
 }

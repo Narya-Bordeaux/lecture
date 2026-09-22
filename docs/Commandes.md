@@ -38,6 +38,38 @@ tard et plus loin. Dans l'autre sens, celui qui compte, le suffixe suffit : un j
 compilé par erreur sous la saveur auteur ne porte pas l'identifiant publié, il est
 donc impubliable et l'erreur reste sans conséquence.
 
+## Lancer l'outil d'auteur avec le dépôt distant
+
+Les valeurs du projet Firebase se passent **au lancement**, jamais dans le
+dépôt. Sans elles, l'outil se lance et enregistre en local : rien ne casse, la
+connexion n'est simplement pas proposée.
+
+```bash
+flutter run --flavor auteur -t lib/main_author.dart \
+  --dart-define=GRISBIE_FIREBASE_API_KEY=… \
+  --dart-define=GRISBIE_FIREBASE_APP_ID=… \
+  --dart-define=GRISBIE_FIREBASE_PROJECT_ID=narya-grisbie-dev \
+  --dart-define=GRISBIE_FIREBASE_SENDER_ID=… \
+  --dart-define=GRISBIE_FIREBASE_BUCKET=narya-grisbie-dev.firebasestorage.app \
+  --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=narya-grisbie-dev.firebaseapp.com
+```
+
+Dans un navigateur, remplacer `--flavor auteur` par `-d chrome` : les saveurs
+n'existent pas hors Android.
+
+**Exige** : un projet Firebase configuré — la marche à suivre est dans
+`TODO.md`. `AUTH_DOMAIN` ne sert qu'au web ; les cinq autres sont obligatoires,
+et l'outil nomme celles qui manquent.
+
+**Produit** : l'écran d'accueil de l'outil propose de se connecter. Une fois
+connecté, « Enregistrer » dépose le contenu sur le dépôt au lieu de l'appareil,
+et l'accueil affiche l'**UID** — celui que la règle du bucket doit nommer.
+
+**Jamais exécuté à ce jour.** Cette commande est écrite d'après la
+documentation de Firebase, pas d'après un lancement réussi ; c'est la seule de
+ce document dans ce cas, et elle en sortira ou y sera corrigée dès le premier
+essai.
+
 ## Construire pour le web
 
 ```bash
