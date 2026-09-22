@@ -236,13 +236,35 @@ class Stage {
   ///
   /// Ecrire le meme mot dans deux listes devient ainsi la facon de declarer
   /// qu'il est ambigu **ici** : ailleurs, sans la liste voisine, il jouera.
+  ///
+  /// **Un tri unique est asymetrique.** Le reste se definit par le theme — il
+  /// puise dans des listes choisies, moins les mots du theme — et le theme,
+  /// lui, garde tous les siens : en retirer « pomme » parce qu'une liste
+  /// d'objets la contient aussi n'aurait aucun sens.
   Set<String> sharedWordTextsIn(WordFamily family) {
+    final themeOfSingleSort = isSingleSort && family.leadsSomewhere;
+
     final others = <String>{};
     for (final other in families) {
       if (identical(other, family) || other.id == family.id) continue;
+      if (themeOfSingleSort && !other.leadsSomewhere) continue;
       others.addAll(other.list.wordTexts);
     }
     return family.list.wordTexts.intersection(others);
+  }
+
+  /// Ce que cette famille offre ici : ses mots, ceux qu'elle perd, ce qui
+  /// reste, et ce qu'on lui demande.
+  ///
+  /// C'est la question que la carte du lieu pose pour chaque liste : une fois
+  /// retires les mots communs, en reste-t-il assez pour jouer ?
+  FamilySupply supplyOf(WordFamily family) {
+    final shared = sharedWordTextsIn(family);
+    return FamilySupply(
+      total: family.list.length,
+      shared: shared.length,
+      required: drawCountFor(family),
+    );
   }
 
   /// Ce qu'il reste a cette famille une fois les mots communs retires.
@@ -288,7 +310,17 @@ class Stage {
     final issues = <ContentIssue>[];
 
     for (final family in families) {
-      if (family.words.isEmpty) {
+      if (family.lists.isEmpty) {
+        // Un trajet qu'on vient de poser, ou le reste d'un tri unique dont
+        // l'auteur n'a pas encore coche les listes.
+        issues.add(ContentIssue.incomplete(
+          family.leadsSomewhere
+              ? 'La famille "${family.id}" n\'a pas encore de liste de mots.'
+              : 'La famille "${family.id}" ne puise encore dans aucune liste.',
+          stageId: id,
+          familyId: family.id,
+        ));
+      } else if (family.words.isEmpty) {
         // Une famille qu'on vient de creer n'a pas encore ses mots.
         issues.add(ContentIssue.incomplete(
           'La famille "${family.id}" ne contient aucun mot.',
@@ -381,10 +413,9 @@ class Stage {
   List<ContentIssue> _validateSupplyOf(WordFamily family) {
     if (family.list.isEmpty) return const <ContentIssue>[];
 
-    final shared = sharedWordTextsIn(family);
-    final available = family.list.length - shared.length;
+    final supply = supplyOf(family);
 
-    if (available == 0) {
+    if (supply.available == 0) {
       return <ContentIssue>[
         ContentIssue.wrong(
           'Tous les mots de la famille "${family.id}" se retrouvent dans les '
@@ -397,14 +428,13 @@ class Stage {
     }
 
     // Rien n'a ete promis : l'auteur joue avec ce qui reste.
-    final required = drawCountFor(family);
-    if (required == null || available >= required) return const <ContentIssue>[];
+    if (supply.isEnough) return const <ContentIssue>[];
 
     return <ContentIssue>[
       ContentIssue.incomplete(
-        'La famille "${family.id}" demande $required mots ; apres exclusion '
-        'des ${shared.length} mots communs aux autres listes du lieu, il n\'en '
-        'reste que $available.',
+        'La famille "${family.id}" demande ${supply.required} mots ; apres '
+        'exclusion des ${supply.shared} mots communs aux autres listes du '
+        'lieu, il n\'en reste que ${supply.available}.',
         stageId: id,
         familyId: family.id,
       ),
@@ -516,4 +546,34 @@ class Stage {
 
   @override
   String toString() => 'Stage($id)';
+}
+
+/// Ce qu'une famille offre dans un lieu, une fois les mots communs retires.
+///
+/// Une valeur et non un message : la carte du lieu l'affiche a sa facon, et
+/// `validate()` en tire ses anomalies. Deux calculs separes finiraient par
+/// ne plus dire la meme chose.
+class FamilySupply {
+  const FamilySupply({
+    required this.total,
+    required this.shared,
+    required this.required,
+  });
+
+  /// Les mots de la liste — ou des listes reunies.
+  final int total;
+
+  /// Ceux qui partent, parce qu'ils sont aussi dans une liste voisine.
+  final int shared;
+
+  /// Combien de mots la partie demande a cette famille. Nul, la liste joue
+  /// entiere.
+  final int? required;
+
+  /// Ce qui reste a jouer.
+  int get available => total - shared;
+
+  /// Vrai s'il reste de quoi jouer : au moins [required] mots, ou au moins un
+  /// quand rien n'est demande.
+  bool get isEnough => available >= (required ?? 1);
 }

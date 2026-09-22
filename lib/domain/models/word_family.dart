@@ -16,27 +16,44 @@ import 'package:grisbie/domain/models/word_list_catalog.dart';
 /// pose ici, sous quel nom l'enfant la lit, et combien de ses mots entrent en
 /// jeu.
 class WordFamily {
-  const WordFamily({
+  /// Une famille et la liste qu'elle cite — le cas courant.
+  ///
+  /// [lists] sert a la liste du reste d'un tri unique, qui puise dans
+  /// plusieurs listes a la fois : exactement l'un des deux est donne.
+  WordFamily({
     required this.id,
     required this.label,
-    required this.list,
+    WordList? list,
+    List<WordList>? lists,
     this.destinationStageId,
     this.area,
     this.goal,
     this.drawCount,
-  });
+  })  : assert(
+          (list == null) != (lists == null),
+          'Une famille cite une liste, ou plusieurs — pas les deux.',
+        ),
+        lists = List<WordList>.unmodifiable(lists ?? <WordList>[list!]);
 
-  /// Construit la famille en resolvant la liste qu'elle cite.
+  /// Construit la famille en resolvant les listes qu'elle cite.
+  ///
+  /// `"list"` pour une seule, `"lists"` pour plusieurs : le contenu livre
+  /// ecrit la premiere forme, et elle garde son sens.
   factory WordFamily.fromJson(
     Map<String, dynamic> json,
     WordListCatalog catalog,
   ) {
     final area = json['area'];
+    final several = json['lists'] as List<dynamic>?;
 
     return WordFamily(
       id: json['id'] as String,
       label: json['label'] as String,
-      list: catalog.resolve(json['list'] as String),
+      list: several == null ? catalog.resolve(json['list'] as String) : null,
+      lists: several
+          ?.cast<String>()
+          .map(catalog.resolve)
+          .toList(growable: false),
       destinationStageId: json['destination'] as String?,
       area: area == null
           ? null
@@ -51,11 +68,34 @@ class WordFamily {
   /// Nom affiche a l'enfant, par exemple « En bus ».
   final String label;
 
-  /// La liste de mots dans laquelle cette famille puise.
+  /// Les listes que cette famille cite.
   ///
-  /// Apres le tirage (`Stage.drawnWith`), c'est la liste **en jeu ici** :
-  /// meme identifiant, mais reduite aux mots retenus pour cette partie.
-  final WordList list;
+  /// Une seule, d'ordinaire. Plusieurs pour la **liste du reste** d'un tri
+  /// unique : l'auteur y coche les listes ou le jeu peut prendre les mots qui
+  /// ne sont pas du theme. Aucune, tant qu'il ne les a pas choisies.
+  ///
+  /// Apres le tirage (`Stage.drawnWith`), une seule : la liste **en jeu ici**,
+  /// reduite aux mots retenus pour cette partie.
+  final List<WordList> lists;
+
+  /// La liste dans laquelle cette famille puise : ses listes reunies.
+  ///
+  /// Un mot present dans deux listes citees n'y figure qu'une fois, a sa
+  /// premiere place.
+  WordList get list {
+    if (lists.length == 1) return lists.single;
+
+    final seen = <String>{};
+    return WordList(
+      id: lists.map((list) => list.id).join('+'),
+      name: lists.map((list) => list.name).join(', '),
+      words: List<Word>.unmodifiable(<Word>[
+        for (final list in lists)
+          for (final word in list.words)
+            if (seen.add(word.text)) word,
+      ]),
+    );
+  }
 
   /// L'etape atteinte lorsque la famille est complete, si elle mene quelque
   /// part. Nulle pour la liste du reste d'un tri unique.
@@ -97,10 +137,13 @@ class WordFamily {
   /// Vrai si ce mot appartient a la famille.
   bool accepts(String wordText) => list.contains(wordText);
 
+  /// La meme famille, modifiee. [list] remplace toutes les listes citees par
+  /// une seule ; [lists] les remplace par plusieurs.
   WordFamily copyWith({
     String? id,
     String? label,
     WordList? list,
+    List<WordList>? lists,
     String? destinationStageId,
     RelativeArea? area,
     int? goal,
@@ -109,7 +152,7 @@ class WordFamily {
     return WordFamily(
       id: id ?? this.id,
       label: label ?? this.label,
-      list: list ?? this.list,
+      lists: lists ?? (list == null ? this.lists : <WordList>[list]),
       destinationStageId: destinationStageId ?? this.destinationStageId,
       area: area ?? this.area,
       goal: goal ?? this.goal,
@@ -121,7 +164,10 @@ class WordFamily {
     return <String, dynamic>{
       'id': id,
       'label': label,
-      'list': list.id,
+      if (lists.length == 1)
+        'list': lists.single.id
+      else
+        'lists': lists.map((list) => list.id).toList(),
       if (destinationStageId != null) 'destination': destinationStageId,
       if (area != null) 'area': area!.toJson(),
       if (goal != null) 'goal': goal,

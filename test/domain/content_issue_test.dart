@@ -65,6 +65,7 @@ void main() {
           id: 'a_pied',
           label: 'A pied',
           words: <Word>[word('ticket')],
+          destination: 'depart',
         ),
       ]);
 
@@ -80,6 +81,28 @@ void main() {
         containsAll(<String>['en_bus', 'a_pied']),
       );
       expect(wrong.first.stageId, 'depart');
+    });
+
+    test('un reste entierement pris par le theme', () {
+      // Tri unique : le reste perd les mots du theme, le theme ne perd rien.
+      // Un reste qui ne contient que des mots du theme n'a plus rien a
+      // proposer — seul lui est en faute.
+      final adventure = adventureWith(<WordFamily>[
+        family(
+          id: 'en_bus',
+          label: 'En autocar',
+          words: <Word>[word('ticket')],
+          destination: 'depart',
+        ),
+        family(
+          id: 'a_pied',
+          label: 'A pied',
+          words: <Word>[word('ticket')],
+        ),
+      ]);
+
+      final wrong = issuesOf(adventure, IssueSeverity.wrong);
+      expect(wrong.map((issue) => issue.familyId), <String?>['a_pied']);
     });
 
     test('un mot qui apparait dans le nom de sa famille', () {

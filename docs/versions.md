@@ -44,6 +44,49 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.31.0+48 — 22 septembre 2026 — Le moteur des listes
+
+Deuxième des trois livraisons convenues pour les listes de mots : tout ce que
+l'écran de liste demandera, sans l'écran.
+
+**Tri unique, option C.** L'auteur a retenu la voie du milieu : il choisit la
+liste du thème, puis **coche les listes où le jeu peut prendre les mots
+« autre »**. Le reste d'un tri unique cite donc plusieurs listes —
+`WordFamily.lists`, `"lists"` dans le JSON, `"list"` gardant son sens pour
+tout le reste — et le jeu y tire des mots absents du thème. Tirer dans tout le
+vocabulaire a été écarté : « banane », absente de « Ce qui se mange » mais
+écrite ailleurs, serait refusée à l'enfant qui la range à juste titre.
+
+L'exclusion devient **asymétrique dans un tri unique** : le reste perd les mots
+du thème, le thème ne perd rien. `Stage.supplyOf` compte, pour chaque famille,
+ses mots, ceux qu'elle perd, ce qui reste et ce qu'on lui demande. La carte
+l'affichera ; `validate()` s'en sert déjà.
+
+**`WordListBuilder`**, en Dart pur : créer une liste pour un trajet ou en
+réutiliser une, ajouter et retirer des mots, corriger un découpage, renommer,
+cocher les listes du reste, et dire où une liste sert. Un mot connu garde son
+découpage ; un mot neuf n'entre pas sans le sien. `ContentRepository.loadLibrary`
+fournit le lexique et toutes les listes.
+
+**Un trajet naît sans liste.** Chacun recevait une liste vide dont
+l'identifiant venait du trajet — `en_bus`. Deux aventures créées dans l'outil
+auraient pu s'en disputer un, et la seconde écraser la liste de la première à
+l'enregistrement. La règle de l'auteur tranche d'elle-même : il n'y a pas de
+mot seul, on crée une liste ou on en réutilise une.
+
+**L'enregistrement écrit les mots et les listes, chacun là où il vit.** Une
+liste ou un mot modifié est réécrit dans son fichier d'origine ; ce qui est
+neuf va dans `lists/<id>.json` et `lexicon/<id>.json`, déclarés au sommaire. Un
+fichier n'est réécrit que s'il change.
+
+**Un défaut corrigé au passage**, trouvé en préparant ce travail : le fichier de
+listes propre à l'aventure était réécrit avec les seules listes *nouvelles*.
+Au second enregistrement, celles du premier disparaissaient, et les mots
+ajoutés à une liste déjà écrite n'étaient jamais enregistrés. Il garde
+désormais ce qu'il avait, et trois tests enregistrent deux fois de suite.
+
+463 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.30.0+47 — 22 septembre 2026 — Que fait l'enfant ici ?
 
 **Le défaut signalé** : choisir « Tri unique » en ajoutant des trajets

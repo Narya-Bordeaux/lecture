@@ -286,11 +286,15 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 |---|---|---|
 | `id` | oui | Nom interne |
 | `label` | oui | Le nom de la catégorie, lu par l'enfant |
-| `list` | oui | L'`id` de la liste (§3) où la famille puise ses mots |
+| `list` | oui* | L'`id` de la liste (§3) où la famille puise ses mots |
+| `lists` | oui* | Plusieurs `id` de listes — pour le **reste d'un tri unique** seulement (§6) |
 | `drawCount` | non | Combien de mots tirer ici, si autre chose que le `drawCount` du lieu |
 | `destination` | non | Le lieu qui s'ouvre quand la famille est complète |
 | `area` | non | Où poser la zone sur l'illustration |
 | `goal` | non | Combien de mots suffisent (toute la liste par défaut) |
+
+\* L'un ou l'autre, jamais les deux. `list` pour le cas courant ; `lists`
+quand le reste d'un tri unique puise dans plusieurs listes.
 
 **Une famille ne porte pas ses mots, elle cite une liste.** La liste est un
 thème réutilisable ; la famille dit où ce thème se pose *ici* — sous quel nom
@@ -400,7 +404,7 @@ ordinaire peut en porter un.
       "list": "la_mer", "drawCount": 7,
       "destination": "plage", "area": { … } },
     { "id": "a_garder", "label": "Garde-le",
-      "list": "objets_divers", "drawCount": 7,
+      "lists": ["objets_divers", "outils"], "drawCount": 7,
       "area": { … } }
   ]
 }
@@ -409,18 +413,18 @@ ordinaire peut en porter un.
 La réplique du personnage remplace la consigne habituelle au-dessus des mots :
 elle dit ce qu'il faut faire, et mieux qu'une phrase générique.
 
-**Les mots du reste s'écrivent, ils ne se devinent pas.** Il n'existe pas de
-« tout le vocabulaire du jeu moins le thème » : un ramassage automatique
-sortirait un mot appartenant vraiment au thème, l'enfant le classerait
-correctement et le jeu le refuserait. Punir une bonne réponse est la pire erreur
-possible ici.
+**Le reste puise dans des listes que vous cochez.** Vous choisissez la liste
+du thème, puis celles où le jeu peut prendre les mots « autre » : il y tire des
+mots **absents du thème**. Un mot du thème présent dans une liste cochée n'est
+donc jamais proposé comme « autre », et le thème, lui, garde tous ses mots —
+l'exclusion ne joue que dans ce sens-là.
 
-C'est précisément là que la liste réutilisable rapporte le plus. Une seule liste
-d'objets hétéroclites, écrite une fois et relue une fois, sert **tous** les tris
-uniques du jeu : chacun en retranche automatiquement son propre thème (§8, « Les
-mots communs »). Le danger que cette règle voulait éviter est exactement celui
-que le retrait supprime — à condition que le mot soit écrit dans les deux
-listes, et lui seul.
+**Pourquoi cocher, et non tout prendre.** « Tout le vocabulaire du jeu moins le
+thème » sortirait un mot appartenant vraiment au thème sans être dans sa
+liste : « banane » ailleurs, absente de « Ce qui se mange ». L'enfant la
+rangerait correctement et le jeu la refuserait. Punir une bonne réponse est la
+pire erreur possible ici. Cocher une liste, c'est dire qu'elle est **sûre pour
+ce thème**.
 
 Comptez **autant de mots tirés du reste que du thème** — deux `drawCount`
 égaux. Une moitié beaucoup plus fournie noierait l'autre.
@@ -444,7 +448,7 @@ Sont détectés :
 - un personnage cité mais absent de `characters.json` ;
 - une destination qui désigne un lieu inexistant ;
 - un lieu qu'aucun chemin ne permet d'atteindre ;
-- une famille vide ;
+- une famille vide, ou qui ne cite encore aucune liste ;
 - une **liste citée mais introuvable**, ou un mot **répété dans une liste** ;
 - une famille dont la liste, **une fois les mots communs retirés**, ne contient
   plus assez de mots pour le `drawCount` demandé ;
@@ -454,6 +458,8 @@ Sont détectés :
   l'enfant le classerait en comparant les lettres, sans comprendre le sens ;
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
 - une zone qui déborde de l'illustration, ou qui en chevauche une autre ;
+- sur un lieu illustré, une famille **sans zone** : ses mots ne pourraient se
+  poser nulle part ;
 - un lieu qui **se déclare fin tout en portant des familles**, ou qui n'a aucune
   famille **sans se déclarer fin** ;
 - un **tri unique qui aurait plusieurs sorties** — une liste du reste va avec un

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.30.0+47** — 22 septembre 2026
+**Version : 0.31.0+48** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -60,14 +60,14 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    convenues avec l'auteur :
    1. ✅ **La nature se dit sur la carte du lieu** (0.30.0) : plusieurs
       listes, tri unique ou fin. Sept mots par liste.
-   2. ⬜ **Le moteur des listes.** Pas de mot seul : on crée une liste ou on
-      en réutilise une. **Tri unique, option C** : l'auteur choisit le thème,
+   2. ✅ **Le moteur des listes** (0.31.0). Pas de mot seul : on crée une
+      liste ou on en réutilise une. **Tri unique, option C** : l'auteur choisit le thème,
       et coche les listes où le jeu peut puiser les mots « autre » — le jeu y
       tire des mots qui ne sont pas du thème. Tirer dans *tout* le
       vocabulaire a été écarté : « banane », absente de la liste « Ce qui se
       mange » mais présente ailleurs, serait refusée à l'enfant qui la range
-      à juste titre. Écrire le lexique et les listes modifiées, que
-      l'enregistrement ignore encore.
+      à juste titre. L'enregistrement écrit désormais le lexique et les
+      listes modifiées, chacun dans son fichier.
    3. ⬜ **L'écran de liste**, ouvert en touchant un trajet. La carte dit
       pour chaque liste : « une fois retirés les mots communs aux autres
       listes, en reste-t-il assez pour jouer ? ».
@@ -103,6 +103,19 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.31.0+48 — Le moteur des listes
+- **Tri unique, option C** : le reste cite plusieurs listes (`"lists"`), et le
+  jeu y tire des mots absents du thème. Le thème garde tous les siens.
+- `WordListBuilder` : créer ou réutiliser une liste, ajouter et retirer des
+  mots, corriger un découpage, cocher les listes du reste. Dart pur.
+- **Un trajet naît sans liste** : plus d'identifiant tiré du trajet, que deux
+  aventures se seraient disputé.
+- **L'enregistrement écrit enfin les mots et les listes modifiées**, chacun
+  dans son fichier d'origine.
+- **Défaut corrigé** : un second enregistrement effaçait les listes du
+  premier, et perdait les mots ajoutés à une liste déjà écrite.
+- 463 tests au vert. L'écran de liste est la livraison suivante.
+
 ### 0.30.0+47 — Que fait l'enfant ici ?
 - **La nature se dit sur la carte du lieu**, plus au moment d'ajouter un
   trajet : plusieurs listes, tri unique, ou fin — du texte, pas de jeu.
@@ -128,17 +141,6 @@ un travail d'auteur, pas de code.
 - **Suspendu** : signaler une famille sans zone casserait le jeu livré, voir
   `TODO.md`.
 - 400 tests au vert ; les deux points d'entrée compilent pour le web.
-
-### 0.28.1+45 — Les fichiers se demandent ensemble
-- **L'ouverture d'une aventure était lente** depuis le dépôt : huit lectures
-  en file indienne, chacune attendant la précédente.
-- Seul le sommaire doit arriver d'abord — il dit quels fichiers demander. Le
-  reste part en une seule salve.
-- Les listes et le lexique se lisent ensemble : une liste ne résout ses mots
-  qu'à l'**analyse**, pas à la lecture.
-- **Vérifié, pas supposé** : une source de test compte les lectures
-  simultanées ; en file indienne le maximum resterait à 1.
-- 386 tests au vert, dont 4 nouveaux.
 
 ## Décisions prises
 

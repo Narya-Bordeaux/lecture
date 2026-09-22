@@ -52,6 +52,15 @@ class ContentWriter {
     });
   }
 
+  /// Ecrit un fichier de contenu deja mis en forme par l'appelant.
+  ///
+  /// Sert a reecrire un lexique ou un fichier de listes en n'y remplacant
+  /// que quelques entrees : le reste du fichier — son domaine, l'ordre de ses
+  /// entrees — passe tel qu'il a ete lu.
+  Future<void> writeJson(String path, Map<String, dynamic> json) {
+    return _write(path, json);
+  }
+
   /// Recopie un fichier d'un contenu a l'autre, sans le relire.
   ///
   /// Sert aux fichiers que l'outil ne sait pas produire — lexiques,

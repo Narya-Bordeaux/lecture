@@ -266,4 +266,27 @@ void main() {
       expect(shop.findFamily('a_manger')!.leadsSomewhere, isTrue);
     });
   });
+
+  group('La bibliotheque de l\'outil', () {
+    test('elle rend le lexique et toutes les listes', () async {
+      // Pour reutiliser une liste, et retrouver le decoupage d'un mot deja
+      // defini au lieu de le redemander.
+      final library = await buildRepository(buildFiles()).loadLibrary();
+
+      expect(library.lists.contains('liste_une'), isTrue);
+      expect(library.lexicon.resolve('deux').syllables, <String>['deux']);
+    });
+
+    test('elle se lit sans ouvrir d\'aventure', () async {
+      final repository = buildRepository(buildFiles());
+      final library = await repository.loadLibrary();
+      final adventure = await repository.loadDraft('test');
+
+      // Le meme catalogue sert aux deux : une seule lecture.
+      expect(
+        adventure.startStage.families.single.list.id,
+        library.lists.resolve('liste_une').id,
+      );
+    });
+  });
 }

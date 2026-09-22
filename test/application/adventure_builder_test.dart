@@ -336,18 +336,23 @@ void main() {
       // Les familles ne sont pas le meme objet : ecrire dans l'une ne peut en
       // aucun cas toucher l'autre.
       expect(identical(boutique, kiosque), isFalse);
-      expect(boutique.list.id, isNot(kiosque.list.id));
       expect(boutique.words, isEmpty);
       expect(kiosque.words, isEmpty);
+    });
+
+    test('le reste ne puise nulle part tant qu\'on ne l\'a pas dit', () {
+      // Option C : l'auteur coche les listes ou prendre les mots « autre ».
+      // Les deviner risquerait d'y mettre un mot du theme.
+      final rest = restOf(twoSingleSorts(), 'boutique');
+
+      expect(rest.lists, isEmpty);
     });
 
     test('remplir l\'une laisse l\'autre intacte', () {
       final built = twoSingleSorts();
       final boutique = restOf(built, 'boutique');
       final filled = boutique.copyWith(
-        list: boutique.list.copyWith(
-          words: <Word>[word('vélo', const <String>['vé', 'lo'])],
-        ),
+        list: wordList('velos', <Word>[word('vélo', const <String>['vé', 'lo'])]),
       );
 
       expect(filled.words, hasLength(1));

@@ -4,6 +4,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/models/lexicon.dart';
+import 'package:grisbie/domain/models/word_library.dart';
 import 'package:grisbie/domain/models/word_list_catalog.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
@@ -98,6 +99,24 @@ class ContentRepository implements AdventureRepository {
       lists: _resolveWordLists(index, files),
       characters: _resolveCharacters(index, files),
     );
+  }
+
+  /// Tout le vocabulaire deja ecrit : le lexique et les listes de tous les
+  /// domaines.
+  ///
+  /// L'outil d'auteur s'en sert pour reutiliser une liste et retrouver le
+  /// decoupage d'un mot deja defini. Deja en memoire apres une ouverture
+  /// d'aventure, il n'est alors pas relu.
+  Future<WordLibrary> loadLibrary() async {
+    final index = await loadIndex();
+    if (_wordLists == null) {
+      final files = await _readJsonFiles(<String>{
+        ...index.lexiconFiles,
+        ...index.wordListFiles,
+      });
+      _resolveWordLists(index, files);
+    }
+    return WordLibrary(lexicon: _lexicon!, lists: _wordLists!);
   }
 
   /// Lit plusieurs fichiers **simultanement**, et les rend par chemin.

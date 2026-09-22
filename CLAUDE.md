@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.30.0+47** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.31.0+48** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -374,12 +374,34 @@ Corollaire vérifié par `validate()` : un tri unique **n'a qu'une seule sortie*
 celle que le thème ouvre. Deux en feraient un tri ordinaire affublé d'une liste
 de rebut, ce qui n'est plus la même mécanique.
 
-Les mots de la liste du reste **s'écrivent**, ils ne se devinent pas : il
-n'existe pas de « tout le vocabulaire moins le thème », et un ramassage
-automatique sortirait un mot appartenant vraiment au thème, que le jeu
-refuserait. C'est là que la liste réutilisable rapporte le plus : **une** liste
-d'objets hétéroclites sert tous les tris uniques du jeu, chacun en retranchant
-son propre thème par l'exclusion décrite plus haut.
+**Le reste puise dans des listes cochées (option C)** — `WordFamily.lists`,
+`"lists"` dans le JSON. L'auteur choisit le thème, puis les listes **sûres pour
+ce thème** ; le jeu y tire des mots absents du thème. Tout prendre dans le
+vocabulaire a été écarté : « banane », absente de « Ce qui se mange » mais
+écrite ailleurs, serait refusée à l'enfant qui la range à juste titre. Une
+liste écrite exprès pour le reste (option A) reste possible — c'est une liste
+cochée comme une autre.
+
+**L'exclusion est asymétrique dans un tri unique** : le reste perd les mots du
+thème, le thème ne perd rien. Dans un lieu à plusieurs listes, elle reste
+symétrique. `Stage.supplyOf` compte ce qu'il reste à chaque famille — la carte
+l'affiche et `validate()` en tire ses anomalies, d'un seul calcul.
+
+**Pas de mot seul, pas de liste d'office** — un trajet naît **sans liste**.
+L'auteur en crée une ou en réutilise une (`WordListBuilder`, Dart pur), et un
+mot n'entre que par une liste. Un mot connu garde son découpage ; un mot neuf
+n'entre pas sans le sien. Une liste posée d'office aurait pris un identifiant
+tiré du trajet (`en_bus`), que deux aventures se seraient disputé dans le
+catalogue global. **Une liste est la même partout où elle sert** : la modifier
+d'un trajet la modifie pour tous, et `usagesOf` permet de le dire.
+
+**Chaque liste, chaque mot s'enregistre là où il vit** — `ContentSaver`
+réécrit une liste ou un mot modifié **dans son fichier d'origine**, et range ce
+qui est neuf dans les fichiers propres à l'aventure (`lists/<id>.json`,
+`lexicon/<id>.json`), qu'il déclare au sommaire. Un fichier n'est réécrit que
+s'il change, et le fichier propre **garde ce qu'il avait** : il était
+auparavant réécrit avec les seules nouveautés, si bien qu'un second
+enregistrement effaçait les listes du premier.
 
 **Le personnage est un ornement** — un `character` et sa réplique se posent sur
 n'importe quel lieu, et ne définissent aucune mécanique. Un tri unique peut se

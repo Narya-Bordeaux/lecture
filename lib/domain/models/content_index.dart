@@ -115,6 +115,18 @@ class ContentIndex {
   }
 
   /// Le meme sommaire, ce fichier de listes declare s'il ne l'etait pas.
+  /// Le meme sommaire, declarant aussi ce fichier de lexique.
+  ContentIndex withLexiconFile(String path) {
+    if (lexiconFiles.contains(path)) return this;
+
+    return ContentIndex(
+      lexiconFiles: List<String>.unmodifiable(<String>[...lexiconFiles, path]),
+      wordListFiles: wordListFiles,
+      charactersFile: charactersFile,
+      adventures: adventures,
+    );
+  }
+
   ContentIndex withWordListFile(String path) {
     if (wordListFiles.contains(path)) return this;
 

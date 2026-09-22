@@ -1,6 +1,5 @@
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
-import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/models/word_list.dart';
 
@@ -201,7 +200,10 @@ class AdventureBuilder {
           // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
           // peut-etre pas le geste le plus juste a six ans.
           label: 'Le reste',
-          list: _newList('${stageId}_le_reste', 'Le reste de $stageId'),
+          // Aucune liste encore : l'auteur cochera celles ou le jeu peut
+          // prendre les mots qui ne sont pas du theme. Les deviner serait
+          // risquer d'y mettre un mot qui en est.
+          lists: const <WordList>[],
         ),
       ]),
       drawCount: source.drawCount ?? defaultDrawCount,
@@ -235,10 +237,12 @@ class AdventureBuilder {
       final family = WordFamily(
         id: familyId,
         label: trip.name,
-        // Une liste neuve, vide, nommee d'apres le trajet. L'auteur la
-        // remplira, et pourra la rattacher ailleurs : c'est le propre d'une
-        // liste que de servir a plusieurs lieux.
-        list: _newList(familyId, trip.name),
+        // **Aucune liste encore.** L'auteur en creera une ou en reutilisera
+        // une existante, depuis l'ecran de liste : il n'y a pas de mot seul.
+        // Une liste vide posee d'office aurait pris un identifiant tire du
+        // trajet — `en_bus` —, que deux aventures auraient pu se disputer
+        // dans le catalogue, l'une ecrasant l'autre a l'enregistrement.
+        lists: const <WordList>[],
         destinationStageId: stageId,
       );
       taken.add(family);
@@ -298,24 +302,14 @@ class AdventureBuilder {
 
     // L'identifiant vient du **lieu**, pas du trajet : « La gare » donne
     // `gare`, exactement ce que le contenu livre ecrit a la main.
-    final stageId = _freeId(slugify(trip.arrivalName), stages.keys.toSet());
+    final stageId = freeId(slugify(trip.arrivalName), stages.keys.toSet());
     // Il nait a definir : ce que l'enfant y fera se dit sur sa carte.
     stages[stageId] = Stage(id: stageId, locationName: trip.arrivalName);
     return stageId;
   }
 
-  /// Une liste vide, prete a recevoir des mots.
-  ///
-  /// **Pas `const`** : Dart canonise les constantes, et deux listes vides de
-  /// meme identifiant seraient litteralement le meme objet. Elles sont
-  /// immutables, donc rien ne pourrait diverger — mais il ne faut pas avoir a
-  /// le demontrer pour etre tranquille.
-  static WordList _newList(String id, String name) {
-    return WordList(id: id, name: name, words: <Word>[]);
-  }
-
-  /// Un identifiant de lieu libre, suffixe s'il est deja pris.
-  static String _freeId(String wanted, Set<String> taken) {
+  /// Un identifiant libre, suffixe s'il est deja pris : `gare`, `gare_2`…
+  static String freeId(String wanted, Set<String> taken) {
     if (!taken.contains(wanted)) return wanted;
 
     var suffix = 2;
@@ -330,6 +324,6 @@ class AdventureBuilder {
   /// Les familles ne se nomment que dans leur etape : deux etapes peuvent
   /// chacune avoir la leur nommee `en_bus` sans se gener.
   static String _freeFamilyId(String wanted, List<WordFamily> existing) {
-    return _freeId(wanted, existing.map((family) => family.id).toSet());
+    return freeId(wanted, existing.map((family) => family.id).toSet());
   }
 }

@@ -132,7 +132,9 @@ class Adventure {
     final byId = <String, WordList>{};
     for (final stage in stages.values) {
       for (final family in stage.families) {
-        byId[family.list.id] = family.list;
+        for (final list in family.lists) {
+          byId[list.id] = list;
+        }
       }
     }
     return List<WordList>.unmodifiable(byId.values);
