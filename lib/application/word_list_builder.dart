@@ -49,6 +49,20 @@ class WordListBuilder {
   /// Le vocabulaire deja ecrit, ailleurs que dans cette aventure.
   final WordLibrary library;
 
+  /// Les syllabes d'un decoupage tape au clavier : `a-rê`, `a · rê`, `a rê`.
+  ///
+  /// Tiret, point median, barre ou espace : on separe comme on en a
+  /// l'habitude, sans avoir a apprendre une convention.
+  static List<String> parseSyllables(String typed) {
+    return typed
+        .split(RegExp(r'[-·/\s]+'))
+        .where((syllable) => syllable.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  /// Un decoupage tel qu'on le retape : `a-rê`.
+  static String formatSyllables(List<String> syllables) => syllables.join('-');
+
   /// Les listes de l'aventure, par identifiant — celles qui font foi.
   Map<String, WordList> get _adventureLists => <String, WordList>{
         for (final list in adventure.wordLists) list.id: list,

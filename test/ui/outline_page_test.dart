@@ -762,6 +762,66 @@ void main() {
     });
   });
 
+  group('Les listes de mots', () {
+    testWidgets('un trajet neuf dit qu\'il n\'a pas de liste', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+      await addTripFromStart(tester, 'En bus');
+
+      expect(find.text('pas de liste'), findsOneWidget);
+    });
+
+    testWidgets('toucher un trajet ouvre sa liste', (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh);
+      await addTripFromStart(tester, 'En bus');
+
+      await tester.tap(find.text('pas de liste'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ce trajet n\'a pas encore de liste de mots.'), findsOneWidget);
+    });
+
+    testWidgets('une liste gardee revient sur la carte, a enregistrer',
+        (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Le seuil',
+      );
+      await pumpOutline(tester, fresh, onSave: (_) async => <String>[]);
+      await addTripFromStart(tester, 'En bus');
+
+      await tester.tap(find.text('pas de liste'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer une liste'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Valider'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Garder'));
+      await tester.pumpAndSettle();
+
+      // La liste existe, vide : sept mots demandes, aucun ecrit.
+      expect(find.text('pas de liste'), findsNothing);
+      expect(find.text('0/7'), findsOneWidget);
+    });
+
+    testWidgets('le contenu livre montre ce que chaque liste offre',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      // Aucun lieu livre ne demande de nombre : chaque liste joue entiere, et
+      // la carte dit combien de mots elle met en jeu.
+      expect(find.text('pas de liste'), findsNothing);
+      expect(find.byIcon(Icons.warning_amber_outlined), findsNothing);
+    });
+  });
+
   group('Partir d\'une page blanche', () {
     testWidgets('une aventure neuve montre son seul point de depart',
         (tester) async {

@@ -3,6 +3,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/repositories/author_account.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
+import 'package:grisbie/domain/models/word_library.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/ui/pages/author_sign_in_page.dart';
 import 'package:grisbie/ui/pages/new_adventure_page.dart';
@@ -111,6 +112,21 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
   }
 
   Future<void> _openOutline(Adventure adventure) async {
+    // Le vocabulaire deja ecrit : pour reutiliser une liste, et retrouver le
+    // decoupage d'un mot au lieu de le redemander. Illisible, on ouvre quand
+    // meme le parcours — on pourra toujours creer des listes.
+    WordLibrary library = WordLibrary.empty;
+    try {
+      library = await _repository.loadLibrary();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Vocabulaire illisible : $error')),
+        );
+      }
+    }
+    if (!mounted) return;
+
     await Navigator.of(context).push(
       MaterialPageRoute<Adventure>(
         builder: (_) => OutlinePage(
@@ -118,6 +134,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
           pictures: _pictures,
           contentSource: _repository.source,
           onSave: widget.onSave,
+          library: library,
         ),
       ),
     );

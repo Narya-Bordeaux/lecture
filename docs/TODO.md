@@ -146,11 +146,12 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
       contenu réel, mais ça n'a aucune valeur pédagogique et ne doit pas se
       retrouver devant un enfant. La règle qui l'interdit est désormais dans
       `CLAUDE.md` §1.
-- [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
-      famille : saisie des mots et de leur découpage, unicité d'orthographe
-      garantie (étape 5). Depuis 0.17.0 c'est une `WordList` qu'on édite, et
-      elle peut être citée ailleurs : l'écran devra dire quand une liste sert à
-      plusieurs lieux, sous peine de la modifier à l'insu de l'autre.
+- [ ] **Éprouver l'écran de liste sur le téléphone et dans Chrome** : créer,
+      réutiliser, taper des mots et leur découpage, cocher les listes du
+      reste, puis enregistrer et vérifier `lexicon/<id>.json` et
+      `lists/<id>.json` sur le dépôt. Rien de cela n'a été ouvert.
+- [ ] **Nommer un trajet et sa liste depuis l'écran de liste** : le nom du
+      trajet (ce que l'enfant lit) ne se modifie pas encore après coup.
 - [ ] **Un bouton « Valider »**, à gauche d'« Ajouter », qui valide les listes.
       Reste à définir ce que « valider » arrête exactement — figer une liste
       close, ou seulement signaler qu'on la considère finie.

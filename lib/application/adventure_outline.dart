@@ -77,7 +77,8 @@ class AdventureOutline {
           isEncounter: stage.isEncounter,
           nature: stage.nature,
           trips: List<OutlineTrip>.unmodifiable(
-            stage.families.map((family) => _tripOf(family, letters, adventure)),
+            stage.families
+                .map((family) => _tripOf(stage, family, letters, adventure)),
           ),
         ));
       }
@@ -104,6 +105,7 @@ class AdventureOutline {
   }
 
   static OutlineTrip _tripOf(
+    Stage stage,
     WordFamily family,
     Map<String, String> letters,
     Adventure adventure,
@@ -119,6 +121,7 @@ class AdventureOutline {
       destinationLetter: destination == null ? null : letters[destination],
       leadsToSingleSort: arrival?.isSingleSort ?? false,
       leadsToEnding: arrival?.isEnding ?? false,
+      supply: family.lists.isEmpty ? null : stage.supplyOf(family),
     );
   }
 
@@ -211,6 +214,7 @@ class OutlineTrip {
     required this.destinationLetter,
     required this.leadsToSingleSort,
     required this.leadsToEnding,
+    this.supply,
   });
 
   final String familyId;
@@ -245,4 +249,13 @@ class OutlineTrip {
   final bool leadsToSingleSort;
 
   final bool leadsToEnding;
+
+  /// Ce que sa liste offre ici, une fois les mots communs retires.
+  ///
+  /// Nul tant que le trajet n'a pas de liste. C'est la question que la carte
+  /// pose : en reste-t-il assez pour jouer ?
+  final FamilySupply? supply;
+
+  /// Vrai si le trajet cite au moins une liste.
+  bool get hasList => supply != null;
 }

@@ -7,9 +7,12 @@ import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
+import 'package:grisbie/domain/models/word_library.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
+import 'package:grisbie/ui/pages/word_list_page.dart';
+import 'package:grisbie/ui/widgets/supply_summary.dart';
 
 /// Construire le parcours d'une aventure, point par point.
 ///
@@ -27,10 +30,15 @@ class OutlinePage extends StatefulWidget {
     this.pictures,
     this.contentSource,
     this.onSave,
+    this.library = WordLibrary.empty,
     super.key,
   });
 
   final Adventure adventure;
+
+  /// Le vocabulaire deja ecrit, pour reutiliser une liste et retrouver le
+  /// decoupage d'un mot. Vide, on ne peut que creer.
+  final WordLibrary library;
 
   /// Ce qui ecrit l'aventure, et rend les chemins touches.
   ///
@@ -48,7 +56,6 @@ class OutlinePage extends StatefulWidget {
   /// passe la source ou il travaille, pour que l'apercu montre l'image qu'il
   /// vient de deposer et non celle d'avant.
   final ContentSource? contentSource;
-
 
   @override
   State<OutlinePage> createState() => _OutlinePageState();
@@ -138,7 +145,9 @@ class _OutlinePageState extends State<OutlinePage> {
     if (trips == null) return;
 
     _change(
-      AdventureBuilder(_adventure).defineAsSingleSort(block.stageId, trips.first),
+      AdventureBuilder(
+        _adventure,
+      ).defineAsSingleSort(block.stageId, trips.first),
     );
   }
 
@@ -148,6 +157,27 @@ class _OutlinePageState extends State<OutlinePage> {
   /// texte d'arrivee se posent ensuite en ouvrant le lieu.
   void _defineEnding(OutlineBlock block) {
     _change(AdventureBuilder(_adventure).defineAsEnding(block.stageId));
+  }
+
+  /// Ouvre la liste de mots d'un trajet — ou, pour le reste d'un tri unique,
+  /// les listes ou il puise.
+  ///
+  /// Les listes appartiennent au trajet et non au lieu : c'est pourquoi on y
+  /// arrive en touchant le trajet.
+  Future<void> _openList(OutlineBlock block, OutlineTrip trip) async {
+    final edited = await Navigator.of(context).push<Adventure>(
+      MaterialPageRoute<Adventure>(
+        builder: (_) => WordListPage(
+          adventure: _adventure,
+          stageId: block.stageId,
+          familyId: trip.familyId,
+          library: widget.library,
+        ),
+      ),
+    );
+    if (edited == null) return;
+
+    _change(edited);
   }
 
   /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
@@ -237,10 +267,10 @@ class _OutlinePageState extends State<OutlinePage> {
         content: Text(
           canSave
               ? 'Ce que vous venez d\'écrire n\'est encore qu\'à l\'écran. '
-                  'Quitter maintenant le perdra.'
+                    'Quitter maintenant le perdra.'
               : 'Ce que vous venez d\'écrire n\'est encore qu\'à l\'écran, et '
-                  'il n\'y a nulle part où l\'enregistrer : aucun dépôt n\'est '
-                  'configuré. Quitter maintenant le perdra.',
+                    'il n\'y a nulle part où l\'enregistrer : aucun dépôt n\'est '
+                    'configuré. Quitter maintenant le perdra.',
         ),
         actions: <Widget>[
           TextButton(
@@ -255,7 +285,8 @@ class _OutlinePageState extends State<OutlinePage> {
           // au pire moment.
           if (canSave)
             FilledButton(
-              onPressed: () => Navigator.of(context).pop(_Leaving.saveThenLeave),
+              onPressed: () =>
+                  Navigator.of(context).pop(_Leaving.saveThenLeave),
               child: const Text('Enregistrer et quitter'),
             ),
         ],
@@ -320,10 +351,7 @@ class _OutlinePageState extends State<OutlinePage> {
           _IssueSummary(issues: issues),
           // Le seuil de la journee, avant le premier lieu — comme a l'ecran
           // du jeu. Il n'a pas de trajet : on n'en repart pas, on y entre.
-          _OpeningCard(
-            opening: _adventure.opening,
-            onTap: _editOpening,
-          ),
+          _OpeningCard(opening: _adventure.opening, onTap: _editOpening),
           for (final block in outline.blocks)
             _BlockCard(
               block: block,
@@ -333,6 +361,7 @@ class _OutlinePageState extends State<OutlinePage> {
               onDefineSingleSort: () => _defineSingleSort(block),
               onDefineEnding: () => _defineEnding(block),
               onOpen: () => _editStage(block),
+              onOpenTrip: (trip) => _openList(block, trip),
             ),
         ],
       ),
@@ -353,33 +382,36 @@ class _IssueSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wrong =
-        issues.where((i) => i.severity == IssueSeverity.wrong).length;
+    final wrong = issues.where((i) => i.severity == IssueSeverity.wrong).length;
     final incomplete = issues.length - wrong;
     final errorColor = Theme.of(context).colorScheme.error;
 
-    final (IconData icon, Color? color, String title, String? detail) =
-        switch (ContentReadiness.of(issues)) {
+    final (
+      IconData icon,
+      Color? color,
+      String title,
+      String? detail,
+    ) = switch (ContentReadiness.of(issues)) {
       ContentReadiness.playable => (
-          Icons.check_circle_outline,
-          Colors.green.shade700,
-          'Cette aventure est jouable.',
-          null,
-        ),
+        Icons.check_circle_outline,
+        Colors.green.shade700,
+        'Cette aventure est jouable.',
+        null,
+      ),
       ContentReadiness.incomplete => (
-          Icons.pending_outlined,
-          null,
-          'Cette aventure n\'est pas complète.',
-          '$incomplete à finir.',
-        ),
+        Icons.pending_outlined,
+        null,
+        'Cette aventure n\'est pas complète.',
+        '$incomplete à finir.',
+      ),
       ContentReadiness.wrong => (
-          Icons.error_outline,
-          errorColor,
-          'Cette aventure contient des erreurs.',
-          incomplete > 0
-              ? '$wrong à corriger, $incomplete à finir.'
-              : '$wrong à corriger.',
-        ),
+        Icons.error_outline,
+        errorColor,
+        'Cette aventure contient des erreurs.',
+        incomplete > 0
+            ? '$wrong à corriger, $incomplete à finir.'
+            : '$wrong à corriger.',
+      ),
     };
 
     return Padding(
@@ -395,10 +427,9 @@ class _IssueSummary extends StatelessWidget {
               children: <Widget>[
                 Text(
                   title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(color: color),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: color),
                 ),
                 if (detail != null)
                   Text(detail, style: Theme.of(context).textTheme.bodySmall),
@@ -474,6 +505,7 @@ class _BlockCard extends StatelessWidget {
     required this.onDefineSingleSort,
     required this.onDefineEnding,
     required this.onOpen,
+    required this.onOpenTrip,
   });
 
   final OutlineBlock block;
@@ -491,6 +523,9 @@ class _BlockCard extends StatelessWidget {
 
   /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
   final VoidCallback onOpen;
+
+  /// Ouvre la liste de mots d'un trajet.
+  final void Function(OutlineTrip trip) onOpenTrip;
 
   @override
   Widget build(BuildContext context) {
@@ -593,8 +628,9 @@ class _BlockCard extends StatelessWidget {
 
       case StageNature.singleSort:
         // Un tri unique ecrit a la main peut n'avoir que sa liste du reste.
-        final hasExit =
-            block.trips.any((trip) => trip.destinationStageId != null);
+        final hasExit = block.trips.any(
+          (trip) => trip.destinationStageId != null,
+        );
         return hasExit
             ? const <Widget>[]
             : <Widget>[_actionButton('Ajouter la sortie')];
@@ -619,26 +655,42 @@ class _BlockCard extends StatelessWidget {
   }
 
   Widget _buildTrip(BuildContext context, OutlineTrip trip) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: <Widget>[
-          const SizedBox(width: 8),
-          const Icon(Icons.subdirectory_arrow_right, size: 16),
-          const SizedBox(width: 8),
-          if (trip.destinationLetter != null) ...<Widget>[
-            _Letter(trip.destinationLetter!, small: true),
+    return InkWell(
+      onTap: () => onOpenTrip(trip),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: <Widget>[
             const SizedBox(width: 8),
+            const Icon(Icons.subdirectory_arrow_right, size: 16),
+            const SizedBox(width: 8),
+            if (trip.destinationLetter != null) ...<Widget>[
+              _Letter(trip.destinationLetter!, small: true),
+              const SizedBox(width: 8),
+            ],
+            Expanded(child: _tripText(context, trip)),
+            if (trip.leadsToSingleSort)
+              const Icon(Icons.filter_alt_outlined, size: 16),
+            if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
+            // La liste du reste n'ouvre aucun chemin, et c'est sa raison d'etre :
+            // l'annoncer « sans issue » la ferait passer pour un defaut.
+            if (trip.destinationStageId == null)
+              Text('le reste', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(width: 8),
+            // La question de la carte : une fois retires les mots communs, en
+            // reste-t-il assez pour jouer ?
+            if (trip.supply != null)
+              SupplySummary(supply: trip.supply!, compact: true)
+            else
+              Text(
+                'pas de liste',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            const Icon(Icons.chevron_right, size: 16),
           ],
-          Expanded(child: _tripText(context, trip)),
-          if (trip.leadsToSingleSort)
-            const Icon(Icons.filter_alt_outlined, size: 16),
-          if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
-          // La liste du reste n'ouvre aucun chemin, et c'est sa raison d'etre :
-          // l'annoncer « sans issue » la ferait passer pour un defaut.
-          if (trip.destinationStageId == null)
-            Text('le reste', style: Theme.of(context).textTheme.bodySmall),
-        ],
+        ),
       ),
     );
   }
@@ -718,8 +770,9 @@ class _IssueLine extends StatelessWidget {
           Expanded(
             child: Text(
               issue.message,
-              style:
-                  Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: color),
             ),
           ),
         ],
@@ -745,12 +798,13 @@ class _Letter extends StatelessWidget {
       ),
       child: Text(
         letter,
-        style: (small
-                ? Theme.of(context).textTheme.labelSmall
-                : Theme.of(context).textTheme.labelLarge)
-            ?.copyWith(
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
-        ),
+        style:
+            (small
+                    ? Theme.of(context).textTheme.labelSmall
+                    : Theme.of(context).textTheme.labelLarge)
+                ?.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
       ),
     );
   }

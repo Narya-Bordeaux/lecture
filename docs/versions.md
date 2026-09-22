@@ -44,6 +44,37 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.32.0+49 — 22 septembre 2026 — L'écran de liste
+
+Troisième et dernière livraison convenue pour les listes : l'écran, sur le
+moteur posé en 0.31.0. **Toucher un trajet sur sa carte ouvre sa liste.**
+
+Un trajet sans liste propose de **créer** une liste — nommée d'après le trajet,
+renommable — ou d'en **réutiliser** une, choisie d'après ses premiers mots. On
+tape ensuite un mot et son découpage, séparé par des tirets, des points ou des
+espaces ; un mot déjà connu affiche le sien et ne le redemande pas, le lexique
+n'en admettant qu'un. Toucher un mot corrige son découpage, partout où il est
+cité. Un mot commun à une autre liste du lieu le dit : il ne jouera pas ici.
+
+**Le reste d'un tri unique se compose en cochant des listes** — option C —,
+celle du thème exclue puisque ses mots sont précisément ceux que le reste
+retire. L'écran rappelle pourquoi ne cocher que des listes sûres.
+
+**Une liste citée ailleurs le dit en tête** : la modifier la modifie partout,
+et c'est avant d'y toucher qu'il faut le savoir.
+
+**Chaque trajet dit s'il a de quoi jouer**, sur la carte du lieu : `7/7`,
+`3/7`, ou « pas de liste ». C'est la question que l'auteur avait posée, et le
+calcul reste dans le domaine (`Stage.supplyOf`), affiché par `SupplySummary`.
+
+**Un défaut évité avant d'exister** : le champ des boîtes de dialogue était
+libéré au retour de `showDialog`, alors que la boîte, encore en train de se
+refermer, le lisait. Les tests d'écran l'ont attrapé ; la boîte porte
+désormais son propre état.
+
+484 tests au vert ; les deux points d'entrée compilent pour le web. **Rien n'a
+été ouvert sur un appareil** : c'est le premier point de `TODO.md`.
+
 ### 0.31.0+48 — 22 septembre 2026 — Le moteur des listes
 
 Deuxième des trois livraisons convenues pour les listes de mots : tout ce que

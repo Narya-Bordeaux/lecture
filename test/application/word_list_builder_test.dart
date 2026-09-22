@@ -260,4 +260,21 @@ void main() {
       expect(familyOf(after, 'maison', 'en_bus').list.id, 'maison_en_bus');
     });
   });
+
+  group('Lire un decoupage saisi', () {
+    test('les syllabes se separent par un tiret, un point ou un espace', () {
+      expect(WordListBuilder.parseSyllables('a-rê'), <String>['a', 'rê']);
+      expect(WordListBuilder.parseSyllables('a · rê'), <String>['a', 'rê']);
+      expect(WordListBuilder.parseSyllables(' ti ket '), <String>['ti', 'ket']);
+      expect(WordListBuilder.parseSyllables('mar/teau'), <String>['mar', 'teau']);
+    });
+
+    test('rien de saisi, rien de lu', () {
+      expect(WordListBuilder.parseSyllables('  '), isEmpty);
+    });
+
+    test('un decoupage se relit comme il s\'ecrit', () {
+      expect(WordListBuilder.formatSyllables(const <String>['a', 'rê']), 'a-rê');
+    });
+  });
 }

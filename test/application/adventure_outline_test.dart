@@ -5,6 +5,7 @@ import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/domain/models/word_list.dart';
 
 import '../support/disk_content.dart';
 import '../support/stage_builders.dart';
@@ -350,6 +351,60 @@ void main() {
       final trips = outline.blocks.first.trips;
       expect(trips.last.destinationName, isNull);
       expect(trips.first.destinationName, isNotNull);
+    });
+  });
+
+  group('Un trajet dit s\'il a de quoi jouer', () {
+    // La question de la carte : une fois retires les mots communs aux autres
+    // listes du lieu, en reste-t-il assez pour jouer ?
+
+    test('sans liste, il le dit', () {
+      final outline = AdventureOutline.of(adventureOf(<Stage>[
+        stage(id: 'depart', families: <WordFamily>[
+          WordFamily(
+            id: 'en_bus',
+            label: 'En bus',
+            lists: const <WordList>[],
+            destinationStageId: 'gare',
+          ),
+        ]),
+        stage(id: 'gare', families: const <WordFamily>[]),
+      ]));
+
+      final bus = outline.blocks.first.trips.single;
+      expect(bus.hasList, isFalse);
+    });
+
+    test('il compte ses mots, les communs, et ce qu\'on lui demande', () {
+      final outline = AdventureOutline.of(adventureOf(<Stage>[
+        stage(id: 'depart', drawCount: 2, families: <WordFamily>[
+          family(
+            id: 'en_bus',
+            label: 'En bus',
+            words: <Word>[word('ticket'), word('arrêt'), word('roue')],
+            destination: 'gare',
+          ),
+          family(
+            id: 'en_voiture',
+            label: 'En voiture',
+            words: <Word>[word('volant'), word('roue')],
+            destination: 'garage',
+          ),
+        ]),
+        ending(id: 'gare'),
+        ending(id: 'garage'),
+      ]));
+
+      final bus = outline.blocks.first.trips.first;
+      expect(bus.hasList, isTrue);
+      expect(bus.supply!.total, 3);
+      expect(bus.supply!.shared, 1);
+      expect(bus.supply!.available, 2);
+      expect(bus.supply!.isEnough, isTrue);
+
+      final car = outline.blocks.first.trips.last;
+      expect(car.supply!.available, 1);
+      expect(car.supply!.isEnough, isFalse);
     });
   });
 }

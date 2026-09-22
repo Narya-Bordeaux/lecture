@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.31.0+48** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.32.0+49** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -634,6 +634,24 @@ une même liste sert à plusieurs endroits — les mettre là laisserait croire
 qu'on les modifie pour ce lieu seul. Le calage (`AreaEditorPage`) s'ouvre
 depuis là, sur l'étape **en cours d'édition**, illustration comprise, et rend
 l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
+
+**Toucher un trajet ouvre sa liste** — `WordListPage`. Un trajet sans liste
+propose d'en créer une ou d'en réutiliser une ; ensuite, on tape un mot et son
+découpage (`a-rê`, lu par `WordListBuilder.parseSyllables`). Un mot connu
+affiche son découpage au lieu de le redemander. Le reste d'un tri unique se
+compose en **cochant** des listes, celle du thème exclue. Une liste citée
+ailleurs le dit en tête (« sert aussi à… ») : la modifier la modifie partout.
+La page dit « Garder » comme les autres éditeurs.
+
+**Chaque trajet dit s'il a de quoi jouer** — sur la carte, `7/7` ou `3/7`, ou
+« pas de liste ». C'est `Stage.supplyOf`, exposé par `OutlineTrip.supply` et
+affiché par `SupplySummary`, en court sur la carte et en long sur l'écran de
+liste. L'accueil charge la bibliothèque (`ContentRepository.loadLibrary`) avant
+d'ouvrir le parcours.
+
+**Une boîte de dialogue garde son propre champ** — un contrôleur de texte
+libéré au retour de `showDialog` est encore lu par l'animation de fermeture,
+et Flutter échoue. `_TextDialog` est donc un widget à état.
 
 **La page de garde a sa carte, au-dessus du premier lieu** — plus discrète et
 sans lettre : ce n'est pas un point du parcours, rien n'en part. Elle existe

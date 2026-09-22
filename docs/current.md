@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.31.0+48** — 22 septembre 2026
+**Version : 0.32.0+49** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -56,7 +56,7 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    22 septembre 2026. Choisie, elle s'écrit aussitôt dans l'arbre sous
    `pictures/…`, par le même puits que le JSON, et `ContentPictureImage` la
    relit par la source.
-5. 🟡 **Le lexique et les listes** — **en cours**, en trois livraisons
+5. ✅ **Le lexique et les listes** — fait en trois livraisons
    convenues avec l'auteur :
    1. ✅ **La nature se dit sur la carte du lieu** (0.30.0) : plusieurs
       listes, tri unique ou fin. Sept mots par liste.
@@ -68,9 +68,11 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
       mange » mais présente ailleurs, serait refusée à l'enfant qui la range
       à juste titre. L'enregistrement écrit désormais le lexique et les
       listes modifiées, chacun dans son fichier.
-   3. ⬜ **L'écran de liste**, ouvert en touchant un trajet. La carte dit
-      pour chaque liste : « une fois retirés les mots communs aux autres
-      listes, en reste-t-il assez pour jouer ? ».
+   3. ✅ **L'écran de liste** (0.32.0), ouvert en touchant un trajet. La
+      carte dit pour chaque liste : « une fois retirés les mots communs aux
+      autres listes, en reste-t-il assez pour jouer ? » — `7/7`, `3/7`, ou
+      « pas de liste ». **Jamais ouvert pour de vrai** : à éprouver sur le
+      téléphone et dans Chrome.
 6. ✅ **Rebrancher le calage** — il s'ouvre depuis l'éditeur de lieu, sur
    l'étape en cours d'édition, **montre enfin son illustration**, et s'enregistre
    avec l'aventure : plus de JSON à copier (0.29.0).
@@ -103,6 +105,18 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.32.0+49 — L'écran de liste
+- **Toucher un trajet ouvre sa liste** : créer une liste ou en réutiliser
+  une, taper un mot et son découpage (`a-rê`). Un mot connu reprend le sien.
+- **Le reste d'un tri unique se compose en cochant des listes**, celle du
+  thème exclue, avec l'avertissement sur les listes sûres.
+- Une liste citée ailleurs **le dit** avant qu'on la modifie.
+- **Chaque trajet dit s'il a de quoi jouer**, sur la carte : `7/7`, `3/7`, ou
+  « pas de liste ».
+- Défaut évité, attrapé par les tests : le champ d'une boîte de dialogue
+  libéré pendant qu'elle se refermait.
+- 484 tests au vert ; rien n'a encore été ouvert sur un appareil.
+
 ### 0.31.0+48 — Le moteur des listes
 - **Tri unique, option C** : le reste cite plusieurs listes (`"lists"`), et le
   jeu y tire des mots absents du thème. Le thème garde tous les siens.
@@ -127,20 +141,6 @@ un travail d'auteur, pas de code.
   erreurs** — « jouable » réservé à ce que le jeu ouvrira vraiment.
 - Une famille sans zone est signalée *à finir*, sur un lieu illustré.
 - 419 tests au vert.
-
-### 0.29.0+46 — Caler les zones sur la vraie image, sans JSON
-- **L'illustration manquait au calage** : l'aperçu la cherchait dans le
-  bundle, où une image prise avec l'outil n'est pas. `StagePage` reçoit
-  désormais la source de travail.
-- **Plus de JSON ni de « Copier »** : « Garder » rend l'étape calée, arrondie
-  au centième, et « Enregistrer » l'écrit. `AreaEditor.export` disparaît.
-- Une zone par famille, **quel que soit leur nombre** — deux pour un tri
-  unique. Au-delà de trois, les zones par défaut se posent sur plusieurs
-  rangées, agrandies à la taille d'un doigt tant que l'auteur n'y a pas touché.
-- Les chevauchements sont signalés par le **nom** des familles.
-- **Suspendu** : signaler une famille sans zone casserait le jeu livré, voir
-  `TODO.md`.
-- 400 tests au vert ; les deux points d'entrée compilent pour le web.
 
 ## Décisions prises
 
