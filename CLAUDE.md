@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.20.0+35** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.21.0+36** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -22,7 +22,12 @@ réelle. Le chantier en cours l'étend à la création d'une journée entière, 
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
-Seul `android/` est configuré à ce jour ; Web et Windows restent à ajouter.
+`android/` et `web/` sont configurés ; Windows reste à ajouter.
+
+**Le web sert d'abord l'outil d'auteur** : écrire la structure et les textes au
+clavier sur un poste, garder le téléphone pour les images. Les deux points
+d'entrée compilent pour le web, **mais aucun n'a jamais été ouvert dans un
+navigateur** — compiler n'est pas fonctionner. Voir `docs/TODO.md`.
 
 **Noms et identifiants** : la table de vérité est
 `docs/Noms_et_identifiants.md`, contrôlée par
@@ -64,9 +69,13 @@ et `-t` s'apparient à la main, voir `docs/Noms_et_identifiants.md`.
   `export PATH="/opt/flutter/bin:$PATH"`. L'avertissement « running as root » est
   inoffensif.
 - `node` : disponible (v22).
-- **Builds Android, Web et Windows impossibles ici** : ni SDK Android, ni
-  toolchain Windows, ni navigateur de test. Flutter n'est installé que pour
-  l'analyse statique, les tests et la gestion des dépendances.
+- **Le build web fonctionne ici** — `flutter build web` compile les deux points
+  d'entrée, la chaîne dart2js étant fournie avec le SDK. C'est la seule
+  plateforme qu'on puisse construire en session cloud, et **le seul contrôle
+  qui attrape un `dart:io` mal placé**. En revanche rien ne peut être *ouvert* :
+  pas de navigateur.
+- **Builds Android et Windows impossibles ici** : ni SDK Android, ni toolchain
+  Windows.
 
 Commandes de vérification, à lancer après toute modification de code :
 
@@ -358,9 +367,10 @@ naturellement séparées plutôt que d'élaguer après coup.
 l'état qu'il renvoie. Décider dans un widget si un mot est bien placé dupliquerait
 le moteur et ferait diverger les deux.
 
-**Bundle ou disque : une seule règle** — `contentImageProvider` (dans
+**Bundle, réseau ou disque : une seule règle** — `contentImageProvider` (dans
 `lib/ui/widgets/content_image.dart`) décide d'où vient une illustration. Un
-chemin commençant par `assets/` vient du bundle, tout le reste du disque. Les
+chemin commençant par `assets/` vient du bundle, une adresse (`http:`,
+`https:`, `blob:`) du réseau, et tout le reste du disque. Les
 assets étant **scellés au build**, une image que l'auteur vient d'ajouter sur
 son téléphone n'y est pas et n'y sera qu'après un commit ; l'édition doit
 pourtant déjà fonctionner dessus. Les quatre endroits qui affichent une image —
@@ -368,11 +378,19 @@ scène de jeu, calage, page de garde, moment de récit — passent par là. Deux
 règles séparées finiraient par diverger, et l'auteur calerait ses zones sur une
 image que le jeu ne montre pas.
 
+**« Le disque » n'a pas le même sens partout** : un navigateur n'en a pas. La
+branche est donc choisie **à la compilation**, par import conditionnel —
+`local_image_provider_io.dart` (un `FileImage`) là où `dart:io` existe,
+`local_image_provider_web.dart` (un `NetworkImage`) sinon. C'est ce qui permet
+au même code de tourner sur téléphone et dans Chrome.
+
 **Choisir l'image dans l'appareil** — `PictureLibrary` (domaine) est une
 interface, injectée par constructeur et transmise de proche en proche depuis
 `main_author.dart` ; `DevicePictureLibrary` (infrastructure) l'implémente avec
 `image_picker`. Nulle, le bouton ne paraît pas et le champ reste saisissable au
-clavier : c'est le cas des tests et de toute plateforme sans photothèque.
+clavier : c'est le cas des tests, et **du navigateur**, qui n'a pas de disque où
+ranger la copie. Ce n'est pas un manque, c'est le partage voulu — la structure
+et les textes sur un poste, les images sur le téléphone.
 
 **L'image choisie est recopiée** (`PictureStore`) : le sélecteur rend un
 fichier de **cache**, qu'Android peut purger en cours de session — l'image

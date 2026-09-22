@@ -44,6 +44,48 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.21.0+36 — 22 septembre 2026 — Le web, et ce qu'il fallait démêler pour lui
+
+L'outil d'auteur doit tourner dans Chrome : écrire la structure et les textes au
+clavier sur un poste est autrement plus confortable qu'au pouce, et le téléphone
+reste pour les images. `web/` est donc ajouté, et **les deux points d'entrée
+compilent**.
+
+**Une affirmation de `CLAUDE.md` était fausse**, et je ne l'avais jamais
+vérifiée : « builds Android, Web et Windows impossibles ici ». Le build web
+fonctionne en session cloud — la chaîne dart2js est fournie avec le SDK, et
+seul *ouvrir* un navigateur est impossible. C'est corrigé, et la conséquence est
+utile : **`flutter build web` est le seul contrôle qui attrape un `dart:io` mal
+placé**. `flutter analyze` et `flutter test` tournent sur la machine virtuelle
+Dart, où `dart:io` existe, et ne verraient rien.
+
+**« Le disque » n'a pas le même sens partout.** Un navigateur n'en a pas : ce
+qui est un chemin de fichier sur un téléphone y est forcément une adresse — le
+blob d'une image choisie, ou demain le fichier déposé sur un stockage distant.
+`contentImageProvider` compte donc désormais trois branches : le bundle pour
+`assets/`, le réseau pour une adresse, et le disque pour le reste. Cette
+dernière est choisie **à la compilation**, par import conditionnel.
+
+**Pas de photothèque dans un navigateur** — `main_author.dart` ne construit
+`DevicePictureLibrary` que hors web. L'écran garde son champ de saisie, et c'est
+exactement le partage voulu. Le mécanisme existait déjà : `PictureLibrary` était
+nullable depuis 0.20.0, et une plateforme sans photothèque était prévue.
+
+**Compiler n'est pas fonctionner**, et rien n'a été ouvert dans un navigateur.
+Restent à éprouver, sur le poste : le chargement du contenu depuis les assets,
+le glisser-déposer des mots à la souris, et le calage des zones sur grand écran.
+C'est dans `TODO.md`.
+
+- `flutter build web` réécrit `analysis_options.yaml` pour y exclure `web/` :
+  le fichier suivi porte donc cette ligne, plutôt que de la voir revenir à
+  chaque construction.
+- Le squelette généré par `flutter create` effaçait la ligne `android` de
+  `.metadata` et y ajoutait une ligne iOS. Repris à la main.
+- Les deux commandes de construction entrent dans `Commandes.md`, comme le veut
+  la règle : elles ont réellement abouti.
+
+314 tests au vert, dont 1 nouveau. `flutter analyze` sans remarque.
+
 ### 0.20.0+35 — 21 septembre 2026 — Choisir l'illustration dans l'appareil
 
 L'éditeur de lieu demandait un chemin au clavier. Il ouvre maintenant la

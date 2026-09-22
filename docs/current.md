@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.20.0+35** — 21 septembre 2026
+**Version : 0.21.0+36** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -82,6 +82,21 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.21.0+36 — Le web, et ce qu'il fallait démêler pour lui
+- **`web/` est ajouté, et les deux points d'entrée compilent.** L'outil
+  d'auteur doit tourner dans Chrome : la structure et les textes au clavier sur
+  un poste, le téléphone pour les images.
+- **`CLAUDE.md` affirmait à tort que le build web était impossible ici.**
+  Corrigé — et c'est le seul contrôle qui attrape un `dart:io` mal placé, que
+  `analyze` et `test` ne voient pas.
+- **Un navigateur n'a pas de disque** : `contentImageProvider` a désormais
+  trois branches — bundle, réseau, disque — la dernière choisie à la
+  compilation par import conditionnel.
+- **Pas de photothèque dans un navigateur** : le champ de saisie reste, et
+  c'est le partage voulu.
+- **Rien n'a été ouvert dans un navigateur** : compiler n'est pas fonctionner.
+- 314 tests au vert.
+
 ### 0.20.0+35 — Choisir l'illustration dans l'appareil
 - **L'éditeur ouvre la photothèque.** Les deux premières dépendances tierces
   entrent avec : `image_picker` et `path_provider`, de l'équipe Flutter.
@@ -96,21 +111,14 @@ un travail d'auteur, pas de code.
   cloud. À éprouver sur l'appareil, voir `TODO.md`.
 - 313 tests au vert, dont 14 nouveaux.
 
-### 0.19.1+34 — Un lieu ne raconte pas son départ
-- **`Narrative` perd `onCompletion`.** L'enfant clique un trajet, et c'est le
-  lieu d'arrivée qui raconte, avec son propre texte.
-- Le contenu livré le démontrait : « Devant la maison » annonçait l'arrivée à
-  la plage au moment où on la quittait, avant que « La plage » ne la raconte.
-- Une étape se joue en **deux temps** — récit puis jeu — au lieu de trois.
-- **Trois textes ont été retirés du contenu**, listés dans `versions.md` : s'ils
-  doivent revenir, c'est dans le `onArrival` du lieu suivant.
-- 299 tests au vert.
-
 
 ## Décisions prises
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
-  a été supprimé du dépôt en 0.1.1. Seul `android/` est configuré à ce jour.
+  a été supprimé du dépôt en 0.1.1. `android/` et `web/` sont configurés.
+- **Le web sert d'abord l'outil d'auteur** : écrire sur un poste, illustrer sur
+  le téléphone. Le jeu compile aussi pour le web, mais ce n'est pas ce qui a
+  motivé la cible.
 - **Deux dépendances tierces, pour l'outil d'auteur seulement** :
   `image_picker` et `path_provider`, de l'équipe Flutter. Embarquées dans le
   jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui, et un test

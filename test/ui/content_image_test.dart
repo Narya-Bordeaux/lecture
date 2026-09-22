@@ -12,6 +12,13 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 /// Une seule fonction tranche, pour les quatre endroits qui affichent une
 /// image. Deux regles separees finiraient par diverger, et l'auteur calerait
 /// ses zones sur une image que le jeu ne montre pas.
+///
+/// **« Le disque » n'a pas le meme sens partout.** Sur un appareil c'est un
+/// fichier ; dans un navigateur il n'y en a pas, et le chemin est alors une
+/// adresse — celle d'un blob choisi par l'auteur, ou plus tard celle d'un
+/// fichier depose sur Firebase Storage. Ce fichier eprouve la branche
+/// appareil ; la branche web est choisie a la compilation et ne s'execute
+/// qu'en navigateur.
 
 void main() {
   group('Ou chercher l\'illustration', () {
@@ -28,6 +35,16 @@ void main() {
       expect(
         contentImageProvider('/data/user/0/fr.naryabordeaux.grisbie/gare.jpg'),
         isA<FileImage>(),
+      );
+    });
+
+    test('une adresse reste une adresse, meme sur un appareil', () {
+      // L'outil d'auteur tournera aussi dans un navigateur, et le contenu
+      // finira depose sur un stockage distant : un chemin peut donc etre une
+      // adresse, y compris lu depuis un telephone.
+      expect(
+        contentImageProvider('https://exemple.test/gare.jpg'),
+        isA<NetworkImage>(),
       );
     });
 

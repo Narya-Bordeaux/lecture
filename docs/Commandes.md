@@ -38,6 +38,33 @@ tard et plus loin. Dans l'autre sens, celui qui compte, le suffixe suffit : un j
 compilé par erreur sous la saveur auteur ne porte pas l'identifiant publié, il est
 donc impubliable et l'erreur reste sans conséquence.
 
+## Construire pour le web
+
+```bash
+# Le jeu
+flutter build web
+
+# L'outil d'auteur
+flutter build web -t lib/main_author.dart
+```
+
+**Exige** : rien de plus que le SDK Flutter — la chaîne dart2js est fournie
+avec. **Ces deux commandes fonctionnent en session cloud**, et ce sont les
+seules constructions qui y soient possibles.
+
+**Produit** : `build/web/`, à servir par n'importe quel serveur statique. Les
+saveurs Gradle ne s'appliquent pas ici : `--flavor` n'a pas de sens hors
+Android, et c'est `-t` seul qui choisit entre le jeu et l'outil.
+
+**À lancer après toute modification touchant à `dart:io`.** C'est le seul
+contrôle qui attrape un import indisponible en navigateur : `flutter analyze`
+et `flutter test` tournent sur la machine virtuelle Dart, où `dart:io` existe,
+et ne le verraient pas.
+
+`flutter build web` **réécrit `analysis_options.yaml`** pour y exclure `web/` —
+c'est le comportement de l'outil, et le fichier suivi porte donc déjà cette
+ligne.
+
 ## Vérifier
 
 ```bash

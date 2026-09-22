@@ -115,8 +115,14 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 - [ ] Aligner le SDK du poste de développement sur la version épinglée par le hook
       (Flutter 3.47.5), faute de quoi `pubspec.lock` fera des allers-retours entre
       le poste et les sessions cloud.
-- [ ] Ajouter les cibles Web et Windows, depuis le poste de développement :
-      `flutter create --platforms=web,windows --org fr.naryabordeaux .`
+- [ ] **Ouvrir l'outil d'auteur dans Chrome, pour de vrai.** Les deux points
+      d'entrée *compilent* pour le web depuis 0.21.0, ce qui ne prouve que
+      l'absence d'import interdit. Restent à éprouver : le chargement du
+      contenu depuis les assets, le glisser-déposer des mots à la souris, et
+      le calage des zones sur un grand écran. `flutter run -d chrome -t
+      lib/main_author.dart` depuis le poste.
+- [ ] Ajouter la cible Windows, depuis le poste de développement :
+      `flutter create --platforms=windows --org fr.naryabordeaux .`
 
 ## Si un jour iOS revient au programme
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
@@ -60,7 +61,12 @@ class AuthorToolsApp extends StatelessWidget {
         // La photothegue de l'appareil. **Le seul endroit du depot qui la
         // construise**, et il est dans l'outil d'auteur : le jeu n'a aucun
         // chemin vers elle.
-        pictures: DevicePictureLibrary(),
+        //
+        // Nulle dans un navigateur, qui n'a pas de disque ou ranger la copie.
+        // L'ecran garde alors son champ de saisie, et c'est le partage voulu :
+        // la structure et les textes au clavier sur un poste, les images sur
+        // le telephone.
+        pictures: kIsWeb ? null : DevicePictureLibrary(),
         // La meme aventure que le jeu : l'outil cale ce qui sera joue.
         adventureId: GrisbieApp.defaultAdventureId,
       ),
