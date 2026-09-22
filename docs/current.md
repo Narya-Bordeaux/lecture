@@ -51,11 +51,10 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    ce qu'il a écrit** : l'accueil liste les aventures du dossier de travail,
    contenu livré en repli, et les rouvre inachevées.
 4. ✅ **L'image** — **elle est devenue du contenu** (0.28.0), et **ça
-   marche** : éprouvé dans Chrome le 22 septembre 2026. Choisie, elle s'écrit
-   aussitôt dans l'arbre sous `pictures/…`, par le même puits que le JSON, et
-   `ContentPictureImage` la relit par la source. Reste à l'éprouver **sur le
-   téléphone**, et surtout l'aller-retour entre les deux — c'est le but du
-   dispositif, et il n'a pas encore été fait.
+   marche des deux côtés** : éprouvé dans Chrome puis sur le téléphone, le
+   22 septembre 2026. Choisie, elle s'écrit aussitôt dans l'arbre sous
+   `pictures/…`, par le même puits que le JSON, et `ContentPictureImage` la
+   relit par la source.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
@@ -63,11 +62,16 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    lieu, sur l'étape en cours d'édition, et rend l'étape calée.
    **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
 
-**Le dépôt distant fonctionne, éprouvé le 22 septembre 2026.** Dans Chrome, sur
-le projet `grisbie-43ee9` : connexion par e-mail, dépôt du contenu, relecture
-depuis le dépôt. L'outil liste les aventures qui n'existent que là, et les
-ouvre. C'était la première exécution réelle de tout ce qui a été écrit depuis
-0.23.0.
+**Le dépôt distant fonctionne, éprouvé le 22 septembre 2026** — dans Chrome
+**et sur le téléphone**, sur le projet `grisbie-43ee9` : connexion par e-mail,
+dépôt du contenu et des images, relecture depuis le dépôt. L'outil liste les
+aventures qui n'existent que là, et les ouvre. C'était la première exécution
+réelle de tout ce qui a été écrit depuis 0.23.0.
+
+**Un avertissement à ne pas chasser** : sur Android, chaque appel à Storage
+journalise « No AppCheckProvider installed ». C'est un avertissement, pas une
+panne — App Check n'est ni installé ni imposé, et n'apporterait rien ici. Voir
+`Noms_et_identifiants.md`.
 
 Le dernier obstacle a été le **CORS**, et il ne se devinait pas : une origine
 précise ne suffit pas, parce que Firebase **redirige** vers

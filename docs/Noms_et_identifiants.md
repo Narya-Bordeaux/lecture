@@ -148,6 +148,31 @@ Un seul compte, créé à la main dans la console. La règle du bucket nomme son
 **UID** — jamais son adresse, le dépôt partant en open source — et l'outil
 affiche cet UID une fois connecté, pour qu'on puisse le recopier.
 
+### App Check : non, et ce n'est pas un oubli
+
+Sur Android, chaque appel à Storage écrit dans le journal :
+
+```
+W/StorageUtil: Error getting App Check token; using placeholder token instead.
+Error: com.google.firebase.FirebaseException: No AppCheckProvider installed.
+```
+
+**C'est un avertissement, pas une panne.** Le SDK tente d'attacher un jeton App
+Check à chaque requête ; faute de fournisseur installé, il en met un factice et
+continue. App Check n'étant pas *imposé* côté console — il ne l'est jamais par
+défaut —, le dépôt accepte la requête et tout fonctionne. La ligne se répète
+simplement à chaque fichier, d'où son abondance.
+
+App Check répond à la question « cette requête vient-elle bien de mon
+application ? ». Ici elle ne se pose pas : la règle du bucket n'accorde l'accès
+qu'à **un UID**, celui de l'auteur, et l'usage est solo. L'installer
+supposerait un septième greffon dans un `pubspec.yaml` **partagé avec le jeu
+des enfants**, plus un fournisseur Play Integrity à configurer et un mode debug
+à gérer — pour ne rien protéger de plus.
+
+Ce serait à reconsidérer le jour où le bucket servirait plusieurs auteurs, ou
+serait lu par autre chose que l'outil.
+
 ## Signature de l'application publiée
 
 La clé de signature et ses mots de passe n'entrent jamais dans le dépôt :

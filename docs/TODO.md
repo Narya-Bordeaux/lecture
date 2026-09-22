@@ -118,13 +118,9 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
 - [x] **Éprouver le dépôt d'une image, et son aperçu.** Fait dans Chrome, le
       22 septembre 2026 : l'image choisie part sur le dépôt et s'affiche.
-- [ ] **Éprouver la même chose sur le téléphone**, et surtout **l'aller-retour
-      entre les deux** : une image prise sur le téléphone doit se voir depuis
-      le poste, ce qui est le but de tout le dispositif. Ni `image_picker` ni
-      `path_provider` n'ont jamais tourné — aucun greffon ne s'exécute en
-      session cloud. À vérifier aussi : le Photo Picker s'ouvre-t-il sans
-      demander de permission, et le calage des zones fonctionne-t-il sur une
-      image fraîchement déposée.
+- [x] **Éprouver la même chose sur le téléphone.** Fait le 22 septembre 2026 :
+      l'outil tourne sur l'appareil, images comprises. `image_picker` et
+      `path_provider` ont donc enfin été exécutés.
 - [ ] **Tout rapatrier d'un bloc.** Le chantier tient en une phrase de
       l'auteur : *construire une aventure depuis le téléphone ou l'ordinateur,
       l'enregistrer sur Storage, puis la télécharger pour l'inclure au dépôt.*
