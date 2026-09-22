@@ -130,11 +130,32 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
       **jamais exécuté** : ni `image_picker` ni `path_provider` ne tournent en
       session cloud. À éprouver sur le téléphone — le Photo Picker s'ouvre-t-il
       sans demander de permission, la copie survit-elle, l'aperçu s'affiche-t-il.
-- [ ] **Rapatrier les images de travail.** Une image choisie sur le téléphone
-      vit dans le dossier de l'application ; elle doit finir dans
-      `assets/pictures/` du dépôt. Le chemin stocké devra être réécrit au
-      passage. C'est le même manque que l'enregistrement du contenu, et sans
-      doute le même geste.
+- [ ] **Faire voyager les images, puis les rapatrier.** C'est le chantier qui
+      suit 0.26.0, et il tient en une phrase de l'auteur : *construire une
+      aventure depuis le téléphone ou l'ordinateur, l'enregistrer sur Storage,
+      puis la télécharger pour l'inclure au dépôt.* Le texte fait déjà ce
+      trajet ; l'image, non — `ContentSaver` n'écrit que du JSON. Sur le
+      téléphone elle reste dans les documents de l'application, dans un
+      navigateur elle meurt avec l'onglet.
+
+      Trois morceaux, dans cet ordre :
+      - `ContentSink` ne sait écrire que du texte : il lui faut les octets.
+      - Déposer l'image sur le dépôt distant en même temps que le contenu, et
+        savoir l'y relire pour l'afficher.
+      - **Tout redescendre d'un coup** — JSON et images — pour le déposer dans
+        le dépôt git. Le chemin stocké devra être réécrit en
+        `assets/pictures/…` au passage.
+
+      Storage reste un **transit entre les appareils de l'auteur** : le jeu
+      livré ne le contacte jamais, et l'enfant ne lit que le bundle.
+
+- [ ] **Remplacer le contenu inventé.** Tout ce qui suit « Devant la maison »
+      dans l'aventure livrée — la gare, la boutique, le garage, la rue, la
+      plage, et leur vocabulaire — a été **inventé par un agent**, pas écrit
+      par l'auteur. Ça se garde en attendant, comme étalon des tests sur du
+      contenu réel, mais ça n'a aucune valeur pédagogique et ne doit pas se
+      retrouver devant un enfant. La règle qui l'interdit est désormais dans
+      `CLAUDE.md` §1.
 - [ ] **Cliquer un trajet dans une carte** ouvre la liste de mots de cette
       famille : saisie des mots et de leur découpage, unicité d'orthographe
       garantie (étape 5). Depuis 0.17.0 c'est une `WordList` qu'on édite, et

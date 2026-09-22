@@ -183,10 +183,21 @@ class _StageEditorPageState extends State<StageEditorPage> {
         if (path.isNotEmpty && !path.startsWith('assets/'))
           // Dit ou en est l'image, sans en faire une alerte : c'est l'etat
           // normal tant que le depot ne l'a pas recue.
+          //
+          // Et dit si elle survivra a la session : dans un navigateur elle
+          // tient a une adresse « blob: » qui meurt avec l'onglet. Le taire
+          // ferait croire le travail conserve, et l'auteur ne comprendrait pas
+          // de retrouver son lieu sans illustration.
           _Note(
-            'Image de travail, prise dans l\'appareil. Le jeu ne la verra '
-            'qu\'une fois copiée dans « assets/pictures/ » et le contenu '
-            'recompilé.',
+            widget.pictures?.keepsPictures == false
+                ? 'Image de travail, choisie dans ce navigateur. Elle sert à '
+                    'caler les zones, mais disparaîtra en fermant l\'onglet — '
+                    'le calage, lui, est conservé. Le jeu ne la verra qu\'une '
+                    'fois copiée dans « assets/pictures/ » et le contenu '
+                    'recompilé.'
+                : 'Image de travail, prise dans l\'appareil. Le jeu ne la '
+                    'verra qu\'une fois copiée dans « assets/pictures/ » et le '
+                    'contenu recompilé.',
           ),
         if (path.isNotEmpty) ...<Widget>[
           const SizedBox(height: 12),

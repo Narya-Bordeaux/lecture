@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.25.0+41** — 22 septembre 2026
+**Version : 0.26.0+42** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -50,11 +50,14 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    comme par le téléchargement d'un navigateur. Depuis 0.24.0, **l'outil relit
    ce qu'il a écrit** : l'accueil liste les aventures du dossier de travail,
    contenu livré en repli, et les rouvre inachevées.
-4. 🟡 **L'image** — **la choisir et l'afficher sont faits** :
-   `contentImageProvider` lit le bundle ou le disque selon le chemin, et
-   `PictureLibrary` ouvre la photothèque de l'appareil. **Reste à l'éprouver
-   sur un téléphone** — aucun greffon ne tourne ici — et à **rapatrier** les
-   images de travail dans `assets/pictures/`.
+4. 🟡 **L'image** — **la choisir et l'afficher sont faits, partout** :
+   `contentImageProvider` lit le bundle, le réseau ou le disque selon le
+   chemin, et depuis 0.26.0 le bouton existe aussi dans un navigateur.
+   **Restent deux manques** : l'image **ne voyage pas** — `ContentSaver`
+   n'écrit que du JSON, donc rien ne passe du poste au téléphone ni l'inverse,
+   et dans un navigateur elle meurt avec l'onglet — et il faut toujours la
+   **rapatrier** à la main dans `assets/pictures/`. À éprouver aussi sur un
+   téléphone : aucun greffon ne tourne en session cloud.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
@@ -84,6 +87,18 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.26.0+42 — Charger une image depuis un navigateur
+- **Le bouton existe enfin sur le web.** `image_picker_for_web` était déjà dans
+  le graphe, et `contentImageProvider` savait déjà afficher une adresse
+  `blob:` : seule la recopie ne passait pas, et elle n'a pas d'objet là.
+- `picture_keeper_io.dart` / `_web.dart`, choisis à la compilation.
+- **`PictureLibrary.keepsPictures`** : l'écran annonce que l'image choisie dans
+  un navigateur disparaîtra en fermant l'onglet. Le calage, lui, survit.
+- La différence est dans l'interface, **pas dans un `kIsWeb`** consulté par un
+  widget — sans quoi elle ne s'éprouverait pas.
+- **L'image ne voyage toujours pas** : `ContentSaver` n'écrit que du JSON.
+- 372 tests au vert ; les deux points d'entrée compilent pour le web.
 
 ### 0.25.0+41 — Un trajet et son lieu portent deux noms
 - **L'outil enseignait une règle fausse** : un seul nom, et le lieu d'arrivée
@@ -162,7 +177,11 @@ un travail d'auteur, pas de code.
 - **Firebase Storage, en tuyau d'auteur seulement** — et **Storage, pas
   Firestore** : l'outil de création y dépose le contenu, on le relit depuis le
   poste, et il finit commité dans `assets/content/` comme aujourd'hui. **Le jeu
-  livré ne contacte rien.** Le choix répond au fait qu'un fichier écrit sur un
+  livré ne contacte rien.** Le cycle voulu, dit par l'auteur : *construire une
+  aventure depuis le téléphone ou l'ordinateur, l'enregistrer sur Storage, puis
+  la télécharger pour l'inclure au dépôt.* Storage est un **transit entre deux
+  de ses appareils**, jamais une source que l'enfant interrogerait — ce qui
+  vaut aussi pour les illustrations, une fois qu'elles y passeront. Le choix répond au fait qu'un fichier écrit sur un
   téléphone est difficile à rapatrier. **Un seul projet**, `grisbie-43ee9`, où
   l'application Android est enregistrée sous `fr.naryabordeaux.grisbie.auteur` —
   **jamais sous l'identifiant du jeu**, qui n'existe ainsi dans aucun projet

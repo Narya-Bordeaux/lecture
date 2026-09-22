@@ -44,6 +44,7 @@ void main() {
       <String>[
         'lib/infrastructure/content/device_content_folder.dart',
         'lib/infrastructure/pictures/device_picture_library.dart',
+        'lib/infrastructure/pictures/picture_keeper_io.dart',
       ],
     );
   });

@@ -165,15 +165,15 @@ class AuthorToolsApp extends StatelessWidget {
             deviceDirectory: deviceDirectory,
           ),
         ),
-        // La photothegue de l'appareil. **Le seul endroit du depot qui la
-        // construise**, et il est dans l'outil d'auteur : le jeu n'a aucun
-        // chemin vers elle.
+        // La photothegue. **Le seul endroit du depot qui la construise**, et
+        // il est dans l'outil d'auteur : le jeu n'a aucun chemin vers elle.
         //
-        // Nulle dans un navigateur, qui n'a pas de disque ou ranger la copie.
-        // L'ecran garde alors son champ de saisie, et c'est le partage voulu :
-        // la structure et les textes au clavier sur un poste, les images sur
-        // le telephone.
-        pictures: kIsWeb ? null : DevicePictureLibrary(),
+        // Sur toutes les plateformes, desormais. Elle etait nulle dans un
+        // navigateur, faute de disque ou ranger la copie — mais cela privait
+        // le poste de tout chargement d'image, alors que c'est la qu'on
+        // travaille au clavier. Ce qui differe, c'est ce qu'on peut garder,
+        // et la photothegue le dit elle-meme.
+        pictures: DevicePictureLibrary(),
         account: remote?.account,
         onSave: (adventure) => saveAdventure(
           adventure,

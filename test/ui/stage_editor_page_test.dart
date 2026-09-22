@@ -142,6 +142,30 @@ void main() {
       // pas une alerte. L'indication du champ dit deja « assets/pictures/ »,
       // d'ou une recherche sur ce qui est propre a la mention.
       expect(find.textContaining('Image de travail'), findsOneWidget);
+      // Sur un appareil, elle survit a la session : rien ne doit annoncer
+      // qu'elle va disparaitre.
+      expect(find.textContaining('fermant l\'onglet'), findsNothing);
+    });
+
+    testWidgets('dans un navigateur, la mention annonce la disparition',
+        (tester) async {
+      // Un navigateur n'a pas de disque ou ranger la copie : l'image tient a
+      // une adresse « blob: » qui meurt avec l'onglet. Le taire ferait croire
+      // le travail conserve, et l'auteur ne comprendrait pas de retrouver son
+      // lieu sans illustration.
+      await pumpEditor(
+        tester,
+        realAdventure.startStage,
+        pictures: FakePictureLibrary(
+          'blob:http://localhost/8f2c',
+          keepsPictures: false,
+        ),
+      );
+
+      await tester.tap(find.text('Choisir une image'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('fermant l\'onglet'), findsOneWidget);
     });
 
     testWidgets('renoncer laisse le chemin d\'avant', (tester) async {
@@ -258,10 +282,14 @@ Future<void> _withEditor(
 
 /// Une photothegue qui rend toujours la meme image, sans appareil ni greffon.
 class FakePictureLibrary implements PictureLibrary {
-  FakePictureLibrary(this.path);
+  FakePictureLibrary(this.path, {this.keepsPictures = true});
 
   /// Ce que le selecteur rendra. Nul : l'auteur a referme sans choisir.
   final String? path;
+
+  /// Vrai si l'image survit a la session, comme sur un appareil.
+  @override
+  final bool keepsPictures;
 
   /// Le nom demande au dernier appel, pour verifier d'ou il vient.
   String? askedFor;

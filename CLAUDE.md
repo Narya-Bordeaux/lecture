@@ -13,7 +13,16 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.25.0+41** — le niveau test est jouable : moteur, contenu et
+**Et ne jamais inventer de contenu pédagogique.** Lieux, trajets, mots,
+découpages, récits : c'est un travail d'auteur, et lui seul. Du vocabulaire
+inventé qui a l'air plausible est **pire que pas de vocabulaire du tout** — il
+passe les contrôles, s'installe dans le dépôt et se fait oublier, jusqu'au jour
+où un enfant le lit. Quand du contenu manque pour éprouver quelque chose,
+fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
+arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
+inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
+
+**Version actuelle : 0.26.0+42** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -404,15 +413,32 @@ branche est donc choisie **à la compilation**, par import conditionnel —
 `local_image_provider_web.dart` (un `NetworkImage`) sinon. C'est ce qui permet
 au même code de tourner sur téléphone et dans Chrome.
 
-**Choisir l'image dans l'appareil** — `PictureLibrary` (domaine) est une
-interface, injectée par constructeur et transmise de proche en proche depuis
+**Choisir l'image, partout** — `PictureLibrary` (domaine) est une interface,
+injectée par constructeur et transmise de proche en proche depuis
 `main_author.dart` ; `DevicePictureLibrary` (infrastructure) l'implémente avec
 `image_picker`. Nulle, le bouton ne paraît pas et le champ reste saisissable au
-clavier : c'est le cas des tests, et **du navigateur**, qui n'a pas de disque où
-ranger la copie. Ce n'est pas un manque, c'est le partage voulu — la structure
-et les textes sur un poste, les images sur le téléphone.
+clavier : c'est le cas des tests.
 
-**L'image choisie est recopiée** (`PictureStore`) : le sélecteur rend un
+**Le même greffon sert dans un navigateur** — `image_picker_for_web` est déjà
+dans le graphe, y ouvre le sélecteur de fichiers du système et rend une adresse
+`blob:`, que `contentImageProvider` sait afficher. L'outil en était privé, ce
+qui interdisait de charger une image depuis un poste, alors que c'est là qu'on
+travaille au clavier.
+
+**Ce qui diffère d'une plateforme à l'autre, c'est ce qu'on peut garder** —
+`PictureLibrary.keepsPictures`. Sur un appareil, l'image est recopiée et se
+retrouve d'une session à l'autre ; dans un navigateur, l'adresse `blob:` meurt
+avec l'onglet. `StageEditorPage` le dit, faute de quoi l'auteur croirait son
+travail conservé et ne comprendrait pas de rouvrir son lieu sans illustration.
+Le calage, lui, survit : ce sont des fractions rangées dans le JSON.
+
+C'est l'interface qui porte cette différence, jamais un `kIsWeb` consulté dans
+un widget — l'écran n'a pas à savoir sur quoi il tourne, et un `kIsWeb` en dur
+ne s'éprouverait pas. Le choix de plateforme se fait par import conditionnel,
+`picture_keeper_io.dart` / `picture_keeper_web.dart`, comme pour l'affichage.
+
+**L'image choisie est recopiée** (`PictureStore`, côté `dart:io` seulement) :
+le sélecteur rend un
 fichier de **cache**, qu'Android peut purger en cours de session — l'image
 disparaîtrait sans que rien ne l'explique. Le nom de la copie porte un
 horodatage, sans lequel une seconde photo pour le même lieu écrirait au même

@@ -44,6 +44,44 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.26.0+42 — 22 septembre 2026 — Charger une image depuis un navigateur
+
+**L'outil n'avait pas de bouton d'image sur le web**, et c'était une décision :
+« le navigateur n'a pas de disque où ranger la copie ». Le partage prévu était
+la structure au clavier sur un poste, les images sur le téléphone. À l'usage il
+ne tient pas — une illustration se charge d'où l'on travaille, et on y travaille
+au clavier.
+
+Ce qui l'interdisait n'existait plus vraiment. `image_picker_for_web` est déjà
+dans le graphe de dépendances : dans un navigateur, le greffon ouvre le
+sélecteur de fichiers du système et rend une adresse `blob:`, que
+`contentImageProvider` sait afficher depuis 0.20.0. Le seul morceau qui ne
+passait pas le web était la **recopie**, et elle n'y a pas d'objet : ce qu'elle
+protège sur un appareil, c'est un fichier de cache qu'Android peut purger.
+
+D'où `picture_keeper_io.dart` / `picture_keeper_web.dart`, choisis à la
+compilation comme pour l'affichage d'une image. `DevicePictureLibrary` est
+maintenant passée sur toutes les plateformes.
+
+**Ce qui diffère, c'est ce qu'on peut garder, et l'écran le dit.** Sur un
+appareil, l'image recopiée se retrouve d'une session à l'autre ; dans un
+navigateur, l'adresse `blob:` meurt avec l'onglet. Le taire ferait croire le
+travail conservé, et l'auteur ne comprendrait pas de rouvrir son lieu sans
+illustration. Le calage, lui, survit : ce sont des fractions rangées dans le
+JSON.
+
+La différence est portée par l'interface (`PictureLibrary.keepsPictures`), et
+non par un `kIsWeb` consulté dans un widget : l'écran n'a pas à savoir sur quoi
+il tourne, et un `kIsWeb` en dur ne s'éprouverait pas — le test qui vérifie la
+mention passe une photothèque feinte.
+
+**Ce que cette version ne fait pas** : l'image ne voyage toujours pas.
+`ContentSaver` n'écrit que du JSON, et le pont Firebase entre le poste et le
+téléphone ne porte donc que le texte. C'est le chantier suivant.
+
+372 tests au vert, et les deux points d'entrée compilent pour le web — seul
+contrôle qui valide un import conditionnel.
+
 ### 0.25.0+41 — 22 septembre 2026 — Un trajet et son lieu portent deux noms
 
 **L'outil apprenait à l'auteur une règle que le contenu livré dément.** Il
