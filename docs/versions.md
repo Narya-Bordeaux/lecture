@@ -44,6 +44,63 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.22.0+37 — 22 septembre 2026 — Enregistrer
+
+L'outil construisait un parcours, posait des illustrations, écrivait des récits
+— et **personne n'écrivait rien**. `OutlinePage` rendait l'aventure modifiée à
+l'appelant, qui n'en faisait rien. C'était le trou du chantier ; il est comblé.
+
+**Écrire le seul fichier d'aventure n'aurait pas suffi.** Il ne contient que des
+références : sans son sommaire il est introuvable, sans ses listes il en cite
+que personne n'a écrites, sans le lexique ses listes citent des mots inconnus.
+`ContentSaver` écrit donc l'ensemble, et le contrôle qui compte est le dernier
+de son fichier de tests — **le dossier écrit se recharge**, sans rien emprunter
+au contenu livré.
+
+Un défaut est apparu à ce contrôle, et c'est lui qui l'a trouvé : le dossier
+écrit déclarait les *autres* aventures du sommaire sans contenir leurs fichiers.
+Il les recopie désormais. Le défaut ne se serait vu qu'en essayant d'en ouvrir
+une.
+
+**Deux modes, et ce n'est pas un réglage de confort.** `includeUnchanged`
+recopie ce que l'outil ne touche pas — lexiques, personnages, autres aventures —
+pour que le dossier se suffise : c'est ce qu'il faut sur un appareil, qui n'a
+rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convient
+quand la destination possède déjà le reste.
+
+**Deux puits, un par plateforme.** Sur un appareil, un dossier des documents de
+l'application (`DeviceContentSink`). Dans un navigateur, le téléchargement
+(`BrowserContentSink`, derrière un import conditionnel, avec `web` pour seule
+dépendance nouvelle). C'est **le point d'entrée seul** qui choisit : les écrans
+ne connaissent qu'un rappel `onSave`, nul quand il n'y a nulle part où écrire.
+
+Le téléchargement est un dépannage, et il se voit : un navigateur ne crée pas de
+dossier, chaque fichier descend séparément et son nom porte le chemin aplati
+(`adventures_plage.json`). Il faut les reposer à la main dans `assets/content/`.
+C'est exactement ce qu'un dépôt distant remplacera.
+
+**Un seul geste écrit, et un seul mot le dit.** Les éditeurs de lieu et de page
+de garde disaient « Enregistrer » pour un geste qui ne touchait aucun disque —
+ils rendent leur résultat à l'écran du parcours, qui travaille en mémoire. Ils
+disent maintenant « Garder », comme le calage le faisait déjà. Deux gestes
+portant le même mot laisseraient croire que fermer un lieu suffit à le
+conserver.
+
+- `ContentIndex.withAdventure` remplace l'entrée de même identifiant plutôt que
+  d'en ajouter une seconde : enregistrer à nouveau est le geste le plus courant.
+- `ContentWriter.copyFile` recopie sans relire : charger un lexique pour le
+  réécrire ferait courir le risque qu'une sérialisation en perde un champ, et
+  c'est justement le fichier que l'outil n'a aucune raison de toucher.
+- Le garde-fou de 0.20.0 a attrapé ma propre entorse — `main_author.dart`
+  importait `path_provider` directement. Le greffon est reparti dans
+  l'infrastructure, et le test nomme désormais deux fichiers.
+- **Rien n'a été exécuté sur un appareil ni dans un navigateur.** Les deux
+  puits compilent, et le cœur est éprouvé sur un dossier en mémoire ; écrire
+  pour de vrai reste à vérifier.
+
+332 tests au vert, dont 18 nouveaux. `flutter analyze` sans remarque, et les
+deux points d'entrée compilent pour le web.
+
 ### 0.21.0+36 — 22 septembre 2026 — Le web, et ce qu'il fallait démêler pour lui
 
 L'outil d'auteur doit tourner dans Chrome : écrire la structure et les textes au

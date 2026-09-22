@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.21.0+36** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.22.0+37** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -37,13 +37,14 @@ sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
 première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 éléments sans reprendre le document.
 
-**Deux dépendances tierces, et deux seulement** — `image_picker` et
-`path_provider`, toutes deux publiées par l'équipe Flutter. Elles ne servent
-qu'à l'outil d'auteur : choisir l'illustration d'un lieu dans l'appareil.
+**Trois dépendances tierces, et trois seulement** — `image_picker` et
+`path_provider` (équipe Flutter), `web` (équipe Dart). Elles ne servent qu'à
+l'outil d'auteur : choisir l'illustration d'un lieu dans l'appareil, savoir où
+écrire, et rendre les fichiers par le téléchargement d'un navigateur.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
-`test/infrastructure/author_only_test.dart` exige qu'elles ne soient importées
-que par `lib/infrastructure/pictures/`, que `DevicePictureLibrary` ne se
+`test/infrastructure/author_only_test.dart` exige que les greffons ne soient
+importés que par l'infrastructure dédiée, que `DevicePictureLibrary` ne se
 construise que dans `main_author.dart`, et que `main.dart` ne mène à aucun
 écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
 général : sur Android 13 et au-delà il passe par le Photo Picker du système,
@@ -439,6 +440,36 @@ lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
 `test/infrastructure/startup_test.dart`. Aucun test ne démarre `main.dart` :
 renommer une aventure sans reprendre cette constante donnait un jeu qui ne
 s'ouvre pas, suite entièrement verte. C'est arrivé.
+
+**Un seul geste écrit, et un seul mot le dit** — « Enregistrer » n'existe que
+sur `OutlinePage`, et c'est le seul endroit de l'outil qui touche un disque.
+Les éditeurs de lieu, de page de garde et de zones disent « Garder » : ils
+rendent leur résultat à l'écran du parcours, qui travaille en mémoire. Deux
+gestes portant le même mot laisseraient croire que fermer un lieu suffit à le
+conserver.
+
+**`ContentSaver` écrit une aventure entièrement** — le fichier d'aventure seul
+ne contient que des références : sans son sommaire il est introuvable, sans ses
+listes il en cite que personne n'a écrites, sans le lexique ses listes citent
+des mots inconnus. Le contrôle qui compte est que **le dossier écrit se
+recharge**, et c'est le dernier test de `content_saver_test.dart`.
+
+Deux modes, et ce n'est pas un réglage de confort. `includeUnchanged` recopie
+ce que l'outil ne touche pas — lexiques, personnages, **autres aventures** —
+pour que le dossier se suffise : c'est ce qu'il faut sur un appareil, qui n'a
+rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convient
+quand la destination possède déjà le reste — un dépôt, ou le dossier de
+téléchargement d'un navigateur.
+
+**Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
+puits : un dossier de l'appareil (`DeviceContentSink`), ou le téléchargement du
+navigateur (`BrowserContentSink`). Les écrans ne connaissent qu'un rappel
+`onSave`, nul quand il n'y a nulle part où écrire.
+
+**Le téléchargement est un dépannage, et il se voit** : un navigateur ne crée
+pas de dossier, chaque fichier descend séparément et son nom porte le chemin
+aplati (`adventures_plage.json`). Il faut les reposer à la main dans
+`assets/content/`. C'est ce qu'un dépôt distant remplacera.
 
 **L'écran de construction du parcours** — `OutlinePage` reprend la forme du
 croquis papier de l'auteur : un point porte une lettre, ses trajets se lisent

@@ -17,6 +17,7 @@ class AuthorHomePage extends StatefulWidget {
     required this.repository,
     required this.adventureId,
     this.pictures,
+    this.onSave,
     super.key,
   });
 
@@ -28,6 +29,12 @@ class AuthorHomePage extends StatefulWidget {
   /// Injectee ici et transmise de proche en proche : aucun ecran ne la
   /// construit, et les tests en passent une fausse — ou aucune.
   final PictureLibrary? pictures;
+
+  /// Ce qui ecrit une aventure. Nul, l'ecran du parcours ne le propose pas.
+  ///
+  /// C'est le point d'entree qui sait ou l'on ecrit : un dossier sur un
+  /// appareil, le telechargement d'un navigateur.
+  final Future<List<String>> Function(Adventure adventure)? onSave;
 
   @override
   State<AuthorHomePage> createState() => _AuthorHomePageState();
@@ -84,6 +91,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
                     builder: (_) => OutlinePage(
                       adventure: adventure,
                       pictures: widget.pictures,
+                      onSave: widget.onSave,
                     ),
                   ),
                 ),
@@ -115,6 +123,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
         builder: (_) => OutlinePage(
           adventure: fresh,
           pictures: widget.pictures,
+          onSave: widget.onSave,
         ),
       ),
     );

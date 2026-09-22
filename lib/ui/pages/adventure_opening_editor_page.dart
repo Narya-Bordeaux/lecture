@@ -109,11 +109,11 @@ class _AdventureOpeningEditorPageState
         title: const Text('Page de garde'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          tooltip: 'Fermer sans enregistrer',
+          tooltip: 'Fermer sans garder',
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: <Widget>[
-          TextButton(onPressed: _save, child: const Text('Enregistrer')),
+          TextButton(onPressed: _save, child: const Text('Garder')),
         ],
       ),
       body: ListView(

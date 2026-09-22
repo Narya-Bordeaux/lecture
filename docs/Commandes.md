@@ -85,6 +85,23 @@ Séparation moteur / interface, la règle structurante du projet :
 grep -rn "package:flutter/" lib/domain lib/application && echo "VIOLATION" || echo "OK"
 ```
 
+## Où va le contenu enregistré
+
+Ce n'est pas une commande, mais c'est ce qu'on cherche juste après avoir appuyé
+sur « Enregistrer » dans l'outil d'auteur.
+
+| Plateforme | Destination |
+|---|---|
+| Appareil | `<documents de l'application>/content/`, l'arborescence de `assets/content/` |
+| Navigateur | Le dossier de téléchargement, **un fichier à la fois**, nom aplati |
+
+Les assets sont scellés au build : l'outil ne peut pas réécrire
+`assets/content/`. Le dossier écrit se repose donc à la main dans le dépôt.
+
+Dans un navigateur, un téléchargement ne crée pas de dossier :
+`adventures/plage.json` descend sous le nom `adventures_plage.json`, à reposer
+dans `adventures/`. C'est un dépannage, en attendant un dépôt distant.
+
 ## Ce que ce document ne couvre pas encore
 
 Rien n'est écrit ici sur la construction d'un paquet publiable, la signature, ni

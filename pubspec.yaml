@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.21.0+36
+version: 0.22.0+37
 
 environment:
   sdk: ^3.12.2
@@ -35,20 +35,26 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # Les deux seules dependances tierces du projet, et toutes deux publiees par
-  # l'equipe Flutter (flutter/packages). Elles ne servent qu'a **l'outil
-  # d'auteur** : choisir l'illustration d'un lieu dans l'appareil, et la ranger
-  # dans un dossier a nous.
+  # Les trois seules dependances tierces du projet : deux de l'equipe Flutter
+  # (flutter/packages), une de l'equipe Dart. Elles ne servent qu'a **l'outil
+  # d'auteur** — choisir l'illustration d'un lieu dans l'appareil, savoir ou
+  # ecrire, rendre les fichiers par le telechargement d'un navigateur.
   #
   # Elles sont neanmoins embarquees dans le jeu, les deux points d'entree
   # partageant ce fichier. Le jeu ne les appelle jamais : il ne sait ouvrir ni
   # photothegue ni dossier, et n'emet toujours rien.
+  # `author_only_test.dart` le verifie plutot que de le promettre.
   #
   # « image_picker » plutot qu'un selecteur de fichiers general : sur Android 13
   # et au-dela il passe par le Photo Picker du systeme, qui ne demande **aucune
   # permission** — ce qui compte pour une application destinee aux enfants.
   image_picker: ^1.2.3
   path_provider: ^2.1.6
+
+  # Publiee par l'equipe Dart. Elle ne sert qu'a un fichier, compile pour le
+  # seul web : rendre les fichiers ecrits par le telechargement du navigateur,
+  # faute de disque. Aucun greffon, aucun code natif.
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

@@ -17,6 +17,10 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 /// laisserait croire qu'on les modifie pour ce lieu seul.
 ///
 /// Rend l'etape modifiee, ou `null` si l'auteur renonce.
+///
+/// **« Garder », pas « Enregistrer »** : rien n'est ecrit ici, l'etape remonte
+/// a l'ecran du parcours qui travaille en memoire. Un seul geste de l'outil
+/// ecrit sur le disque, et c'est lui seul qui porte le mot.
 class StageEditorPage extends StatefulWidget {
   const StageEditorPage({required this.stage, this.pictures, super.key});
 
@@ -115,13 +119,13 @@ class _StageEditorPageState extends State<StageEditorPage> {
         title: const Text('Le lieu'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          tooltip: 'Fermer sans enregistrer',
+          tooltip: 'Fermer sans garder',
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(_edited),
-            child: const Text('Enregistrer'),
+            child: const Text('Garder'),
           ),
         ],
       ),

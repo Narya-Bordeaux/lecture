@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.21.0+36** — 22 septembre 2026
+**Version : 0.22.0+37** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -40,14 +40,14 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    par test qu'aucun champ ne disparaît à l'enregistrement.
 2. ✅ **L'écriture sur un vrai disque** — `FileContentSink`, `FileContentSource`,
    et l'aller-retour complet jusqu'au chargement par le jeu.
-3. 🟡 **Textes et structure** — `validate()` classe chaque anomalie en *faux* ou
+3. ✅ **Textes et structure** — `validate()` classe chaque anomalie en *faux* ou
    *incomplet* (0.10.0), `loadDraft` ouvre une aventure inachevée, le lettrage du
    croquis est calculé (0.12.0), et **l'écran de construction marche** (0.14.0) :
    bouton « Ajouter », nombre de trajets, nature, nom, et chaque arrivée devient
    une carte prolongeable en dessous. Une aventure se crée aussi à partir de
-   rien, et **les récits se saisissent** depuis 0.19.0, avec le nom du lieu et
-   son illustration. **Reste l'enregistrement** — l'écran travaille en mémoire
-   et rien ne l'écrit.
+   rien, **les récits se saisissent** depuis 0.19.0, avec le nom du lieu et son
+   illustration, et **l'enregistrement existe** depuis 0.22.0 — sur l'appareil
+   comme par le téléchargement d'un navigateur.
 4. 🟡 **L'image** — **la choisir et l'afficher sont faits** :
    `contentImageProvider` lit le bundle ou le disque selon le chemin, et
    `PictureLibrary` ouvre la photothèque de l'appareil. **Reste à l'éprouver
@@ -82,6 +82,22 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.22.0+37 — Enregistrer
+- **Le trou du chantier est comblé** : `ContentSaver` écrit une aventure et
+  tout ce dont elle a besoin — sommaire, listes, lexique recopié.
+- Le contrôle qui compte : **le dossier écrit se recharge**, sans rien
+  emprunter au contenu livré. C'est lui qui a trouvé un défaut — les autres
+  aventures du sommaire étaient déclarées sans leurs fichiers.
+- **Deux puits** : un dossier sur l'appareil, le téléchargement dans un
+  navigateur. Le point d'entrée seul choisit ; les écrans ne connaissent qu'un
+  rappel `onSave`.
+- Le téléchargement est un dépannage : les fichiers descendent séparément, nom
+  aplati, à reposer à la main. Un dépôt distant le remplacera.
+- **Un seul geste écrit** : les éditeurs disent « Garder », l'écran du parcours
+  « Enregistrer ».
+- **Rien n'a été exécuté** sur appareil ni dans un navigateur.
+- 332 tests au vert, dont 18 nouveaux.
+
 ### 0.21.0+36 — Le web, et ce qu'il fallait démêler pour lui
 - **`web/` est ajouté, et les deux points d'entrée compilent.** L'outil
   d'auteur doit tourner dans Chrome : la structure et les textes au clavier sur
@@ -96,20 +112,6 @@ un travail d'auteur, pas de code.
   c'est le partage voulu.
 - **Rien n'a été ouvert dans un navigateur** : compiler n'est pas fonctionner.
 - 314 tests au vert.
-
-### 0.20.0+35 — Choisir l'illustration dans l'appareil
-- **L'éditeur ouvre la photothèque.** Les deux premières dépendances tierces
-  entrent avec : `image_picker` et `path_provider`, de l'équipe Flutter.
-- **`image_picker` pour le public visé** : sur Android 13+ il passe par le
-  Photo Picker du système, qui ne demande aucune permission.
-- Ces greffons sont **embarqués dans le jeu**, qui ne les appelle jamais — et
-  `author_only_test.dart` le vérifie plutôt que de le promettre.
-- **L'image est recopiée** : le sélecteur rend un fichier de cache qu'Android
-  peut purger. L'horodatage du nom évite qu'une seconde photo s'efface derrière
-  le cache d'images de Flutter.
-- **Rien n'a été exécuté** : aucun des deux greffons ne tourne en session
-  cloud. À éprouver sur l'appareil, voir `TODO.md`.
-- 313 tests au vert, dont 14 nouveaux.
 
 
 ## Décisions prises

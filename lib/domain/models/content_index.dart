@@ -92,6 +92,40 @@ class ContentIndex {
     return null;
   }
 
+  /// Le meme sommaire, cette aventure declaree.
+  ///
+  /// Remplace l'entree de meme identifiant plutot que d'en ajouter une
+  /// seconde : enregistrer a nouveau est le geste le plus courant de tous, et
+  /// deux entrees homonymes rendraient l'aventure ambigue.
+  ContentIndex withAdventure(AdventureEntry entry) {
+    final entries = List<AdventureEntry>.of(adventures);
+    final existing = entries.indexWhere((other) => other.id == entry.id);
+    if (existing < 0) {
+      entries.add(entry);
+    } else {
+      entries[existing] = entry;
+    }
+
+    return ContentIndex(
+      lexiconFiles: lexiconFiles,
+      wordListFiles: wordListFiles,
+      charactersFile: charactersFile,
+      adventures: List<AdventureEntry>.unmodifiable(entries),
+    );
+  }
+
+  /// Le meme sommaire, ce fichier de listes declare s'il ne l'etait pas.
+  ContentIndex withWordListFile(String path) {
+    if (wordListFiles.contains(path)) return this;
+
+    return ContentIndex(
+      lexiconFiles: lexiconFiles,
+      wordListFiles: List<String>.unmodifiable(<String>[...wordListFiles, path]),
+      charactersFile: charactersFile,
+      adventures: adventures,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'lexicons': lexiconFiles,

@@ -21,9 +21,21 @@ import 'package:grisbie/ui/pages/stage_editor_page.dart';
 /// L'aventure ne quitte pas la memoire : cette page la modifie et la rend a
 /// l'appelant. L'enregistrement est un autre sujet, et un autre ecran.
 class OutlinePage extends StatefulWidget {
-  const OutlinePage({required this.adventure, this.pictures, super.key});
+  const OutlinePage({
+    required this.adventure,
+    this.pictures,
+    this.onSave,
+    super.key,
+  });
 
   final Adventure adventure;
+
+  /// Ce qui ecrit l'aventure, et rend les chemins touches.
+  ///
+  /// Nul, le bouton ne parait pas : une plateforme sans ou ecrire — ou un
+  /// test — n'a pas a proposer un geste qui ne ferait rien. C'est le point
+  /// d'entree qui sait ou l'on ecrit, pas cet ecran.
+  final Future<List<String>> Function(Adventure adventure)? onSave;
 
   /// De quoi choisir une illustration dans l'appareil, transmise aux editeurs.
   final PictureLibrary? pictures;
@@ -34,6 +46,10 @@ class OutlinePage extends StatefulWidget {
 
 class _OutlinePageState extends State<OutlinePage> {
   late Adventure _adventure = widget.adventure;
+
+  /// Vrai pendant l'ecriture : le bouton s'eteint, faute de quoi deux
+  /// enregistrements concurrents se marcheraient dessus.
+  bool _saving = false;
 
   Future<void> _addTrips(OutlineBlock block) async {
     final trips = await Navigator.of(context).push<List<NewTrip>>(
@@ -98,6 +114,32 @@ class _OutlinePageState extends State<OutlinePage> {
     setState(() => _adventure = _adventure.withOpening(edit.opening));
   }
 
+  /// Ecrit l'aventure telle qu'elle est a cet instant.
+  ///
+  /// **C'est `_adventure` qui part, pas celle recue** : l'ecran travaille en
+  /// memoire, et enregistrer l'aventure d'origine perdrait tout le travail.
+  Future<void> _save() async {
+    final onSave = widget.onSave;
+    if (onSave == null) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _saving = true);
+    try {
+      final written = await onSave(_adventure);
+      messenger.showSnackBar(
+        SnackBar(content: Text('${written.length} fichier(s) enregistré(s).')),
+      );
+    } catch (error) {
+      // Un echec silencieux laisserait croire le contenu ecrit, et l'auteur
+      // ne le decouvrirait qu'en le cherchant.
+      messenger.showSnackBar(
+        SnackBar(content: Text('Échec de l\'enregistrement : $error')),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final outline = AdventureOutline.of(_adventure);
@@ -111,6 +153,13 @@ class _OutlinePageState extends State<OutlinePage> {
         leading: BackButton(
           onPressed: () => Navigator.of(context).pop(_adventure),
         ),
+        actions: <Widget>[
+          if (widget.onSave != null)
+            TextButton(
+              onPressed: _saving ? null : _save,
+              child: const Text('Enregistrer'),
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),

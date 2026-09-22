@@ -1,8 +1,13 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
+import 'package:grisbie/infrastructure/content/browser_content_sink.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
+import 'package:grisbie/infrastructure/content/content_saver.dart';
+import 'package:grisbie/infrastructure/content/content_writer.dart';
+import 'package:grisbie/infrastructure/content/device_content_sink.dart';
 import 'package:grisbie/infrastructure/pictures/device_picture_library.dart';
 import 'package:grisbie/main.dart';
 import 'package:grisbie/ui/pages/author_home_page.dart';
@@ -44,6 +49,31 @@ void main() {
   runApp(const AuthorToolsApp());
 }
 
+/// Ou va le contenu enregistre, selon la plateforme.
+///
+/// **Le contenu livre est scelle dans le bundle** : on lit d'un cote, on ecrit
+/// de l'autre, et c'est le seul endroit qui sache lequel.
+///
+/// Sur un appareil, un dossier a nous, qui doit se suffire — l'appareil n'a
+/// rien d'autre. Dans un navigateur, le telechargement, et seulement ce qui
+/// vient d'etre ecrit : la destination est un depot qui possede deja le
+/// lexique.
+Future<List<String>> saveAdventure(Adventure adventure) async {
+  const source = AssetContentSource();
+
+  if (kIsWeb) {
+    return ContentSaver(
+      source: source,
+      writer: ContentWriter(sink: browserContentSink()),
+    ).save(adventure, includeUnchanged: false);
+  }
+
+  return ContentSaver(
+    source: source,
+    writer: ContentWriter(sink: await DeviceContentSink.open()),
+  ).save(adventure);
+}
+
 class AuthorToolsApp extends StatelessWidget {
   const AuthorToolsApp({super.key});
 
@@ -67,6 +97,7 @@ class AuthorToolsApp extends StatelessWidget {
         // la structure et les textes au clavier sur un poste, les images sur
         // le telephone.
         pictures: kIsWeb ? null : DevicePictureLibrary(),
+        onSave: saveAdventure,
         // La meme aventure que le jeu : l'outil cale ce qui sera joue.
         adventureId: GrisbieApp.defaultAdventureId,
       ),

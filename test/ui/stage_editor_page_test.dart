@@ -50,9 +50,12 @@ Future<Stage?> pumpEditor(
   return result;
 }
 
-/// Ferme l'editeur par « Enregistrer » et rend l'etape obtenue.
+/// Ferme l'editeur par « Garder » et rend l'etape obtenue.
+///
+/// « Garder », et non « Enregistrer » : rien n'est ecrit ici, l'etape remonte
+/// a l'ecran du parcours. Un seul geste de l'outil ecrit sur le disque.
 Future<void> save(WidgetTester tester) async {
-  await tester.tap(find.text('Enregistrer'));
+  await tester.tap(find.text('Garder'));
   await tester.pumpAndSettle();
 }
 
@@ -208,7 +211,7 @@ void main() {
         closed = true;
       }, (tester) async {
         await tester.enterText(find.byType(TextField).first, 'Perdu');
-        await tester.tap(find.byTooltip('Fermer sans enregistrer'));
+        await tester.tap(find.byTooltip('Fermer sans garder'));
         await tester.pumpAndSettle();
       });
 

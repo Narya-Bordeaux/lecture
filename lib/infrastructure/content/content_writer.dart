@@ -4,6 +4,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/models/word_list.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 
 /// Enregistre le contenu sous la forme exacte que le chargement relit.
 ///
@@ -49,6 +50,16 @@ class ContentWriter {
     return _write(path, <String, dynamic>{
       'lists': lists.map((list) => list.toJson()).toList(),
     });
+  }
+
+  /// Recopie un fichier d'un contenu a l'autre, sans le relire.
+  ///
+  /// Sert aux fichiers que l'outil ne sait pas produire — lexiques,
+  /// personnages. Les charger pour les reecrire ferait courir le risque
+  /// qu'une serialisation en perde un champ, et ces fichiers-la sont
+  /// justement ceux que l'outil n'a aucune raison de toucher.
+  Future<void> copyFile(String path, {required ContentSource from}) async {
+    await sink.writeFile(path, await from.readFile(path));
   }
 
   /// Ecrit le fichier pere.

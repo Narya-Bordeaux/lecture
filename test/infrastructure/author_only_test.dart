@@ -36,11 +36,15 @@ void main() {
         .toList()
       ..sort();
 
-    // Ni le domaine, ni le moteur, ni l'interface : choisir une image est une
-    // affaire de plateforme, et tout le reste passe par `PictureLibrary`.
+    // Ni le domaine, ni le moteur, ni l'interface, ni le point d'entree :
+    // choisir une image et savoir ou ecrire sont des affaires de plateforme.
+    // Tout le reste passe par `PictureLibrary` et `ContentSink`.
     expect(
       importers,
-      <String>['lib/infrastructure/pictures/device_picture_library.dart'],
+      <String>[
+        'lib/infrastructure/content/device_content_sink.dart',
+        'lib/infrastructure/pictures/device_picture_library.dart',
+      ],
     );
   });
 

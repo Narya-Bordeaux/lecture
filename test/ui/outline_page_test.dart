@@ -12,7 +12,11 @@ import '../support/disk_content.dart';
 /// horloge simulee, ou une lecture de fichier reelle ne se resout jamais, et
 /// le test tournerait sans fin.
 
-Future<void> pumpOutline(WidgetTester tester, Adventure adventure) async {
+Future<void> pumpOutline(
+  WidgetTester tester,
+  Adventure adventure, {
+  Future<List<String>> Function(Adventure adventure)? onSave,
+}) async {
   // Un `ListView` ne construit que les cartes visibles : sur la fenetre de
   // test par defaut, les lieux du bas n'existeraient pas dans l'arbre et les
   // recherches echoueraient sans que rien ne soit casse. On regarde donc tout
@@ -22,7 +26,7 @@ Future<void> pumpOutline(WidgetTester tester, Adventure adventure) async {
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    MaterialApp(home: OutlinePage(adventure: adventure)),
+    MaterialApp(home: OutlinePage(adventure: adventure, onSave: onSave)),
   );
   await tester.pumpAndSettle();
 }
@@ -100,6 +104,72 @@ void main() {
     });
   });
 
+  group('Enregistrer', () {
+    testWidgets('sans destination, aucun bouton ne le propose', (tester) async {
+      // Une plateforme sans ou ecrire — ou un test — n'offre pas un geste qui
+      // ne ferait rien.
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Enregistrer'), findsNothing);
+    });
+
+    testWidgets('c\'est l\'aventure modifiée qui part, pas celle d\'origine',
+        (tester) async {
+      Adventure? saved;
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onSave: (adventure) async {
+          saved = adventure;
+          return <String>['index.json'];
+        },
+      );
+
+      // On renomme un lieu, puis on enregistre : c'est tout l'interet du
+      // geste, et l'ecran travaille en memoire.
+      await tester.tap(find.text('Devant la maison'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Sur le perron');
+      await tester.tap(find.text('Garder'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(saved!.findStage('maison')!.locationName, 'Sur le perron');
+    });
+
+    testWidgets('le compte des fichiers écrits est annoncé', (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onSave: (adventure) async =>
+            <String>['index.json', 'adventures/a.json', 'lists/a.json'],
+      );
+
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      // Sans retour, on ne sait pas si le geste a abouti — et rien d'autre a
+      // l'ecran ne change.
+      expect(find.textContaining('3 fichier'), findsOneWidget);
+    });
+
+    testWidgets('un échec se dit, au lieu de passer pour un succès',
+        (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onSave: (adventure) async => throw StateError('Disque plein'),
+      );
+
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Disque plein'), findsOneWidget);
+    });
+  });
+
   group('Ouvrir un lieu', () {
     testWidgets('cliquer le titre ouvre ce que le lieu porte', (tester) async {
       await pumpOutline(tester, realAdventure);
@@ -119,7 +189,7 @@ void main() {
       await tester.tap(find.text('Devant la maison'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, 'Sur le perron');
-      await tester.tap(find.text('Enregistrer'));
+      await tester.tap(find.text('Garder'));
       await tester.pumpAndSettle();
 
       expect(find.text('Sur le perron'), findsOneWidget);
@@ -132,7 +202,7 @@ void main() {
       await tester.tap(find.text('La gare').first);
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, 'Perdu');
-      await tester.tap(find.byTooltip('Fermer sans enregistrer'));
+      await tester.tap(find.byTooltip('Fermer sans garder'));
       await tester.pumpAndSettle();
 
       expect(find.text('Perdu'), findsNothing);
@@ -181,7 +251,7 @@ void main() {
         find.byKey(const Key('openingText')),
         'Ce matin, il fait beau.',
       );
-      await tester.tap(find.text('Enregistrer'));
+      await tester.tap(find.text('Garder'));
       await tester.pumpAndSettle();
 
       expect(find.text('Grisbie s\'en va'), findsOneWidget);
