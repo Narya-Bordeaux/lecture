@@ -44,6 +44,44 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.24.0+40 — 22 septembre 2026 — L'outil relit ce qu'il a écrit
+
+**L'outil enregistrait, et rouvrait toujours le contenu livré.** On pouvait
+donc écrire une aventure, la déposer, et ne jamais la retrouver : l'écran
+d'accueil lisait `AssetContentSource`, or les assets sont scellés au build et
+ne contiennent que ce qui a été commité. La boucle est fermée.
+
+`FallbackContentSource` met le travail devant et le contenu livré derrière.
+C'est ce qu'il faut des deux côtés : au premier lancement le dossier de travail
+est vide et il n'y a que le livré ; après un enregistrement c'est le travail
+qui fait foi, y compris quand il n'a réécrit qu'une partie des fichiers — le
+lexique qui n'a pas bougé reste lisible. Le repli **ne masque pas** un fichier
+écrit illisible : il vaut pour l'absence, jamais pour l'erreur, sans quoi
+l'auteur croirait son travail intact.
+
+**Le défaut le plus coûteux était ailleurs, et invisible.** `ContentSaver`
+recopie ce que l'outil ne touche pas, dont les *autres* aventures, pour que le
+dossier écrit se suffise. Il les lisait dans les assets : enregistrer la gare
+ramenait la plage à sa version d'origine, effaçant en silence le travail de la
+veille. Il lit maintenant par où l'on écrit.
+
+`AuthorHomePage` reçoit une **fabrique** de dépôt, pas un dépôt. Deux raisons :
+`ContentRepository` garde le sommaire et les lexiques en mémoire — c'est ce
+qu'il faut pour jouer, pas pour éditer — et **se connecter change la source**,
+le sommaire du dépôt distant n'étant pas celui de l'appareil. L'écran rouvre
+donc à neuf après un enregistrement comme après un changement de compte. Il
+liste les aventures du sommaire et les ouvre par `loadDraft` : une aventure en
+cours d'écriture est toujours invalide, et `loadAdventure` la refuserait.
+
+`DeviceContentSink` devient `DeviceContentFolder` et porte les **deux** bouts,
+lecture et écriture : écrire sans pouvoir relire est précisément le défaut
+qu'on répare. Le dossier est résolu une fois au lancement — lire et écrire
+doivent viser le même endroit — et le point d'entrée ne nomme plus ni `dart:io`
+ni `path_provider`.
+
+356 tests au vert, dont 10 nouveaux, et les deux points d'entrée compilent pour
+le web.
+
 ### 0.23.1+39 — 22 septembre 2026 — Un seul projet Firebase, et il existe
 
 Le projet est créé : **`grisbie-43ee9`**. Firebase veut des identifiants uniques

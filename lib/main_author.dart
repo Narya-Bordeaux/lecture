@@ -2,15 +2,16 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 import 'package:grisbie/infrastructure/content/browser_content_sink.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/infrastructure/content/content_saver.dart';
 import 'package:grisbie/infrastructure/content/content_writer.dart';
-import 'package:grisbie/infrastructure/content/device_content_sink.dart';
+import 'package:grisbie/infrastructure/content/device_content_folder.dart';
+import 'package:grisbie/infrastructure/content/fallback_content_source.dart';
 import 'package:grisbie/infrastructure/pictures/device_picture_library.dart';
 import 'package:grisbie/infrastructure/remote/author_remote.dart';
-import 'package:grisbie/main.dart';
 import 'package:grisbie/ui/pages/author_home_page.dart';
 
 /// La saveur Android sous laquelle cet outil doit tourner.
@@ -51,7 +52,40 @@ Future<void> main() async {
   // l'appareil : une capacite manquante ne casse rien.
   final remote = await AuthorRemote.connect();
 
-  runApp(AuthorToolsApp(remote: remote));
+  // Le dossier de travail de l'appareil, resolu une fois pour toutes : lire et
+  // ecrire doivent viser le meme endroit, et un navigateur n'en a pas.
+  final deviceDirectory = kIsWeb ? null : await DeviceContentFolder.path();
+
+  runApp(AuthorToolsApp(remote: remote, deviceDirectory: deviceDirectory));
+}
+
+/// D'ou l'outil lit le contenu, selon la connexion et la plateforme.
+///
+/// **Ce que l'outil a ecrit l'emporte, le contenu livre sert de repli.** Sans
+/// repli, un premier lancement ne trouverait rien — le dossier de travail est
+/// vide ; sans preference, l'outil ne verrait jamais ce qu'il vient
+/// d'enregistrer, et on ecrirait une aventure sans pouvoir la rouvrir.
+///
+/// Connecte, c'est le depot distant qu'on lit : c'est lui qui fait communiquer
+/// le poste et le telephone.
+///
+/// Dans un navigateur, il n'y a rien d'ecrit a relire — l'enregistrement y
+/// descend en fichiers separes — et le contenu livre suffit.
+ContentSource authorContentSource({
+  required AuthorRemote? remote,
+  required String? deviceDirectory,
+}) {
+  const shipped = AssetContentSource();
+
+  if (remote != null && remote.account.isSignedIn) {
+    return FallbackContentSource(preferred: remote.store, fallback: shipped);
+  }
+  if (deviceDirectory == null) return shipped;
+
+  return FallbackContentSource(
+    preferred: DeviceContentFolder.sourceAt(deviceDirectory),
+    fallback: shipped,
+  );
 }
 
 /// Ou va le contenu enregistre, selon la plateforme.
@@ -63,11 +97,20 @@ Future<void> main() async {
 /// rien d'autre. Dans un navigateur, le telechargement, et seulement ce qui
 /// vient d'etre ecrit : la destination est un depot qui possede deja le
 /// lexique.
+///
+/// **On relit par ou l'on ecrit** : `includeUnchanged` recopie ce que l'outil
+/// ne touche pas, dont les *autres* aventures. Les prendre au contenu livre
+/// les y ramenerait a leur version d'origine, effacant en silence le travail
+/// de la veille. La source est donc celle de l'outil, pas les assets.
 Future<List<String>> saveAdventure(
   Adventure adventure, {
   AuthorRemote? remote,
+  String? deviceDirectory,
 }) async {
-  const source = AssetContentSource();
+  final source = authorContentSource(
+    remote: remote,
+    deviceDirectory: deviceDirectory,
+  );
 
   // Connecte, le contenu part sur le depot : c'est ce qui fait communiquer le
   // poste et le telephone. Il faut y recopier ce que l'outil ne touche pas,
@@ -86,29 +129,42 @@ Future<List<String>> saveAdventure(
     ).save(adventure, includeUnchanged: false);
   }
 
+  final directory = deviceDirectory ?? await DeviceContentFolder.path();
+
   return ContentSaver(
     source: source,
-    writer: ContentWriter(sink: await DeviceContentSink.open()),
+    writer: ContentWriter(sink: DeviceContentFolder.sinkAt(directory)),
   ).save(adventure);
 }
 
 class AuthorToolsApp extends StatelessWidget {
-  const AuthorToolsApp({this.remote, super.key});
+  const AuthorToolsApp({this.remote, this.deviceDirectory, super.key});
 
   /// Le depot distant, nul quand le lancement ne l'a pas configure.
   final AuthorRemote? remote;
 
+  /// Le dossier de travail de l'appareil, nul dans un navigateur.
+  final String? deviceDirectory;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Calage des zones',
+      title: 'Outil d\'auteur',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
         useMaterial3: true,
       ),
       home: AuthorHomePage(
-        repository: ContentRepository(source: const AssetContentSource()),
+        // Une fabrique, et non un depot deja ouvert : `ContentRepository`
+        // garde le sommaire en memoire, si bien qu'il ne verrait pas ce qu'on
+        // vient d'enregistrer — et se connecter change la source.
+        openRepository: () => ContentRepository(
+          source: authorContentSource(
+            remote: remote,
+            deviceDirectory: deviceDirectory,
+          ),
+        ),
         // La photothegue de l'appareil. **Le seul endroit du depot qui la
         // construise**, et il est dans l'outil d'auteur : le jeu n'a aucun
         // chemin vers elle.
@@ -119,9 +175,11 @@ class AuthorToolsApp extends StatelessWidget {
         // le telephone.
         pictures: kIsWeb ? null : DevicePictureLibrary(),
         account: remote?.account,
-        onSave: (adventure) => saveAdventure(adventure, remote: remote),
-        // La meme aventure que le jeu : l'outil cale ce qui sera joue.
-        adventureId: GrisbieApp.defaultAdventureId,
+        onSave: (adventure) => saveAdventure(
+          adventure,
+          remote: remote,
+          deviceDirectory: deviceDirectory,
+        ),
       ),
     );
   }

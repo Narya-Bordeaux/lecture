@@ -42,7 +42,7 @@ void main() {
     expect(
       importers,
       <String>[
-        'lib/infrastructure/content/device_content_sink.dart',
+        'lib/infrastructure/content/device_content_folder.dart',
         'lib/infrastructure/pictures/device_picture_library.dart',
       ],
     );

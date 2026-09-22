@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.23.1+39** — 22 septembre 2026
+**Version : 0.24.0+40** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -47,7 +47,9 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    une carte prolongeable en dessous. Une aventure se crée aussi à partir de
    rien, **les récits se saisissent** depuis 0.19.0, avec le nom du lieu et son
    illustration, et **l'enregistrement existe** depuis 0.22.0 — sur l'appareil
-   comme par le téléchargement d'un navigateur.
+   comme par le téléchargement d'un navigateur. Depuis 0.24.0, **l'outil relit
+   ce qu'il a écrit** : l'accueil liste les aventures du dossier de travail,
+   contenu livré en repli, et les rouvre inachevées.
 4. 🟡 **L'image** — **la choisir et l'afficher sont faits** :
    `contentImageProvider` lit le bundle ou le disque selon le chemin, et
    `PictureLibrary` ouvre la photothèque de l'appareil. **Reste à l'éprouver
@@ -82,6 +84,20 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.24.0+40 — L'outil relit ce qu'il a écrit
+- **La boucle est fermée** : l'accueil lisait toujours les assets, scellés au
+  build. On pouvait enregistrer une aventure et ne jamais la rouvrir.
+- `FallbackContentSource` : le travail devant, le contenu livré derrière. Le
+  repli vaut pour l'absence, **jamais pour un fichier écrit illisible**.
+- **Défaut invisible corrigé** : `ContentSaver` recopiait les *autres*
+  aventures depuis les assets — enregistrer la gare ramenait la plage à sa
+  version d'origine. Il lit maintenant par où il écrit.
+- L'accueil reçoit une **fabrique** de dépôt : le dépôt met le sommaire en
+  cache, et se connecter change la source.
+- `DeviceContentSink` → `DeviceContentFolder`, les deux bouts au même endroit.
+- 356 tests au vert, dont 10 nouveaux ; les deux points d'entrée compilent pour
+  le web.
 
 ### 0.23.1+39 — Un seul projet Firebase, et il existe
 - **`grisbie-43ee9` est créé.** Firebase suffixe les identifiants ; définitif.

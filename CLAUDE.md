@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.23.1+39** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.24.0+40** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -482,9 +482,30 @@ téléchargement d'un navigateur.
 
 **Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
 puits : le dépôt distant quand l'auteur y est connecté (`RemoteContentStore`),
-sinon un dossier de l'appareil (`DeviceContentSink`) ou le téléchargement du
+sinon un dossier de l'appareil (`DeviceContentFolder`) ou le téléchargement du
 navigateur (`BrowserContentSink`). Les écrans ne connaissent qu'un rappel
 `onSave`, nul quand il n'y a nulle part où écrire.
+
+**On relit par où l'on écrit** — `authorContentSource` monte la source en
+miroir du puits : `FallbackContentSource` met le travail devant et le contenu
+livré derrière. Au premier lancement le dossier de travail est vide et il n'y a
+que le livré ; ensuite c'est le travail qui fait foi, y compris quand il n'a
+réécrit qu'une partie des fichiers. Le repli vaut pour l'**absence**, jamais
+pour un fichier écrit illisible : masquer une erreur par la version d'origine
+ferait croire le travail intact.
+
+C'est aussi la source que `saveAdventure` donne à `ContentSaver`, et **ce
+n'était pas un détail** : `includeUnchanged` recopie ce que l'outil ne touche
+pas, dont les *autres* aventures. Les prendre aux assets ramenait chacune à sa
+version d'origine à chaque enregistrement, effaçant en silence le travail
+précédent.
+
+**L'accueil reçoit une fabrique de dépôt, pas un dépôt** — `ContentRepository`
+garde le sommaire et les lexiques en mémoire, ce qu'il faut pour jouer et non
+pour éditer, et **se connecter change la source**. `AuthorHomePage` rouvre donc
+à neuf après un enregistrement comme après un changement de compte, et ouvre
+chaque aventure par `loadDraft` : une aventure en cours d'écriture est toujours
+invalide.
 
 **Le dépôt distant est un dossier comme un autre** — `RemoteContentStore`
 implémente `ContentSource` *et* `ContentSink`, avec la même arborescence

@@ -1,47 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/stage.dart';
-import 'package:grisbie/domain/repositories/adventure_repository.dart';
+import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/repositories/author_account.dart';
 import 'package:grisbie/domain/repositories/picture_library.dart';
-import 'package:grisbie/ui/pages/area_editor_page.dart';
+import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/ui/pages/author_sign_in_page.dart';
 import 'package:grisbie/ui/pages/new_adventure_page.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 
-/// Le sommaire de l'outil d'auteur.
+/// Le sommaire de l'outil d'auteur : les aventures, et de quoi en créer une.
 ///
-/// Deux entrees pour creer, puis la liste des etapes du contenu livre dont on
-/// cale les zones. Une etape sans famille n'y figure pas : il n'y a rien a y
-/// poser.
+/// **Il lit ce que l'outil a écrit**, avec le contenu livré pour repli
+/// (`FallbackContentSource`) : sans cela, on enregistrerait une aventure sans
+/// jamais pouvoir la rouvrir.
+///
+/// Et il l'ouvre par `loadDraft`, jamais par `loadAdventure` : une aventure en
+/// cours d'écriture est **toujours** invalide — un lieu qu'on vient de créer
+/// n'a pas ses mots — et `loadAdventure` la refuserait. C'est le contrat « le
+/// jeu refuse, l'outil tolère ».
 class AuthorHomePage extends StatefulWidget {
   const AuthorHomePage({
-    required this.repository,
-    required this.adventureId,
+    required this.openRepository,
     this.pictures,
     this.onSave,
     this.account,
     super.key,
   });
 
-  final AdventureRepository repository;
-  final String adventureId;
+  /// Ouvre le contenu, **à neuf**.
+  ///
+  /// Une fabrique et non une instance, pour deux raisons. `ContentRepository`
+  /// garde le sommaire et les lexiques en mémoire — c'est ce qu'il faut pour
+  /// jouer — si bien qu'un dépôt déjà lu ne verrait pas ce qu'on vient d'y
+  /// enregistrer. Et se connecter **change la source** : le sommaire du dépôt
+  /// distant n'est pas celui de l'appareil.
+  ///
+  /// Le type est concret à dessein : `loadDraft` n'appartient pas à
+  /// l'interface que le jeu emploie.
+  final ContentRepository Function() openRepository;
 
   /// De quoi choisir une illustration dans l'appareil.
   ///
-  /// Injectee ici et transmise de proche en proche : aucun ecran ne la
+  /// Injectée ici et transmise de proche en proche : aucun écran ne la
   /// construit, et les tests en passent une fausse — ou aucune.
   final PictureLibrary? pictures;
 
-  /// Ce qui ecrit une aventure. Nul, l'ecran du parcours ne le propose pas.
-  ///
-  /// C'est le point d'entree qui sait ou l'on ecrit : un dossier sur un
-  /// appareil, le telechargement d'un navigateur.
+  /// Ce qui écrit une aventure. Nul, l'écran du parcours ne le propose pas.
   final Future<List<String>> Function(Adventure adventure)? onSave;
 
-  /// Le compte de l'auteur sur le depot distant.
+  /// Le compte de l'auteur sur le dépôt distant.
   ///
-  /// Nul quand le lancement n'a pas configure de depot : l'outil enregistre
+  /// Nul quand le lancement n'a pas configuré de dépôt : l'outil enregistre
   /// alors sur l'appareil, et n'en parle pas.
   final AuthorAccount? account;
 
@@ -50,104 +59,141 @@ class AuthorHomePage extends StatefulWidget {
 }
 
 class _AuthorHomePageState extends State<AuthorHomePage> {
-  late Future<Adventure> _adventure;
+  late ContentRepository _repository;
+  late Future<ContentIndex> _index;
 
   @override
   void initState() {
     super.initState();
-    _adventure = widget.repository.loadAdventure(widget.adventureId);
+    _reopen();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Calage des zones')),
-      body: FutureBuilder<Adventure>(
-        future: _adventure,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text('Contenu illisible :\n\n${snapshot.error}'),
-            );
-          }
-          final adventure = snapshot.data;
-          if (adventure == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final stages = adventure.stages.values
-              .where((stage) => stage.families.isNotEmpty)
-              .toList(growable: false);
-
-          return Column(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.add_circle_outline),
-                title: const Text('Nouvelle aventure'),
-                subtitle: const Text('Partir d\'une page blanche'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _startNewAdventure(context),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.account_tree_outlined),
-                title: const Text('Construire le parcours'),
-                subtitle: Text('« ${adventure.title} »'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<Adventure>(
-                    builder: (_) => OutlinePage(
-                      adventure: adventure,
-                      pictures: widget.pictures,
-                      onSave: widget.onSave,
-                    ),
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              _buildAccountTile(context),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: stages.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) => _buildTile(stages[index]),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  /// Cree une aventure neuve et enchaine aussitot sur son parcours.
+  /// Rouvre le contenu et relit son sommaire.
   ///
-  /// Rien ne l'enregistre encore : elle vit le temps de la session.
-  Future<void> _startNewAdventure(BuildContext context) async {
-    final fresh = await askForNewAdventure(context);
-    if (fresh == null || !context.mounted) return;
+  /// Après un enregistrement, pour voir apparaître ce qu'on vient d'écrire ;
+  /// après une connexion, parce qu'on ne lit plus au même endroit.
+  void _reopen() {
+    _repository = widget.openRepository();
+    _index = _repository.loadIndex();
+  }
 
+  void _reload() => setState(_reopen);
+
+  /// Ouvre une aventure existante, **même inachevée**.
+  Future<void> _openAdventure(AdventureEntry entry) async {
+    final Adventure adventure;
+    try {
+      adventure = await _repository.loadDraft(entry.id);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Contenu illisible : $error')),
+      );
+      return;
+    }
+    if (!mounted) return;
+
+    await _openOutline(adventure);
+  }
+
+  /// Crée une aventure neuve et enchaîne aussitôt sur son parcours.
+  Future<void> _startNewAdventure() async {
+    final fresh = await askForNewAdventure(context);
+    if (fresh == null || !mounted) return;
+
+    await _openOutline(fresh);
+  }
+
+  Future<void> _openOutline(Adventure adventure) async {
     await Navigator.of(context).push(
       MaterialPageRoute<Adventure>(
         builder: (_) => OutlinePage(
-          adventure: fresh,
+          adventure: adventure,
           pictures: widget.pictures,
           onSave: widget.onSave,
         ),
       ),
     );
+    // Une aventure enregistrée depuis le parcours doit apparaître ici.
+    if (mounted) _reload();
   }
 
-  /// Ou va l'enregistrement, et de quoi en changer.
+  Future<void> _signIn(AuthorAccount account) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => AuthorSignInPage(account: account),
+      ),
+    );
+    if (!mounted) return;
+
+    // Se connecter change d'où l'on lit et où l'on écrit : le sommaire du
+    // dépôt distant n'est pas celui de l'appareil.
+    _reload();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Outil d\'auteur')),
+      body: Column(
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline),
+            title: const Text('Nouvelle aventure'),
+            subtitle: const Text('Partir d\'une page blanche'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _startNewAdventure,
+          ),
+          const Divider(height: 1),
+          _buildAccountTile(context),
+          Expanded(child: _buildAdventures(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdventures(BuildContext context) {
+    return FutureBuilder<ContentIndex>(
+      future: _index,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text('Sommaire illisible :\n\n${snapshot.error}'),
+          );
+        }
+        final index = snapshot.data;
+        if (index == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.separated(
+          itemCount: index.adventures.length,
+          separatorBuilder: (context, position) => const Divider(height: 1),
+          itemBuilder: (context, position) {
+            final entry = index.adventures[position];
+            return ListTile(
+              leading: const Icon(Icons.map_outlined),
+              title: Text(entry.title),
+              subtitle: Text(entry.id),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _openAdventure(entry),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Où va l'enregistrement, et de quoi en changer.
   ///
-  /// Le dire **ici**, une fois, plutot que dans le message qui suit chaque
+  /// Le dire **ici**, une fois, plutôt que dans le message qui suit chaque
   /// enregistrement : c'est avant de travailler qu'on veut le savoir.
   Widget _buildAccountTile(BuildContext context) {
     final account = widget.account;
     if (account == null) {
-      // Aucun depot configure au lancement : rien a proposer, et rien a
-      // expliquer sur un ecran de travail.
+      // Aucun dépôt configuré au lancement : rien à proposer, et rien à
+      // expliquer sur un écran de travail.
       return const SizedBox.shrink();
     }
 
@@ -159,62 +205,29 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
           leading: Icon(signedIn ? Icons.cloud_done_outlined : Icons.cloud_off),
           title: Text(
             signedIn
-                ? 'Enregistrement : le dépôt distant'
-                : 'Enregistrement : cet appareil',
+                ? 'Dépôt distant : le contenu y est lu et écrit'
+                : 'Cet appareil : le contenu y est lu et écrit',
           ),
           subtitle: Text(
             signedIn
-                // L'UID est ce que la regle du bucket doit nommer : le montrer
-                // evite d'aller le chercher dans la console.
+                // L'UID est ce que la règle du bucket doit nommer : le montrer
+                // évite d'aller le chercher dans la console.
                 ? 'Connecté — identifiant ${account.userId}'
-                : 'Se connecter pour déposer sur le dépôt.',
+                : 'Se connecter pour travailler sur le dépôt.',
           ),
           trailing: signedIn
               ? TextButton(
                   onPressed: () async {
                     await account.signOut();
-                    if (mounted) setState(() {});
+                    if (mounted) _reload();
                   },
                   child: const Text('Se déconnecter'),
                 )
               : const Icon(Icons.chevron_right),
-          onTap: signedIn ? null : () => _signIn(context, account),
+          onTap: signedIn ? null : () => _signIn(account),
         ),
         const Divider(height: 1),
       ],
-    );
-  }
-
-  Future<void> _signIn(BuildContext context, AuthorAccount account) async {
-    await Navigator.of(context).push<bool>(
-      MaterialPageRoute<bool>(
-        builder: (_) => AuthorSignInPage(account: account),
-      ),
-    );
-    if (mounted) setState(() {});
-  }
-
-  Widget _buildTile(Stage stage) {
-    final placed = stage.families.where((family) => family.area != null).length;
-    final total = stage.families.length;
-    final illustrated = stage.backgroundAsset != null;
-
-    return ListTile(
-      title: Text(stage.locationName),
-      subtitle: Text(
-        '$placed zone(s) posée(s) sur $total'
-        '${illustrated ? '' : ' — pas d\'illustration'}',
-      ),
-      trailing: const Icon(Icons.open_in_full),
-      // Le calage sur le contenu livre : il rend l'etape calee, mais rien ici
-      // ne la garde — c'est « Copier » qui sert, le JSON etant recolle a la
-      // main dans le fichier d'aventure. Passer par « Construire le parcours »
-      // garde le calage en memoire jusqu'a la fin de la session.
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<Stage>(
-          builder: (_) => AreaEditorPage(stage: stage),
-        ),
-      ),
     );
   }
 }

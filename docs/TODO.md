@@ -91,19 +91,15 @@ L'étape 3 est largement faite : `OutlinePage` construit le parcours, les
 anomalies s'affichent classées. Deux manques restent, découverts en la
 construisant :
 
-- [ ] **Éprouver l'enregistrement pour de vrai.** Fait depuis 0.22.0 et
-      éprouvé sur un dossier en mémoire, mais **jamais exécuté** : ni sur
-      l'appareil (dossier des documents), ni dans un navigateur
-      (téléchargement). À vérifier sur le poste et sur le téléphone.
+- [ ] **Éprouver l'aller-retour pour de vrai.** Enregistrer puis rouvrir est
+      fait — 0.22.0 pour l'écriture, 0.24.0 pour la relecture — et éprouvé sur
+      un dossier en mémoire, mais **jamais exécuté** : ni sur l'appareil
+      (dossier des documents), ni dans un navigateur (téléchargement, qui ne
+      se relit pas). À vérifier sur le poste et sur le téléphone.
 - [ ] **Rapatrier le dossier écrit vers le dépôt.** Sur l'appareil il vit dans
       les documents de l'application ; dans un navigateur il descend en
       fichiers séparés au nom aplati. Les deux se reposent à la main dans
       `assets/content/`. C'est ce qu'un dépôt distant remplacera.
-- [ ] **Passer l'outil à `loadDraft`, et lui faire lire le dossier écrit.**
-      `AuthorHomePage` charge encore le contenu **livré** par `loadAdventure`,
-      qui refuse toute aventure incomplète. Depuis 0.22.0 un brouillon
-      s'enregistre — mais rien ne le rouvre : l'outil relit les assets, pas ce
-      qu'il vient d'écrire. C'est le manque le plus visible à l'usage.
 - [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
       d'un personnage — l'écran ne les demande pas encore.
 - [ ] **Rouvrir une fin créée par erreur.** Depuis 0.18.0 une carte de fin n'a
