@@ -48,18 +48,22 @@ connexion n'est simplement pas proposée.
 flutter run --flavor auteur -t lib/main_author.dart \
   --dart-define=GRISBIE_FIREBASE_API_KEY=… \
   --dart-define=GRISBIE_FIREBASE_APP_ID=… \
-  --dart-define=GRISBIE_FIREBASE_PROJECT_ID=narya-grisbie-dev \
+  --dart-define=GRISBIE_FIREBASE_PROJECT_ID=grisbie-43ee9 \
   --dart-define=GRISBIE_FIREBASE_SENDER_ID=… \
-  --dart-define=GRISBIE_FIREBASE_BUCKET=narya-grisbie-dev.firebasestorage.app \
-  --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=narya-grisbie-dev.firebaseapp.com
+  --dart-define=GRISBIE_FIREBASE_BUCKET=grisbie-43ee9.firebasestorage.app \
+  --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=grisbie-43ee9.firebaseapp.com
 ```
 
 Dans un navigateur, remplacer `--flavor auteur` par `-d chrome` : les saveurs
 n'existent pas hors Android.
 
-**Exige** : un projet Firebase configuré — la marche à suivre est dans
+**Exige** : le projet `grisbie-43ee9` configuré — la marche à suivre est dans
 `TODO.md`. `AUTH_DOMAIN` ne sert qu'au web ; les cinq autres sont obligatoires,
 et l'outil nomme celles qui manquent.
+
+Les valeurs ci-dessus sont **à relever dans la console**, pas à deviner : le nom
+du bucket notamment diffère selon l'âge du projet. Web et Android ont chacun
+leur `API_KEY` et leur `APP_ID`, le reste est commun.
 
 **Produit** : l'écran d'accueil de l'outil propose de se connecter. Une fois
 connecté, « Enregistrer » dépose le contenu sur le dépôt au lieu de l'appareil,

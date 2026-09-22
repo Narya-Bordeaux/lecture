@@ -44,6 +44,45 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.23.1+39 — 22 septembre 2026 — Un seul projet Firebase, et il existe
+
+Le projet est créé : **`grisbie-43ee9`**. Firebase veut des identifiants uniques
+au monde et suffixe les siens ; celui-ci est définitif.
+
+**Il n'y en aura qu'un**, et c'est une décision, pas un raccourci. Deux projets,
+dev et prod, étaient prévus depuis 0.9.3. Ce que cette séparation protège
+d'ordinaire, ce sont les données réelles des utilisateurs pendant qu'on
+expérimente : ici il n'y a **ni utilisateurs ni données**. Le bucket est un
+tuyau entre le poste et le téléphone ; la production de ce projet n'est pas
+Firebase mais le dépôt git et la fiche Play Store.
+
+Le second coûtait plus qu'il ne protégeait. Chaque lancement porte six valeurs,
+et deux jeux de six augmentent surtout le risque de déposer dans le mauvais
+bucket. Ce qu'on y perdrait au pire, c'est le travail non encore commité — et
+l'outil enregistre aussi en local, donc le bucket n'est jamais la seule copie.
+La décision se renverse d'ailleurs pour rien : les valeurs arrivent au
+lancement, créer un second projet se résume à changer une ligne de commande.
+
+**La section Firebase de `Noms_et_identifiants.md` était devenue fausse** —
+elle décrivait encore le montage par `google-services.json` que 0.23.0 a
+supprimé, et un basculement dev/prod « en remplaçant le fichier à la main ».
+Elle est réécrite : pourquoi un seul projet, pourquoi des options explicites,
+pourquoi l'e-mail plutôt que Google, et ce que les saveurs séparent encore
+maintenant qu'elles ne portent plus rien de Firebase.
+
+- `TODO.md` signale ce qui attend au prochain pas : **Cloud Storage réclamera
+  sans doute le plan Blaze**, un projet neuf ne provisionnant plus de bucket sur
+  Spark depuis fin 2024. La tranche sans frais de Blaze couvre très largement un
+  tuyau d'auteur, mais elle demande un moyen de paiement. Si ce passage rebute,
+  le contenu étant de petits fichiers JSON, Firestore reste accessible sur Spark
+  et seul `RemoteContentStore` serait à réécrire.
+- Le nom du bucket est à **relever dans la console**, pas à deviner : il diffère
+  selon l'âge du projet.
+- Une application **Web** reste à enregistrer, l'outil tournant aussi dans un
+  navigateur. L'Android existe déjà.
+
+Aucun changement de code. 346 tests au vert.
+
 ### 0.23.0+38 — 22 septembre 2026 — Le dépôt distant
 
 Le pont entre le poste et le téléphone. L'outil dépose le contenu sur Firebase

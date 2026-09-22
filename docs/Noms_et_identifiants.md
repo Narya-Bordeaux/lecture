@@ -20,8 +20,7 @@ fait échouer la suite.
 | Paquet Kotlin | `fr.naryabordeaux.grisbie` | `android/app/src/main/kotlin/fr/naryabordeaux/grisbie/` |
 | Package Dart interne | `grisbie` | `pubspec.yaml`, et tous les `import 'package:grisbie/…'` |
 | Titre de l'application | Les Aventures de Grisbie | `UiStringsFr.appTitle` |
-| Projet Firebase développement | `narya-grisbie-dev` | console Firebase |
-| Projet Firebase production | `narya-grisbie-prod` | console Firebase |
+| Projet Firebase, **unique** | `grisbie-43ee9` | console Firebase |
 | App Android enregistrée dans Firebase | `fr.naryabordeaux.grisbie.auteur` | console Firebase |
 | Pseudo de cette app dans Firebase | Grisbie auteur – Android | console Firebase |
 
@@ -79,16 +78,38 @@ qu'un fichier écrit sur un téléphone est difficile à rapatrier.
 **Le jeu livré ne contacte rien.** Le public étant mineur, aucune donnée ne sort
 de l'appareil.
 
-L'application Android enregistrée dans les deux projets Firebase porte
-l'identifiant **de l'outil d'auteur**, `fr.naryabordeaux.grisbie.auteur`, jamais
-celui du jeu : Firebase apparie sur l'`applicationId` exact. Conséquence
-recherchée — l'identifiant publié n'existe dans aucun projet Firebase, et une
-configuration égarée n'y correspondrait de toute façon pas.
+### Un seul projet, et c'est délibéré
 
-Une seule saveur auteur existe pour deux projets. On bascule de
-`narya-grisbie-dev` à `narya-grisbie-prod` en remplaçant le fichier à la main.
-Le jour où cela produira une confusion, c'est le signal qu'il faut découper cette
-saveur en deux.
+`grisbie-43ee9` — l'identifiant porte un suffixe parce que Firebase les veut
+uniques au monde ; il est **définitif**.
+
+Deux projets, un de développement et un de production, ont été prévus puis
+écartés. Ce que dev/prod sépare d'ordinaire, ce sont les données réelles des
+utilisateurs pendant qu'on expérimente : **ici il n'y a ni utilisateurs ni
+données**. Le bucket est un tuyau entre le poste et le téléphone, et la
+production de ce projet n'est pas Firebase mais le dépôt git et la fiche Play
+Store.
+
+Le second projet coûtait plus qu'il ne protégeait : chaque lancement porte six
+valeurs, et deux jeux de six augmentent surtout le risque de déposer dans le
+mauvais bucket. Ce qu'on y perdrait au pire, c'est le travail non encore
+commité — et l'outil enregistre aussi en local, donc le bucket n'est jamais la
+seule copie.
+
+**La décision est réversible pour rien** : les valeurs arrivent au lancement,
+créer un second projet plus tard se résume à changer une ligne de commande. Le
+jour où l'écriture d'aventures s'ouvrirait à quelqu'un d'autre — le dépôt part
+en open source — c'est ce jour-là qu'il faudra y revenir.
+
+### L'application enregistrée porte l'identifiant de l'outil
+
+`fr.naryabordeaux.grisbie.auteur`, jamais celui du jeu : Firebase apparie sur
+l'`applicationId` exact. Conséquence recherchée — l'identifiant publié n'existe
+dans aucun projet Firebase, et une configuration égarée n'y correspondrait de
+toute façon pas.
+
+L'outil d'auteur tournant aussi dans un navigateur, une application **Web** doit
+être enregistrée dans le même projet, avec ses propres valeurs.
 
 ### La règle qui protège le jeu des enfants
 
@@ -98,19 +119,34 @@ d'appareil auprès de Google. Or les deux points d'entrée, `lib/main.dart` et
 `lib/main_author.dart`, partagent le même `pubspec.yaml` et le même dossier
 `android/`.
 
-C'est la raison d'être des saveurs. **Le fichier ne vit que dans
-`android/app/src/auteur/`**, où seule la saveur auteur le lit.
-`android_packaging_test.dart` le refuse partout ailleurs, en nommant le fichier
-égaré.
+**Ce fichier n'existe donc pas.** Depuis 0.23.0, les valeurs du projet arrivent
+par `--dart-define` au lancement et `Firebase.initializeApp` reçoit des
+`FirebaseOptions` explicites. Rien ne déclenche l'initialisation automatique :
+le jeu **ne peut pas** contacter Firebase, même par mégarde.
 
-Il est ignoré par git à tout emplacement : le dépôt est destiné à l'open source,
-et ce fichier désigne le projet Firebase de l'auteur avec ses clés. Cet oubli
-volontaire ne masque rien — le test lit le disque, pas l'index de git, et un
-fichier ignoré mais présent le fait donc échouer tout autant.
+C'est une garantie plus forte que celle que les saveurs donnaient, et elle est
+vérifiée — `author_only_test.dart` exige qu'un seul fichier du dépôt appelle
+`Firebase.initializeApp`, et que rien hors de `lib/infrastructure/remote/`
+n'importe Firebase.
 
-Ce que ces saveurs séparent : le **paquet Android** — identifiant, libellé,
-configuration Firebase. Pas le code Dart, qui reste apparié à la main ; voir
-« Construire » plus haut.
+Rien de ces valeurs n'entre dans le dépôt, qui se compile sans elles : absentes,
+l'outil enregistre en local et ne propose pas la connexion.
+
+Les saveurs subsistent, mais ne portent plus rien de Firebase. Ce qu'elles
+séparent désormais : l'identifiant et le libellé du **paquet Android**, ce qui
+fait cohabiter les deux applications sur le téléphone et rend impubliable un jeu
+construit par erreur avec la saveur auteur.
+
+### La connexion de l'auteur
+
+Par **e-mail et mot de passe**, pas par Google : Google sur Android exige
+d'enregistrer les empreintes SHA-1 de chaque magasin de clés, ce qui marche en
+debug et casse en release. L'e-mail se comporte à l'identique sur le web et sur
+un téléphone, sans greffon de plus.
+
+Un seul compte, créé à la main dans la console. La règle du bucket nomme son
+**UID** — jamais son adresse, le dépôt partant en open source — et l'outil
+affiche cet UID une fois connecté, pour qu'on puisse le recopier.
 
 ## Signature de l'application publiée
 

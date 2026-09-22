@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.23.0+38** — 22 septembre 2026
+**Version : 0.23.1+39** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -61,7 +61,8 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
 
 **Ce qui bloque Firebase** : le code est là depuis 0.23.0, mais le projet
-`narya-grisbie-dev` n'existe pas encore, et rien n'a jamais été exécuté. Les préalables sont
+le projet `grisbie-43ee9` vient d'être créé, mais Storage n'y est pas activé et
+rien n'a jamais été exécuté. Les préalables sont
 listés dans `TODO.md`, ils relèvent de la console Firebase et de l'appareil.
 Le dépôt, lui, est prêt à le recevoir : les noms sont fixés depuis 0.9.3, et
 depuis 0.9.4 **deux saveurs Android séparent le jeu de l'outil d'auteur**, avec
@@ -82,6 +83,18 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.23.1+39 — Un seul projet Firebase, et il existe
+- **`grisbie-43ee9` est créé.** Firebase suffixe les identifiants ; définitif.
+- **Un seul projet, pas de dev/prod** : ni utilisateurs ni données à protéger
+  d'un environnement de test, et la décision se renverse en changeant une ligne
+  de commande.
+- La section Firebase de `Noms_et_identifiants.md` **était devenue fausse** —
+  elle décrivait le montage par `google-services.json` supprimé en 0.23.0.
+  Réécrite.
+- **Attendu au prochain pas** : Cloud Storage réclamera sans doute le plan
+  Blaze, un projet neuf ne provisionnant plus de bucket sur Spark.
+- Aucun changement de code.
+
 ### 0.23.0+38 — Le dépôt distant
 - **L'outil dépose le contenu sur Firebase Storage et le relit.** C'est le pont
   entre le poste et le téléphone.
@@ -96,22 +109,6 @@ un travail d'auteur, pas de code.
 - **Rien n'a été exécuté** : le projet Firebase n'existe pas encore. Marche à
   suivre réécrite dans `TODO.md`.
 - 346 tests au vert, dont 14 nouveaux.
-
-### 0.22.0+37 — Enregistrer
-- **Le trou du chantier est comblé** : `ContentSaver` écrit une aventure et
-  tout ce dont elle a besoin — sommaire, listes, lexique recopié.
-- Le contrôle qui compte : **le dossier écrit se recharge**, sans rien
-  emprunter au contenu livré. C'est lui qui a trouvé un défaut — les autres
-  aventures du sommaire étaient déclarées sans leurs fichiers.
-- **Deux puits** : un dossier sur l'appareil, le téléchargement dans un
-  navigateur. Le point d'entrée seul choisit ; les écrans ne connaissent qu'un
-  rappel `onSave`.
-- Le téléchargement est un dépannage : les fichiers descendent séparément, nom
-  aplati, à reposer à la main. Un dépôt distant le remplacera.
-- **Un seul geste écrit** : les éditeurs disent « Garder », l'écran du parcours
-  « Enregistrer ».
-- **Rien n'a été exécuté** sur appareil ni dans un navigateur.
-- 332 tests au vert, dont 18 nouveaux.
 
 
 ## Décisions prises
@@ -138,15 +135,13 @@ un travail d'auteur, pas de code.
   Firestore** : l'outil de création y dépose le contenu, on le relit depuis le
   poste, et il finit commité dans `assets/content/` comme aujourd'hui. **Le jeu
   livré ne contacte rien.** Le choix répond au fait qu'un fichier écrit sur un
-  téléphone est difficile à rapatrier. Deux projets, `narya-grisbie-dev` et
-  `narya-grisbie-prod`, où l'application Android est enregistrée sous
-  `fr.naryabordeaux.grisbie.auteur` — **jamais sous l'identifiant du jeu**, qui
-  n'existe ainsi dans aucun projet Firebase.
-  Précaution qui va avec : les deux points d'entrée partagent `pubspec.yaml`, et
-  sur Android le SDK Firebase s'initialise seul dès que `google-services.json`
-  est présent. D'où les deux saveurs `jeu` et `auteur`, et l'unique emplacement
-  autorisé pour ce fichier.
-- **Un compte Google unique pour le bucket**, celui de l'auteur. L'usage est
+  téléphone est difficile à rapatrier. **Un seul projet**, `grisbie-43ee9`, où
+  l'application Android est enregistrée sous `fr.naryabordeaux.grisbie.auteur` —
+  **jamais sous l'identifiant du jeu**, qui n'existe ainsi dans aucun projet
+  Firebase. Pas de dev/prod : il n'y a ni utilisateurs ni données à protéger
+  d'un environnement de test, et la décision se renverse en changeant une ligne
+  de commande.
+- **Un compte unique pour le bucket**, celui de l'auteur. L'usage est
   solo : personne d'autre n'a de contenu à déposer, et un bucket ouvert en
   écriture serait trouvé sans avoir à être connu. La règle nomme un UID, jamais
   une adresse e-mail — le dépôt part en open source. Marche à suivre dans

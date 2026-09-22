@@ -9,8 +9,10 @@ Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
 
 **À faire dans votre console — ces points ne sont pas testables ici** :
 
-Les noms sont fixés par `Noms_et_identifiants.md` : projets `narya-grisbie-dev`
-et `narya-grisbie-prod`. Le produit retenu est **Cloud Storage**, pas Firestore.
+Les noms sont fixés par `Noms_et_identifiants.md` : **un seul projet**,
+`grisbie-43ee9`, et c'est délibéré — il n'y a ni utilisateurs ni données à
+protéger d'un environnement de test. Le produit retenu est **Cloud Storage**,
+pas Firestore.
 
 Deux choses ont changé en 0.23.0, et allègent beaucoup cette liste :
 
@@ -24,8 +26,16 @@ Deux choses ont changé en 0.23.0, et allègent beaucoup cette liste :
 
 Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 
-- [ ] Créer le projet `narya-grisbie-dev`.
-- [ ] Activer Cloud Storage et **poser immédiatement une règle qui refuse
+- [x] Créer le projet. C'est `grisbie-43ee9` — Firebase suffixe les
+      identifiants, qu'il veut uniques au monde, et celui-ci est définitif.
+- [ ] **Activer Cloud Storage**, en s'attendant à devoir passer le projet au
+      plan **Blaze**. Depuis fin 2024 un projet neuf ne provisionne plus de
+      bucket sur le plan Spark ; Blaze exige un moyen de paiement mais garde
+      une tranche sans frais (quelques giga-octets), largement au-delà de ce
+      qu'un tuyau d'auteur consomme. Si ce passage vous rebute, dites-le : le
+      contenu étant de petits fichiers JSON, Firestore reste accessible sur
+      Spark et `RemoteContentStore` se réécrirait sans toucher au reste.
+- [ ] **Poser immédiatement une règle qui refuse
       tout** — avant même de savoir à qui on ouvrira. Un bucket ouvert n'a pas
       besoin d'être connu pour être trouvé.
 
@@ -62,15 +72,17 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       ```
 
 - [ ] Enregistrer une application **Web** dans le projet, et relever les six
-      valeurs de sa configuration. Elles se passent au lancement — la commande
-      complète est dans `Commandes.md`. Une application Android peut être
-      enregistrée de la même façon, pour ses propres valeurs.
+      valeurs de sa configuration. L'application Android existe déjà ; elle a
+      les siennes, et doit porter `fr.naryabordeaux.grisbie.auteur` — **jamais**
+      l'identifiant du jeu. Ces valeurs se passent au lancement, la commande
+      complète est dans `Commandes.md`.
+- [ ] Relever le **nom exact du bucket** dans la console : un projet récent
+      donne `grisbie-43ee9.firebasestorage.app`, un plus ancien
+      `…appspot.com`. Ne pas le deviner.
 - [ ] **Lancer l'outil avec ces valeurs, et vérifier que tout marche.** Rien
       n'a jamais été exécuté : ni la connexion, ni le dépôt d'un fichier, ni
       sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
       la règle doit nommer, à comparer.
-- [ ] `narya-grisbie-prod` plus tard, à l'identique. Changer de projet se fait
-      en changeant les valeurs de lancement, sans toucher au dépôt.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer. `author_only_test.dart` le rend structurellement improbable —
       rien n'initialise Firebase hors de l'outil — mais ne le démontre pas.
