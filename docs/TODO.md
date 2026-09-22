@@ -106,13 +106,6 @@ construisant :
       les documents de l'application ; dans un navigateur il descend en
       fichiers séparés au nom aplati. Les deux se reposent à la main dans
       `assets/content/`. C'est ce qu'un dépôt distant remplacera.
-- [ ] **Lire le contenu distant en parallèle.** `ContentRepository` demande le
-      sommaire, puis les lexiques, puis les listes, puis les personnages, puis
-      l'aventure — **les uns après les autres**. Sur un disque c'est
-      instantané ; depuis Firebase dans un navigateur, ces huit allers-retours
-      en file indienne font attendre plusieurs secondes à chaque ouverture.
-      Les lexiques et les listes sont indépendants : un `Future.wait`
-      diviserait l'attente d'autant, sans rien changer au jeu.
 - [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
       d'un personnage — l'écran ne les demande pas encore.
 - [ ] **Rouvrir une fin créée par erreur.** Depuis 0.18.0 une carte de fin n'a

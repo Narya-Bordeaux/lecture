@@ -76,53 +76,78 @@ class ContentRepository implements AdventureRepository {
       );
     }
 
-    final lists = await _loadWordLists(index);
-    final characters = await _loadCharacters(index);
+    // **Tout ce qui manque encore part ensemble.** Le sommaire seul devait
+    // arriver d'abord — c'est lui qui dit quels fichiers demander —, mais les
+    // lexiques, les listes, les personnages et l'aventure sont independants a
+    // la lecture. Demandes l'un apres l'autre, ils faisaient huit
+    // allers-retours en file indienne : instantane sur un disque, plusieurs
+    // secondes depuis un depot distant.
+    // Ce qui est deja en memoire n'est pas redemande : rouvrir une aventure ne
+    // relit que son fichier.
+    final files = await _readJsonFiles(<String>{
+      if (_wordLists == null) ...<String>[
+        ...index.lexiconFiles,
+        ...index.wordListFiles,
+      ],
+      if (_characters == null) ?index.charactersFile,
+      entry.file,
+    });
 
-    final adventure = Adventure.fromJson(
-      await _readJson(entry.file),
-      lists: lists,
-      characters: characters,
+    return Adventure.fromJson(
+      files[entry.file]!,
+      lists: _resolveWordLists(index, files),
+      characters: _resolveCharacters(index, files),
     );
-
-    return adventure;
   }
 
-  /// Les lexiques de tous les domaines, reunis une fois pour la session.
-  Future<Lexicon> _loadLexicon(ContentIndex index) async {
-    if (_lexicon != null) return _lexicon!;
+  /// Lit plusieurs fichiers **simultanement**, et les rend par chemin.
+  ///
+  /// Un fichier deja en memoire n'est pas redemande : l'appelant ne met dans
+  /// [paths] que ce qui lui manque.
+  Future<Map<String, Map<String, dynamic>>> _readJsonFiles(
+    Set<String> paths,
+  ) async {
+    final ordered = paths.toList(growable: false);
+    final contents = await Future.wait(ordered.map(_readJson));
 
-    final lexicons = <Lexicon>[];
-    for (final path in index.lexiconFiles) {
-      lexicons.add(Lexicon.fromJson(await _readJson(path)));
-    }
-    return _lexicon = Lexicon.merge(lexicons);
+    return <String, Map<String, dynamic>>{
+      for (var index = 0; index < ordered.length; index++)
+        ordered[index]: contents[index],
+    };
   }
 
   /// Les listes de mots de tous les domaines, reunies une fois pour la session.
   ///
   /// Les mots sont resolus au passage : une liste cite le lexique, elle ne
-  /// redefinit rien.
-  Future<WordListCatalog> _loadWordLists(ContentIndex index) async {
+  /// redefinit rien. C'est pour cela que les deux peuvent se **lire** ensemble
+  /// — la resolution n'a lieu qu'a l'analyse.
+  WordListCatalog _resolveWordLists(
+    ContentIndex index,
+    Map<String, Map<String, dynamic>> files,
+  ) {
     if (_wordLists != null) return _wordLists!;
 
-    final lexicon = await _loadLexicon(index);
-    final catalogs = <WordListCatalog>[];
-    for (final path in index.wordListFiles) {
-      catalogs.add(WordListCatalog.fromJson(await _readJson(path), lexicon));
-    }
-    return _wordLists = WordListCatalog.merge(catalogs);
+    final lexicon = _lexicon ??= Lexicon.merge(<Lexicon>[
+      for (final path in index.lexiconFiles) Lexicon.fromJson(files[path]!),
+    ]);
+
+    return _wordLists = WordListCatalog.merge(<WordListCatalog>[
+      for (final path in index.wordListFiles)
+        WordListCatalog.fromJson(files[path]!, lexicon),
+    ]);
   }
 
-  Future<Map<String, Character>> _loadCharacters(ContentIndex index) async {
+  Map<String, Character> _resolveCharacters(
+    ContentIndex index,
+    Map<String, Map<String, dynamic>> files,
+  ) {
     if (_characters != null) return _characters!;
 
     final path = index.charactersFile;
     if (path == null) return _characters = const <String, Character>{};
 
-    final json = await _readJson(path);
     final characters = <String, Character>{};
-    for (final item in json['characters'] as List<dynamic>) {
+    for (final item in files[path]!['characters'] as List<dynamic>) {
       final character = Character.fromJson(item as Map<String, dynamic>);
       characters[character.id] = character;
     }

@@ -44,6 +44,30 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.28.1+45 — 22 septembre 2026 — Les fichiers se demandent ensemble
+
+Ouvrir une aventure depuis le dépôt distant prenait plusieurs secondes, et
+l'auteur le voyait. La cause n'était pas le réseau : `ContentRepository`
+demandait ses fichiers **un par un**, chacun attendant le précédent. Le
+sommaire, puis trois lexiques, puis deux listes, puis les personnages, puis
+l'aventure — huit allers-retours en file indienne. Sur un disque c'est
+instantané ; à travers un navigateur et un dépôt, les latences s'additionnent.
+
+Seul le sommaire doit arriver d'abord : c'est lui qui dit **quels** fichiers
+demander. Tout le reste est indépendant à la lecture, y compris les listes et
+le lexique qu'elles citent — une liste ne résout ses mots qu'au moment d'être
+*analysée*, pas d'être *lue*. Le chargement part donc en une seule salve, et
+l'analyse se fait ensuite dans l'ordre qui convient.
+
+**« En parallèle » est une propriété vérifiée, pas une intention.** Une source
+de test compte les lectures en vol simultanément et retient le maximum
+atteint : un chargement en file indienne le laisserait à 1. Trois autres
+contrôles encadrent le changement — le sommaire arrive bien en premier, le
+contenu obtenu est identique à celui d'avant, et rouvrir une aventure ne relit
+que son fichier, le reste restant en mémoire.
+
+386 tests au vert, dont 4 nouveaux.
+
 ### 0.28.0+44 — 22 septembre 2026 — Une illustration est du contenu
 
 **« Je devrais la trouver quelque part dans Storage, non ? »** La question de

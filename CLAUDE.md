@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.28.0+44** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.28.1+45** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -261,6 +261,15 @@ permanent, qu'on apprendrait à ignorer. Le classement vit dans le domaine, jama
 dans l'interface — décider qu'un mot ambigu est une faute alors qu'une famille
 vide ne l'est pas est un jugement sur le contenu. Détail dans
 `docs/Format_fichier_aventure.md` §6.
+
+**Les fichiers se demandent ensemble** — `ContentRepository` ne lit le
+sommaire seul que parce qu'il dit *quels* fichiers demander ; tout le reste
+part en une salve (`Future.wait`). Les listes et le lexique qu'elles citent en
+font partie : une liste ne résout ses mots qu'à l'**analyse**, pas à la
+lecture. Un par un, c'étaient huit allers-retours en file indienne —
+instantané sur un disque, plusieurs secondes depuis un dépôt distant.
+`test/infrastructure/parallel_loading_test.dart` compte les lectures
+simultanées : en file indienne, le maximum resterait à 1.
 
 **Le jeu refuse, l'outil tolère** — `ContentRepository.loadAdventure` échoue dès
 la moindre anomalie, et c'est le bon contrat : une aventure incomplète est

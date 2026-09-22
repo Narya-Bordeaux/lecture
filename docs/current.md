@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.28.0+44** — 22 septembre 2026
+**Version : 0.28.1+45** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -85,6 +85,17 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.28.1+45 — Les fichiers se demandent ensemble
+- **L'ouverture d'une aventure était lente** depuis le dépôt : huit lectures
+  en file indienne, chacune attendant la précédente.
+- Seul le sommaire doit arriver d'abord — il dit quels fichiers demander. Le
+  reste part en une seule salve.
+- Les listes et le lexique se lisent ensemble : une liste ne résout ses mots
+  qu'à l'**analyse**, pas à la lecture.
+- **Vérifié, pas supposé** : une source de test compte les lectures
+  simultanées ; en file indienne le maximum resterait à 1.
+- 386 tests au vert, dont 4 nouveaux.
 
 ### 0.28.0+44 — Une illustration est du contenu
 - **Elle voyage enfin.** Choisie, elle s'écrit aussitôt dans l'arbre de contenu
