@@ -44,6 +44,46 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.29.0+46 — 22 septembre 2026 — Caler les zones sur la vraie image, sans JSON
+
+**Deux défauts vus par l'auteur en ouvrant le calage.** L'illustration du lieu
+n'apparaissait pas, et la page affichait un bloc de JSON à copier, alors que
+l'enregistrement était devenu automatique.
+
+**L'image manquante était un oubli de transmission.** La page mesurait bien
+l'illustration par la source de travail, mais l'aperçu du jeu posé dessous,
+`StagePage`, ne recevait aucune source : il cherchait dans le bundle une image
+prise avec l'outil, qui n'y est pas, et affichait la couleur de fond. Les
+poignées étaient au bon endroit, sur un décor absent. `StagePage.contentSource`
+comble le trou ; le jeu, qui ne la passe pas, continue de lire le bundle. Un
+test monte le calage sur une source en mémoire et exige que le décor la lise —
+retiré, le correctif le fait échouer.
+
+**Le JSON était un vestige.** Il datait du temps où le recopier était la seule
+façon d'enregistrer. « Garder » rend l'étape calée à l'éditeur de lieu depuis
+0.19.0, et « Enregistrer » l'écrit depuis 0.22.0. Le panneau, « Copier » et
+`AreaEditor.export` disparaissent. « Garder » rend désormais les zones
+**arrondies au centième** — ce que l'export faisait, et sur quoi porte déjà le
+contrôle de chevauchement.
+
+**Autant de zones que de familles.** C'était déjà le cas, et c'est désormais
+éprouvé : cinq chemins donnent cinq zones, un tri unique en donne deux, le
+thème et le reste. La disposition par défaut passe dans le moteur
+(`AreaEditor.defaultLayout`) : trois zones par rangée au plus, sans quoi elles
+deviendraient plus étroites qu'un doigt. Les zones posées d'office sont
+agrandies à la taille minimale dès que l'illustration est mesurée ; celles que
+l'auteur a calées ne sont jamais retouchées sans son geste.
+
+Les chevauchements sont signalés par le **nom** des familles, celui que
+l'auteur a saisi, plutôt que par leur identifiant.
+
+**Convenu mais suspendu** : signaler une famille sans zone, qui dans le jeu ne
+peut recevoir aucun mot. `loadAdventure` refusant toute anomalie, la gare et la
+boutique livrées, qui n'ont pas de zone, rendraient le jeu impossible à ouvrir.
+Voir `TODO.md`.
+
+400 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.28.1+45 — 22 septembre 2026 — Les fichiers se demandent ensemble
 
 Ouvrir une aventure depuis le dépôt distant prenait plusieurs secondes, et

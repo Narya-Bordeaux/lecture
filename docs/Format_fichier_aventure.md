@@ -332,9 +332,11 @@ top     │          │ height
 
 **N'écrivez pas ces nombres à la main : l'outil de calage les produit.** Lancez
 `lib/main_author.dart` au lieu de `lib/main.dart` — sous Android Studio, clic
-droit sur le fichier puis « Run 'main_author.dart' ». Choisissez le lieu, posez
-les cadres au doigt sur l'illustration réelle, et appuyez sur « Copier » : le
-JSON des quatre fractions part dans le presse-papiers, prêt à coller.
+droit sur le fichier puis « Run 'main_author.dart' ». Ouvrez le lieu, touchez
+« Placer les zones », posez les cadres au doigt sur l'illustration réelle et
+appuyez sur « Garder » ; « Enregistrer », dans le parcours, écrit les fractions
+dans le fichier d'aventure, arrondies au centième. Chaque famille a son cadre :
+un par chemin, deux pour un tri unique.
 
 L'outil affiche l'étape telle qu'elle sera jouée — décor, bandeau des mots,
 cadres et intitulés. C'est ce qui permet de voir le piège que le calcul ne

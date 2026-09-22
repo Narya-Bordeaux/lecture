@@ -10,7 +10,10 @@ enum AreaCorner { topLeft, topRight, bottomLeft, bottomRight }
 ///
 /// Toute la geometrie du mode auteur vit ici : deplacer, redimensionner,
 /// contraindre aux bords, garder une cible atteignable au doigt, detecter un
-/// chevauchement et produire le JSON a recopier dans l'aventure.
+/// chevauchement, et poser des zones de depart sur une illustration neuve.
+///
+/// Rien n'y produit de texte a recopier : l'etape calee retourne a l'editeur
+/// de lieu, et c'est « Enregistrer », dans le parcours, qui l'ecrit.
 ///
 /// Volontairement sans dependance a Flutter : la page d'edition ne fait que
 /// traduire des gestes en fractions et afficher ce que ce moteur renvoie. Les
@@ -33,8 +36,53 @@ class AreaEditor {
   final double minimumWidth;
   final double minimumHeight;
 
-  /// Nombre de decimales conservees a l'export.
+  /// Nombre de decimales conservees dans l'etape calee rendue a l'editeur.
   final int decimals;
+
+  /// Nombre maximal de zones sur une rangee de la disposition par defaut.
+  ///
+  /// Au-dela, les zones deviendraient plus etroites qu'un doigt sur un
+  /// telephone : mieux vaut ouvrir une rangee de plus.
+  static const int defaultColumns = 3;
+
+  /// Des zones de depart pour des familles qui n'en ont pas encore.
+  ///
+  /// Une par famille, quel que soit leur nombre : un lieu ordinaire en a une
+  /// par chemin, un tri unique deux — le theme et le reste. Elles sont
+  /// reparties en grille dans la moitie basse, le haut de l'illustration etant
+  /// mange par le bandeau des mots sur les ecrans peu allonges. Sans cela,
+  /// l'auteur commencerait par demeler des cadres superposes.
+  static Map<String, RelativeArea> defaultLayout(List<String> familyIds) {
+    final count = familyIds.length;
+    if (count == 0) return <String, RelativeArea>{};
+
+    final columns = count < defaultColumns ? count : defaultColumns;
+    final rows = (count + columns - 1) ~/ columns;
+
+    // La bande utilisee : de la moitie de l'image a presque son bas.
+    const bandTop = 0.5;
+    const bandHeight = 0.45;
+    const horizontalMargin = 0.05;
+
+    final columnSlot = (1 - 2 * horizontalMargin) / columns;
+    final rowSlot = bandHeight / rows;
+    final width = columnSlot * 0.85;
+    final height = rowSlot * 0.8 < 0.16 ? rowSlot * 0.8 : 0.16;
+
+    final layout = <String, RelativeArea>{};
+    for (var index = 0; index < count; index++) {
+      final column = index % columns;
+      final row = index ~/ columns;
+      layout[familyIds[index]] = RelativeArea(
+        left: horizontalMargin + column * columnSlot,
+        top: bandTop + row * rowSlot,
+        width: width,
+        height: height,
+      );
+    }
+
+    return layout;
+  }
 
   /// Les zones telles qu'elles sont manipulees, en pleine precision.
   Map<String, RelativeArea> get areas =>
@@ -132,27 +180,33 @@ class AreaEditor {
     );
   }
 
+  /// Vrai si la zone de [familyId] est plus petite qu'un doigt sur cet ecran.
+  bool isUndersized(String familyId) {
+    final area = _require(familyId);
+    return area.width < minimumWidth || area.height < minimumHeight;
+  }
+
+  /// Agrandit la zone de [familyId] jusqu'a la taille minimale.
+  ///
+  /// Le coin haut-gauche reste en place, sauf si la zone agrandie deborderait :
+  /// elle recule alors dans l'illustration.
+  void enforceMinimumSize(String familyId) {
+    final area = _require(familyId);
+    final width = area.width < minimumWidth ? minimumWidth : area.width;
+    final height = area.height < minimumHeight ? minimumHeight : area.height;
+
+    _areas[familyId] = RelativeArea(
+      left: _clamp(area.left, 0, 1 - width),
+      top: _clamp(area.top, 0, 1 - height),
+      width: width,
+      height: height,
+    );
+  }
+
   /// Remplace le calage d'une famille, par exemple pour revenir en arriere.
   void replace(String familyId, RelativeArea area) {
     _require(familyId);
     _areas[familyId] = area;
-  }
-
-  /// Le JSON des zones, pret a etre recopie dans le fichier d'aventure.
-  ///
-  /// Chaque famille est nommee, pour que l'auteur sache ou coller quoi.
-  String export() {
-    final rounded = roundedAreas;
-    final lines = rounded.entries.map((entry) {
-      final area = entry.value;
-      return '"${entry.key}": { '
-          '"left": ${_format(area.left)}, '
-          '"top": ${_format(area.top)}, '
-          '"width": ${_format(area.width)}, '
-          '"height": ${_format(area.height)} }';
-    });
-
-    return lines.join(',\n');
   }
 
   RelativeArea _require(String familyId) {
@@ -171,7 +225,7 @@ class AreaEditor {
   ///
   /// Arrondir `left` et `width` separement peut faire depasser leur somme d'un
   /// centieme. Sans cette reprise, le jeu refuserait de charger le contenu que
-  /// l'auteur vient tout juste d'exporter.
+  /// l'auteur vient tout juste d'enregistrer.
   RelativeArea _round(RelativeArea area) {
     var left = _roundValue(area.left);
     var top = _roundValue(area.top);
@@ -201,8 +255,6 @@ class AreaEditor {
   }
 
   double _roundValue(double value) => (value * _scale).round() / _scale;
-
-  String _format(double value) => value.toStringAsFixed(decimals);
 
   static double _clamp(double value, double lower, double upper) {
     if (upper < lower) return lower;

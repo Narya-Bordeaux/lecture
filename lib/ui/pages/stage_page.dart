@@ -6,6 +6,7 @@ import 'package:grisbie/domain/models/hint.dart';
 import 'package:grisbie/domain/models/hint_policy.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
@@ -24,10 +25,16 @@ class StagePage extends StatefulWidget {
     required this.onDeparture,
     this.hintPolicy = const HintPolicy(),
     this.random,
+    this.contentSource,
     super.key,
   });
 
   final Stage stage;
+
+  /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle : c'est
+  /// le cas du jeu. L'outil de calage y passe la source de travail, sans quoi
+  /// l'apercu chercherait dans le bundle une image qui n'y est pas encore.
+  final ContentSource? contentSource;
 
   /// Appele avec l'identifiant de l'etape choisie quand l'enfant part.
   final void Function(String stageId) onDeparture;
@@ -113,6 +120,7 @@ class _StagePageState extends State<StagePage> {
         children: <Widget>[
           SceneLayout(
             backgroundAsset: widget.stage.backgroundAsset,
+            contentSource: widget.contentSource,
             backgroundColor: widget.stage.backgroundColor == null
                 ? const Color(0xFF4AB8FD)
                 : Color(widget.stage.backgroundColor!),

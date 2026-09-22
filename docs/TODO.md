@@ -222,6 +222,14 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       montre une hésitation.
 - [ ] Illustrer les autres étapes : la gare et la boutique n'ont ni décor ni
       zones placées, elles s'affichent sur fond uni.
+- [ ] **Signaler une famille sans zone.** Dans le jeu, une famille sans zone
+      n'est pas affichée : ses mots ne se déposent nulle part et le lieu ne se
+      termine pas. `validate()` n'en dit rien (`Stage._validateAreas` saute ce
+      cas). Convenu en 0.29.0 : le classer *incomplet*. **Suspendu**, parce
+      que `loadAdventure` refuse toute anomalie, *incomplet* compris : la gare
+      et la boutique livrées n'ont pas de zone, et le jeu refuserait de
+      s'ouvrir. À trancher : ne vérifier que les lieux illustrés, relâcher
+      `loadAdventure` pour l'incomplet, ou caler d'abord ces deux lieux.
 - [ ] Écrire les six thèmes proposés : station-service et garage (en voiture),
       marché et école (en bus), loueur de vélos et forêt (à pied).
 - [ ] **Étoffer les listes livrées et poser leur `drawCount`.** Depuis 0.17.0

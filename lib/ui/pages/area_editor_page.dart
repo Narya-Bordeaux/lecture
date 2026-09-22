@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:grisbie/application/area_editor.dart';
 import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/domain/models/stage.dart';
@@ -20,9 +19,13 @@ import 'package:grisbie/ui/widgets/scene_layout.dart';
 /// Toute la geometrie est deleguee a [AreaEditor], en Dart pur : cette page ne
 /// fait que traduire des gestes en fractions de l'illustration.
 ///
-/// Rend **l'etape calee**, ou `null` si l'auteur renonce. Le bouton « Copier »
-/// reste : ecrire le JSON a la main dans le contenu livre est encore la seule
-/// facon d'enregistrer un calage, tant que rien n'ecrit l'aventure editee.
+/// Une zone par famille, quel que soit leur nombre : un lieu ordinaire en a
+/// une par chemin, un tri unique deux — le theme et le reste.
+///
+/// Rend **l'etape calee**, ou `null` si l'auteur renonce. Rien ne s'ecrit ici :
+/// l'etape retourne a l'editeur de lieu, puis au parcours, et c'est
+/// « Enregistrer » qui l'ecrit avec le reste. Aucun JSON n'est montre — le
+/// recopier a la main a ete la seule facon d'enregistrer, ce n'est plus le cas.
 class AreaEditorPage extends StatefulWidget {
   const AreaEditorPage({required this.stage, this.contentSource, super.key});
 
@@ -43,45 +46,31 @@ class AreaEditorPage extends StatefulWidget {
 
 class _AreaEditorPageState extends State<AreaEditorPage> {
   late Map<String, RelativeArea> _areas;
-  bool _panelOpen = true;
+
+  /// Les zones posees d'office, que l'auteur n'a pas encore touchees.
+  ///
+  /// Seules elles sont agrandies a la taille d'un doigt sans qu'on le demande :
+  /// retoucher en silence une zone calee par l'auteur serait lui reprendre la
+  /// main sur son contenu.
+  late Set<String> _placedByDefault;
 
   @override
   void initState() {
     super.initState();
-    _areas = _initialAreas();
-  }
-
-  /// Le calage de depart : celui du contenu, ou une rangee de zones par defaut.
-  ///
-  /// Une etape fraichement illustree n'a aucune zone. Les poser d'office dans
-  /// la moitie basse evite a l'auteur de commencer par en faire apparaitre
-  /// trois au meme endroit, superposees.
-  Map<String, RelativeArea> _initialAreas() {
     final families = widget.stage.families;
-    final areas = <String, RelativeArea>{};
-    final count = families.length;
+    final missing = <String>[
+      for (final family in families)
+        if (family.area == null) family.id,
+    ];
 
-    for (var index = 0; index < count; index++) {
-      final family = families[index];
-      final existing = family.area;
-      if (existing != null) {
-        areas[family.id] = existing;
-        continue;
-      }
-
-      // Reparties sur la largeur, dans la moitie basse : le haut de
-      // l'illustration est mange par le bandeau des mots sur les ecrans peu
-      // allonges.
-      final slot = 0.9 / count;
-      areas[family.id] = RelativeArea(
-        left: 0.05 + index * slot,
-        top: 0.5,
-        width: slot * 0.85,
-        height: 0.16,
-      );
-    }
-
-    return areas;
+    // Une etape fraichement illustree n'a aucune zone : on lui en pose, en
+    // grille dans la moitie basse, plutot que de les empiler au meme endroit.
+    final defaults = AreaEditor.defaultLayout(missing);
+    _areas = <String, RelativeArea>{
+      for (final family in families)
+        family.id: family.area ?? defaults[family.id]!,
+    };
+    _placedByDefault = missing.toSet();
   }
 
   /// L'etape telle qu'elle serait jouee avec le calage en cours.
@@ -92,6 +81,17 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
     return widget.stage.copyWith(
       families: widget.stage.families
           .map((family) => family.copyWith(area: _areas[family.id]))
+          .toList(growable: false),
+    );
+  }
+
+  /// L'etape rendue a l'editeur : les zones arrondies, telles qu'elles seront
+  /// enregistrees. C'est sur elles que portent les controles de chevauchement.
+  Stage _placedStage(Rect imageRect) {
+    final rounded = _editorFor(imageRect).roundedAreas;
+    return widget.stage.copyWith(
+      families: widget.stage.families
+          .map((family) => family.copyWith(area: rounded[family.id]))
           .toList(growable: false),
     );
   }
@@ -112,18 +112,33 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
     return (side / available).clamp(0.01, 0.5);
   }
 
-  void _apply(Rect imageRect, void Function(AreaEditor editor) change) {
+  void _apply(
+    Rect imageRect,
+    String familyId,
+    void Function(AreaEditor editor) change,
+  ) {
     final editor = _editorFor(imageRect);
     change(editor);
-    setState(() => _areas = Map<String, RelativeArea>.of(editor.areas));
+    setState(() {
+      _areas = Map<String, RelativeArea>.of(editor.areas);
+      _placedByDefault.remove(familyId);
+    });
   }
 
-  Future<void> _copy(String json) async {
-    await Clipboard.setData(ClipboardData(text: json));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Calage copié')),
-    );
+  /// Agrandit a la taille d'un doigt les zones posees d'office.
+  ///
+  /// Le minimum depend de l'illustration reellement affichee, connue seulement
+  /// a la mise en page : d'ou un rattrapage apres l'image, et non a
+  /// l'ouverture.
+  void _enforceMinimumOnDefaults(AreaEditor editor) {
+    final undersized = _placedByDefault.where(editor.isUndersized).toList();
+    if (undersized.isEmpty) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      undersized.forEach(editor.enforceMinimumSize);
+      setState(() => _areas = Map<String, RelativeArea>.of(editor.areas));
+    });
   }
 
   @override
@@ -140,6 +155,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
               stage: _previewStage,
               onDeparture: (_) {},
               random: Random(1),
+              contentSource: widget.contentSource,
             ),
           ),
           BackgroundImageSize(
@@ -166,6 +182,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
 
   Widget _buildHandles(Rect imageRect) {
     final editor = _editorFor(imageRect);
+    _enforceMinimumOnDefaults(editor);
     final guilty = editor.overlappingFamilyIds;
 
     return Stack(
@@ -183,13 +200,14 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
           right: 0,
           bottom: 0,
           child: _EditorPanel(
-            open: _panelOpen,
-            json: editor.export(),
-            overlapping: guilty,
-            onToggle: () => setState(() => _panelOpen = !_panelOpen),
-            onCopy: () => _copy(editor.export()),
+            // L'auteur connait ses familles par leur nom, pas par leur
+            // identifiant.
+            overlappingLabels: <String>[
+              for (final family in widget.stage.families)
+                if (guilty.contains(family.id)) family.label,
+            ],
             onClose: () => Navigator.of(context).pop(),
-            onApply: () => Navigator.of(context).pop(_previewStage),
+            onApply: () => Navigator.of(context).pop(_placedStage(imageRect)),
           ),
         ),
       ],
@@ -221,6 +239,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
           behavior: HitTestBehavior.opaque,
           onPanUpdate: (details) => _apply(
             imageRect,
+            familyId,
             (editor) => editor.move(
               familyId,
               dx: details.delta.dx / imageRect.width,
@@ -281,6 +300,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
         behavior: HitTestBehavior.opaque,
         onPanUpdate: (details) => _apply(
           imageRect,
+          familyId,
           (editor) => editor.resize(
             familyId,
             corner: corner,
@@ -304,23 +324,19 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
   }
 }
 
-/// Le panneau du bas : le calage en clair, et de quoi l'emporter.
+/// Le panneau du bas : garder ou renoncer, et ce qui empecherait de jouer.
+///
+/// Les alertes n'apparaissent que lorsqu'il y en a : un panneau court laisse
+/// voir le bas de l'illustration, ou se posent justement les zones.
 class _EditorPanel extends StatelessWidget {
   const _EditorPanel({
-    required this.open,
-    required this.json,
-    required this.overlapping,
-    required this.onToggle,
-    required this.onCopy,
+    required this.overlappingLabels,
     required this.onClose,
     required this.onApply,
   });
 
-  final bool open;
-  final String json;
-  final Set<String> overlapping;
-  final VoidCallback onToggle;
-  final VoidCallback onCopy;
+  /// Les noms des familles dont les zones se chevauchent, dans l'ordre du lieu.
+  final List<String> overlappingLabels;
   final VoidCallback onClose;
 
   /// Rend l'etape calee a l'appelant, qui la repose dans l'aventure.
@@ -339,65 +355,40 @@ class _EditorPanel extends StatelessWidget {
             Row(
               children: <Widget>[
                 IconButton(
-                  onPressed: onToggle,
-                  icon: Icon(
-                    open ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                    color: Colors.white,
-                  ),
-                  tooltip: open ? 'Replier' : 'Déplier',
-                ),
-                const Expanded(
-                  child: Text(
-                    'Calage des zones',
-                    style: TextStyle(color: Colors.white, fontSize: 13),
-                  ),
-                ),
-                TextButton(onPressed: onCopy, child: const Text('Copier')),
-                TextButton(onPressed: onApply, child: const Text('Garder')),
-                IconButton(
                   onPressed: onClose,
                   icon: const Icon(Icons.close, color: Colors.white),
                   tooltip: 'Fermer sans garder',
                 ),
+                const Expanded(
+                  child: Text(
+                    'Zones de dépôt',
+                    style: TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
+                TextButton(onPressed: onApply, child: const Text('Garder')),
               ],
             ),
-            if (open) ...<Widget>[
-              if (overlapping.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-                  child: Text(
-                    'Zones qui se chevauchent : ${overlapping.join(', ')} — '
-                    'le dépôt y serait ambigu.',
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(12, 0, 12, 6),
+            if (overlappingLabels.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                 child: Text(
-                  'Une zone cachée par le bandeau des mots est intouchable : '
-                  'elle doit rester visible ici.',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 150),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: SelectableText(
-                    json,
-                    style: const TextStyle(
-                      color: Colors.greenAccent,
-                      fontSize: 11,
-                      fontFamily: 'monospace',
-                    ),
+                  'Ces zones se chevauchent : ${overlappingLabels.join(', ')} — '
+                  'le dépôt y serait ambigu.',
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            ],
+            const Padding(
+              padding: EdgeInsets.fromLTRB(12, 0, 12, 10),
+              child: Text(
+                'Une zone cachée par le bandeau des mots est intouchable : '
+                'elle doit rester visible ici.',
+                style: TextStyle(color: Colors.white70, fontSize: 11),
+              ),
+            ),
           ],
         ),
       ),

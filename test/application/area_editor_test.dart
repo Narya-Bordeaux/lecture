@@ -183,7 +183,7 @@ void main() {
     });
   });
 
-  group('Export', () {
+  group('Arrondi', () {
     test('les fractions sont arrondies au centieme', () {
       // Ecrire 0.2933333 dans un fichier relu par un enseignant n'aurait aucun
       // sens : au centieme pres, la zone bouge d'un pour cent de l'image.
@@ -198,16 +198,17 @@ void main() {
         },
       );
 
-      expect(editor.export(), contains('"left": 0.29'));
-      expect(editor.export(), contains('"top": 0.41'));
-      expect(editor.export(), contains('"width": 0.32'));
-      expect(editor.export(), contains('"height": 0.17'));
+      final rounded = editor.roundedAreas['bus']!;
+      expect(rounded.left, 0.29);
+      expect(rounded.top, 0.41);
+      expect(rounded.width, 0.32);
+      expect(rounded.height, 0.17);
     });
 
     test('l\'arrondi ne produit jamais une zone qui deborde', () {
       // Arrondir separement `left` et `width` peut faire depasser leur somme :
       // le jeu refuserait alors de charger le contenu que l'auteur vient
-      // d'exporter.
+      // d'enregistrer.
       final editor = buildEditor(
         areas: <String, RelativeArea>{
           'bus': const RelativeArea(
@@ -224,24 +225,104 @@ void main() {
       expect(rounded.right, lessThanOrEqualTo(1));
       expect(rounded.bottom, lessThanOrEqualTo(1));
     });
+  });
 
-    test('chaque famille est nommee dans le JSON produit', () {
+  group('Disposition par defaut', () {
+    List<String> ids(int count) =>
+        List<String>.generate(count, (index) => 'famille_$index');
+
+    test('chaque famille recoit une zone, quel que soit leur nombre', () {
+      for (var count = 1; count <= 9; count++) {
+        final layout = AreaEditor.defaultLayout(ids(count));
+        expect(layout.keys, ids(count), reason: '$count familles');
+      }
+    });
+
+    test('les zones ne se chevauchent pas et restent sur l\'image', () {
+      for (var count = 1; count <= 12; count++) {
+        final editor = AreaEditor(
+          areas: AreaEditor.defaultLayout(ids(count)),
+          minimumWidth: 0,
+          minimumHeight: 0,
+        );
+        expect(editor.overlappingFamilyIds, isEmpty, reason: '$count familles');
+        for (final area in editor.roundedAreas.values) {
+          expect(area.overflows, isFalse, reason: '$count familles');
+        }
+      }
+    });
+
+    test('jusqu\'a trois, une seule rangee', () {
+      final layout = AreaEditor.defaultLayout(ids(3));
+      final tops = layout.values.map((area) => area.top).toSet();
+      expect(tops, hasLength(1));
+    });
+
+    test('au-dela de trois, plusieurs rangees pour garder des zones larges', () {
+      // Six chemins sur une seule rangee donneraient des zones de 13 % de la
+      // largeur : moins qu'un doigt sur un telephone.
+      final layout = AreaEditor.defaultLayout(ids(6));
+      final tops = layout.values.map((area) => area.top).toSet();
+      expect(tops, hasLength(2));
+      for (final area in layout.values) {
+        expect(area.width, greaterThanOrEqualTo(0.25));
+      }
+    });
+
+    test('le tri unique a deux zones, cote a cote', () {
+      // La liste du theme et la liste du reste : deux familles, deux zones.
+      final layout = AreaEditor.defaultLayout(<String>['a_manger', 'le_reste']);
+      expect(layout, hasLength(2));
+      expect(layout['a_manger']!.right, lessThan(layout['le_reste']!.left));
+    });
+  });
+
+  group('Taille minimale', () {
+    test('une zone trop petite est agrandie', () {
       final editor = buildEditor(
         areas: <String, RelativeArea>{
-          'en_bus': centered(),
-          'en_voiture': const RelativeArea(
-            left: 0.0,
-            top: 0.0,
-            width: 0.2,
-            height: 0.2,
+          'bus': const RelativeArea(
+            left: 0.4,
+            top: 0.4,
+            width: 0.05,
+            height: 0.02,
           ),
         },
       );
 
-      final exported = editor.export();
+      expect(editor.isUndersized('bus'), isTrue);
+      editor.enforceMinimumSize('bus');
 
-      expect(exported, contains('en_bus'));
-      expect(exported, contains('en_voiture'));
+      final area = editor.areas['bus']!;
+      expect(area.width, closeTo(0.1, 1e-9));
+      expect(area.height, closeTo(0.1, 1e-9));
+      expect(editor.isUndersized('bus'), isFalse);
+    });
+
+    test('une zone assez grande ne bouge pas', () {
+      final editor = buildEditor();
+      editor.enforceMinimumSize('bus');
+      expect(editor.areas['bus'], centered());
+    });
+
+    test('agrandie contre un bord, elle reste sur l\'image', () {
+      final editor = buildEditor(
+        areas: <String, RelativeArea>{
+          'bus': const RelativeArea(
+            left: 0.97,
+            top: 0.98,
+            width: 0.02,
+            height: 0.01,
+          ),
+        },
+      );
+
+      editor.enforceMinimumSize('bus');
+
+      final area = editor.areas['bus']!;
+      expect(area.right, lessThanOrEqualTo(1 + 1e-9));
+      expect(area.bottom, lessThanOrEqualTo(1 + 1e-9));
+      expect(area.width, closeTo(0.1, 1e-9));
     });
   });
 }

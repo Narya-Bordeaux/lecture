@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.28.1+45** — 22 septembre 2026
+**Version : 0.29.0+46** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -18,7 +18,8 @@ unique** : l'enfant y trie entre une liste et tout le reste, et une marchande y
 pose la question — l'ornement, pas la mécanique.
 
 **Un outil d'auteur existe**, sur un second point d'entrée `lib/main_author.dart`.
-Il cale les zones de dépôt au doigt sur l'étape réelle et produit leur JSON. Le
+Il cale les zones de dépôt au doigt sur l'étape réelle, et les enregistre avec
+l'aventure. Le
 jeu livré n'en contient aucune trace.
 
 **Les deux saveurs se construisent et se lancent** depuis le poste de
@@ -58,9 +59,9 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
-6. 🟡 **Rebrancher le calage** — **fait** : il s'ouvre depuis l'éditeur de
-   lieu, sur l'étape en cours d'édition, et rend l'étape calée.
-   **Enregistrer au lieu de copier** reste le manque, commun avec l'étape 3.
+6. ✅ **Rebrancher le calage** — il s'ouvre depuis l'éditeur de lieu, sur
+   l'étape en cours d'édition, **montre enfin son illustration**, et s'enregistre
+   avec l'aventure : plus de JSON à copier (0.29.0).
 
 **Le dépôt distant fonctionne, éprouvé le 22 septembre 2026** — dans Chrome
 **et sur le téléphone**, sur le projet `grisbie-43ee9` : connexion par e-mail,
@@ -90,6 +91,20 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.29.0+46 — Caler les zones sur la vraie image, sans JSON
+- **L'illustration manquait au calage** : l'aperçu la cherchait dans le
+  bundle, où une image prise avec l'outil n'est pas. `StagePage` reçoit
+  désormais la source de travail.
+- **Plus de JSON ni de « Copier »** : « Garder » rend l'étape calée, arrondie
+  au centième, et « Enregistrer » l'écrit. `AreaEditor.export` disparaît.
+- Une zone par famille, **quel que soit leur nombre** — deux pour un tri
+  unique. Au-delà de trois, les zones par défaut se posent sur plusieurs
+  rangées, agrandies à la taille d'un doigt tant que l'auteur n'y a pas touché.
+- Les chevauchements sont signalés par le **nom** des familles.
+- **Suspendu** : signaler une famille sans zone casserait le jeu livré, voir
+  `TODO.md`.
+- 400 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.28.1+45 — Les fichiers se demandent ensemble
 - **L'ouverture d'une aventure était lente** depuis le dépôt : huit lectures
   en file indienne, chacune attendant la précédente.
@@ -116,86 +131,6 @@ un travail d'auteur, pas de code.
 - Le contenu livré migre vers `assets/content/pictures/`, et les chemins
   s'écrivent `pictures/…`.
 - 382 tests au vert ; les deux points d'entrée compilent pour le web.
-
-### 0.27.0+43 — Une panne n'est pas une absence
-- **L'aventure était bien déposée, mais n'apparaissait pas.** Le repli de
-  0.24.0 attrapait *tout* : un refus, une coupure, un blocage du navigateur
-  servaient silencieusement le contenu livré.
-- `ContentFileNotFound` nomme l'**absence**, et le repli ne vaut plus que pour
-  elle. `RemoteContentStore` ne traduit que `object-not-found`.
-- **Second piège corrigé** : quitter le parcours jetait tout le travail non
-  enregistré, sans un mot. Une question le retient désormais, `PopScope`
-  compris — le geste de retour du système passe par là aussi.
-- « Enregistrer et quitter » ne sort **que si l'écriture a réussi**.
-- **Cause première non réparée** : la lecture depuis un navigateur est soumise
-  au CORS du bucket, qu'un projet neuf n'a pas. Console Google Cloud, voir
-  `TODO.md`.
-- 381 tests au vert, dont 9 nouveaux.
-
-### 0.26.0+42 — Charger une image depuis un navigateur
-- **Le bouton existe enfin sur le web.** `image_picker_for_web` était déjà dans
-  le graphe, et `contentImageProvider` savait déjà afficher une adresse
-  `blob:` : seule la recopie ne passait pas, et elle n'a pas d'objet là.
-- `picture_keeper_io.dart` / `_web.dart`, choisis à la compilation.
-- **`PictureLibrary.keepsPictures`** : l'écran annonce que l'image choisie dans
-  un navigateur disparaîtra en fermant l'onglet. Le calage, lui, survit.
-- La différence est dans l'interface, **pas dans un `kIsWeb`** consulté par un
-  widget — sans quoi elle ne s'éprouverait pas.
-- **L'image ne voyage toujours pas** : `ContentSaver` n'écrit que du JSON.
-- 372 tests au vert ; les deux points d'entrée compilent pour le web.
-
-### 0.25.0+41 — Un trajet et son lieu portent deux noms
-- **L'outil enseignait une règle fausse** : un seul nom, et le lieu d'arrivée
-  baptisé d'après le trajet. « En bus » menait à un lieu appelé « En bus ».
-- Ouvrant l'aventure livrée, où « En bus » mène à « La gare », l'auteur a cru
-  à un affichage cassé. **Et l'outil ne savait pas écrire ce contenu-là.**
-- `NewTrip` porte `name` **et** `locationName` ; `AddTripsPage` demande les
-  deux, le second proposé d'après le premier et détaché dès qu'on l'écrit.
-- **L'identifiant du lieu vient du lieu** : « La gare » donne `gare`, comme le
-  contenu livré.
-- Un trajet dit où il mène : « En bus → La gare ». Tu quand il se répète.
-- 371 tests au vert, dont 15 nouveaux.
-
-### 0.24.0+40 — L'outil relit ce qu'il a écrit
-- **La boucle est fermée** : l'accueil lisait toujours les assets, scellés au
-  build. On pouvait enregistrer une aventure et ne jamais la rouvrir.
-- `FallbackContentSource` : le travail devant, le contenu livré derrière. Le
-  repli vaut pour l'absence, **jamais pour un fichier écrit illisible**.
-- **Défaut invisible corrigé** : `ContentSaver` recopiait les *autres*
-  aventures depuis les assets — enregistrer la gare ramenait la plage à sa
-  version d'origine. Il lit maintenant par où il écrit.
-- L'accueil reçoit une **fabrique** de dépôt : le dépôt met le sommaire en
-  cache, et se connecter change la source.
-- `DeviceContentSink` → `DeviceContentFolder`, les deux bouts au même endroit.
-- 356 tests au vert, dont 10 nouveaux ; les deux points d'entrée compilent pour
-  le web.
-
-### 0.23.1+39 — Un seul projet Firebase, et il existe
-- **`grisbie-43ee9` est créé.** Firebase suffixe les identifiants ; définitif.
-- **Un seul projet, pas de dev/prod** : ni utilisateurs ni données à protéger
-  d'un environnement de test, et la décision se renverse en changeant une ligne
-  de commande.
-- La section Firebase de `Noms_et_identifiants.md` **était devenue fausse** —
-  elle décrivait le montage par `google-services.json` supprimé en 0.23.0.
-  Réécrite.
-- **Attendu au prochain pas** : Cloud Storage réclamera sans doute le plan
-  Blaze, un projet neuf ne provisionnant plus de bucket sur Spark.
-- Aucun changement de code.
-
-### 0.23.0+38 — Le dépôt distant
-- **L'outil dépose le contenu sur Firebase Storage et le relit.** C'est le pont
-  entre le poste et le téléphone.
-- **Pas de `google-services.json`** : le greffon Gradle qui le produit échoue
-  quand il manque, et aurait cassé la saveur `jeu`. Des options explicites, par
-  `--dart-define`. Conséquence : **l'auto-initialisation d'Android n'existe
-  plus du tout**, et un test l'exige.
-- **Connexion par e-mail**, pas par Google : Google sur Android suppose des
-  empreintes SHA-1 qui marchent en debug et cassent en release.
-- `RemoteContentStore` est un `ContentSource` **et** un `ContentSink` :
-  `ContentSaver` et `ContentRepository` n'ont pas bougé d'une ligne.
-- **Rien n'a été exécuté** : le projet Firebase n'existe pas encore. Marche à
-  suivre réécrite dans `TODO.md`.
-- 346 tests au vert, dont 14 nouveaux.
 
 
 ## Décisions prises

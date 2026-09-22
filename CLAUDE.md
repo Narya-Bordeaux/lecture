@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.28.1+45** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.29.0+46** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -325,7 +325,13 @@ quelle que soit la taille de l'écran.
 Ces fractions ne s'écrivent pas à la main : `lib/main_author.dart` est un
 **second point d'entrée**, l'outil de calage. Il monte l'étape réelle en aperçu
 inerte — décor, bandeau, cadres — et pose par-dessus des poignées de
-déplacement. Le JSON produit part dans le presse-papiers. Le jeu livré n'en
+déplacement, une par famille : une par chemin dans un lieu ordinaire, deux
+dans un tri unique (le thème et le reste). **Aucun JSON n'est montré** — le
+recopier a longtemps été la seule façon d'enregistrer ; « Garder » rend
+désormais l'étape calée, arrondie au centième, à l'éditeur de lieu, et
+« Enregistrer » l'écrit avec le reste. L'aperçu lit le décor **par la source
+de travail** (`StagePage.contentSource`) : sans quoi il cherchait dans le bundle
+une image prise avec l'outil, et l'auteur calait sur un fond vide. Le jeu livré n'en
 contient aucune trace : pas de bouton caché, pas de geste secret. La géométrie
 vit dans `AreaEditor` (`lib/application/`, Dart pur) ; la page ne fait que
 traduire des gestes en fractions.
