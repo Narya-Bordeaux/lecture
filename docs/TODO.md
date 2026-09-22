@@ -123,17 +123,15 @@ construisant :
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
-- [ ] **Éprouver le dépôt d'une image, et son aperçu.** Tout est écrit depuis
-      0.28.0 — l'image part dans l'arbre de contenu, par le même puits que le
-      JSON — mais **rien n'a été exécuté** : ni dans Chrome, ni sur un
-      téléphone. À vérifier : le fichier apparaît-il sous `content/pictures/`
-      dans la console, l'aperçu s'affiche-t-il, le calage des zones fonctionne-
-      t-il dessus, et l'image choisie sur le téléphone se voit-elle depuis le
-      poste.
-- [ ] **Vérifier le choix d'image sur l'appareil.** Fait depuis 0.20.0, mais
-      **jamais exécuté** : ni `image_picker` ni `path_provider` ne tournent en
-      session cloud. À éprouver sur le téléphone — le Photo Picker s'ouvre-t-il
-      sans demander de permission, la copie survit-elle, l'aperçu s'affiche-t-il.
+- [x] **Éprouver le dépôt d'une image, et son aperçu.** Fait dans Chrome, le
+      22 septembre 2026 : l'image choisie part sur le dépôt et s'affiche.
+- [ ] **Éprouver la même chose sur le téléphone**, et surtout **l'aller-retour
+      entre les deux** : une image prise sur le téléphone doit se voir depuis
+      le poste, ce qui est le but de tout le dispositif. Ni `image_picker` ni
+      `path_provider` n'ont jamais tourné — aucun greffon ne s'exécute en
+      session cloud. À vérifier aussi : le Photo Picker s'ouvre-t-il sans
+      demander de permission, et le calage des zones fonctionne-t-il sur une
+      image fraîchement déposée.
 - [ ] **Tout rapatrier d'un bloc.** Le chantier tient en une phrase de
       l'auteur : *construire une aventure depuis le téléphone ou l'ordinateur,
       l'enregistrer sur Storage, puis la télécharger pour l'inclure au dépôt.*

@@ -50,12 +50,12 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    comme par le téléchargement d'un navigateur. Depuis 0.24.0, **l'outil relit
    ce qu'il a écrit** : l'accueil liste les aventures du dossier de travail,
    contenu livré en repli, et les rouvre inachevées.
-4. ✅ **L'image** — **elle est devenue du contenu** (0.28.0). Choisie, elle
-   s'écrit aussitôt dans l'arbre sous `pictures/…`, par le même puits que le
-   JSON : elle voyage donc du poste au téléphone et redescendra avec le reste.
-   `ContentPictureImage` la lit par la source, d'où qu'elle vienne. **Reste à
-   l'éprouver** : le dépôt d'une image et son aperçu n'ont jamais été exécutés,
-   ni dans Chrome ni sur un téléphone.
+4. ✅ **L'image** — **elle est devenue du contenu** (0.28.0), et **ça
+   marche** : éprouvé dans Chrome le 22 septembre 2026. Choisie, elle s'écrit
+   aussitôt dans l'arbre sous `pictures/…`, par le même puits que le JSON, et
+   `ContentPictureImage` la relit par la source. Reste à l'éprouver **sur le
+   téléphone**, et surtout l'aller-retour entre les deux — c'est le but du
+   dispositif, et il n'a pas encore été fait.
 5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
    et composer les listes thématiques. Le modèle est posé depuis 0.17.0
    (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
