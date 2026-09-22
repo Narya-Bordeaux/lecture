@@ -152,6 +152,157 @@ void main() {
     });
   });
 
+  group('Quitter sans avoir enregistré', () {
+    /// Monte l'ecran **empile**, pour qu'on puisse en sortir.
+    ///
+    /// Les autres tests le posent en racine : on ne quitte pas la racine, et la
+    /// question ne se poserait donc jamais.
+    Future<Adventure?> pumpPushedOutline(
+      WidgetTester tester,
+      Adventure adventure, {
+      Future<List<String>> Function(Adventure adventure)? onSave,
+    }) async {
+      tester.view.physicalSize = const Size(1200, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      Adventure? returned;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                returned = await Navigator.of(context).push<Adventure>(
+                  MaterialPageRoute<Adventure>(
+                    builder: (_) =>
+                        OutlinePage(adventure: adventure, onSave: onSave),
+                  ),
+                );
+              },
+              child: const Text('ouvrir'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('ouvrir'));
+      await tester.pumpAndSettle();
+      return returned;
+    }
+
+    /// Ajoute un trajet, ce qui rend l'aventure differente de celle recue.
+    Future<void> modify(WidgetTester tester) async {
+      await addTripFromStart(tester, 'En tramway');
+    }
+
+    Future<void> goBack(WidgetTester tester) async {
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('sans rien avoir touché, on sort sans question',
+        (tester) async {
+      await pumpPushedOutline(tester, realAdventure);
+      await goBack(tester);
+
+      expect(find.text('Modifications non enregistrées'), findsNothing);
+      expect(find.byType(OutlinePage), findsNothing);
+    });
+
+    testWidgets('après une modification, la sortie est retenue',
+        (tester) async {
+      // Le piege repare : « Garder » ferme un editeur et rend son resultat a
+      // cet ecran, en memoire. Quitter sans enregistrer jetait tout, sans un
+      // mot — et l'auteur cherchait ensuite son aventure dans la liste.
+      await pumpPushedOutline(tester, realAdventure);
+      await modify(tester);
+      await goBack(tester);
+
+      expect(find.text('Modifications non enregistrées'), findsOneWidget);
+      expect(find.byType(OutlinePage), findsOneWidget);
+    });
+
+    testWidgets('rester referme la question et laisse le travail intact',
+        (tester) async {
+      await pumpPushedOutline(tester, realAdventure);
+      await modify(tester);
+      await goBack(tester);
+
+      await tester.tap(find.text('Rester'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OutlinePage), findsOneWidget);
+      // Deux fois : la ligne du trajet, et la carte du lieu qu'il a créé.
+      expect(
+        find.textContaining('En tramway', findRichText: true),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('quitter sans enregistrer est possible, mais se demande',
+        (tester) async {
+      // Renoncer a son travail reste un geste legitime — il faut seulement
+      // qu'il soit voulu.
+      await pumpPushedOutline(tester, realAdventure);
+      await modify(tester);
+      await goBack(tester);
+
+      await tester.tap(find.text('Quitter sans enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OutlinePage), findsNothing);
+    });
+
+    testWidgets('enregistrer et quitter écrit, puis sort', (tester) async {
+      Adventure? saved;
+      await pumpPushedOutline(
+        tester,
+        realAdventure,
+        onSave: (adventure) async {
+          saved = adventure;
+          return <String>['index.json'];
+        },
+      );
+      await modify(tester);
+      await goBack(tester);
+
+      await tester.tap(find.text('Enregistrer et quitter'));
+      await tester.pumpAndSettle();
+
+      expect(saved, isNotNull);
+      expect(saved!.findStage('en_tramway'), isNotNull);
+      expect(find.byType(OutlinePage), findsNothing);
+    });
+
+    testWidgets('sans dépôt, la question le dit et n\'offre pas d\'écrire',
+        (tester) async {
+      // Proposer « Enregistrer et quitter » sans nulle part ou ecrire serait
+      // un bouton qui ne fait rien, au pire moment.
+      await pumpPushedOutline(tester, realAdventure);
+      await modify(tester);
+      await goBack(tester);
+
+      expect(find.text('Enregistrer et quitter'), findsNothing);
+      expect(find.textContaining('nulle part où l\'enregistrer'), findsOneWidget);
+    });
+
+    testWidgets('enregistrer puis quitter ne repose plus la question',
+        (tester) async {
+      await pumpPushedOutline(
+        tester,
+        realAdventure,
+        onSave: (adventure) async => <String>['index.json'],
+      );
+      await modify(tester);
+
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+      await goBack(tester);
+
+      expect(find.text('Modifications non enregistrées'), findsNothing);
+      expect(find.byType(OutlinePage), findsNothing);
+    });
+  });
+
   group('Enregistrer', () {
     testWidgets('sans destination, aucun bouton ne le propose', (tester) async {
       // Une plateforme sans ou ecrire — ou un test — n'offre pas un geste qui

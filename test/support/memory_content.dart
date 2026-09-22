@@ -1,3 +1,4 @@
+import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 
@@ -14,7 +15,9 @@ class MemoryContentFolder implements ContentSource, ContentSink {
   @override
   Future<String> readFile(String path) async {
     final contents = files[path];
-    if (contents == null) throw StateError('Fichier absent : $path');
+    // Une absence, et non une panne : c'est ce que `FallbackContentSource`
+    // distingue, et les tests doivent se comporter comme le vrai dossier.
+    if (contents == null) throw ContentFileNotFound(path);
     return contents;
   }
 

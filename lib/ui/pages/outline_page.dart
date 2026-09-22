@@ -44,12 +44,43 @@ class OutlinePage extends StatefulWidget {
   State<OutlinePage> createState() => _OutlinePageState();
 }
 
+/// Ce que l'auteur choisit en quittant avec du travail non enregistre.
+enum _Leaving {
+  /// Rester sur le parcours : la sortie etait une erreur de geste.
+  stay,
+
+  /// Sortir en renoncant au travail — un geste legitime, mais voulu.
+  discard,
+
+  /// Ecrire, puis sortir.
+  saveThenLeave,
+}
+
 class _OutlinePageState extends State<OutlinePage> {
   late Adventure _adventure = widget.adventure;
+
+  /// Vrai des que l'aventure a l'ecran differe de la derniere version ecrite.
+  ///
+  /// **Le piege que cela repare** : « Garder » ferme un editeur et rend son
+  /// resultat ici, en memoire ; seul « Enregistrer » ecrit. Quitter le
+  /// parcours jetait donc tout le travail sans un mot, et l'auteur cherchait
+  /// ensuite son aventure dans la liste de l'accueil.
+  bool _unsaved = false;
 
   /// Vrai pendant l'ecriture : le bouton s'eteint, faute de quoi deux
   /// enregistrements concurrents se marcheraient dessus.
   bool _saving = false;
+
+  /// Applique une modification et retient qu'elle n'est pas ecrite.
+  ///
+  /// Tous les changements passent par la : un `setState` direct oublierait le
+  /// marqueur, et le silence reviendrait par la porte de derriere.
+  void _change(Adventure next) {
+    setState(() {
+      _adventure = next;
+      _unsaved = true;
+    });
+  }
 
   Future<void> _addTrips(OutlineBlock block) async {
     final trips = await Navigator.of(context).push<List<NewTrip>>(
@@ -72,9 +103,7 @@ class _OutlinePageState extends State<OutlinePage> {
     );
     if (trips == null || trips.isEmpty) return;
 
-    setState(() {
-      _adventure = AdventureBuilder(_adventure).addTrips(block.stageId, trips);
-    });
+    _change(AdventureBuilder(_adventure).addTrips(block.stageId, trips));
   }
 
   /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
@@ -95,7 +124,7 @@ class _OutlinePageState extends State<OutlinePage> {
     );
     if (edited == null) return;
 
-    setState(() => _adventure = _adventure.withStage(edited));
+    _change(_adventure.withStage(edited));
   }
 
   /// Ouvre le seuil de l'aventure, qu'il existe deja ou non.
@@ -111,33 +140,91 @@ class _OutlinePageState extends State<OutlinePage> {
     );
     if (edit == null) return;
 
-    setState(() => _adventure = _adventure.withOpening(edit.opening));
+    _change(_adventure.withOpening(edit.opening));
   }
 
   /// Ecrit l'aventure telle qu'elle est a cet instant.
   ///
   /// **C'est `_adventure` qui part, pas celle recue** : l'ecran travaille en
   /// memoire, et enregistrer l'aventure d'origine perdrait tout le travail.
-  Future<void> _save() async {
+  ///
+  /// Rend vrai si l'ecriture a reussi — ce que « Enregistrer et quitter » doit
+  /// savoir : sortir apres un echec perdrait le travail en croyant l'avoir mis
+  /// a l'abri.
+  Future<bool> _save() async {
     final onSave = widget.onSave;
-    if (onSave == null) return;
+    if (onSave == null) return false;
 
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
       final written = await onSave(_adventure);
+      if (mounted) setState(() => _unsaved = false);
       messenger.showSnackBar(
         SnackBar(content: Text('${written.length} fichier(s) enregistré(s).')),
       );
+      return true;
     } catch (error) {
       // Un echec silencieux laisserait croire le contenu ecrit, et l'auteur
       // ne le decouvrirait qu'en le cherchant.
       messenger.showSnackBar(
         SnackBar(content: Text('Échec de l\'enregistrement : $error')),
       );
+      return false;
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Demande quoi faire du travail non ecrit, au moment de sortir.
+  ///
+  /// Renoncer reste possible — c'est un geste legitime — mais il doit etre
+  /// **voulu**. Sans cette question, quitter le parcours jetait tout en
+  /// silence, et l'auteur cherchait ensuite son aventure dans la liste.
+  Future<void> _leave() async {
+    final canSave = widget.onSave != null;
+
+    final choice = await showDialog<_Leaving>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Modifications non enregistrées'),
+        content: Text(
+          canSave
+              ? 'Ce que vous venez d\'écrire n\'est encore qu\'à l\'écran. '
+                  'Quitter maintenant le perdra.'
+              : 'Ce que vous venez d\'écrire n\'est encore qu\'à l\'écran, et '
+                  'il n\'y a nulle part où l\'enregistrer : aucun dépôt n\'est '
+                  'configuré. Quitter maintenant le perdra.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(_Leaving.stay),
+            child: const Text('Rester'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(_Leaving.discard),
+            child: const Text('Quitter sans enregistrer'),
+          ),
+          // Pas de bouton d'ecriture sans destination : il ne ferait rien, et
+          // au pire moment.
+          if (canSave)
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(_Leaving.saveThenLeave),
+              child: const Text('Enregistrer et quitter'),
+            ),
+        ],
+      ),
+    );
+
+    if (!mounted || choice == null || choice == _Leaving.stay) return;
+
+    if (choice == _Leaving.saveThenLeave && !await _save()) {
+      // L'ecriture a echoue : rester est la seule issue qui ne perde rien.
+      // Le message d'echec est deja affiche.
+      return;
+    }
+
+    if (mounted) Navigator.of(context).pop(_adventure);
   }
 
   @override
@@ -146,12 +233,32 @@ class _OutlinePageState extends State<OutlinePage> {
     final issues = _adventure.validate();
     final detached = outline.detachedStageIds.toSet();
 
+    // `PopScope` plutot qu'un simple bouton : le geste de retour du systeme
+    // — celui d'Android, le glissement, la touche du navigateur — passe par
+    // la aussi. Le proteger d'un seul cote ne protegerait rien.
+    return PopScope<Adventure>(
+      canPop: !_unsaved,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _leave();
+      },
+      child: _buildScaffold(context, outline, issues, detached),
+    );
+  }
+
+  Widget _buildScaffold(
+    BuildContext context,
+    AdventureOutline outline,
+    List<ContentIssue> issues,
+    Set<String> detached,
+  ) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_adventure.title),
         // Rendre l'aventure modifiee a l'appelant : rien ne la relit ailleurs.
+        // `maybePop` pour que la question ci-dessus s'applique aussi ici.
         leading: BackButton(
-          onPressed: () => Navigator.of(context).pop(_adventure),
+          onPressed: () => Navigator.of(context).maybePop(_adventure),
         ),
         actions: <Widget>[
           if (widget.onSave != null)

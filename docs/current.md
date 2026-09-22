@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.26.0+42** — 22 septembre 2026
+**Version : 0.27.0+43** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -87,6 +87,21 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.27.0+43 — Une panne n'est pas une absence
+- **L'aventure était bien déposée, mais n'apparaissait pas.** Le repli de
+  0.24.0 attrapait *tout* : un refus, une coupure, un blocage du navigateur
+  servaient silencieusement le contenu livré.
+- `ContentFileNotFound` nomme l'**absence**, et le repli ne vaut plus que pour
+  elle. `RemoteContentStore` ne traduit que `object-not-found`.
+- **Second piège corrigé** : quitter le parcours jetait tout le travail non
+  enregistré, sans un mot. Une question le retient désormais, `PopScope`
+  compris — le geste de retour du système passe par là aussi.
+- « Enregistrer et quitter » ne sort **que si l'écriture a réussi**.
+- **Cause première non réparée** : la lecture depuis un navigateur est soumise
+  au CORS du bucket, qu'un projet neuf n'a pas. Console Google Cloud, voir
+  `TODO.md`.
+- 381 tests au vert, dont 9 nouveaux.
 
 ### 0.26.0+42 — Charger une image depuis un navigateur
 - **Le bouton existe enfin sur le web.** `image_picker_for_web` était déjà dans

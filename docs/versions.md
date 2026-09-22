@@ -44,6 +44,52 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.27.0+43 — 22 septembre 2026 — Une panne n'est pas une absence
+
+**Deux défauts, découverts en enregistrant une vraie aventure.** L'auteur a
+créé une journée, cliqué « Enregistrer », et ne l'a jamais retrouvée dans la
+liste. Les fichiers étaient pourtant bien sur le dépôt distant — la console
+Firebase les montrait, horodatés du jour.
+
+**Le premier est de moi, et il est grossier.** Le repli écrit en 0.24.0
+attrapait *tout* :
+
+```dart
+try { return await preferred.readFile(path); }
+catch (_) { return fallback.readFile(path); }
+```
+
+Un fichier absent, certes — mais aussi un refus du dépôt, une coupure de
+réseau, un blocage du navigateur. Dans tous ces cas il servait silencieusement
+le contenu livré. L'écriture réussissait, la lecture échouait, et l'accueil
+affichait imperturbablement la liste des assets. Rien ne le disait, et la
+lenteur d'ouverture — chaque lecture distante échouant après un délai — était
+le seul indice.
+
+D'où `ContentFileNotFound`, qui nomme l'**absence** et elle seule.
+`FallbackContentSource` ne se replie plus que sur elle ; tout le reste remonte
+et s'affiche. `RemoteContentStore` ne traduit que `object-not-found` — pas
+`unauthorized`, qui est un refus de la règle et doit se voir —, et
+`FileContentSource` distingue le fichier jamais écrit du dossier interdit.
+
+**Le second est un piège de navigation.** « Garder » ferme un éditeur et rend
+son résultat à l'écran du parcours, en mémoire ; seul « Enregistrer » écrit.
+C'est la règle voulue. Mais quitter le parcours **jetait tout le travail sans
+un mot** : l'écran rendait bien l'aventure modifiée, et l'accueil l'ignorait.
+Le parcours demande désormais quoi en faire — rester, quitter sans
+enregistrer, ou enregistrer et quitter. Par `PopScope`, pour que le geste de
+retour du système passe par là aussi : protéger un seul côté ne protégerait
+rien. Et « Enregistrer et quitter » ne sort que si l'écriture a réussi — sortir
+après un échec perdrait le travail en croyant l'avoir mis à l'abri.
+
+**Ce que cette version ne répare pas** : la cause première. La lecture depuis
+un navigateur est soumise à la politique CORS du bucket, qu'un projet neuf n'a
+pas. Ça se règle dans la console Google Cloud, et c'est noté dans `TODO.md`.
+Cette version ne fait que rendre la panne visible — ce qui est déjà tout ce
+qu'on peut demander à du code.
+
+381 tests au vert, dont 9 nouveaux.
+
 ### 0.26.0+42 — 22 septembre 2026 — Charger une image depuis un navigateur
 
 **L'outil n'avait pas de bouton d'image sur le web**, et c'était une décision :

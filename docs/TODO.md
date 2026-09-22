@@ -85,11 +85,38 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
       la règle doit nommer, à comparer. **Piège attendu** : tant que la règle
       par défaut tient, la connexion réussit et le dépôt échoue.
-- [ ] **Attendu dans un navigateur : le CORS.** La lecture du bucket depuis
-      Chrome est une requête soumise au contrôle d'origine, et un bucket neuf
-      n'a pas de politique. L'écriture passerait et la relecture échouerait,
-      sans rapport visible avec la cause. Se règle depuis le Cloud Shell de la
-      console. Sur le téléphone, la question ne se pose pas.
+- [ ] **Le CORS du bucket — constaté, pas supposé.** L'écriture passe, la
+      lecture échoue : les fichiers sont bien sur le dépôt (`content/…`,
+      vérifié dans la console) et le navigateur refuse de les relire, faute de
+      politique CORS sur un bucket neuf. Depuis 0.27.0 l'échec se **voit** au
+      lieu de servir en silence le contenu livré, mais la cause reste entière.
+
+      Se règle depuis le **Cloud Shell** de la console Google Cloud, sans rien
+      installer. Lancer d'abord l'outil sur un port fixe
+      (`--web-port=5000`), pour que l'origine soit stable :
+
+      ```bash
+      cat > cors.json <<'JSON'
+      [
+        {
+          "origin": ["http://localhost:5000"],
+          "method": ["GET", "HEAD"],
+          "responseHeader": ["Content-Type", "Content-Length", "Content-Range",
+                             "Content-Encoding", "Content-Disposition",
+                             "Cache-Control",
+                             "x-goog-meta-firebaseStorageDownloadTokens"],
+          "maxAgeSeconds": 3600
+        }
+      ]
+      JSON
+      gcloud storage buckets update gs://grisbie-43ee9.firebasestorage.app \
+        --cors-file=cors.json
+      ```
+
+      Le CORS n'ouvre aucun accès : la règle du bucket exige toujours l'UID de
+      l'auteur. Il dit seulement quelles pages ont le droit de **lire la
+      réponse**. Sur le téléphone, la question ne se pose pas — il n'y a pas
+      de navigateur entre l'application et le dépôt.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer. `author_only_test.dart` le rend structurellement improbable —
       rien n'initialise Firebase hors de l'outil — mais ne le démontre pas.

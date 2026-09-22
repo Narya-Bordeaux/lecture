@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 
@@ -39,12 +41,27 @@ class RemoteContentStore implements ContentSource, ContentSink {
   /// memoire de l'appareil.
   static const int maxFileBytes = 4 * 1024 * 1024;
 
+  /// Le code par lequel Firebase dit « ce fichier n'existe pas ».
+  ///
+  /// **Lui seul.** Un refus de la regle (`unauthorized`), un reseau coupe ou
+  /// un blocage du navigateur sont des **pannes** et doivent remonter : les
+  /// prendre pour des absences faisait servir en silence le contenu livre a la
+  /// place du travail depose, et rien ne le disait.
+  static const String absenceCode = 'object-not-found';
+
   @override
   Future<String> readFile(String path) async {
-    final data = await storage.ref(pathFor(path)).getData(maxFileBytes);
-    if (data == null) {
-      throw StateError('Fichier absent du dépôt distant : ${pathFor(path)}');
+    final Uint8List? data;
+    try {
+      data = await storage.ref(pathFor(path)).getData(maxFileBytes);
+    } on FirebaseException catch (error) {
+      if (error.code == absenceCode) {
+        throw ContentFileNotFound(path, cause: error);
+      }
+      rethrow;
     }
+
+    if (data == null) throw ContentFileNotFound(path);
     return utf8.decode(data);
   }
 

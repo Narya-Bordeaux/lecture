@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.26.0+42** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.27.0+43** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -493,6 +493,16 @@ rendent leur résultat à l'écran du parcours, qui travaille en mémoire. Deux
 gestes portant le même mot laisseraient croire que fermer un lieu suffit à le
 conserver.
 
+**Mais quitter le parcours ne doit rien jeter en silence** — c'est le revers
+de la règle ci-dessus, et il manquait. L'écran rendait bien l'aventure
+modifiée, l'accueil l'ignorait, et tout le travail disparaissait sans un mot.
+`OutlinePage` retient donc `_unsaved` — toute modification passe par `_change`,
+un `setState` direct oublierait le marqueur — et demande à la sortie : rester,
+quitter sans enregistrer, ou enregistrer et quitter. Par `PopScope`, pour que
+le geste de retour du système passe par là aussi : protéger un seul côté ne
+protégerait rien. « Enregistrer et quitter » ne sort que si l'écriture a
+**réussi**, sans quoi on perdrait le travail en croyant l'avoir mis à l'abri.
+
 **`ContentSaver` écrit une aventure entièrement** — le fichier d'aventure seul
 ne contient que des références : sans son sommaire il est introuvable, sans ses
 listes il en cite que personne n'a écrites, sans le lexique ses listes citent
@@ -519,6 +529,16 @@ que le livré ; ensuite c'est le travail qui fait foi, y compris quand il n'a
 réécrit qu'une partie des fichiers. Le repli vaut pour l'**absence**, jamais
 pour un fichier écrit illisible : masquer une erreur par la version d'origine
 ferait croire le travail intact.
+
+**Et une panne n'est pas une absence** — `ContentFileNotFound` nomme la
+seconde, et `FallbackContentSource` ne se replie que sur elle. Un `catch (_)`
+attrapait tout : un refus du dépôt, une coupure de réseau, un blocage CORS du
+navigateur servaient silencieusement le contenu livré. C'est arrivé —
+l'aventure était déposée sur le dépôt, la lecture échouait, et l'accueil
+affichait imperturbablement la liste des assets. Chaque source traduit donc
+l'absence et **laisse remonter le reste** : `RemoteContentStore` ne convertit
+que `object-not-found`, jamais `unauthorized`, qui est un refus de la règle et
+doit se voir.
 
 C'est aussi la source que `saveAdventure` donne à `ContentSaver`, et **ce
 n'était pas un détail** : `includeUnchanged` recopie ce que l'outil ne touche
