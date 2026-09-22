@@ -31,6 +31,12 @@ Future<void> pumpOutline(
   await tester.pumpAndSettle();
 }
 
+/// Le champ du nom d'un trajet dans l'ecran d'ajout.
+///
+/// Chaque trajet y a **deux** champs — le trajet et le lieu ou il mene — si
+/// bien que compter les `TextField` ne dit plus combien de trajets on saisit.
+Finder tripField(int index) => find.byKey(Key('trip-name-$index'));
+
 /// Ajoute un trajet depuis le premier point de l'ecran.
 Future<void> addTripFromStart(WidgetTester tester, String name) async {
   final button = find.text('Ajouter').evaluate().isNotEmpty
@@ -59,12 +65,54 @@ void main() {
       expect(find.text('Devant la maison'), findsOneWidget);
     });
 
+    testWidgets('un trajet dit ou il mene, sans avoir a chercher sa carte',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      // La lettre seule obligeait a descendre chercher la carte « B1 » pour
+      // apprendre que « En bus » arrive a la gare. Sur le croquis papier, la
+      // fleche portait les deux bouts.
+      expect(
+        find.textContaining('En bus → La gare', findRichText: true),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Acheter quelque chose → La boutique de la gare',
+            findRichText: true),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('un trajet qui porte deja le nom du lieu ne se repete pas',
+        (tester) async {
+      // « En bus → En bus » serait du bruit, et se lirait comme un defaut.
+      // C'est le cas de tout ce que l'outil a cree avant qu'on distingue les
+      // deux noms.
+      final built = AdventureBuilder(
+        AdventureBuilder.createAdventure(title: 'Essai', startName: 'Maison'),
+      ).addTrips('maison', const <NewTrip>[NewTrip(name: 'En bus')]);
+
+      await pumpOutline(tester, built);
+
+      // « En bus » paraît deux fois : la ligne du trajet, et le titre de la
+      // carte du lieu qu'il a créé. Ce qui ne doit pas paraître, c'est la
+      // flèche qui redirait la seconde sous la première.
+      expect(find.text('En bus'), findsNWidgets(2));
+      expect(find.textContaining('→', findRichText: true), findsNothing);
+    });
+
     testWidgets('les trajets du depart se lisent sous lui', (tester) async {
       await pumpOutline(tester, realAdventure);
 
-      expect(find.text('En bus'), findsOneWidget);
-      expect(find.text('En voiture'), findsOneWidget);
-      expect(find.text('À pied'), findsOneWidget);
+      // Chaque ligne porte le trajet **et** le lieu ou il mene, en un seul
+      // texte enrichi : d'ou la recherche dans le texte riche.
+      for (final trip in <String>['En bus', 'En voiture', 'À pied']) {
+        expect(
+          find.textContaining(trip, findRichText: true),
+          findsOneWidget,
+          reason: trip,
+        );
+      }
     });
 
     testWidgets('chaque arrivee a sa propre carte plus bas', (tester) async {
@@ -338,7 +386,8 @@ void main() {
       await tester.tap(find.text('3'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(TextField), findsNWidgets(3));
+      expect(tripField(2), findsOneWidget);
+      expect(tripField(3), findsNothing);
     });
 
     testWidgets('une seule nature vaut pour tout le lot', (tester) async {
@@ -352,7 +401,7 @@ void main() {
       // Trois noms a saisir, mais un seul choix de nature : on ne melange pas
       // des fins, des tris uniques et des tris a plusieurs listes dans le
       // meme geste.
-      expect(find.byType(TextField), findsNWidgets(3));
+      expect(tripField(2), findsOneWidget);
       expect(find.text('Plusieurs listes'), findsOneWidget);
       expect(find.text('Tri unique'), findsOneWidget);
       expect(find.text('Une fin'), findsOneWidget);
@@ -435,8 +484,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('2'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).at(0), 'La boutique');
-      await tester.enterText(find.byType(TextField).at(1), 'Le kiosque');
+      await tester.enterText(tripField(0), 'La boutique');
+      await tester.enterText(tripField(1), 'Le kiosque');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Créer'));
       await tester.pumpAndSettle();
@@ -463,7 +512,8 @@ void main() {
         find.textContaining('ce lieu n\'a qu\'une seule sortie'),
         findsOneWidget,
       );
-      expect(find.byType(TextField), findsOneWidget);
+      expect(tripField(0), findsOneWidget);
+      expect(tripField(1), findsNothing);
     });
   });
 

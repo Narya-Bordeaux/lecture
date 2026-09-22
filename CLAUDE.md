@@ -13,7 +13,7 @@ Le cadrage fonctionnel fait foi : `docs/Specification_jeu_decouverte_lecture.md`
 Ne pas inventer de règle de jeu absente de la spécification — les points non tranchés
 y sont listés explicitement comme ouverts.
 
-**Version actuelle : 0.24.0+40** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.25.0+41** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -572,6 +572,28 @@ sûre de ne pas créer de boucle.
 Le nom saisi reste celui du **trajet**, jamais celui du lieu rejoint : c'est ce
 que l'enfant lit sur la zone de dépôt. L'écran le propose par commodité quand le
 champ est vide, et il reste modifiable.
+
+**Un trajet et le lieu qu'il atteint portent deux noms** — « En bus » mène à
+« La gare ». Le trajet dit le moyen, le lieu dit l'arrivée, et c'est tout
+l'intérêt : l'enfant classe des mots sous « En bus », puis découvre « La gare ».
+`NewTrip` porte donc `name` **et** `locationName`, et `AddTripsPage` demande les
+deux, le second proposé d'après le premier et détaché dès qu'on l'écrit. Le
+second vide, le trajet prête le sien — le cas courant.
+
+L'outil n'en demandait qu'un et baptisait le lieu du nom du trajet. Deux
+conséquences, et la seconde est la pire : il ne savait **pas écrire le contenu
+livré**, et il enseignait à l'auteur une règle que ce contenu dément — au point
+de faire passer l'aventure livrée pour un affichage cassé.
+
+**L'identifiant du lieu vient du lieu**, pas du trajet : « La gare » donne
+`gare`, comme le contenu livré l'écrit à la main. L'identifiant de la *famille*,
+lui, vient du trajet (`en_bus`) — elle lui appartient.
+
+**Un trajet dit où il mène** — `OutlineTrip.destinationName`, affiché
+« En bus → La gare » sur sa ligne. La lettre du lieu suffisait à faire le lien,
+mais obligeait à descendre chercher sa carte pour savoir duquel il s'agit ; sur
+le croquis papier, la flèche portait les deux bouts. Le nom est tu quand il
+répète le trajet : « En bus → En bus » se lirait comme un défaut.
 
 **L'ajout de trajets : la nature d'abord, une seule par lot** — `AddTripsPage`
 pose en tête ce que l'enfant trouvera au bout (plusieurs listes, tri unique,

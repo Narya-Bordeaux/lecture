@@ -410,6 +410,92 @@ void main() {
     });
   });
 
+  group('Le trajet et le lieu qu\'il atteint portent deux noms', () {
+    // « En bus » est ce que l'enfant lit sur la zone de depot ; « La gare »
+    // est le lieu ou il arrive. Deux choses differentes, et c'est tout
+    // l'interet : l'enfant classe des mots sous « En bus », puis decouvre
+    // « La gare ». L'outil les confondait, et apprenait donc a l'auteur une
+    // regle fausse — au point de faire passer le contenu livre pour un
+    // affichage casse.
+
+    test('le lieu porte le nom donne, et son identifiant en vient', () {
+      final built = AdventureBuilder(emptyAdventureAt('maison')).addTrips(
+        'maison',
+        const <NewTrip>[NewTrip(name: 'En bus', locationName: 'La gare')],
+      );
+
+      // Exactement ce que le contenu livre ecrit a la main : l'outil en est
+      // desormais capable, ce qui n'etait pas le cas.
+      expect(built.stages.keys, contains('gare'));
+      expect(built.findStage('gare')!.locationName, 'La gare');
+
+      final family = built.findStage('maison')!.families.single;
+      expect(family.label, 'En bus', reason: 'ce que l\'enfant lit');
+      expect(family.id, 'en_bus', reason: 'la famille est celle du trajet');
+    });
+
+    test('sans nom de lieu, le trajet le prete', () {
+      // Le comportement d'avant, garde tel quel : nommer les deux est une
+      // possibilite, pas une obligation.
+      final built = AdventureBuilder(emptyAdventureAt('maison'))
+          .addTrips('maison', const <NewTrip>[NewTrip(name: 'La gare')]);
+
+      expect(built.findStage('gare')!.locationName, 'La gare');
+    });
+
+    test('un nom de lieu laisse vide ne remplace rien', () {
+      // Un champ qu'on n'a pas rempli ne doit pas produire un lieu appele
+      // « lieu » : c'est ce que `slugify` rend d'une chaine sans lettre.
+      final built = AdventureBuilder(emptyAdventureAt('maison')).addTrips(
+        'maison',
+        const <NewTrip>[NewTrip(name: 'En bus', locationName: '   ')],
+      );
+
+      expect(built.stages.keys, contains('en_bus'));
+      expect(built.findStage('en_bus')!.locationName, 'En bus');
+    });
+
+    test('une fin nommee a part se declare quand meme fin', () {
+      final built = AdventureBuilder(emptyAdventureAt('maison')).addTrips(
+        'maison',
+        const <NewTrip>[
+          NewTrip(
+            name: 'Prendre le train',
+            locationName: 'La plage',
+            kind: TripKind.ending,
+          ),
+        ],
+      );
+
+      expect(built.findStage('plage')!.isEnding, isTrue);
+      expect(built.findStage('maison')!.families.single.label,
+          'Prendre le train');
+    });
+
+    test('rejoindre un lieu deja ecrit ignore le nom propose', () {
+      final before = AdventureBuilder(emptyAdventureAt('maison'))
+          .addTrips('maison', const <NewTrip>[
+        NewTrip(name: 'En bus', locationName: 'La plage', kind: TripKind.ending),
+      ]);
+
+      final after = AdventureBuilder(before).addTrips(
+        'maison',
+        const <NewTrip>[
+          NewTrip(
+            name: 'À pied',
+            locationName: 'Un autre nom',
+            existingStageId: 'plage',
+          ),
+        ],
+      );
+
+      // Le lieu existe : le renommer par un trajet qui le rejoint ferait
+      // changer son titre a l'insu de l'autre chemin qui y mene.
+      expect(after.findStage('plage')!.locationName, 'La plage');
+      expect(after.stages.keys, hasLength(before.stages.keys.length));
+    });
+  });
+
   group('L\'identifiant se detache du nom', () {
     test('renommer le lieu ne touche pas son identifiant', () {
       final built = AdventureBuilder(emptyAdventureAt('maison'))

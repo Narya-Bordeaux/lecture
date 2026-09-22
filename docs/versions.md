@@ -44,6 +44,46 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.25.0+41 — 22 septembre 2026 — Un trajet et son lieu portent deux noms
+
+**L'outil apprenait à l'auteur une règle que le contenu livré dément.** Il
+demandait un nom par trajet et en baptisait le lieu d'arrivée : « En bus »
+menait donc à un lieu appelé « En bus ». Or ce sont deux choses. « En bus » est
+ce que l'enfant lit sur la zone de dépôt ; « La gare » est le lieu où il
+arrive, avec son illustration et son récit. C'est même l'intérêt du dispositif :
+l'enfant classe des mots sous un moyen, et découvre une destination.
+
+La conséquence la plus visible n'était pas la bonne saisie mais la lecture :
+ouvrant « Grisbie va à la plage » dans l'outil, l'auteur a cru à un affichage
+cassé — les noms ne correspondaient pas à ce que l'outil lui avait enseigné, au
+point de faire passer la seule aventure du jeu pour un contenu bouche-trou.
+Conséquence moins visible et plus grave : **l'outil ne savait pas écrire le
+contenu livré**, ce qui est le meilleur test qu'on ait de sa complétude.
+
+`NewTrip` porte désormais `name` et `locationName`, et `AddTripsPage` demande
+les deux. Le second est proposé d'après le premier et le suit tant qu'on n'y
+touche pas — le cas courant, où l'un vaut l'autre, ne coûte donc aucune saisie
+de plus. Dès que l'auteur l'écrit, le champ se détache : voir son nom
+disparaître en corrigeant une faute de frappe dans le trajet serait
+incompréhensible. Le champ disparaît quand le trajet rejoint une fin déjà
+écrite : le lieu existe, et le renommer de là changerait son titre à l'insu des
+autres chemins qui y mènent.
+
+**L'identifiant du lieu vient du lieu**, désormais, et non du trajet : « La
+gare » donne `gare`, exactement ce que le contenu livré écrit à la main.
+L'identifiant de la famille, lui, reste celui du trajet (`en_bus`) — elle lui
+appartient.
+
+**Et un trajet dit où il mène** : « En bus → La gare » sur sa ligne. La lettre
+du lieu suffisait à faire le lien, mais obligeait à descendre chercher sa carte
+pour savoir duquel il s'agit ; sur le croquis papier de l'auteur, la flèche
+portait les deux bouts. Le nom est tu quand il répète le trajet — « En bus →
+En bus » se lirait comme un défaut, et c'est l'état de tout ce que l'outil a
+créé jusqu'ici.
+
+371 tests au vert, dont 15 nouveaux, et les deux points d'entrée compilent pour
+le web.
+
 ### 0.24.0+40 — 22 septembre 2026 — L'outil relit ce qu'il a écrit
 
 **L'outil enregistrait, et rouvrait toujours le contenu livré.** On pouvait

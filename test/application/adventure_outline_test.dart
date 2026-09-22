@@ -300,4 +300,56 @@ void main() {
       expect(outline.blocks.first.hasNarrative, isFalse);
     });
   });
+
+  group('Un trajet dit ou il mene', () {
+    // La lettre seule obligeait a descendre chercher la carte « B1 » pour
+    // savoir ou menait « En bus ». Sur le croquis papier, la fleche portait
+    // les deux bouts.
+
+    test('le nom du lieu atteint accompagne le trajet', () async {
+      final outline = AdventureOutline.of(await loadRealAdventure());
+      final start = outline.blocks.first;
+
+      expect(
+        start.trips.map((t) => '${t.label} -> ${t.destinationName}').toList(),
+        <String>[
+          'En bus -> La gare',
+          'En voiture -> Le garage',
+          'À pied -> La rue',
+        ],
+      );
+    });
+
+    test('une destination annoncee avant son lieu n\'a pas de nom', () {
+      // Facon normale d'ecrire : on annonce ou l'on ira, on cree le lieu
+      // ensuite. Le trajet s'affiche quand meme.
+      final outline = AdventureOutline.of(adventureOf(<Stage>[
+        Stage(
+          id: 'depart',
+          locationName: 'Depart',
+          families: <WordFamily>[trip('en_bus', 'En bus', to: 'nulle_part')],
+        ),
+      ]));
+
+      expect(outline.blocks.first.trips.single.destinationName, isNull);
+    });
+
+    test('la liste du reste ne mene nulle part, et n\'a donc aucun nom', () {
+      final outline = AdventureOutline.of(adventureOf(<Stage>[
+        Stage(
+          id: 'depart',
+          locationName: 'Depart',
+          families: <WordFamily>[
+            trip('gourmand', 'Ce qui se mange', to: 'plage'),
+            family(id: 'le_reste', label: 'Le reste'),
+          ],
+        ),
+        ending(id: 'plage'),
+      ]));
+
+      final trips = outline.blocks.first.trips;
+      expect(trips.last.destinationName, isNull);
+      expect(trips.first.destinationName, isNotNull);
+    });
+  });
 }

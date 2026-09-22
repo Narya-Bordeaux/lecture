@@ -388,7 +388,7 @@ class _BlockCard extends StatelessWidget {
             _Letter(trip.destinationLetter!, small: true),
             const SizedBox(width: 8),
           ],
-          Expanded(child: Text(trip.label)),
+          Expanded(child: _tripText(context, trip)),
           if (trip.leadsToSingleSort)
             const Icon(Icons.filter_alt_outlined, size: 16),
           if (trip.leadsToEnding) const Icon(Icons.flag_outlined, size: 16),
@@ -396,6 +396,38 @@ class _BlockCard extends StatelessWidget {
           // l'annoncer « sans issue » la ferait passer pour un defaut.
           if (trip.destinationStageId == null)
             Text('le reste', style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ),
+    );
+  }
+
+  /// Le trajet, et le lieu ou il mene : « En bus → La gare ».
+  ///
+  /// La lettre du lieu suffisait a faire le lien, mais obligeait a descendre
+  /// chercher sa carte pour savoir de quel lieu il s'agit. Sur le croquis
+  /// papier de l'auteur, la fleche portait les deux bouts.
+  ///
+  /// Un seul texte enrichi plutot que deux widgets cote a cote : il se replie
+  /// tout seul sur un telephone etroit, la ou deux `Text` se disputeraient la
+  /// largeur.
+  Widget _tripText(BuildContext context, OutlineTrip trip) {
+    final destination = trip.destinationName;
+
+    // « En bus → En bus » serait du bruit, et se lirait comme un defaut. C'est
+    // le cas de tout ce qui a ete cree avant que les deux noms se distinguent,
+    // et de tout trajet dont l'auteur laisse le lieu porter le meme nom.
+    if (destination == null || destination == trip.label) {
+      return Text(trip.label);
+    }
+
+    return Text.rich(
+      TextSpan(
+        children: <InlineSpan>[
+          TextSpan(text: trip.label),
+          TextSpan(
+            text: ' → $destination',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );

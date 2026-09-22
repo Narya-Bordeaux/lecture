@@ -115,6 +115,7 @@ class AdventureOutline {
       familyId: family.id,
       label: family.label,
       destinationStageId: destination,
+      destinationName: arrival?.locationName,
       destinationLetter: destination == null ? null : letters[destination],
       leadsToSingleSort: arrival?.isSingleSort ?? false,
       leadsToEnding: arrival?.isEnding ?? false,
@@ -203,6 +204,7 @@ class OutlineTrip {
     required this.familyId,
     required this.label,
     required this.destinationStageId,
+    required this.destinationName,
     required this.destinationLetter,
     required this.leadsToSingleSort,
     required this.leadsToEnding,
@@ -218,6 +220,17 @@ class OutlineTrip {
   /// Nul pour la **liste du reste** d'un tri unique : elle n'ouvre aucun
   /// chemin, et c'est sa raison d'etre, pas un defaut.
   final String? destinationStageId;
+
+  /// Le nom du lieu atteint : « La gare » au bout de « En bus ».
+  ///
+  /// **Ce n'est pas [label], et c'est le point.** Le trajet dit le moyen, le
+  /// lieu dit l'arrivee. Sans ce nom, l'ecran n'offrait que la lettre du lieu,
+  /// et il fallait descendre chercher sa carte pour savoir ou l'on allait.
+  ///
+  /// Nul dans deux cas, tous deux normaux : la liste du reste d'un tri unique,
+  /// qui ne mene nulle part, et une destination annoncee avant que son lieu
+  /// n'existe.
+  final String? destinationName;
 
   /// Le reperage du lieu atteint, nul tant qu'il n'existe pas.
   ///

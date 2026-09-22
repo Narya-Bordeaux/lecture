@@ -27,19 +27,36 @@ enum TripKind {
   ending,
 }
 
-/// Ce que l'auteur demande en ajoutant un trajet : un nom, et une nature.
+/// Ce que l'auteur demande en ajoutant un trajet : deux noms, et une nature.
 class NewTrip {
   const NewTrip({
     required this.name,
+    this.locationName,
     this.kind = TripKind.ordinary,
     this.existingStageId,
   });
 
-  /// Ce que l'enfant lira sur la zone de depot.
-  ///
-  /// C'est aussi le nom du lieu atteint **quand on le cree** ; un trajet qui
-  /// rejoint un lieu deja ecrit ne le renomme pas.
+  /// Ce que l'enfant lira sur la zone de depot : « En bus ».
   final String name;
+
+  /// Le nom du lieu atteint : « La gare ».
+  ///
+  /// **Ce n'est pas le meme que [name], et c'est le point.** L'enfant classe
+  /// des mots sous « En bus », puis decouvre « La gare » : le trajet dit le
+  /// moyen, le lieu dit l'arrivee. L'outil les confondait, ce qui le rendait
+  /// incapable d'ecrire le contenu livre.
+  ///
+  /// Nul ou vide, le trajet prete le sien — le cas courant, ou l'un vaut
+  /// l'autre. Sans effet quand [existingStageId] est donne : le lieu existe,
+  /// et le renommer depuis un chemin qui le rejoint changerait son titre a
+  /// l'insu des autres.
+  final String? locationName;
+
+  /// Le nom que portera le lieu cree.
+  String get arrivalName {
+    final wanted = locationName?.trim() ?? '';
+    return wanted.isEmpty ? name : wanted;
+  }
 
   final TripKind kind;
 
@@ -208,7 +225,9 @@ class AdventureBuilder {
       return existing;
     }
 
-    final stageId = _freeId(slugify(trip.name), stages.keys.toSet());
+    // L'identifiant vient du **lieu**, pas du trajet : « La gare » donne
+    // `gare`, exactement ce que le contenu livre ecrit a la main.
+    final stageId = _freeId(slugify(trip.arrivalName), stages.keys.toSet());
     stages[stageId] = _arrivalOf(trip, stageId);
     return stageId;
   }
@@ -217,11 +236,15 @@ class AdventureBuilder {
   Stage _arrivalOf(NewTrip trip, String stageId) {
     switch (trip.kind) {
       case TripKind.ordinary:
-        return Stage(id: stageId, locationName: trip.name);
+        return Stage(id: stageId, locationName: trip.arrivalName);
 
       case TripKind.ending:
         // Le seul lieu qui naisse acheve : declare fin, et sans famille.
-        return Stage(id: stageId, locationName: trip.name, isEnding: true);
+        return Stage(
+          id: stageId,
+          locationName: trip.arrivalName,
+          isEnding: true,
+        );
 
       case TripKind.singleSort:
         // La liste du reste est la moitie du dispositif, pas un defaut a
@@ -233,7 +256,7 @@ class AdventureBuilder {
         // pose s'il en veut un.
         return Stage(
           id: stageId,
-          locationName: trip.name,
+          locationName: trip.arrivalName,
           families: List<WordFamily>.unmodifiable(<WordFamily>[
             // **Pas `const`** : Dart canoniserait l'objet, et deux tris uniques
             // partageraient litteralement la meme famille. Elles sont

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.24.0+40** — 22 septembre 2026
+**Version : 0.25.0+41** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -84,6 +84,18 @@ qu'aucune liste n'aura plus de mots qu'il n'en faut : écrire du vocabulaire est
 un travail d'auteur, pas de code.
 
 ## Dernières modifications
+
+### 0.25.0+41 — Un trajet et son lieu portent deux noms
+- **L'outil enseignait une règle fausse** : un seul nom, et le lieu d'arrivée
+  baptisé d'après le trajet. « En bus » menait à un lieu appelé « En bus ».
+- Ouvrant l'aventure livrée, où « En bus » mène à « La gare », l'auteur a cru
+  à un affichage cassé. **Et l'outil ne savait pas écrire ce contenu-là.**
+- `NewTrip` porte `name` **et** `locationName` ; `AddTripsPage` demande les
+  deux, le second proposé d'après le premier et détaché dès qu'on l'écrit.
+- **L'identifiant du lieu vient du lieu** : « La gare » donne `gare`, comme le
+  contenu livré.
+- Un trajet dit où il mène : « En bus → La gare ». Tu quand il se répète.
+- 371 tests au vert, dont 15 nouveaux.
 
 ### 0.24.0+40 — L'outil relit ce qu'il a écrit
 - **La boucle est fermée** : l'accueil lisait toujours les assets, scellés au

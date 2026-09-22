@@ -71,6 +71,25 @@ class _AddTripsPageState extends State<AddTripsPage> {
     TextEditingController(),
   ];
 
+  /// Le nom du lieu atteint, parallele a [_names].
+  ///
+  /// **Deux champs, parce que ce sont deux choses** : « En bus » est ce que
+  /// l'enfant lit sur la zone de depot, « La gare » est le lieu ou il arrive,
+  /// avec son illustration et son recit. Un seul champ baptisait le lieu du
+  /// nom du trajet, ce qui rendait l'outil incapable d'ecrire le contenu
+  /// livre — et apprenait a l'auteur une regle fausse.
+  final List<TextEditingController> _locations = <TextEditingController>[
+    TextEditingController(),
+  ];
+
+  /// Les lieux dont l'auteur a saisi le nom lui-meme.
+  ///
+  /// Tant qu'il n'y touche pas, le lieu suit le trajet : c'est le cas courant,
+  /// et saisir deux fois la meme chose serait une corvee. Des qu'il l'ecrit,
+  /// le champ se detache — voir son nom disparaitre en corrigeant une faute
+  /// de frappe dans le trajet serait incomprehensible.
+  final List<bool> _namedLocations = <bool>[false];
+
   /// La fin deja ecrite que chaque trajet rejoint, nulle pour en creer une.
   ///
   /// Parallele a [_names] : la nature vaut pour tout le lot, la destination se
@@ -86,7 +105,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
 
   @override
   void dispose() {
-    for (final controller in _names) {
+    for (final controller in <TextEditingController>[..._names, ..._locations]) {
       controller.dispose();
     }
     super.dispose();
@@ -96,11 +115,24 @@ class _AddTripsPageState extends State<AddTripsPage> {
     setState(() {
       while (_names.length < count) {
         _names.add(TextEditingController());
+        _locations.add(TextEditingController());
+        _namedLocations.add(false);
         _destinations.add(null);
       }
       while (_names.length > count) {
         _names.removeLast().dispose();
+        _locations.removeLast().dispose();
+        _namedLocations.removeLast();
         _destinations.removeLast();
+      }
+    });
+  }
+
+  /// Le trajet vient d'etre renomme : le lieu suit, sauf s'il est ecrit.
+  void _setTripName(int index) {
+    setState(() {
+      if (!_namedLocations[index]) {
+        _locations[index].text = _names[index].text;
       }
     });
   }
@@ -139,6 +171,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
       if (name.isEmpty) continue;
       trips.add(NewTrip(
         name: name,
+        locationName: _locations[index].text.trim(),
         kind: _kind,
         existingStageId: _offersEndings ? _destinations[index] : null,
       ));
@@ -258,23 +291,47 @@ class _AddTripsPageState extends State<AddTripsPage> {
   }
 
   Widget _buildName(int index) {
+    // Le lieu existe deja : son nom n'est pas a saisir, et le proposer
+    // laisserait croire qu'on peut le renommer d'ici — alors qu'il est
+    // partage avec les autres chemins qui y aboutissent.
+    final joinsExisting = _offersEndings && _destinations[index] != null;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextField(
+            key: Key('trip-name-$index'),
             controller: _names[index],
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               labelText: 'Trajet ${index + 1}',
-              hintText: 'En bus, La gare, Le guichetier…',
+              hintText: 'En bus, À pied, Prendre le train…',
+              helperText: 'Ce que l\'enfant lit sur la zone de dépôt.',
               border: const OutlineInputBorder(),
             ),
-            // Le bouton « Créer » s'active des qu'un nom est saisi.
-            onChanged: (_) => setState(() {}),
+            // Le bouton « Créer » s'active des qu'un nom est saisi, et le nom
+            // du lieu suit tant que l'auteur ne l'a pas ecrit lui-meme.
+            onChanged: (_) => _setTripName(index),
           ),
           if (_offersEndings) _buildEndingChoice(index),
+          if (!joinsExisting) ...<Widget>[
+            const SizedBox(height: 12),
+            TextField(
+              key: Key('location-name-$index'),
+              controller: _locations[index],
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Le lieu où ça mène',
+                hintText: 'La gare, La plage, Le garage…',
+                helperText: 'Son titre, son illustration, son récit '
+                    'd\'arrivée.',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (_) => setState(() => _namedLocations[index] = true),
+            ),
+          ],
         ],
       ),
     );
