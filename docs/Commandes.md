@@ -44,18 +44,35 @@ Les valeurs du projet Firebase se passent **au lancement**, jamais dans le
 dépôt. Sans elles, l'outil se lance et enregistre en local : rien ne casse, la
 connexion n'est simplement pas proposée.
 
-```bash
-flutter run --flavor auteur -t lib/main_author.dart \
-  --dart-define=GRISBIE_FIREBASE_API_KEY=… \
-  --dart-define=GRISBIE_FIREBASE_APP_ID=… \
-  --dart-define=GRISBIE_FIREBASE_PROJECT_ID=grisbie-43ee9 \
-  --dart-define=GRISBIE_FIREBASE_SENDER_ID=… \
-  --dart-define=GRISBIE_FIREBASE_BUCKET=grisbie-43ee9.firebasestorage.app \
-  --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=grisbie-43ee9.firebaseapp.com
+**Tout sur une seule ligne**, et c'est important : le `\` de fin de ligne est
+une continuation **bash**, que PowerShell et `cmd` ne connaissent pas. Collée
+sur plusieurs lignes dans un terminal Windows, la commande se lance sans
+aucune de ses valeurs — Chrome s'ouvre, l'outil tourne, et la connexion n'est
+pas proposée. Rien ne signale l'erreur.
+
+```
+flutter run --flavor auteur -t lib/main_author.dart --dart-define=GRISBIE_FIREBASE_API_KEY=… --dart-define=GRISBIE_FIREBASE_APP_ID=… --dart-define=GRISBIE_FIREBASE_PROJECT_ID=grisbie-43ee9 --dart-define=GRISBIE_FIREBASE_SENDER_ID=… --dart-define=GRISBIE_FIREBASE_BUCKET=grisbie-43ee9.firebasestorage.app --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=grisbie-43ee9.firebaseapp.com
 ```
 
 Dans un navigateur, remplacer `--flavor auteur` par `-d chrome` : les saveurs
 n'existent pas hors Android.
+
+**Comment savoir que les valeurs sont arrivées** — sans les lire nulle part :
+l'écran d'accueil porte une **tuile de compte** (« Se connecter pour travailler
+sur le dépôt »). Valeurs absentes ou incomplètes, `AuthorRemote.connect()` rend
+`null` et la tuile **n'existe pas du tout** : une capacité manquante ne
+s'annonce pas sur un écran de travail. Pas de tuile, donc pas de valeurs.
+
+**`-d` désigne un *device*, et Chrome en est un** — au même titre qu'un
+téléphone branché en USB. Il n'y a donc rien à ouvrir ni à saisir dans une
+barre d'adresse : la commande compile, démarre un serveur local et ouvre
+elle-même la fenêtre. `flutter devices` dit si Chrome est vu.
+
+La commande se tape dans un terminal placé sur le projet — l'onglet *Terminal*
+d'Android Studio y est déjà. Pour passer par l'interface plutôt que par la
+ligne de commande : sélecteur d'appareil → *Chrome (web)*, et les six
+`--dart-define` dans `Run → Edit Configurations… → Additional run args`. Là
+non plus, pas de `\` : ce champ n'est pas un terminal.
 
 **Exige** : le projet `grisbie-43ee9` configuré — la marche à suivre est dans
 `TODO.md`. `AUTH_DOMAIN` ne sert qu'au web ; les cinq autres sont obligatoires,

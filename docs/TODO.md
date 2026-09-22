@@ -71,16 +71,25 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       }
       ```
 
-- [ ] Enregistrer une application **Web** dans le projet, et relever les six
-      valeurs de sa configuration. L'application Android existe déjà ; elle a
-      les siennes, et doit porter `fr.naryabordeaux.grisbie.auteur` — **jamais**
-      l'identifiant du jeu. Ces valeurs se passent au lancement, la commande
-      complète est dans `Commandes.md`.
+- [x] Enregistrer une application **Web** dans le projet, et relever les six
+      valeurs de sa configuration. Fait. Le SDK JavaScript que la console
+      propose ne concerne pas Flutter : seules les six valeurs comptent, et
+      elles se passent au lancement — commande complète dans `Commandes.md`.
+- [ ] Vérifier que l'application **Android** déjà déclarée porte
+      `fr.naryabordeaux.grisbie.auteur` — **jamais** l'identifiant du jeu, qui
+      ne doit exister dans aucun projet Firebase. Elle a ses six valeurs à
+      elle : l'`appId` diffère d'une application à l'autre.
 - [x] Relever le **nom exact du bucket** : `grisbie-43ee9.firebasestorage.app`.
 - [ ] **Lancer l'outil avec ces valeurs, et vérifier que tout marche.** Rien
       n'a jamais été exécuté : ni la connexion, ni le dépôt d'un fichier, ni
       sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
-      la règle doit nommer, à comparer.
+      la règle doit nommer, à comparer. **Piège attendu** : tant que la règle
+      par défaut tient, la connexion réussit et le dépôt échoue.
+- [ ] **Attendu dans un navigateur : le CORS.** La lecture du bucket depuis
+      Chrome est une requête soumise au contrôle d'origine, et un bucket neuf
+      n'a pas de politique. L'écriture passerait et la relecture échouerait,
+      sans rapport visible avec la cause. Se règle depuis le Cloud Shell de la
+      console. Sur le téléphone, la question ne se pose pas.
 - [ ] Vérifier **sur l'appareil** que le jeu ne contacte rien, plutôt que de le
       supposer. `author_only_test.dart` le rend structurellement improbable —
       rien n'initialise Firebase hors de l'outil — mais ne le démontre pas.
