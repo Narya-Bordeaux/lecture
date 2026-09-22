@@ -28,16 +28,14 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 
 - [x] Créer le projet. C'est `grisbie-43ee9` — Firebase suffixe les
       identifiants, qu'il veut uniques au monde, et celui-ci est définitif.
-- [ ] **Activer Cloud Storage**, en s'attendant à devoir passer le projet au
-      plan **Blaze**. Depuis fin 2024 un projet neuf ne provisionne plus de
-      bucket sur le plan Spark ; Blaze exige un moyen de paiement mais garde
-      une tranche sans frais (quelques giga-octets), largement au-delà de ce
-      qu'un tuyau d'auteur consomme. Si ce passage vous rebute, dites-le : le
-      contenu étant de petits fichiers JSON, Firestore reste accessible sur
-      Spark et `RemoteContentStore` se réécrirait sans toucher au reste.
-- [ ] **Poser immédiatement une règle qui refuse
-      tout** — avant même de savoir à qui on ouvrira. Un bucket ouvert n'a pas
-      besoin d'être connu pour être trouvé.
+- [x] **Activer Cloud Storage.** Fait. Le bucket est
+      `grisbie-43ee9.firebasestorage.app`, ce que `Commandes.md` dit déjà.
+      Le passage au plan **Blaze** était attendu ici — un projet neuf ne
+      provisionne plus de bucket sur Spark — et ne s'est pas avéré bloquant.
+- [x] **Poser une règle qui refuse tout**, avant même de savoir à qui on
+      ouvrira — un bucket ouvert n'a pas besoin d'être connu pour être trouvé.
+      Rien à faire : **Firebase la pose désormais par défaut**, et c'est bien
+      celle-ci qu'on lit dans l'onglet Règles d'un projet neuf.
 
       ```
       rules_version = '2';
@@ -53,7 +51,9 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
 - [ ] Dans Authentication, activer le fournisseur **E-mail/Mot de passe**, puis
       **créer le compte de l'auteur à la main** (Users › Add user). Son UID
       apparaît aussitôt dans la liste.
-- [ ] Remplacer la règle par celle-ci, l'UID collé en clair. **Ne pas y mettre
+- [ ] **Remplacer la règle** par celle-ci, l'UID collé en clair. Tant que la
+      règle par défaut tient, se connecter réussira et le dépôt échouera :
+      `if false` refuse aussi l'auteur. **Ne pas y mettre
       d'adresse e-mail** : ce dépôt part en open source, et un UID ne désigne
       personne hors du projet.
 
@@ -76,9 +76,7 @@ Dans cet ordre, qui compte — le bucket s'ouvre en écriture par défaut :
       les siennes, et doit porter `fr.naryabordeaux.grisbie.auteur` — **jamais**
       l'identifiant du jeu. Ces valeurs se passent au lancement, la commande
       complète est dans `Commandes.md`.
-- [ ] Relever le **nom exact du bucket** dans la console : un projet récent
-      donne `grisbie-43ee9.firebasestorage.app`, un plus ancien
-      `…appspot.com`. Ne pas le deviner.
+- [x] Relever le **nom exact du bucket** : `grisbie-43ee9.firebasestorage.app`.
 - [ ] **Lancer l'outil avec ces valeurs, et vérifier que tout marche.** Rien
       n'a jamais été exécuté : ni la connexion, ni le dépôt d'un fichier, ni
       sa relecture. L'outil affiche l'UID une fois connecté — c'est celui que
