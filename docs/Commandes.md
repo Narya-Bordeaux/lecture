@@ -57,6 +57,18 @@ flutter run --flavor auteur -t lib/main_author.dart \
 Dans un navigateur, remplacer `--flavor auteur` par `-d chrome` : les saveurs
 n'existent pas hors Android.
 
+**`-d` désigne un *device*, et Chrome en est un** — au même titre qu'un
+téléphone branché en USB. Il n'y a donc rien à ouvrir ni à saisir dans une
+barre d'adresse : la commande compile, démarre un serveur local et ouvre
+elle-même la fenêtre. `flutter devices` dit si Chrome est vu.
+
+La commande se tape dans un terminal placé sur le projet — l'onglet *Terminal*
+d'Android Studio y est déjà. Pour passer par l'interface plutôt que par la
+ligne de commande : sélecteur d'appareil → *Chrome (web)*, et les six
+`--dart-define` dans `Run → Edit Configurations… → Additional run args`, **sur
+une seule ligne** (le `\` de fin de ligne est une continuation propre au
+terminal, il n'a pas cours là).
+
 **Exige** : le projet `grisbie-43ee9` configuré — la marche à suivre est dans
 `TODO.md`. `AUTH_DOMAIN` ne sert qu'au web ; les cinq autres sont obligatoires,
 et l'outil nomme celles qui manquent.
