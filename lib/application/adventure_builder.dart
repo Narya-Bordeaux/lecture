@@ -4,35 +4,15 @@ import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/models/word_list.dart';
 
-/// La nature du lieu qu'un trajet atteint.
-enum TripKind {
-  /// Un lieu ordinaire : l'enfant y trie entre plusieurs familles, en
-  /// comparant les mots entre eux. Le choix se reduit a mesure que les listes
-  /// se remplissent.
-  ordinary,
-
-  /// Un **tri unique** : l'enfant y trie entre une liste et son complement —
-  /// ce qui est du theme, et tout le reste.
-  ///
-  /// Autre mecanique de lecture, et plus difficile : il n'y a rien a comparer
-  /// d'un mot a l'autre, chacun se juge seul contre un seul critere. D'ou la
-  /// contrainte qui va avec — un tel lieu n'a **qu'une seule sortie**, celle
-  /// que le theme ouvre.
-  singleSort,
-
-  /// Une **fin** : la journee s'arrete la, et rien n'en repart.
-  ///
-  /// Troisieme choix structurel, a cote des deux mecaniques de tri. C'est le
-  /// seul lieu qu'on puisse creer deja acheve — ni faux, ni incomplet.
-  ending,
-}
-
-/// Ce que l'auteur demande en ajoutant un trajet : deux noms, et une nature.
+/// Ce que l'auteur demande en ajoutant un trajet : deux noms.
+///
+/// **Un trajet n'a pas de nature.** Ce que l'enfant fera au bout se decide
+/// sur la carte du lieu atteint, une fois qu'il existe — la question est
+/// « que fait l'enfant ici ? », et elle se pose au lieu, pas au chemin.
 class NewTrip {
   const NewTrip({
     required this.name,
     this.locationName,
-    this.kind = TripKind.ordinary,
     this.existingStageId,
   });
 
@@ -58,16 +38,12 @@ class NewTrip {
     return wanted.isEmpty ? name : wanted;
   }
 
-  final TripKind kind;
-
   /// Le lieu deja ecrit que ce trajet rejoint, au lieu d'en creer un.
   ///
   /// Sert d'abord aux **fins** : une fin porte un ecran, une illustration et un
   /// texte, et deux chemins qui aboutissent au meme endroit doivent partager la
   /// meme. Sans cela l'auteur ecrirait deux fois la meme arrivee, et les deux
   /// finiraient par differer.
-  ///
-  /// [kind] est alors sans effet : le lieu existe, sa nature est deja fixee.
   final String? existingStageId;
 }
 
@@ -104,6 +80,14 @@ class AdventureBuilder {
   }
 
   final Adventure adventure;
+
+  /// Combien de mots chaque liste met en jeu, dans un lieu que l'outil ecrit.
+  ///
+  /// Pose sur le lieu (`Stage.drawCount`) des qu'il recoit ses listes. Une
+  /// liste peut en compter bien davantage : c'est ce qui fait qu'une journee
+  /// rejouee ne redonne pas les memes mots. C'est aussi le seuil que la carte
+  /// du lieu compare a ce qui reste une fois les mots communs retires.
+  static const int defaultDrawCount = 7;
 
   /// Les articles qu'on retire en tete d'un nom pour en tirer l'identifiant.
   ///
@@ -154,14 +138,11 @@ class AdventureBuilder {
 
   /// Ajoute des trajets partant d'un lieu, et cree les lieux qu'ils atteignent.
   ///
-  /// Les lieux neufs naissent **incomplets** et jamais faux : sans famille pour
-  /// un lieu ordinaire, avec son seul classeur de rebut pour une rencontre.
-  /// C'est l'etat normal d'un travail en cours, et l'outil le montre comme tel.
+  /// Chaque trajet porte sa liste : le lieu devient — ou reste — un lieu a
+  /// **plusieurs listes**. Les lieux atteints naissent **a definir** : ce que
+  /// l'enfant y fera se decide ensuite, sur leur propre carte.
   Adventure addTrips(String fromStageId, List<NewTrip> trips) {
-    final source = adventure.findStage(fromStageId);
-    if (source == null) {
-      throw StateError('Lieu inconnu : "$fromStageId".');
-    }
+    final source = _require(fromStageId);
 
     // Un tri unique n'a qu'une sortie : c'est ce qui le distingue d'un tri
     // ordinaire affuble d'une liste de rebut. L'interface n'en propose donc
@@ -175,13 +156,83 @@ class AdventureBuilder {
     }
 
     final stages = Map<String, Stage>.from(adventure.stages);
-    final families = List<WordFamily>.from(source.families);
+    final families = List<WordFamily>.from(source.families)
+      ..addAll(_familiesFor(trips, source.families, stages));
+
+    // Un lieu auquel on ajoute des trajets cesse d'etre une fin : sinon le
+    // marqueur et la structure se contrediraient, et `validate()` le refuserait
+    // — a juste titre, puisque les mots classes ouvriraient un chemin depuis
+    // une fin.
+    //
+    // Le nombre de mots n'est pose que sur un lieu qui recoit ses premieres
+    // listes : un lieu deja ecrit garde ce qu'il demandait, contenu livre
+    // compris.
+    stages[fromStageId] = source.copyWith(
+      families: List<WordFamily>.unmodifiable(families),
+      isEnding: false,
+      drawCount: source.families.isEmpty
+          ? source.drawCount ?? defaultDrawCount
+          : null,
+    );
+
+    return _withStages(stages);
+  }
+
+  /// Fait d'un lieu a definir un **tri unique** : une liste et tout le reste.
+  ///
+  /// Les deux familles naissent ensemble, parce que l'une sans l'autre n'est
+  /// pas un tri unique : le theme, qui ouvre [exit], et le reste, qui n'ouvre
+  /// rien. C'est la seule sortie du lieu.
+  Adventure defineAsSingleSort(String stageId, NewTrip exit) {
+    final source = _requireUndefined(stageId);
+    final stages = Map<String, Stage>.from(adventure.stages);
+
+    final theme = _familiesFor(<NewTrip>[exit], source.families, stages).single;
+    stages[stageId] = source.copyWith(
+      families: List<WordFamily>.unmodifiable(<WordFamily>[
+        theme,
+        // **Pas `const`** : Dart canoniserait l'objet, et deux tris uniques
+        // partageraient litteralement la meme famille. Elles sont
+        // immutables, donc rien ne pourrait diverger — mais il ne faut pas
+        // avoir a le demontrer pour etre tranquille. Chaque lieu a la sienne.
+        WordFamily(
+          id: _freeFamilyId('le_reste', <WordFamily>[theme]),
+          // Nom provisoire : comment nommer cette seconde liste reste une
+          // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
+          // peut-etre pas le geste le plus juste a six ans.
+          label: 'Le reste',
+          list: _newList('${stageId}_le_reste', 'Le reste de $stageId'),
+        ),
+      ]),
+      drawCount: source.drawCount ?? defaultDrawCount,
+    );
+
+    return _withStages(stages);
+  }
+
+  /// Declare qu'un lieu a definir clot la journee : du texte, pas de jeu.
+  Adventure defineAsEnding(String stageId) {
+    final source = _requireUndefined(stageId);
+    final stages = Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(isEnding: true);
+    return _withStages(stages);
+  }
+
+  /// Les familles de ces trajets, et les lieux qu'ils atteignent.
+  ///
+  /// [stages] est enrichi des lieux crees au passage.
+  List<WordFamily> _familiesFor(
+    List<NewTrip> trips,
+    List<WordFamily> existing,
+    Map<String, Stage> stages,
+  ) {
+    final taken = List<WordFamily>.of(existing);
+    final created = <WordFamily>[];
 
     for (final trip in trips) {
       final stageId = _arrivalIdOf(trip, stages);
-
-      final familyId = _freeFamilyId(slugify(trip.name), families);
-      families.add(WordFamily(
+      final familyId = _freeFamilyId(slugify(trip.name), taken);
+      final family = WordFamily(
         id: familyId,
         label: trip.name,
         // Une liste neuve, vide, nommee d'apres le trajet. L'auteur la
@@ -189,18 +240,38 @@ class AdventureBuilder {
         // liste que de servir a plusieurs lieux.
         list: _newList(familyId, trip.name),
         destinationStageId: stageId,
-      ));
+      );
+      taken.add(family);
+      created.add(family);
     }
 
-    // Un lieu auquel on ajoute des trajets cesse d'etre une fin : sinon le
-    // marqueur et la structure se contrediraient, et `validate()` le refuserait
-    // — a juste titre, puisque les mots classes ouvriraient un chemin depuis
-    // une fin.
-    stages[fromStageId] = source.copyWith(
-      families: List<WordFamily>.unmodifiable(families),
-      isEnding: false,
-    );
+    return created;
+  }
 
+  Stage _require(String stageId) {
+    final stage = adventure.findStage(stageId);
+    if (stage == null) {
+      throw StateError('Lieu inconnu : "$stageId".');
+    }
+    return stage;
+  }
+
+  /// Un lieu dont la nature n'est pas encore dite.
+  ///
+  /// Redefinir un lieu deja ecrit jetterait ses listes ou ses trajets : ce
+  /// n'est pas un geste que l'outil fait sans le dire.
+  Stage _requireUndefined(String stageId) {
+    final stage = _require(stageId);
+    if (stage.nature != StageNature.undefined) {
+      throw StateError(
+        'Le lieu "$stageId" est deja defini : on ne change pas ce que '
+        'l\'enfant y fait sans en retirer d\'abord les trajets.',
+      );
+    }
+    return stage;
+  }
+
+  Adventure _withStages(Map<String, Stage> stages) {
     return Adventure(
       id: adventure.id,
       title: adventure.title,
@@ -228,52 +299,9 @@ class AdventureBuilder {
     // L'identifiant vient du **lieu**, pas du trajet : « La gare » donne
     // `gare`, exactement ce que le contenu livre ecrit a la main.
     final stageId = _freeId(slugify(trip.arrivalName), stages.keys.toSet());
-    stages[stageId] = _arrivalOf(trip, stageId);
+    // Il nait a definir : ce que l'enfant y fera se dit sur sa carte.
+    stages[stageId] = Stage(id: stageId, locationName: trip.arrivalName);
     return stageId;
-  }
-
-  /// Le lieu qu'un trajet atteint, a sa naissance.
-  Stage _arrivalOf(NewTrip trip, String stageId) {
-    switch (trip.kind) {
-      case TripKind.ordinary:
-        return Stage(id: stageId, locationName: trip.arrivalName);
-
-      case TripKind.ending:
-        // Le seul lieu qui naisse acheve : declare fin, et sans famille.
-        return Stage(
-          id: stageId,
-          locationName: trip.arrivalName,
-          isEnding: true,
-        );
-
-      case TripKind.singleSort:
-        // La liste du reste est la moitie du dispositif, pas un defaut a
-        // corriger : c'est elle qui fait du lieu un tri unique. La poser
-        // d'office evite un lieu ne a moitie, et il n'y aurait aucun moyen de
-        // la deviner ensuite.
-        //
-        // Aucun personnage n'est invente : il est un ornement, et l'auteur le
-        // pose s'il en veut un.
-        return Stage(
-          id: stageId,
-          locationName: trip.arrivalName,
-          families: List<WordFamily>.unmodifiable(<WordFamily>[
-            // **Pas `const`** : Dart canoniserait l'objet, et deux tris uniques
-            // partageraient litteralement la meme famille. Elles sont
-            // immutables, donc rien ne pourrait diverger — mais il ne faut pas
-            // avoir a le demontrer pour etre tranquille. Chaque lieu a la
-            // sienne.
-            WordFamily(
-              id: 'le_reste',
-              // Nom provisoire : comment nommer cette seconde liste reste une
-              // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
-              // peut-etre pas le geste le plus juste a six ans.
-              label: 'Le reste',
-              list: _newList('${stageId}_le_reste', 'Le reste de $stageId'),
-            ),
-          ]),
-        );
-    }
   }
 
   /// Une liste vide, prete a recevoir des mots.

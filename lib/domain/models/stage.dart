@@ -8,6 +8,27 @@ import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/models/word_list.dart';
 import 'package:grisbie/domain/models/word_list_catalog.dart';
 
+/// Ce que l'enfant fait dans un lieu.
+///
+/// **Lu dans la structure, jamais declare** — sauf la fin, qui l'est pour une
+/// raison expliquee sur [Stage.isEnding]. Arrive a la gare, l'enfant range
+/// dans plusieurs listes, fait un tri unique, ou lit la fin de sa journee.
+/// Un lieu qu'on vient de creer n'est encore rien de tout cela : c'est a
+/// l'auteur de le dire, et l'outil le lui demande sur la carte du lieu.
+enum StageNature {
+  /// Ni famille, ni fin : un lieu pose, pas encore ecrit.
+  undefined,
+
+  /// Plusieurs listes, chacune ouvrant un chemin.
+  sorting,
+
+  /// Une liste et tout le reste, une seule sortie.
+  singleSort,
+
+  /// Du texte, pas de jeu : la journee s'arrete la.
+  ending,
+}
+
 /// Une etape du parcours : un lieu, des familles a remplir, et les chemins
 /// qu'elles ouvrent.
 ///
@@ -175,6 +196,14 @@ class Stage {
   /// d'une liste de rebut.
   bool get isSingleSort =>
       families.any((family) => !family.leadsSomewhere);
+
+  /// Ce que l'enfant fait ici. Voir [StageNature].
+  StageNature get nature {
+    if (isEnding) return StageNature.ending;
+    if (families.isEmpty) return StageNature.undefined;
+    if (isSingleSort) return StageNature.singleSort;
+    return StageNature.sorting;
+  }
 
   Word? findWord(String wordText) {
     for (final family in families) {
@@ -384,15 +413,33 @@ class Stage {
 
   /// Verifie les zones de depot posees sur l'illustration.
   ///
-  /// Ces anomalies sont toujours des fautes : une zone mal posee ne se repare
-  /// pas en continuant d'ecrire, et le doigt de l'enfant en paierait le prix.
+  /// Une zone mal posee est toujours une faute : elle ne se repare pas en
+  /// continuant d'ecrire, et le doigt de l'enfant en paierait le prix. Une
+  /// zone absente, elle, n'est qu'un manque.
   List<ContentIssue> _validateAreas() {
     final issues = <ContentIssue>[];
     final placed = <WordFamily>[];
 
     for (final family in families) {
       final area = family.area;
-      if (area == null) continue;
+      if (area == null) {
+        // Dans le jeu, une famille sans zone n'est pas affichee : ses mots ne
+        // se poseraient nulle part, et le lieu ne se terminerait pas. Un
+        // manque et non une faute — on cale les zones une fois l'image posee.
+        //
+        // **Seulement sur un lieu illustre** : les zones se calent sur l'image,
+        // et sans elle il n'y a encore rien a caler. C'est aussi ce qui garde
+        // ouvrable le contenu livre, dont deux lieux attendent leur decor.
+        if (backgroundAsset != null) {
+          issues.add(ContentIssue.incomplete(
+            'La famille "${family.id}" n\'a pas de zone de depot sur '
+            'l\'illustration : ses mots ne pourraient se poser nulle part.',
+            stageId: id,
+            familyId: family.id,
+          ));
+        }
+        continue;
+      }
 
       if (area.overflows) {
         issues.add(ContentIssue.wrong(

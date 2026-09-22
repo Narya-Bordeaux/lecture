@@ -44,6 +44,45 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.30.0+47 — 22 septembre 2026 — Que fait l'enfant ici ?
+
+**Le défaut signalé** : choisir « Tri unique » en ajoutant des trajets
+laissait visible le sélecteur du nombre. Il n'était pas faux — il comptait des
+trajets, chacun menant à son propre tri unique — mais il se lisait comme un
+nombre de listes, et c'est le modèle qui était en cause. La nature se
+choisissait pour le lieu **d'arrivée**, au moment de créer le chemin.
+
+**L'auteur raisonne autrement, et à juste titre** : arrivé à la gare, que fait
+l'enfant ? Il range dans plusieurs listes, ou il fait un tri unique, ou c'est
+la fin et il n'y a que du texte. La question se pose **au lieu**, sur sa
+carte. `StageNature` la lit dans la structure ; un lieu sans famille ni
+marqueur de fin est *à définir*, et sa carte propose trois boutons. Tout lieu
+créé naît ainsi.
+
+`AdventureBuilder` porte les trois réponses. `addTrips` fait — ou prolonge —
+un lieu à plusieurs listes, et ses arrivées naissent à définir.
+`defineAsSingleSort` pose ensemble le thème, sa sortie et la liste du reste :
+l'un sans l'autre n'est pas un tri unique. `defineAsEnding` clôt le lieu. Les
+deux derniers refusent un lieu déjà défini, que redéfinir viderait. `TripKind`
+disparaît : un trajet n'a plus de nature. `AddTripsPage` ne fait plus que
+nommer les sorties ; pour un tri unique, un seul champ, « Le thème », et aucun
+nombre.
+
+**Sept mots par liste** (`AdventureBuilder.defaultDrawCount`), posés sur le
+lieu quand il reçoit ses premières listes. Un lieu déjà écrit garde ce qu'il
+demandait : le contenu livré ne change pas de comportement.
+
+**« Cette aventure est jouable » ne s'affiche plus que si c'est vrai.**
+`ContentReadiness` tire des anomalies trois états — jouable, pas complète,
+contient des erreurs —, et l'écran du parcours les annonce en tête.
+
+**La zone manquante est enfin signalée**, *à finir*, mais seulement sur un
+lieu illustré. Le jeu refuse toute anomalie, et la gare et la boutique livrées
+n'ont ni décor ni zones : les signaler aussi rendrait le jeu impossible à
+ouvrir. L'extension est notée dans `TODO.md`.
+
+419 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.29.0+46 — 22 septembre 2026 — Caler les zones sur la vraie image, sans JSON
 
 **Deux défauts vus par l'auteur en ouvrant le calage.** L'illustration du lieu

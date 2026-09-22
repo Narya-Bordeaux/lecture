@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.29.0+46** — 22 septembre 2026
+**Version : 0.30.0+47** — 22 septembre 2026
 
 ## Où en est le projet
 
@@ -56,9 +56,21 @@ Découpage en six étapes, les deux premières faites, la troisième entamée :
    22 septembre 2026. Choisie, elle s'écrit aussitôt dans l'arbre sous
    `pictures/…`, par le même puits que le JSON, et `ContentPictureImage` la
    relit par la source.
-5. ⬜ **Le lexique et les listes** — saisir mots et découpages, unicité garantie,
-   et composer les listes thématiques. Le modèle est posé depuis 0.17.0
-   (`WordList`, `ContentWriter.writeWordLists`) ; reste l'écran.
+5. 🟡 **Le lexique et les listes** — **en cours**, en trois livraisons
+   convenues avec l'auteur :
+   1. ✅ **La nature se dit sur la carte du lieu** (0.30.0) : plusieurs
+      listes, tri unique ou fin. Sept mots par liste.
+   2. ⬜ **Le moteur des listes.** Pas de mot seul : on crée une liste ou on
+      en réutilise une. **Tri unique, option C** : l'auteur choisit le thème,
+      et coche les listes où le jeu peut puiser les mots « autre » — le jeu y
+      tire des mots qui ne sont pas du thème. Tirer dans *tout* le
+      vocabulaire a été écarté : « banane », absente de la liste « Ce qui se
+      mange » mais présente ailleurs, serait refusée à l'enfant qui la range
+      à juste titre. Écrire le lexique et les listes modifiées, que
+      l'enregistrement ignore encore.
+   3. ⬜ **L'écran de liste**, ouvert en touchant un trajet. La carte dit
+      pour chaque liste : « une fois retirés les mots communs aux autres
+      listes, en reste-t-il assez pour jouer ? ».
 6. ✅ **Rebrancher le calage** — il s'ouvre depuis l'éditeur de lieu, sur
    l'étape en cours d'édition, **montre enfin son illustration**, et s'enregistre
    avec l'aventure : plus de JSON à copier (0.29.0).
@@ -91,6 +103,18 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.30.0+47 — Que fait l'enfant ici ?
+- **La nature se dit sur la carte du lieu**, plus au moment d'ajouter un
+  trajet : plusieurs listes, tri unique, ou fin — du texte, pas de jeu.
+- **Le sélecteur de nombre ne paraît plus pour un tri unique** : il n'a
+  qu'une sortie, celle du thème. C'était le défaut signalé.
+- Tout lieu créé naît **à définir**, et sa carte pose la question.
+- **Sept mots par liste** dans ce que l'outil écrit.
+- En tête du parcours : **jouable**, **pas complète** ou **contient des
+  erreurs** — « jouable » réservé à ce que le jeu ouvrira vraiment.
+- Une famille sans zone est signalée *à finir*, sur un lieu illustré.
+- 419 tests au vert.
+
 ### 0.29.0+46 — Caler les zones sur la vraie image, sans JSON
 - **L'illustration manquait au calage** : l'aperçu la cherchait dans le
   bundle, où une image prise avec l'outil n'est pas. `StagePage` reçoit
@@ -115,23 +139,6 @@ un travail d'auteur, pas de code.
 - **Vérifié, pas supposé** : une source de test compte les lectures
   simultanées ; en file indienne le maximum resterait à 1.
 - 386 tests au vert, dont 4 nouveaux.
-
-### 0.28.0+44 — Une illustration est du contenu
-- **Elle voyage enfin.** Choisie, elle s'écrit aussitôt dans l'arbre de contenu
-  sous `pictures/…`, par le même puits que le JSON — dépôt distant ou dossier
-  de l'appareil.
-- `ContentSink.writeBytes` et `ContentSource.readBytes`, symétriques.
-- **L'aperçu vide dans Chrome est réparé par construction** : on ne lit plus le
-  chemin du sélecteur — un `blob:` que le système révoque aussitôt — mais ses
-  **octets**.
-- `PicturePicker` (choisir) et `StoredPictureLibrary` (ranger) : deux rôles
-  séparés, tous deux éprouvables sans appareil ni greffon.
-- **Une branche de plateforme en moins** : `local_image_provider_*` et
-  `picture_keeper_*` disparaissent.
-- Le contenu livré migre vers `assets/content/pictures/`, et les chemins
-  s'écrivent `pictures/…`.
-- 382 tests au vert ; les deux points d'entrée compilent pour le web.
-
 
 ## Décisions prises
 
@@ -203,6 +210,17 @@ un travail d'auteur, pas de code.
   personnages, les aventures. Un mot n'est défini qu'une fois.
 - **Leurres écrits à la main** : jamais ramassés automatiquement, sous peine de
   sortir un mot appartenant vraiment au thème et de refuser une bonne réponse.
+- **La nature d'un lieu se dit sur sa carte** : plusieurs listes, tri unique,
+  ou fin. La question est « que fait l'enfant ici ? », et elle se pose au
+  lieu, pas au trajet qui y mène.
+- **Sept mots par liste** : ce que chaque liste met en jeu dans un lieu écrit
+  par l'outil. Une liste peut en compter bien davantage.
+- **Tri unique, option C** : le thème est une liste, et les mots « autre » se
+  tirent dans des listes que l'auteur coche comme sûres pour ce thème, moins
+  les mots du thème. Ni liste « autre » écrite exprès (option A), ni tirage
+  dans tout le vocabulaire (option B, qui refuserait une bonne réponse).
+- **L'outil n'est jamais entre les mains d'un enfant** : il tolère tout, et
+  prévient. C'est le jeu qui refuse une aventure non jouable.
 - **Listes réutilisables, plus grandes que la partie** : le moteur en tire
   quelques mots à l'entrée du lieu, après avoir retiré ceux qui sont communs à
   plusieurs listes du même lieu. Le mot ambigu n'est plus interdit à l'auteur,

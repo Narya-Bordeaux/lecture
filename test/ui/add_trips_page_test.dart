@@ -14,10 +14,10 @@ import 'package:grisbie/ui/pages/add_trips_page.dart';
 Future<void> pumpAddTrips(
   WidgetTester tester, {
   Map<String, String> existingEndings = const <String, String>{},
+  bool allowsOneTripOnly = false,
   void Function(List<NewTrip>? trips)? onResult,
 }) async {
-  // Deux champs par trajet, plus les trois natures expliquees : la fenetre de
-  // test par defaut ne montre pas le bas de l'ecran, et un `ListView` ne
+  // Deux champs par trajet : la fenetre de test par defaut ne montre pas le bas de l'ecran, et un `ListView` ne
   // construit pas ce qui n'est pas visible.
   tester.view.physicalSize = const Size(1000, 2400);
   tester.view.devicePixelRatio = 1;
@@ -33,6 +33,7 @@ Future<void> pumpAddTrips(
                 builder: (_) => AddTripsPage(
                   locationName: 'Devant la maison',
                   existingEndings: existingEndings,
+                  allowsOneTripOnly: allowsOneTripOnly,
                 ),
               ),
             );
@@ -120,9 +121,6 @@ void main() {
       tester,
       existingEndings: const <String, String>{'plage': 'La plage'},
     );
-
-    await tester.tap(find.text('Une fin'));
-    await tester.pumpAndSettle();
     expect(locationField(), findsOneWidget);
 
     await tester.tap(find.byType(DropdownButton<String?>));
@@ -131,5 +129,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(locationField(), findsNothing);
+  });
+
+  testWidgets('un tri unique ne demande que son theme', (tester) async {
+    // Une seule sortie : aucun nombre a choisir, un seul champ.
+    await pumpAddTrips(tester, allowsOneTripOnly: true);
+
+    expect(find.text('Combien de trajets partent d\'ici ?'), findsNothing);
+    expect(find.text('Le thème'), findsOneWidget);
+    expect(find.byKey(const Key('trip-name-1')), findsNothing);
   });
 }

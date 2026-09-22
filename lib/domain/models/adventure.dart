@@ -195,6 +195,9 @@ class Adventure {
     return issues;
   }
 
+  /// Jouable, incomplete ou fausse : ce que l'outil annonce en tete.
+  ContentReadiness get readiness => ContentReadiness.of(validate());
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,

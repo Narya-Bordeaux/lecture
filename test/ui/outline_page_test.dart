@@ -38,10 +38,13 @@ Future<void> pumpOutline(
 Finder tripField(int index) => find.byKey(Key('trip-name-$index'));
 
 /// Ajoute un trajet depuis le premier point de l'ecran.
+///
+/// Un lieu deja a plusieurs listes porte « Ajouter » ; un lieu a definir pose
+/// la question, et « Plusieurs listes » y repond.
 Future<void> addTripFromStart(WidgetTester tester, String name) async {
   final button = find.text('Ajouter').evaluate().isNotEmpty
       ? find.text('Ajouter')
-      : find.text('Ajouter des trajets');
+      : find.text('Plusieurs listes');
   await tester.tap(button.first);
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextField).first, name);
@@ -137,11 +140,15 @@ void main() {
       // « La rue », « Le garage » et « La plage » sont des fins. Elles gardent
       // leur carte — il y aura une image et un texte a y poser — mais rien
       // n'en repart, et l'ecran ne doit pas laisser croire le contraire.
-      expect(find.text('Fin de l\'aventure.'), findsNWidgets(3));
-      expect(find.text('Ajouter des trajets'), findsNothing);
+      expect(
+        find.text('Fin de l\'aventure : du texte, pas de jeu.'),
+        findsNWidgets(3),
+      );
+      expect(find.text('Que fait l\'enfant ici ?'), findsNothing);
 
-      // Les trois lieux qui ne sont pas des fins le proposent, eux.
-      expect(find.text('Ajouter'), findsNWidgets(3));
+      // Les deux lieux a plusieurs listes le proposent. La boutique, tri
+      // unique, a deja sa seule sortie : rien a y ajouter.
+      expect(find.text('Ajouter'), findsNWidgets(2));
     });
 
     testWidgets('une aventure jouable ne montre aucune alerte', (tester) async {
@@ -479,16 +486,19 @@ void main() {
       // exactement ce qui manquait, et qui rendait l'ecran inutilisable.
       expect(find.text('En vélo'), findsNWidgets(2));
       expect(find.text('B4'), findsNWidgets(2));
-      expect(
-        find.text('Aucun trajet ne part d\'ici pour l\'instant.'),
-        findsWidgets,
-      );
+    });
+
+    testWidgets('le lieu qui vient de naitre demande ce qu\'on y fait',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+      await addTripFromStart(tester, 'En vélo');
+
+      // La nature se decide sur la carte du lieu, pas au moment de le creer.
+      expect(find.text('Que fait l\'enfant ici ?'), findsOneWidget);
     });
 
     testWidgets('on prolonge aussitot le lieu qui vient de naitre',
         (tester) async {
-      // Sur une aventure neuve, le lieu qui vient de naitre est le seul sans
-      // trajet : son bouton est donc le seul a dire « Ajouter des trajets ».
       final fresh = AdventureBuilder.createAdventure(
         title: 'Essai',
         startName: 'Le seuil',
@@ -496,7 +506,8 @@ void main() {
       await pumpOutline(tester, fresh);
       await addTripFromStart(tester, 'En bus');
 
-      await tester.tap(find.text('Ajouter des trajets').first);
+      // Le seuil a maintenant ses listes ; seul le lieu neuf pose la question.
+      await tester.tap(find.text('Plusieurs listes').first);
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Depuis « En bus »'), findsOneWidget);
@@ -524,8 +535,10 @@ void main() {
 
       // C'est tout l'interet de la distinction : ecrire ne doit pas produire
       // d'ecran rouge, sans quoi on apprendrait a l'ignorer.
+      expect(find.text('Cette aventure n\'est pas complète.'), findsOneWidget);
       expect(find.textContaining('à finir'), findsOneWidget);
       expect(find.textContaining('à corriger'), findsNothing);
+      expect(find.text('Cette aventure est jouable.'), findsNothing);
     });
 
     testWidgets('on choisit combien de trajets partent du point',
@@ -541,21 +554,16 @@ void main() {
       expect(tripField(3), findsNothing);
     });
 
-    testWidgets('une seule nature vaut pour tout le lot', (tester) async {
+    testWidgets('la page d\'ajout ne redemande pas la nature', (tester) async {
+      // Elle a ete dite sur la carte : la reposer ici, trajet par trajet,
+      // laissait croire qu'elle portait sur le chemin.
       await pumpOutline(tester, realAdventure);
 
       await tester.tap(find.text('Ajouter').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('3'));
-      await tester.pumpAndSettle();
 
-      // Trois noms a saisir, mais un seul choix de nature : on ne melange pas
-      // des fins, des tris uniques et des tris a plusieurs listes dans le
-      // meme geste.
-      expect(tripField(2), findsOneWidget);
-      expect(find.text('Plusieurs listes'), findsOneWidget);
-      expect(find.text('Tri unique'), findsOneWidget);
-      expect(find.text('Une fin'), findsOneWidget);
+      expect(find.text('Tri unique'), findsNothing);
+      expect(find.text('Une fin'), findsNothing);
     });
 
     testWidgets('sans nom saisi, rien ne se cree', (tester) async {
@@ -575,37 +583,91 @@ void main() {
     });
   });
 
-  group('Le tri unique', () {
-    /// Cree une aventure neuve et y ajoute un trajet de tri unique.
-    Future<void> addSingleSort(WidgetTester tester) async {
+  group('Que fait l\'enfant ici ?', () {
+    testWidgets('un lieu a definir offre les trois reponses', (tester) async {
       final fresh = AdventureBuilder.createAdventure(
         title: 'Essai',
         startName: 'La gare',
       );
       await pumpOutline(tester, fresh);
 
-      await tester.tap(find.text('Ajouter des trajets').first);
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'La boutique');
+      expect(find.text('Que fait l\'enfant ici ?'), findsOneWidget);
+      expect(find.text('Plusieurs listes'), findsOneWidget);
+      expect(find.text('Tri unique'), findsOneWidget);
+      expect(find.text('Une fin'), findsOneWidget);
+    });
+
+    testWidgets('un lieu defini ne repose plus la question', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Que fait l\'enfant ici ?'), findsNothing);
+    });
+  });
+
+  group('Le tri unique', () {
+    /// Une aventure neuve dont le depart devient un tri unique.
+    Future<void> defineSingleSort(WidgetTester tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'La boutique',
+      );
+      await pumpOutline(tester, fresh);
+
       await tester.tap(find.text('Tri unique'));
+      await tester.pumpAndSettle();
+      await tester.enterText(tripField(0), 'Ce qui se mange');
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('location-name-0')),
+        'La plage',
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Créer'));
       await tester.pumpAndSettle();
     }
 
+    testWidgets('on n\'y choisit pas de nombre : une seule sortie',
+        (tester) async {
+      final fresh = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'La boutique',
+      );
+      await pumpOutline(tester, fresh);
+
+      await tester.tap(find.text('Tri unique'));
+      await tester.pumpAndSettle();
+
+      // Le defaut signale par l'auteur : le selecteur du nombre restait
+      // visible, alors qu'un tri unique n'a qu'une liste a thème.
+      expect(find.text('Combien de trajets partent d\'ici ?'), findsNothing);
+      expect(find.text('2'), findsNothing);
+      expect(tripField(0), findsOneWidget);
+      expect(tripField(1), findsNothing);
+      expect(find.text('Le thème'), findsOneWidget);
+    });
+
+    testWidgets('le theme et le reste apparaissent ensemble', (tester) async {
+      await defineSingleSort(tester);
+
+      expect(
+        find.text('Ce qui se mange → La plage', findRichText: true),
+        findsOneWidget,
+      );
+      expect(find.text('Le reste'), findsOneWidget);
+    });
+
     testWidgets('la liste du reste n\'est pas annoncee comme un defaut',
         (tester) async {
-      await addSingleSort(tester);
+      await defineSingleSort(tester);
 
       // « sans issue » se lisait comme une panne, alors que cette liste est
       // la moitie du dispositif.
       expect(find.text('sans issue'), findsNothing);
       expect(find.text('le reste'), findsOneWidget);
-      expect(find.text('Le reste'), findsOneWidget);
     });
 
     testWidgets('le lieu annonce sa mecanique', (tester) async {
-      await addSingleSort(tester);
+      await defineSingleSort(tester);
 
       expect(
         find.text('Tri unique : ce qui est du thème, et tout le reste.'),
@@ -614,14 +676,25 @@ void main() {
     });
 
     testWidgets('aucun personnage n\'est invente', (tester) async {
-      await addSingleSort(tester);
+      await defineSingleSort(tester);
 
       // Le personnage est un ornement : l'outil ne doit pas en poser un dont
       // l'auteur n'a pas voulu.
       expect(find.byIcon(Icons.person_outline), findsNothing);
     });
 
-    testWidgets('rien n\'interdit d\'en ouvrir plusieurs depuis un carrefour',
+    testWidgets('sa sortie posee, il n\'offre plus rien a ajouter',
+        (tester) async {
+      await defineSingleSort(tester);
+
+      // Seul le lieu atteint, a definir, propose encore quelque chose.
+      expect(find.text('Ajouter'), findsNothing);
+      expect(find.text('Que fait l\'enfant ici ?'), findsOneWidget);
+    });
+  });
+
+  group('Clore la journée', () {
+    testWidgets('« Une fin » clot le lieu, sans rien a remplir',
         (tester) async {
       final fresh = AdventureBuilder.createAdventure(
         title: 'Essai',
@@ -629,61 +702,16 @@ void main() {
       );
       await pumpOutline(tester, fresh);
 
-      await tester.tap(find.text('Ajouter des trajets').first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Tri unique'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('2'));
-      await tester.pumpAndSettle();
-      await tester.enterText(tripField(0), 'La boutique');
-      await tester.enterText(tripField(1), 'Le kiosque');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer'));
+      await tester.tap(find.text('Une fin'));
       await tester.pumpAndSettle();
 
-      // « Une seule sortie » porte sur le lieu d'arrivee, pas sur celui d'ou
-      // l'on part : deux tris uniques peuvent s'ouvrir depuis ici, chacun
-      // avec sa propre liste du reste.
+      // Du texte, pas de jeu : rien a nommer, et plus rien a proposer.
       expect(
-        find.text('Tri unique : ce qui est du thème, et tout le reste.'),
-        findsNWidgets(2),
-      );
-    });
-
-    testWidgets('on n\'y propose pas plusieurs sorties', (tester) async {
-      await addSingleSort(tester);
-
-      // La carte de la boutique porte « Ajouter », puisqu'elle a deja sa
-      // liste du reste.
-      await tester.tap(find.text('Ajouter').last);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Combien de trajets partent d\'ici ?'), findsNothing);
-      expect(
-        find.textContaining('ce lieu n\'a qu\'une seule sortie'),
+        find.text('Fin de l\'aventure : du texte, pas de jeu.'),
         findsOneWidget,
       );
-      expect(tripField(0), findsOneWidget);
-      expect(tripField(1), findsNothing);
-    });
-  });
-
-  group('Clore la journée', () {
-    testWidgets('les trois choix structurels sont offerts, et expliqués',
-        (tester) async {
-      await pumpOutline(tester, realAdventure);
-
-      await tester.tap(find.text('Ajouter').first);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Plusieurs listes'), findsOneWidget);
-      expect(find.text('Tri unique'), findsOneWidget);
-      expect(find.text('Une fin'), findsOneWidget);
-      // Ce ne sont pas trois habillages : chacun dit ce que l'enfant y fera.
-      expect(
-        find.text('La journée s\'arrête là. Rien n\'en repart.'),
-        findsOneWidget,
-      );
+      expect(find.text('Que fait l\'enfant ici ?'), findsNothing);
+      expect(find.text('Cette aventure est jouable.'), findsOneWidget);
     });
 
     testWidgets('les fins déjà écrites sont proposées', (tester) async {
@@ -691,14 +719,12 @@ void main() {
 
       await tester.tap(find.text('Ajouter').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Une fin'));
-      await tester.pumpAndSettle();
 
       // Une fin porte un écran, une image et un texte : deux chemins qui
       // aboutissent au même endroit doivent pouvoir partager la même.
-      expect(find.text('Une nouvelle fin'), findsOneWidget);
+      expect(find.text('Un nouveau lieu'), findsOneWidget);
 
-      await tester.tap(find.text('Une nouvelle fin'));
+      await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
       expect(find.text('La plage'), findsWidgets);
       expect(find.text('Le garage'), findsWidgets);
@@ -710,9 +736,7 @@ void main() {
 
       await tester.tap(find.text('Ajouter').first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Une fin'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Une nouvelle fin'));
+      await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('La plage').last);
       await tester.pumpAndSettle();
@@ -730,35 +754,11 @@ void main() {
       );
       await pumpOutline(tester, fresh);
 
-      await tester.tap(find.text('Ajouter des trajets').first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Une fin'));
+      await tester.tap(find.text('Plusieurs listes'));
       await tester.pumpAndSettle();
 
       // Un choix entre une seule possibilite n'est pas un choix.
-      expect(find.text('Une nouvelle fin'), findsNothing);
-    });
-
-    testWidgets('un trajet « une fin » crée un lieu déjà achevé',
-        (tester) async {
-      final fresh = AdventureBuilder.createAdventure(
-        title: 'Essai',
-        startName: 'Le seuil',
-      );
-      await pumpOutline(tester, fresh);
-
-      await tester.tap(find.text('Ajouter des trajets').first);
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'La plage');
-      await tester.tap(find.text('Une fin'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer'));
-      await tester.pumpAndSettle();
-
-      // Le seul lieu qu'on puisse créer déjà terminé : il l'annonce, et rien
-      // ne le signale comme inachevé.
-      expect(find.text('Fin de l\'aventure.'), findsOneWidget);
-      expect(find.text('La plage'), findsNWidgets(2));
+      expect(find.text('Un nouveau lieu'), findsNothing);
     });
   });
 
@@ -774,10 +774,7 @@ void main() {
       expect(find.text('Grisbie va au marché'), findsOneWidget);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('Devant la maison'), findsOneWidget);
-      expect(
-        find.text('Aucun trajet ne part d\'ici pour l\'instant.'),
-        findsOneWidget,
-      );
+      expect(find.text('Que fait l\'enfant ici ?'), findsOneWidget);
     });
 
     testWidgets('elle se construit de proche en proche', (tester) async {
@@ -787,7 +784,7 @@ void main() {
       );
       await pumpOutline(tester, fresh);
 
-      await tester.tap(find.text('Ajouter des trajets').first);
+      await tester.tap(find.text('Plusieurs listes'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, 'En bus');
       await tester.pumpAndSettle();

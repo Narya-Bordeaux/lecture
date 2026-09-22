@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.29.0+46** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.30.0+47** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -619,7 +619,7 @@ même quand il n'y a pas de page de garde, sans quoi il n'y aurait aucun endroit
 où en créer une. `OpeningEdit` enveloppe le résultat de son éditeur parce que
 **renoncer et retirer la page donneraient tous deux `null`**.
 
-**Une fin garde sa carte, mais perd son bouton** — la journée s'y arrête, et
+**Une fin garde sa carte, mais n'a aucun bouton** — la journée s'y arrête, et
 proposer d'en repartir contredirait ce que la carte vient d'annoncer. Sa carte
 reste, elle : il y aura une illustration et un texte d'arrivée à y poser.
 `AdventureBuilder` continue d'accepter qu'on prolonge une fin — sans quoi le
@@ -662,23 +662,31 @@ mais obligeait à descendre chercher sa carte pour savoir duquel il s'agit ; sur
 le croquis papier, la flèche portait les deux bouts. Le nom est tu quand il
 répète le trajet : « En bus → En bus » se lirait comme un défaut.
 
-**L'ajout de trajets : la nature d'abord, une seule par lot** — `AddTripsPage`
-pose en tête ce que l'enfant trouvera au bout (plusieurs listes, tri unique,
-une fin), puis seulement le nombre. La nature décide de la mécanique, le nombre
-n'est qu'une commodité de saisie. Elle valait auparavant trajet par trajet, ce
-qui répétait trois pavés d'explication sous chaque nom et laissait composer un
-lot bigarré.
+**La nature se dit sur la carte du lieu, pas sur le trajet** — la question
+est « que fait l'enfant ici ? », et elle se pose au lieu : ranger dans
+plusieurs listes, faire un tri unique, ou lire la fin (du texte, pas de jeu).
+`StageNature` la lit dans la structure ; un lieu sans famille ni marqueur de
+fin est **à définir**, et sa carte pose la question avec trois boutons. Tout
+lieu créé naît ainsi. L'outil demandait autrefois la nature du lieu
+**d'arrivée** au moment d'ajouter les trajets, avec un sélecteur de nombre
+qui comptait les trajets et se lisait comme un nombre de listes — l'auteur
+l'a pris pour un défaut, à juste titre.
 
-**Mais un lieu peut mener à des natures différentes** : « Devant la maison »
-ouvre sur un tri à plusieurs listes et sur deux fins. L'interdiction porte donc
-sur **un ajout**, jamais sur un lieu — sans quoi l'outil ne saurait plus écrire
-l'aventure livrée. L'écran le dit, et le rappel « partent déjà d'ici » sert à
-revenir.
+`AdventureBuilder` porte les trois réponses : `addTrips` (plusieurs listes,
+et ajouter ensuite), `defineAsSingleSort` (le thème, sa sortie et la liste du
+reste, posés ensemble) et `defineAsEnding`. Les deux derniers refusent un lieu
+déjà défini : redéfinir jetterait ses listes. `AddTripsPage` ne fait plus que
+nommer les sorties — plusieurs, ou le seul thème d'un tri unique
+(`allowsOneTripOnly`), sans nombre à choisir.
 
-**« Une seule sortie » porte sur l'arrivée, pas sur le départ** — ouvrir
-plusieurs tris uniques depuis un même carrefour est légitime, chacun ayant sa
-propre liste du reste. C'est `AddTripsPage.allowsOneTripOnly` qui traite
-l'autre sens : ajouter **depuis** un tri unique n'admet qu'un trajet.
+**Sept mots par liste** — `AdventureBuilder.defaultDrawCount`, posé sur le
+lieu quand il reçoit ses premières listes. Un lieu déjà écrit garde ce qu'il
+demandait, contenu livré compris.
+
+**Où en est l'aventure** — `ContentReadiness`, déduite des anomalies et de
+rien d'autre : *jouable* (aucune), *pas complète* (des manques), *contient
+des erreurs* (une faute). « Jouable » est réservé à ce que le jeu ouvrira
+vraiment ; l'écran du parcours l'annonce en tête.
 
 **Tests d'écran et fenêtre** — un `ListView` ne construit que ce qui est
 visible : sur la fenêtre de test par défaut, les cartes du bas n'existent pas

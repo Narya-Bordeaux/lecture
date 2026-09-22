@@ -1,4 +1,5 @@
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 
 /// Le lettrage positionnel d'une aventure, tel qu'il se lit a l'auteur.
@@ -74,8 +75,7 @@ class AdventureOutline {
           locationName: stage.locationName,
           hasNarrative: stage.narrative.onArrival != null,
           isEncounter: stage.isEncounter,
-          isSingleSort: stage.isSingleSort,
-          isEnding: stage.isEnding,
+          nature: stage.nature,
           trips: List<OutlineTrip>.unmodifiable(
             stage.families.map((family) => _tripOf(family, letters, adventure)),
           ),
@@ -161,8 +161,7 @@ class OutlineBlock {
     required this.locationName,
     required this.hasNarrative,
     required this.isEncounter,
-    required this.isSingleSort,
-    required this.isEnding,
+    required this.nature,
     required this.trips,
   });
 
@@ -181,13 +180,17 @@ class OutlineBlock {
   /// Vrai si un personnage attend ici. C'est un ornement, pas une mecanique.
   final bool isEncounter;
 
+  /// Ce que l'enfant fait ici — ou `undefined`, tant que l'auteur ne l'a pas
+  /// dit. C'est ce qui decide de ce que la carte propose.
+  final StageNature nature;
+
   /// Vrai si l'enfant y trie entre une liste et son complement.
   ///
   /// Un tel lieu n'a qu'une sortie : l'ecran n'en propose donc pas davantage.
-  final bool isSingleSort;
+  bool get isSingleSort => nature == StageNature.singleSort;
 
   /// Vrai si le lieu clot le parcours. Il n'a alors aucun trajet.
-  final bool isEnding;
+  bool get isEnding => nature == StageNature.ending;
 
   /// Les trajets qui partent d'ici. Vide pour un lieu pas encore ecrit, comme
   /// pour une fin.

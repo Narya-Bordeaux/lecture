@@ -92,12 +92,18 @@ class _OutlinePageState extends State<OutlinePage> {
     });
   }
 
-  Future<void> _addTrips(OutlineBlock block) async {
+  /// Demande les trajets a ajouter depuis ce lieu.
+  ///
+  /// [singleExit] vaut pour un tri unique : une seule sortie, celle du theme.
+  Future<List<NewTrip>?> _askTrips(
+    OutlineBlock block, {
+    required bool singleExit,
+  }) async {
     final trips = await Navigator.of(context).push<List<NewTrip>>(
       MaterialPageRoute<List<NewTrip>>(
         builder: (_) => AddTripsPage(
           locationName: block.locationName,
-          allowsOneTripOnly: block.isSingleSort,
+          allowsOneTripOnly: singleExit,
           existingTrips: block.trips
               .where((trip) => trip.destinationStageId != null)
               .map((trip) => trip.label)
@@ -111,9 +117,37 @@ class _OutlinePageState extends State<OutlinePage> {
         ),
       ),
     );
-    if (trips == null || trips.isEmpty) return;
+    if (trips == null || trips.isEmpty) return null;
+    return trips;
+  }
+
+  /// Ajoute des listes, et les trajets qu'elles ouvrent.
+  ///
+  /// Sert a definir un lieu a plusieurs listes comme a en ajouter ensuite —
+  /// et a poser la sortie d'un tri unique qui n'en aurait pas.
+  Future<void> _addTrips(OutlineBlock block) async {
+    final trips = await _askTrips(block, singleExit: block.isSingleSort);
+    if (trips == null) return;
 
     _change(AdventureBuilder(_adventure).addTrips(block.stageId, trips));
+  }
+
+  /// Fait du lieu un tri unique : le theme, sa sortie, et le reste.
+  Future<void> _defineSingleSort(OutlineBlock block) async {
+    final trips = await _askTrips(block, singleExit: true);
+    if (trips == null) return;
+
+    _change(
+      AdventureBuilder(_adventure).defineAsSingleSort(block.stageId, trips.first),
+    );
+  }
+
+  /// Fait du lieu une fin : du texte, pas de jeu.
+  ///
+  /// Aucune page a remplir : il n'y a rien a nommer. L'illustration et le
+  /// texte d'arrivee se posent ensuite en ouvrant le lieu.
+  void _defineEnding(OutlineBlock block) {
+    _change(AdventureBuilder(_adventure).defineAsEnding(block.stageId));
   }
 
   /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
@@ -296,6 +330,8 @@ class _OutlinePageState extends State<OutlinePage> {
               isDetached: detached.contains(block.stageId),
               issues: issues.where((i) => i.stageId == block.stageId).toList(),
               onAddTrips: () => _addTrips(block),
+              onDefineSingleSort: () => _defineSingleSort(block),
+              onDefineEnding: () => _defineEnding(block),
               onOpen: () => _editStage(block),
             ),
         ],
@@ -304,11 +340,12 @@ class _OutlinePageState extends State<OutlinePage> {
   }
 }
 
-/// Ce qu'il reste a faire, et ce qui est a corriger, en tete d'ecran.
+/// Ou en est l'aventure, en tete d'ecran : jouable, pas complete, ou fausse.
 ///
-/// Les deux ne se melangent pas : une aventure en cours d'ecriture est
-/// toujours incomplete, et l'annoncer comme une faute apprendrait a ignorer
-/// l'ecran.
+/// Trois etats et non deux : « jouable » est reserve a ce que le jeu ouvrira
+/// vraiment, et un travail en cours n'est pas une faute. L'annoncer comme
+/// telle apprendrait a ignorer l'ecran. L'etat vient du domaine
+/// ([ContentReadiness]) ; cet ecran ne fait que le dire.
 class _IssueSummary extends StatelessWidget {
   const _IssueSummary({required this.issues});
 
@@ -319,31 +356,55 @@ class _IssueSummary extends StatelessWidget {
     final wrong =
         issues.where((i) => i.severity == IssueSeverity.wrong).length;
     final incomplete = issues.length - wrong;
+    final errorColor = Theme.of(context).colorScheme.error;
 
-    if (issues.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(bottom: 16),
-        child: Text('Cette aventure est jouable.'),
-      );
-    }
+    final (IconData icon, Color? color, String title, String? detail) =
+        switch (ContentReadiness.of(issues)) {
+      ContentReadiness.playable => (
+          Icons.check_circle_outline,
+          Colors.green.shade700,
+          'Cette aventure est jouable.',
+          null,
+        ),
+      ContentReadiness.incomplete => (
+          Icons.pending_outlined,
+          null,
+          'Cette aventure n\'est pas complète.',
+          '$incomplete à finir.',
+        ),
+      ContentReadiness.wrong => (
+          Icons.error_outline,
+          errorColor,
+          'Cette aventure contient des erreurs.',
+          incomplete > 0
+              ? '$wrong à corriger, $incomplete à finir.'
+              : '$wrong à corriger.',
+        ),
+    };
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          if (wrong > 0) ...<Widget>[
-            Icon(Icons.error_outline,
-                size: 18, color: Theme.of(context).colorScheme.error),
-            const SizedBox(width: 4),
-            Text('$wrong à corriger',
-                style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            const SizedBox(width: 16),
-          ],
-          if (incomplete > 0) ...<Widget>[
-            const Icon(Icons.pending_outlined, size: 18),
-            const SizedBox(width: 4),
-            Text('$incomplete à finir'),
-          ],
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(color: color),
+                ),
+                if (detail != null)
+                  Text(detail, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -410,6 +471,8 @@ class _BlockCard extends StatelessWidget {
     required this.isDetached,
     required this.issues,
     required this.onAddTrips,
+    required this.onDefineSingleSort,
+    required this.onDefineEnding,
     required this.onOpen,
   });
 
@@ -419,7 +482,12 @@ class _BlockCard extends StatelessWidget {
   final bool isDetached;
 
   final List<ContentIssue> issues;
+
+  /// Ajoute des listes et leurs trajets — ce qui fait aussi d'un lieu a
+  /// definir un lieu a plusieurs listes.
   final VoidCallback onAddTrips;
+  final VoidCallback onDefineSingleSort;
+  final VoidCallback onDefineEnding;
 
   /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
   final VoidCallback onOpen;
@@ -464,32 +532,87 @@ class _BlockCard extends StatelessWidget {
               ],
             ),
             if (isDetached) _Note('Aucun chemin ne mène ici.'),
-            if (block.isEnding) _Note('Fin de l\'aventure.'),
+            if (block.isEnding)
+              _Note('Fin de l\'aventure : du texte, pas de jeu.'),
+            if (block.nature == StageNature.sorting)
+              _Note('Plusieurs listes : l\'enfant range dans chacune.'),
             if (block.isSingleSort)
               _Note('Tri unique : ce qui est du thème, et tout le reste.'),
             const SizedBox(height: 8),
-            if (block.trips.isEmpty && !block.isEnding)
-              _Note('Aucun trajet ne part d\'ici pour l\'instant.'),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
-            // Une fin n'a pas de bouton : la journee s'y arrete, et proposer
-            // d'en repartir contredirait ce que la carte vient d'annoncer.
-            // Elle garde sa carte pour autant — il y aura une illustration et
-            // un texte d'arrivee a y poser.
-            if (!block.isEnding) ...<Widget>[
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: onAddTrips,
-                  icon: const Icon(Icons.add),
-                  label: Text(
-                    block.trips.isEmpty ? 'Ajouter des trajets' : 'Ajouter',
-                  ),
-                ),
+            ..._buildActions(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Ce que la carte propose, selon ce que l'enfant fait ici.
+  ///
+  /// **Un lieu a definir pose la question**, et c'est la seule chose qu'il
+  /// propose : la nature decide de tout le reste. Une fin ne propose rien —
+  /// la journee s'y arrete, et proposer d'en repartir contredirait ce que la
+  /// carte vient d'annoncer. Un tri unique n'a qu'une sortie : une fois posee,
+  /// il n'y a plus rien a ajouter.
+  List<Widget> _buildActions(BuildContext context) {
+    switch (block.nature) {
+      case StageNature.undefined:
+        return <Widget>[
+          const SizedBox(height: 4),
+          Text(
+            'Que fait l\'enfant ici ?',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: <Widget>[
+              OutlinedButton.icon(
+                onPressed: onAddTrips,
+                icon: const Icon(Icons.dashboard_outlined, size: 18),
+                label: const Text('Plusieurs listes'),
+              ),
+              OutlinedButton.icon(
+                onPressed: onDefineSingleSort,
+                icon: const Icon(Icons.filter_alt_outlined, size: 18),
+                label: const Text('Tri unique'),
+              ),
+              OutlinedButton.icon(
+                onPressed: onDefineEnding,
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                label: const Text('Une fin'),
               ),
             ],
-          ],
+          ),
+        ];
+
+      case StageNature.sorting:
+        return <Widget>[_actionButton('Ajouter')];
+
+      case StageNature.singleSort:
+        // Un tri unique ecrit a la main peut n'avoir que sa liste du reste.
+        final hasExit =
+            block.trips.any((trip) => trip.destinationStageId != null);
+        return hasExit
+            ? const <Widget>[]
+            : <Widget>[_actionButton('Ajouter la sortie')];
+
+      case StageNature.ending:
+        return const <Widget>[];
+    }
+  }
+
+  Widget _actionButton(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: TextButton.icon(
+          onPressed: onAddTrips,
+          icon: const Icon(Icons.add),
+          label: Text(label),
         ),
       ),
     );

@@ -147,30 +147,39 @@ void main() {
     });
   });
 
-  group('Un trajet de type tri unique', () {
+  group('Un lieu defini en tri unique', () {
     // L'enfant y trie entre **une liste et son complement** : ce qui est du
     // theme, et tout le reste. Rien a comparer d'un mot a l'autre, chacun se
-    // juge seul contre un seul critere.
+    // juge seul contre un seul critere. C'est **le lieu** qui se definit ainsi,
+    // sur sa carte : la question est « que fait l'enfant ici ? ».
 
     late Adventure built;
 
     setUpAll(() {
-      built = AdventureBuilder(emptyAdventureAt('gare')).addTrips(
-        'gare',
-        const <NewTrip>[
-          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
-        ],
+      built = AdventureBuilder(emptyAdventureAt('boutique')).defineAsSingleSort(
+        'boutique',
+        const NewTrip(name: 'Ce qui se mange', locationName: 'La plage'),
       );
     });
 
-    test('la liste du reste est posee d\'office', () {
-      // Elle n'est pas un defaut a corriger : c'est la moitie du dispositif.
-      // La poser d'office evite un lieu ne a moitie.
-      final sorting = built.findStage('boutique')!;
+    test('le theme et le reste sont poses ensemble', () {
+      final boutique = built.findStage('boutique')!;
 
-      expect(sorting.isSingleSort, isTrue);
-      expect(sorting.families, hasLength(1));
-      expect(sorting.families.single.leadsSomewhere, isFalse);
+      expect(boutique.nature, StageNature.singleSort);
+      expect(boutique.families, hasLength(2));
+      expect(boutique.families.where((f) => f.leadsSomewhere), hasLength(1));
+      expect(boutique.families.where((f) => !f.leadsSomewhere), hasLength(1));
+    });
+
+    test('le theme ouvre la seule sortie, vers un lieu a definir', () {
+      final theme = built
+          .findStage('boutique')!
+          .families
+          .singleWhere((f) => f.leadsSomewhere);
+
+      expect(theme.label, 'Ce qui se mange');
+      expect(built.findStage(theme.destinationStageId!)!.nature,
+          StageNature.undefined);
     });
 
     test('aucun personnage n\'est invente', () {
@@ -179,30 +188,11 @@ void main() {
       expect(built.findStage('boutique')!.isEncounter, isFalse);
     });
 
-    test('un trajet ordinaire ne pose aucune liste', () {
-      final ordinary = AdventureBuilder(emptyAdventureAt('gare'))
-          .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le quai')]);
-
-      expect(ordinary.findStage('quai')!.families, isEmpty);
-      expect(ordinary.findStage('quai')!.isSingleSort, isFalse);
-    });
-
-    test('il n\'accepte qu\'une seule sortie', () {
-      final prolonged = AdventureBuilder(built).addTrips(
-        'boutique',
-        const <NewTrip>[NewTrip(name: 'Ce qui se mange')],
-      );
-
-      expect(prolonged.findStage('boutique')!.families, hasLength(2));
-      expect(
-        prolonged.validate().where((i) => i.severity == IssueSeverity.wrong),
-        isEmpty,
-      );
-
+    test('il n\'accepte aucune sortie de plus', () {
       // Une seconde sortie en ferait un tri ordinaire affuble d'une liste de
       // rebut : ce n'est plus la meme mecanique, et l'outil le refuse.
       expect(
-        () => AdventureBuilder(prolonged).addTrips(
+        () => AdventureBuilder(built).addTrips(
           'boutique',
           const <NewTrip>[NewTrip(name: 'Ce qui se boit')],
         ),
@@ -210,14 +200,68 @@ void main() {
       );
     });
 
-    test('deux trajets d\'un coup y sont refuses', () {
+    test('un lieu deja defini ne se redefinit pas', () {
+      final sorting = AdventureBuilder(emptyAdventureAt('gare'))
+          .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le quai')]);
+
       expect(
-        () => AdventureBuilder(built).addTrips(
-          'boutique',
-          const <NewTrip>[NewTrip(name: 'Un'), NewTrip(name: 'Deux')],
+        () => AdventureBuilder(sorting).defineAsSingleSort(
+          'gare',
+          const NewTrip(name: 'Ce qui se mange'),
         ),
         throwsStateError,
       );
+    });
+
+    test('il demande sept mots par liste', () {
+      expect(
+        built.findStage('boutique')!.drawCount,
+        AdventureBuilder.defaultDrawCount,
+      );
+      expect(AdventureBuilder.defaultDrawCount, 7);
+    });
+  });
+
+  group('Un lieu a plusieurs listes', () {
+    test('ses arrivees naissent a definir', () {
+      // Ce que l'enfant fera la-bas se decide sur leur propre carte, pas au
+      // moment de les creer.
+      final built = AdventureBuilder(emptyAdventureAt('gare')).addTrips(
+        'gare',
+        const <NewTrip>[NewTrip(name: 'Le quai'), NewTrip(name: 'Le kiosque')],
+      );
+
+      expect(built.findStage('gare')!.nature, StageNature.sorting);
+      expect(built.findStage('quai')!.nature, StageNature.undefined);
+      expect(built.findStage('kiosque')!.nature, StageNature.undefined);
+    });
+
+    test('un lieu qui devient a plusieurs listes demande sept mots', () {
+      final built = AdventureBuilder(emptyAdventureAt('gare'))
+          .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le quai')]);
+
+      expect(built.findStage('gare')!.drawCount, 7);
+    });
+
+    test('un lieu deja ecrit garde ce qu\'il demandait', () {
+      // Ajouter un trajet ne doit pas changer en silence le nombre de mots
+      // d'un lieu que l'auteur a deja regle — ni celui du contenu livre.
+      final written = Adventure(
+        id: 'essai',
+        title: 'Essai',
+        startStageId: 'gare',
+        stages: <String, Stage>{
+          'gare': stage(id: 'gare', families: <WordFamily>[
+            family(id: 'train', label: 'Le train', destination: 'plage'),
+          ]),
+          'plage': ending(id: 'plage'),
+        },
+      );
+
+      final built = AdventureBuilder(written)
+          .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le bus')]);
+
+      expect(built.findStage('gare')!.drawCount, isNull);
     });
   });
 
@@ -265,36 +309,41 @@ void main() {
   });
 
   group('Chaque liste du reste est propre a son lieu', () {
-    test('deux tris uniques ne partagent pas leur liste', () {
-      final built = AdventureBuilder(emptyAdventureAt('depart')).addTrips(
+    /// Deux tris uniques, chacun defini sur sa carte.
+    Adventure twoSingleSorts() {
+      final forked = AdventureBuilder(emptyAdventureAt('depart')).addTrips(
         'depart',
-        const <NewTrip>[
-          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
-          NewTrip(name: 'Le kiosque', kind: TripKind.singleSort),
-        ],
+        const <NewTrip>[NewTrip(name: 'La boutique'), NewTrip(name: 'Le kiosque')],
       );
+      final one = AdventureBuilder(forked)
+          .defineAsSingleSort('boutique', const NewTrip(name: 'Ce qui se mange'));
+      return AdventureBuilder(one)
+          .defineAsSingleSort('kiosque', const NewTrip(name: 'Ce qui se lit'));
+    }
 
-      final boutique = built.findStage('boutique')!.families.single;
-      final kiosque = built.findStage('kiosque')!.families.single;
+    WordFamily restOf(Adventure adventure, String stageId) {
+      return adventure
+          .findStage(stageId)!
+          .families
+          .singleWhere((f) => !f.leadsSomewhere);
+    }
+
+    test('deux tris uniques ne partagent pas leur liste', () {
+      final built = twoSingleSorts();
+      final boutique = restOf(built, 'boutique');
+      final kiosque = restOf(built, 'kiosque');
 
       // Les familles ne sont pas le meme objet : ecrire dans l'une ne peut en
-      // aucun cas toucher l'autre. Les mots viennent du lexique, qui les
-      // definit une fois ; les **listes**, elles, appartiennent au lieu.
+      // aucun cas toucher l'autre.
       expect(identical(boutique, kiosque), isFalse);
+      expect(boutique.list.id, isNot(kiosque.list.id));
       expect(boutique.words, isEmpty);
       expect(kiosque.words, isEmpty);
     });
 
     test('remplir l\'une laisse l\'autre intacte', () {
-      final built = AdventureBuilder(emptyAdventureAt('depart')).addTrips(
-        'depart',
-        const <NewTrip>[
-          NewTrip(name: 'La boutique', kind: TripKind.singleSort),
-          NewTrip(name: 'Le kiosque', kind: TripKind.singleSort),
-        ],
-      );
-
-      final boutique = built.findStage('boutique')!.families.single;
+      final built = twoSingleSorts();
+      final boutique = restOf(built, 'boutique');
       final filled = boutique.copyWith(
         list: boutique.list.copyWith(
           words: <Word>[word('vélo', const <String>['vé', 'lo'])],
@@ -302,42 +351,47 @@ void main() {
       );
 
       expect(filled.words, hasLength(1));
-      expect(built.findStage('kiosque')!.families.single.words, isEmpty);
+      expect(restOf(built, 'kiosque').words, isEmpty);
     });
   });
 
-  group('Un trajet qui clot la journee', () {
+  group('Un lieu qui clot la journee', () {
     late Adventure built;
 
     setUpAll(() {
-      built = AdventureBuilder(emptyAdventureAt('gare')).addTrips(
-        'gare',
-        const <NewTrip>[NewTrip(name: 'La plage', kind: TripKind.ending)],
-      );
+      final reached = AdventureBuilder(emptyAdventureAt('gare'))
+          .addTrips('gare', const <NewTrip>[NewTrip(name: 'La plage')]);
+      built = AdventureBuilder(reached).defineAsEnding('plage');
     });
 
-    test('le lieu d\'arrivee se declare fin', () {
-      // Troisieme choix structurel, a cote du tri a plusieurs listes et du tri
-      // unique : ici la journee s'arrete, et rien ne repart.
+    test('il se declare fin', () {
+      // Du texte, pas de jeu : ici la journee s'arrete, et rien ne repart.
       final beach = built.findStage('plage')!;
 
-      expect(beach.isEnding, isTrue);
+      expect(beach.nature, StageNature.ending);
       expect(beach.families, isEmpty);
     });
 
     test('elle ne produit aucune anomalie', () {
       // Une fin declaree et sans famille est un lieu acheve : ni faux, ni
-      // incomplet. C'est le seul lieu qu'on puisse creer deja termine.
+      // incomplet.
       expect(
         built.validate().where((i) => i.stageId == 'plage'),
         isEmpty,
       );
     });
 
+    test('un lieu qui a des trajets ne devient pas une fin', () {
+      // Les mots classes ouvriraient un chemin depuis une fin.
+      expect(
+        () => AdventureBuilder(built).defineAsEnding('gare'),
+        throwsStateError,
+      );
+    });
+
     test('prolonger une fin la fait cesser d\'en etre une', () {
       // Le moteur le permet et le doit : le marqueur et la structure ne
-      // peuvent pas se contredire. L'ecran, lui, ne le propose plus — une
-      // carte de fin n'a pas de bouton « Ajouter des trajets ».
+      // peuvent pas se contredire. L'ecran, lui, ne le propose pas.
       final prolonged = AdventureBuilder(built)
           .addTrips('plage', const <NewTrip>[NewTrip(name: 'Le retour')]);
 
@@ -352,10 +406,11 @@ void main() {
         'carrefour',
         const <NewTrip>[NewTrip(name: 'En bus'), NewTrip(name: 'À pied')],
       );
-      return AdventureBuilder(forked).addTrips(
+      final reached = AdventureBuilder(forked).addTrips(
         'en_bus',
-        const <NewTrip>[NewTrip(name: 'La plage', kind: TripKind.ending)],
+        const <NewTrip>[NewTrip(name: 'La plage')],
       );
+      return AdventureBuilder(reached).defineAsEnding('plage');
     }
 
     test('rejoindre une fin existante ne cree aucun lieu', () {
@@ -455,27 +510,10 @@ void main() {
       expect(built.findStage('en_bus')!.locationName, 'En bus');
     });
 
-    test('une fin nommee a part se declare quand meme fin', () {
-      final built = AdventureBuilder(emptyAdventureAt('maison')).addTrips(
-        'maison',
-        const <NewTrip>[
-          NewTrip(
-            name: 'Prendre le train',
-            locationName: 'La plage',
-            kind: TripKind.ending,
-          ),
-        ],
-      );
-
-      expect(built.findStage('plage')!.isEnding, isTrue);
-      expect(built.findStage('maison')!.families.single.label,
-          'Prendre le train');
-    });
-
     test('rejoindre un lieu deja ecrit ignore le nom propose', () {
       final before = AdventureBuilder(emptyAdventureAt('maison'))
           .addTrips('maison', const <NewTrip>[
-        NewTrip(name: 'En bus', locationName: 'La plage', kind: TripKind.ending),
+        NewTrip(name: 'En bus', locationName: 'La plage'),
       ]);
 
       final after = AdventureBuilder(before).addTrips(

@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 
-/// Demande ce qu'on trouve au bout des trajets qu'on ajoute, et combien.
+/// Nomme les trajets qui partent d'un lieu, et les lieux qu'ils atteignent.
 ///
-/// **La nature d'abord, le nombre ensuite.** Elle decide de ce que l'enfant
-/// fera la-bas, alors que le nombre n'est qu'une commodite de saisie : la
-/// poser en tete met la question structurante avant la question de detail.
-///
-/// **Une seule nature par ajout.** Elle valait auparavant trajet par trajet,
-/// ce qui repetait trois pavés d'explication sous chaque nom et laissait
-/// composer un lot bigarré sans qu'on sache ce qu'on demandait. Cela n'empeche
-/// pas un lieu de mener a des natures differentes — l'aventure livree mene de
-/// « Devant la maison » a un tri a plusieurs listes et a deux fins — mais cela
-/// se fait en plusieurs ajouts, et le rappel « partent deja d'ici » est la
-/// pour ca.
+/// **La nature du lieu ne se choisit plus ici.** Elle se choisit sur sa carte,
+/// en repondant a « que fait l'enfant ici ? » : ranger dans plusieurs listes,
+/// faire un tri unique, ou lire la fin. Cette page ne sert qu'ensuite, a
+/// nommer les sorties — plusieurs pour un lieu a listes, une seule pour un tri
+/// unique. Les lieux atteints naissent a definir, et se definiront sur leur
+/// propre carte.
 ///
 /// Une page plutot qu'une boite de dialogue : on y tape plusieurs noms au
 /// clavier du telephone, et une boite qui remonte au-dessus du clavier laisse
@@ -40,12 +35,9 @@ class AddTripsPage extends StatefulWidget {
 
   /// Vrai si **ce lieu-ci** fait trier entre une liste et le reste.
   ///
-  /// Un tri unique n'a qu'une sortie : proposer d'en ajouter plusieurs
-  /// laisserait croire a un choix que le moteur refuse.
-  ///
-  /// A ne pas confondre avec le choix [TripKind.singleSort], qui porte sur le
-  /// lieu **d'arrivee** : ouvrir trois tris uniques depuis un carrefour est
-  /// legitime, chacun ayant sa propre liste du reste.
+  /// Un tri unique n'a qu'une sortie, celle que le theme ouvre : proposer
+  /// d'en ajouter plusieurs laisserait croire a un choix que le moteur refuse.
+  /// Le champ unique nomme alors le theme.
   final bool allowsOneTripOnly;
 
   /// Les fins deja ecrites, de leur identifiant vers leur nom.
@@ -90,18 +82,17 @@ class _AddTripsPageState extends State<AddTripsPage> {
   /// de frappe dans le trajet serait incomprehensible.
   final List<bool> _namedLocations = <bool>[false];
 
-  /// La fin deja ecrite que chaque trajet rejoint, nulle pour en creer une.
+  /// La fin deja ecrite que chaque trajet rejoint, nulle pour un lieu neuf.
   ///
-  /// Parallele a [_names] : la nature vaut pour tout le lot, la destination se
-  /// choisit trajet par trajet.
+  /// Parallele a [_names] : d'un meme carrefour, un chemin peut rejoindre la
+  /// plage et l'autre mener a un lieu qui reste a ecrire.
   final List<String?> _destinations = <String?>[null];
 
-  /// La nature commune aux trajets de cet ajout.
-  TripKind _kind = TripKind.ordinary;
-
   /// Vrai quand il y a une fin existante a proposer.
-  bool get _offersEndings =>
-      _kind == TripKind.ending && widget.existingEndings.isNotEmpty;
+  ///
+  /// Vide, la question ne se pose pas : un choix entre une seule possibilite
+  /// n'est pas un choix.
+  bool get _offersEndings => widget.existingEndings.isNotEmpty;
 
   @override
   void dispose() {
@@ -137,17 +128,6 @@ class _AddTripsPageState extends State<AddTripsPage> {
     });
   }
 
-  void _setKind(TripKind kind) {
-    setState(() {
-      _kind = kind;
-      // Une destination choisie pour une fin n'a aucun sens sur un trajet
-      // devenu ordinaire : elle le renverrait vers un lieu deja clos.
-      if (kind != TripKind.ending) {
-        _destinations.fillRange(0, _destinations.length, null);
-      }
-    });
-  }
-
   /// Choisit la fin rejointe, et propose son nom tant que rien n'est saisi.
   ///
   /// Sans cette proposition, « Créer » reste eteint sans qu'on voie pourquoi.
@@ -172,7 +152,6 @@ class _AddTripsPageState extends State<AddTripsPage> {
       trips.add(NewTrip(
         name: name,
         locationName: _locations[index].text.trim(),
-        kind: _kind,
         existingStageId: _offersEndings ? _destinations[index] : null,
       ));
     }
@@ -183,7 +162,9 @@ class _AddTripsPageState extends State<AddTripsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter des trajets'),
+        title: Text(
+          widget.allowsOneTripOnly ? 'Tri unique' : 'Ajouter des trajets',
+        ),
         actions: <Widget>[
           TextButton(
             onPressed:
@@ -212,12 +193,10 @@ class _AddTripsPageState extends State<AddTripsPage> {
             ),
           ],
           const SizedBox(height: 24),
-          _buildKindChoice(context),
-          const SizedBox(height: 24),
           if (widget.allowsOneTripOnly)
             Text(
-              'Ici, l\'enfant trie entre une liste et le reste : ce lieu n\'a '
-              'qu\'une seule sortie.',
+              'Ici, l\'enfant trie entre une liste et tout le reste. Le lieu '
+              'n\'a qu\'une sortie : celle que le thème ouvre.',
               style: Theme.of(context).textTheme.bodySmall,
             )
           else ...<Widget>[
@@ -240,56 +219,6 @@ class _AddTripsPageState extends State<AddTripsPage> {
     );
   }
 
-  /// La question structurante, posee une fois pour tout le lot.
-  Widget _buildKindChoice(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const Text('Qu\'y a-t-il au bout de ces trajets ?'),
-        const SizedBox(height: 8),
-        // Trois choix structurels, et non trois façons d'habiller un lieu :
-        // ils décident de ce que l'enfant fera là-bas. Une liste déroulante
-        // les cacherait ; chacun s'explique donc en une ligne.
-        RadioGroup<TripKind>(
-          groupValue: _kind,
-          onChanged: (chosen) => _setKind(chosen!),
-          child: const Column(
-            children: <Widget>[
-              _KindChoice(
-                kind: TripKind.ordinary,
-                icon: Icons.dashboard_outlined,
-                title: 'Plusieurs listes',
-                explanation: 'L\'enfant trie entre plusieurs familles, et le '
-                    'lieu pourra ouvrir plusieurs chemins.',
-              ),
-              _KindChoice(
-                kind: TripKind.singleSort,
-                icon: Icons.filter_alt_outlined,
-                title: 'Tri unique',
-                explanation: 'L\'enfant trie entre ce qui est du thème et '
-                    'tout le reste. Le lieu d\'arrivée n\'a qu\'une sortie.',
-              ),
-              _KindChoice(
-                kind: TripKind.ending,
-                icon: Icons.flag_outlined,
-                title: 'Une fin',
-                explanation: 'La journée s\'arrête là. Rien n\'en repart.',
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Dit du meme coup ce que l'ecran ne fait pas, et comment l'obtenir :
-        // un lieu peut bel et bien mener a des natures differentes.
-        Text(
-          'Tous les trajets ajoutés ici seront de cette sorte. Pour en '
-          'mélanger, revenez ensuite ajouter les autres.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-
   Widget _buildName(int index) {
     // Le lieu existe deja : son nom n'est pas a saisir, et le proposer
     // laisserait croire qu'on peut le renommer d'ici — alors qu'il est
@@ -306,9 +235,16 @@ class _AddTripsPageState extends State<AddTripsPage> {
             controller: _names[index],
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
-              labelText: 'Trajet ${index + 1}',
-              hintText: 'En bus, À pied, Prendre le train…',
-              helperText: 'Ce que l\'enfant lit sur la zone de dépôt.',
+              labelText: widget.allowsOneTripOnly
+                  ? 'Le thème'
+                  : 'Trajet ${index + 1}',
+              hintText: widget.allowsOneTripOnly
+                  ? 'Ce qui se mange, Ce qui roule…'
+                  : 'En bus, À pied, Prendre le train…',
+              helperText: widget.allowsOneTripOnly
+                  ? 'Ce que l\'enfant lit sur la zone du thème. La remplir '
+                      'ouvre la sortie.'
+                  : 'Ce que l\'enfant lit sur la zone de dépôt.',
               border: const OutlineInputBorder(),
             ),
             // Le bouton « Créer » s'active des qu'un nom est saisi, et le nom
@@ -337,11 +273,11 @@ class _AddTripsPageState extends State<AddTripsPage> {
     );
   }
 
-  /// Ou mene ce trajet : vers une fin neuve, ou vers une fin deja ecrite.
+  /// Ou mene ce trajet : vers un lieu neuf, ou vers une fin deja ecrite.
   ///
-  /// La destination se choisit trajet par trajet, contrairement a la nature :
-  /// d'un meme carrefour, un chemin peut rejoindre la plage et l'autre finir
-  /// sur une arrivee qui reste a ecrire.
+  /// Une fin porte un ecran, une illustration et un texte : deux chemins qui
+  /// aboutissent au meme endroit doivent partager la meme. Seules les fins
+  /// sont proposees — les seules ou converger ne peut pas creer de boucle.
   Widget _buildEndingChoice(int index) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, left: 4),
@@ -351,7 +287,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
         onChanged: (chosen) => _setDestination(index, chosen),
         items: <DropdownMenuItem<String?>>[
           const DropdownMenuItem<String?>(
-            child: Text('Une nouvelle fin'),
+            child: Text('Un nouveau lieu'),
           ),
           for (final ending in widget.existingEndings.entries)
             DropdownMenuItem<String?>(
@@ -359,41 +295,6 @@ class _AddTripsPageState extends State<AddTripsPage> {
               child: Text(ending.value),
             ),
         ],
-      ),
-    );
-  }
-}
-
-/// Un des trois choix structurels, avec ce qu'il change pour l'enfant.
-class _KindChoice extends StatelessWidget {
-  const _KindChoice({
-    required this.kind,
-    required this.icon,
-    required this.title,
-    required this.explanation,
-  });
-
-  final TripKind kind;
-  final IconData icon;
-  final String title;
-  final String explanation;
-
-  @override
-  Widget build(BuildContext context) {
-    return RadioListTile<TripKind>(
-      value: kind,
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Row(
-        children: <Widget>[
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-          Text(title),
-        ],
-      ),
-      subtitle: Text(
-        explanation,
-        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }

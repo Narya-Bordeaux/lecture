@@ -73,3 +73,30 @@ class ContentIssue {
   @override
   String toString() => stageId == null ? message : '[$stageId] $message';
 }
+
+/// Ou en est un contenu, d'un seul mot : ce que l'outil annonce en tete.
+///
+/// Trois etats, parce que l'auteur y fait trois choses differentes : verser
+/// l'aventure dans le jeu, continuer d'ecrire, ou corriger d'abord. Un seul
+/// « jouable / pas jouable » confondait le travail en cours avec la faute.
+///
+/// Se deduit des anomalies et de rien d'autre : une seconde regle finirait
+/// par annoncer jouable une aventure que le jeu refuse.
+enum ContentReadiness {
+  /// Aucune anomalie : le jeu l'ouvrira.
+  playable,
+
+  /// Des manques seulement : l'etat normal d'un travail en cours.
+  incomplete,
+
+  /// Au moins une faute : a corriger avant d'aller plus loin.
+  wrong;
+
+  static ContentReadiness of(Iterable<ContentIssue> issues) {
+    if (issues.isEmpty) return ContentReadiness.playable;
+    if (issues.any((issue) => issue.severity == IssueSeverity.wrong)) {
+      return ContentReadiness.wrong;
+    }
+    return ContentReadiness.incomplete;
+  }
+}
