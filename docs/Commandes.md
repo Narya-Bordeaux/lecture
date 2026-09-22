@@ -41,21 +41,38 @@ donc impubliable et l'erreur reste sans conséquence.
 ## Lancer l'outil d'auteur avec le dépôt distant
 
 Les valeurs du projet Firebase se passent **au lancement**, jamais dans le
-dépôt. Sans elles, l'outil se lance et enregistre en local : rien ne casse, la
-connexion n'est simplement pas proposée.
+dépôt. Elles sont compilées *dans* le build et ne sont stockées nulle part :
+**chaque lancement doit les porter**. Sans elles, l'outil se lance et
+enregistre en local : rien ne casse, la connexion n'est simplement pas
+proposée.
 
-**Tout sur une seule ligne**, et c'est important : le `\` de fin de ligne est
-une continuation **bash**, que PowerShell et `cmd` ne connaissent pas. Collée
-sur plusieurs lignes dans un terminal Windows, la commande se lance sans
-aucune de ses valeurs — Chrome s'ouvre, l'outil tourne, et la connexion n'est
-pas proposée. Rien ne signale l'erreur.
+D'où le fichier, une fois pour toutes. Recopier `.env.example` en `.env`, y
+coller les valeurs, puis :
 
 ```
-flutter run --flavor auteur -t lib/main_author.dart --dart-define=GRISBIE_FIREBASE_API_KEY=… --dart-define=GRISBIE_FIREBASE_APP_ID=… --dart-define=GRISBIE_FIREBASE_PROJECT_ID=grisbie-43ee9 --dart-define=GRISBIE_FIREBASE_SENDER_ID=… --dart-define=GRISBIE_FIREBASE_BUCKET=grisbie-43ee9.firebasestorage.app --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=grisbie-43ee9.firebaseapp.com
+flutter run --flavor auteur -t lib/main_author.dart --dart-define-from-file=.env
 ```
 
 Dans un navigateur, remplacer `--flavor auteur` par `-d chrome` : les saveurs
 n'existent pas hors Android.
+
+```
+flutter run -d chrome -t lib/main_author.dart --dart-define-from-file=.env
+```
+
+`.env` est exclu par le `.gitignore`, qui n'admet que `.env.example` : rien de
+réel n'entre dans le dépôt, qui part en open source.
+
+**La forme longue marche aussi**, si l'on préfère ne pas laisser de fichier —
+mais **tout sur une seule ligne**, et c'est important : le `\` de fin de ligne
+est une continuation **bash**, que PowerShell et `cmd` ne connaissent pas.
+Collée sur plusieurs lignes dans un terminal Windows, la commande se lance
+sans aucune de ses valeurs — Chrome s'ouvre, l'outil tourne, et la connexion
+n'est pas proposée. Rien ne signale l'erreur.
+
+```
+flutter run -d chrome -t lib/main_author.dart --dart-define=GRISBIE_FIREBASE_API_KEY=… --dart-define=GRISBIE_FIREBASE_APP_ID=… --dart-define=GRISBIE_FIREBASE_PROJECT_ID=grisbie-43ee9 --dart-define=GRISBIE_FIREBASE_SENDER_ID=… --dart-define=GRISBIE_FIREBASE_BUCKET=grisbie-43ee9.firebasestorage.app --dart-define=GRISBIE_FIREBASE_AUTH_DOMAIN=grisbie-43ee9.firebaseapp.com
+```
 
 **Comment savoir que les valeurs sont arrivées** — sans les lire nulle part :
 l'écran d'accueil porte une **tuile de compte** (« Se connecter pour travailler
@@ -70,9 +87,9 @@ elle-même la fenêtre. `flutter devices` dit si Chrome est vu.
 
 La commande se tape dans un terminal placé sur le projet — l'onglet *Terminal*
 d'Android Studio y est déjà. Pour passer par l'interface plutôt que par la
-ligne de commande : sélecteur d'appareil → *Chrome (web)*, et les six
-`--dart-define` dans `Run → Edit Configurations… → Additional run args`. Là
-non plus, pas de `\` : ce champ n'est pas un terminal.
+ligne de commande : sélecteur d'appareil → *Chrome (web)*, et
+`--dart-define-from-file=.env` dans `Run → Edit Configurations… → Additional
+run args`. Là non plus, pas de `\` : ce champ n'est pas un terminal.
 
 **Exige** : le projet `grisbie-43ee9` configuré — la marche à suivre est dans
 `TODO.md`. `AUTH_DOMAIN` ne sert qu'au web ; les cinq autres sont obligatoires,
@@ -90,6 +107,10 @@ et l'accueil affiche l'**UID** — celui que la règle du bucket doit nommer.
 documentation de Firebase, pas d'après un lancement réussi ; c'est la seule de
 ce document dans ce cas, et elle en sortira ou y sera corrigée dès le premier
 essai.
+
+`--dart-define-from-file`, en revanche, **est éprouvé** : un test jetable a
+vérifié que les six valeurs arrivent bien par le fichier, et qu'elles manquent
+sans lui. C'est le mécanisme qui est acquis, pas encore ce qu'il transporte.
 
 ## Construire pour le web
 
