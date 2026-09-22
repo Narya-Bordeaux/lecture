@@ -139,9 +139,15 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
 
 ## Cadre de travail
 
-- [ ] Aligner le SDK du poste de développement sur la version épinglée par le hook
-      (Flutter 3.47.5), faute de quoi `pubspec.lock` fera des allers-retours entre
-      le poste et les sessions cloud.
+- [ ] **Mettre à jour le SDK du poste** (`flutter upgrade`) pour rejoindre la
+      version épinglée par le hook, **Flutter 3.47.5**. Le poste est en Dart
+      3.12.2 / Flutter ~3.44, et le décalage se voit : chaque aller-retour
+      réécrit `pubspec.lock` dans un sens puis dans l'autre — `vector_math`
+      2.4.3 ↔ 2.2.0, `matcher` 0.12.20 ↔ 0.12.19. Le sens retenu est de faire
+      monter le poste, non de figer le cloud sur une version plus ancienne.
+      En attendant, **le cloud ne commite jamais `pubspec.lock`** : c'est la
+      version du poste qui fait foi. Prévoir un coup de ménage Gradle possible
+      au premier build Android suivant la mise à jour.
 - [ ] **Ouvrir l'outil d'auteur dans Chrome, pour de vrai.** Les deux points
       d'entrée *compilent* pour le web depuis 0.21.0, ce qui ne prouve que
       l'absence d'import interdit. Restent à éprouver : le chargement du

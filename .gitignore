@@ -50,6 +50,3 @@ app.*.map.json
 
 # Reglages locaux d'outils, propres a un poste de travail
 .claude/settings.local.json
-
-# module node
-/node_modules/
