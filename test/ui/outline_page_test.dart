@@ -386,7 +386,7 @@ void main() {
       // Tout sauf les mots : ceux-la appartiennent au trajet.
       expect(find.text('Le lieu'), findsOneWidget);
       expect(find.text('L\'illustration'), findsOneWidget);
-      expect(find.text('Le récit'), findsOneWidget);
+      expect(find.text('L\'énoncé'), findsOneWidget);
     });
 
     testWidgets('le lieu renommé revient sur sa carte', (tester) async {

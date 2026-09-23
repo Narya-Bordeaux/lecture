@@ -12,8 +12,7 @@
 /// **Le mot n'est plus que son orthographe.** Il portait son decoupage en
 /// syllabes, qui ne servait qu'a l'aide affichee apres une erreur. L'aide a
 /// ete retiree du jeu (0.33.0), et le decoupage avec elle : une donnee que
-/// rien n'utilise finit fausse sans que personne ne le voie. Un contenu ecrit
-/// avant se lit toujours — le champ `syllables` y est ignore.
+/// rien n'utilise finit fausse sans que personne ne le voie.
 class Word {
   const Word({required this.text});
 

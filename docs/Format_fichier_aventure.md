@@ -97,10 +97,8 @@ en domaines n'a aucun effet sur le jeu, il sert seulement à s'y retrouver.
   identifie le mot** : c'est ce qu'on écrira dans les aventures, et il doit
   être unique dans tout le jeu.
 **Un mot n'est que son orthographe.** Il portait autrefois son découpage en
-syllabes (`"syllables"`), qui servait d'aide après une erreur ; l'aide a été
-retirée du jeu en 0.33.0, et le découpage avec elle. Un fichier qui l'écrit
-encore se lit sans erreur — le champ est ignoré —, et l'outil d'auteur le
-retire des lexiques qu'il réécrit.
+syllabes, qui servait d'aide après une erreur ; l'aide a été retirée du jeu en
+0.33.0, et le découpage avec elle.
 
 > **Deux mots de même orthographe sont impossibles.** « La marche » et « il
 > marche » ne peuvent pas coexister : à l'écran, l'enfant ne verrait qu'une
@@ -190,10 +188,8 @@ proportions. C'est le bon endroit pour une vue d'ensemble.
 Le champ `opening` est facultatif : sans lui, l'aventure démarre directement sur
 son premier lieu.
 
-> **Ne redites pas la page de garde dans le premier lieu.** Si l'ouverture
-> annonce déjà « Grisbie veut aller à la plage », laissez le `onArrival` du lieu
-> de départ vide. Sinon l'enfant enchaîne deux écrans de texte avant de jouer,
-> dont le second n'apprend rien — il attend, simplement.
+La page de garde raconte ; le premier lieu garde son énoncé (`onArrival`), qui
+pose la question du premier tri.
 
 ### Un lieu
 
@@ -217,7 +213,7 @@ son premier lieu.
 | `location` | oui | Le nom du lieu, montré au joueur |
 | `background` | non | L'illustration de fond |
 | `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
-| `narrative.onArrival` | non | Texte affiché en arrivant, **avant** de jouer |
+| `narrative.onArrival` | non | L'**énoncé** : affiché en haut de la scène, au-dessus des mots |
 | `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
 | `drawCount` | non | Combien de mots **chaque famille** tire de sa liste (toute la liste par défaut) |
 | `families` | oui | Les catégories à remplir |
@@ -226,6 +222,17 @@ son premier lieu.
 donne son sens à ce qui va lui être demandé, puis classe ses mots. Quand il
 repart en cliquant un trajet, c'est le **lieu suivant** qui raconte, avec son
 propre `onArrival`. La narration appartient à celui qui accueille.
+
+**Ce texte est l'énoncé du jeu.** Il se lit en haut de la scène, pendant qu'on
+trie, et c'est ce qui donne son sens au tri : il situe l'enfant et pose la
+question que les mots tranchent — « Peut-elle aller acheter quelque chose, ou
+doit-elle prendre le train ? ». Aucune autre consigne ne s'affiche.
+
+**Restez court.** L'énoncé agrandit le bandeau des mots, et un bandeau trop
+haut recouvre les zones de dépôt placées haut dans l'image : le doigt de
+l'enfant y serait arrêté sans rien pour le dire. Deux phrases courtes tiennent
+sur un téléphone courant ; sur un petit téléphone, elles recouvrent déjà une
+zone posée au tiers de la hauteur. Vérifiez au calage, qui montre l'énoncé.
 
 Ne pas confondre les deux nombres. `drawCount` dit combien de mots entrent en
 jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.

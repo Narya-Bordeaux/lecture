@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.34.2+53** — 23 septembre 2026
+**Version : 0.35.0+54** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.35.0+54 — L'énoncé sur la scène
+- **Le texte d'arrivée d'un lieu de jeu est son énoncé**, affiché en haut de
+  la scène au-dessus des mots. Plus d'écran de récit intercalé, plus de
+  consigne générique.
+- Les trois tolérances héritées sont retirées.
+- **Défaut mesuré** : sur un petit téléphone, un énoncé de deux phrases
+  recouvre la zone du bus. À trancher avec l'auteur.
+- 509 tests au vert.
+
 ### 0.34.2+53 — Plus de personnage
 - **Décision de l'auteur** : le personnage mêlait narration et mécanique ; la
   mécanique vit dans la structure, le reste relève du récit. Modèle, fichier
@@ -122,18 +131,6 @@ un travail d'auteur, pas de code.
 - Il offre désormais les trois réponses de la carte — plusieurs listes, tri
   unique, fin — ainsi qu'« Ajouter des trajets » et « Ajouter la sortie ».
 - 512 tests au vert.
-
-### 0.34.0+51 — Revenir sur un choix de circuit
-- **La ligne « Plusieurs listes / Tri unique / Fin » d'une carte ouvre la
-  structure du lieu** : changer de nature, renommer, rediriger ou retirer
-  un trajet. Une fin créée par erreur se rouvre enfin.
-- **Rien ne disparaît en passant** : un lieu que plus rien n'atteint reste,
-  et sa carte offre « Supprimer ce lieu ».
-- **Tout lieu déjà écrit peut être rejoint**, pas seulement les fins.
-- **Une boucle est signalée, à vérifier**, sans rien bloquer : nouvelle
-  sévérité `warning`, qui laisse l'aventure jouable.
-- 509 tests au vert.
-
 
 ## Décisions prises
 

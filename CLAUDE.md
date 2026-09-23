@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.34.2+53** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.35.0+54** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -34,8 +34,8 @@ version n'a été publiée, aucun joueur n'a de progression ni de contenu à
 préserver. Quand le modèle ou le format change, on change le contenu du dépôt
 avec lui — jamais de lecture tolérante d'une forme ancienne, de conversion
 automatique, ni de champ gardé « pour ne pas casser ». Ce code-là se paie
-toujours, et ici il ne protège personne. Des tolérances écrites avant cette
-règle subsistent ; elles sont listées dans `docs/TODO.md`.
+toujours, et ici il ne protège personne. Les tolérances écrites avant cette
+règle ont été retirées en 0.35.0.
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
@@ -313,9 +313,7 @@ termine l'étape.
 **Un mot n'est que son orthographe** — `Word` n'a qu'un champ, `text`. Il
 portait son découpage en syllabes, qui ne servait qu'à l'aide affichée après
 une erreur ; l'aide retirée (0.33.0), la donnée est partie avec elle : une
-donnée que rien n'utilise finit fausse sans que personne ne le voie. Un
-contenu écrit avant se lit toujours — `syllables` y est ignoré —, et
-`ContentSaver` le retire des lexiques qu'il réécrit.
+donnée que rien n'utilise finit fausse sans que personne ne le voie.
 
 **Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
 bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
@@ -448,8 +446,8 @@ le moteur et ferait diverger les deux.
 `contentImageProvider` (dans `lib/ui/widgets/content_image.dart`) rend un
 `ContentPictureImage`, qui lit les octets par `ContentSource.readBytes`. Le
 bundle pour le jeu, un dossier de l'appareil ou le dépôt distant pour l'outil.
-Les quatre endroits qui affichent une image — scène de jeu, calage, page de
-garde, moment de récit — passent par là. Deux règles séparées finiraient par
+Les trois endroits qui affichent une image — scène de jeu, calage, page de
+garde — passent par là. Deux règles séparées finiraient par
 diverger, et l'auteur calerait ses zones sur une image que le jeu ne montre pas.
 
 C'est un `ImageProvider` à part entière et non un `FutureBuilder` : c'est ce
@@ -457,10 +455,9 @@ qui le fait entrer dans le cache d'images de Flutter, qui indexe par égalité d
 fournisseur. La **source fait partie de son identité** — se connecter au dépôt
 doit bien redonner une autre image.
 
-Deux préfixes restent traités à part, et seulement pour ne pas casser un
-contenu écrit avant la bascule : `assets/` désigne le bundle directement, une
-adresse (`http:`, `https:`, `blob:`) se lit telle quelle. Rien n'en produit
-plus.
+**Aucun autre chemin n'est lu** : ni `assets/…`, ni adresse `http:` ou
+`blob:`. Les deux formes étaient tolérées pour un contenu écrit avant la
+bascule, et ont été retirées en 0.35.0 (§1).
 
 **Ce que cela a remplacé** — l'image vivait à part : un chemin de fichier sur
 l'appareil, une adresse `blob:` dans un navigateur, et deux fichiers choisis
@@ -516,14 +513,21 @@ demandé, classe ses mots, puis clique un trajet : c'est le **lieu suivant** qui
 raconte, avec son propre texte. Un `onCompletion` a existé et disait la même
 chose deux fois — le contenu livré faisait annoncer l'arrivée à la plage par le
 lieu qu'on quittait, avant que la plage ne la raconte à son tour. La narration
-appartient à celui qui accueille. Une étape se joue donc en **deux temps**,
-récit puis jeu.
+appartient à celui qui accueille.
+
+**Ce texte est l'énoncé du jeu, et se lit sur la scène** — en haut, dans le
+même cartouche que les mots (`StagePage`), et il y reste quand tous les mots
+sont classés. Il situe l'enfant et pose la question que le tri tranche : « Y
+ira-t-elle à pied, en bus ou en voiture ? ». Il s'affichait sur un écran de
+récit intercalé avant la scène (`StoryMomentPage`, retiré en 0.35.0) ; lu
+avant de jouer, sur un écran quitté, il perdait ce rôle. **Aucune consigne
+générique** ne l'accompagne — « Pose les mots au bon endroit » a été retirée
+par l'auteur, l'énoncé disant déjà ce qu'il faut faire.
 
 **Page de garde** — `Adventure.opening` porte un titre, une illustration et un
-texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Quand
-elle existe, le lieu de départ n'a pas de `onArrival` : deux écrans de texte
-d'affilée dont le second redit le premier font attendre l'enfant pour rien. Sa mise
-en page diffère des moments de récit : le titre annonce, l'image occupe la
+texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Le
+lieu de départ garde son énoncé : la page de garde raconte, l'énoncé demande.
+C'est le seul écran de lecture du jeu : le titre annonce, l'image occupe la
 largeur à ses proportions — elle peut être horizontale —, le texte se lit
 dessous. C'est un seuil, pas une transition.
 
@@ -637,7 +641,7 @@ et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
 
 **Cliquer le titre ouvre ce que le lieu porte** — `StageEditorPage` : le nom,
-l'illustration, les zones de dépôt et les deux moments de récit. **Les listes
+l'illustration, les zones de dépôt et l'énoncé. **Les listes
 de mots n'y sont pas** : elles appartiennent à un *trajet*, pas à un lieu, et
 une même liste sert à plusieurs endroits — les mettre là laisserait croire
 qu'on les modifie pour ce lieu seul. Le calage (`AreaEditorPage`) s'ouvre
@@ -787,6 +791,14 @@ haut de l'écran, or les zones sont ancrées au décor et la première commence 
 mot n'atteint jamais sa cible, sans le moindre message. `test/ui/real_content_layout_test.dart`
 monte l'étape réelle sur trois formats d'écran et échoue si cela se reproduit.
 Tout changement de taille dans le bandeau doit être revalidé là.
+
+**L'énoncé agrandit le bandeau**, et d'autant plus qu'il est long. Le contenu
+livré n'en a pas sur le lieu de départ, que le test monte : le test ne
+l'éprouve donc pas. Mesuré avec l'énoncé que l'auteur a écrit pour la maison
+(deux phrases) : le bandeau descend à 207 px et la zone du bus commence à
+186 px sur un 360×640. Sur 390×844 et sur tablette, rien ne se recouvre. Le
+calage montre l'énoncé réel, si bien que l'auteur voit le recouvrement — mais
+sur le format de son propre appareil seulement.
 
 ## 8. Documentation
 

@@ -26,7 +26,7 @@ Map<String, String> shippedFiles() {
   ]
 }''',
     'lexicon/test.json':
-        '{ "domain": "test", "words": [ { "text": "un", "syllables": ["un"] } ] }',
+        '{ "domain": "test", "words": [ { "text": "un" } ] }',
     'lists/test.json':
         '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", "words": [] } ] }',
     'adventures/plage.json': '''

@@ -19,8 +19,7 @@ class OpeningEdit {
 /// Le seuil de l'aventure : un titre, une illustration, un texte.
 ///
 /// Ce n'est pas un lieu — il n'y a rien a classer — mais la page qui ouvre la
-/// journee. Sa mise en page differe de celle des moments de recit : le titre
-/// annonce, l'image occupe la largeur a ses proportions (elle peut etre
+/// journee. Le titre annonce, l'image occupe la largeur a ses proportions (elle peut etre
 /// horizontale), le texte se lit dessous.
 ///
 /// Rend un [OpeningEdit], ou `null` si l'auteur renonce.
@@ -193,7 +192,7 @@ class _AdventureOpeningEditorPageState
             textCapitalization: TextCapitalization.sentences,
             decoration: const InputDecoration(
               labelText: 'Le texte d\'ouverture',
-              helperText: 'Plus long qu\'un moment de récit : c\'est un seuil.',
+              helperText: 'Plus long qu\'un énoncé : c\'est un seuil.',
               border: OutlineInputBorder(),
             ),
           ),

@@ -10,12 +10,6 @@ abstract final class UiStringsFr {
   /// Titre de l'application.
   static const String appTitle = 'Les Aventures de Grisbie';
 
-  /// Invitation affichee au-dessus des etiquettes.
-  static const String dragInvitation = 'Pose les mots au bon endroit';
-
-  /// Bouton qui clot un moment de recit et lance le jeu.
-  static const String continueStory = 'Continuer';
-
   /// Bouton de la page de garde, qui ouvre l'aventure.
   static const String startAdventure = 'C\'est parti !';
 

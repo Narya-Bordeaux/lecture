@@ -293,28 +293,6 @@ void main() {
       expect(written.files.containsKey('lexicon/plage.json'), isFalse);
       expect((await indexOf(written))['lexicons'], <String>['lexicon/transport.json']);
     });
-
-    test('un ancien decoupage disparait du lexique qu\'on reecrit', () async {
-      // Le decoupage a quitte le modele avec l'aide du jeu (0.33.0). Un mot
-      // enregistre avant le porte encore : il est reecrit sans lui.
-      final old = shippedFolder()
-        ..files['lexicon/transport.json'] = '''
-{ "domain": "transport", "words": [
-  { "text": "quai", "syllables": ["quai"] },
-  { "text": "billet", "syllables": ["bi", "llet"] }
-] }''';
-      final adventure =
-          await ContentRepository(source: old).loadAdventure('plage');
-
-      final written = await saveInto(old, adventure, includeUnchanged: false);
-      final words = entriesOf(written, 'lexicon/transport.json', 'words', 'text');
-
-      expect(words['quai'], <String, dynamic>{'text': 'quai'});
-      expect(words['billet'], <String, dynamic>{'text': 'billet'});
-      final json = jsonDecode(written.files['lexicon/transport.json']!)
-          as Map<String, dynamic>;
-      expect(json['domain'], 'transport');
-    });
   });
 
   group('Enregistrer une seconde fois', () {

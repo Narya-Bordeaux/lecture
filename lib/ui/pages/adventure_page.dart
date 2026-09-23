@@ -5,23 +5,13 @@ import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/ui/pages/adventure_opening_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
-import 'package:grisbie/ui/pages/story_moment_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
-
-/// Les deux temps d'une etape.
-enum _StagePhase {
-  /// Le recit d'arrivee, avant de jouer.
-  arrival,
-
-  /// Le classement des mots.
-  playing,
-}
 
 /// Deroule une aventure : charge son contenu, puis enchaine les etapes au fil
 /// des departs de l'enfant.
 ///
-/// Chaque etape se joue en deux temps — recit d'arrivee puis jeu — le recit
-/// etant saute quand l'etape n'en a pas. **Un lieu ne raconte pas son
+/// Un lieu de jeu s'ouvre directement sur sa scene : son texte d'arrivee y est
+/// l'enonce, affiche au-dessus des mots. **Un lieu ne raconte pas son
 /// depart** : l'enfant clique un trajet, et c'est le lieu suivant qui raconte.
 class AdventurePage extends StatefulWidget {
   const AdventurePage({
@@ -40,7 +30,6 @@ class AdventurePage extends StatefulWidget {
 class _AdventurePageState extends State<AdventurePage> {
   late Future<Adventure> _adventureLoading;
   String? _currentStageId;
-  _StagePhase _phase = _StagePhase.arrival;
 
   /// La page de garde ne se montre qu'une fois, au debut de l'aventure.
   bool _openingSeen = false;
@@ -52,10 +41,7 @@ class _AdventurePageState extends State<AdventurePage> {
   }
 
   void _enterStage(String stageId) {
-    setState(() {
-      _currentStageId = stageId;
-      _phase = _StagePhase.arrival;
-    });
+    setState(() => _currentStageId = stageId);
   }
 
   /// Recommencer, c'est refaire le voyage depuis le debut, page de garde
@@ -64,7 +50,6 @@ class _AdventurePageState extends State<AdventurePage> {
     setState(() {
       _openingSeen = false;
       _currentStageId = adventure.startStageId;
-      _phase = _StagePhase.arrival;
     });
   }
 
@@ -99,34 +84,15 @@ class _AdventurePageState extends State<AdventurePage> {
 
         final stage =
             adventure.findStage(_currentStageId ?? adventure.startStageId) ??
-                adventure.startStage;
+            adventure.startStage;
 
-        return switch (_phase) {
-          _StagePhase.arrival => _buildArrival(stage, adventure),
-          _StagePhase.playing => _buildPlayingOrEnd(stage, adventure),
-        };
+        return _buildStage(stage, adventure);
       },
     );
   }
 
-  Widget _buildArrival(Stage stage, Adventure adventure) {
-    final text = stage.narrative.onArrival;
-    // Une etape terminale raconte deja son arrivee dans son propre ecran : la
-    // doubler d'un moment de recit afficherait deux fois le meme texte.
-    if (text == null || stage.isEnding) {
-      return _buildPlayingOrEnd(stage, adventure);
-    }
-
-    return StoryMomentPage(
-      locationName: stage.locationName,
-      text: text,
-      backgroundAsset: stage.backgroundAsset,
-      onContinue: () => setState(() => _phase = _StagePhase.playing),
-    );
-  }
-
   /// Une etape terminale n'a rien a classer : elle clot l'aventure.
-  Widget _buildPlayingOrEnd(Stage stage, Adventure adventure) {
+  Widget _buildStage(Stage stage, Adventure adventure) {
     if (stage.isEnding) {
       return _TerminalStageView(
         stage: stage,

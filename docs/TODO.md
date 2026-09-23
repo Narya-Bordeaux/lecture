@@ -3,26 +3,18 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
-## Énoncé et pages de récit — en discussion avec l'auteur
+## Pages de récit, et verser au dépôt — en discussion avec l'auteur
 
-- [ ] **L'énoncé sur la scène de jeu** : `narrative.onArrival` d'un lieu de
-      jeu affiché en haut, au-dessus des mots — c'est lui qui donne son sens
-      au tri. L'écran de récit intercalé disparaît.
+- [ ] **L'énoncé recouvre une zone sur un petit téléphone** : deux phrases
+      font descendre le bandeau de 22 px sous le haut de la zone du bus
+      (360×640). Solution à choisir avec l'auteur ; le test de mise en page
+      devra monter un lieu avec énoncé.
 - [ ] **La page de récit**, type de page à part (titre, illustration, texte,
       une seule suite, ou marquée fin) : page de garde, transition, fin. Le
       type se choisit à la création de la page.
-
-## Tolérances héritées, à retirer
-
-Écrites avant la règle « aucune compatibilité » (CLAUDE.md §1). Chacune se
-retire en corrigeant le contenu du dépôt **et** celui du dépôt distant.
-
-- [ ] `Word` ignore un champ `syllables`, que `ContentSaver` retire
-      (`obsoleteFields`).
-- [ ] `Narrative.fromJson` accepte un récit écrit en simple chaîne.
-- [ ] `contentImageProvider` lit un chemin `assets/…` ou une adresse
-      `http:`/`https:`/`blob:`. **Le contenu de l'auteur en porte encore** :
-      la page de garde cite `assets/pictures/Grisbie_plage.jpg`.
+- [ ] **« Intégrer au dépôt »** : verser l'aventure écrite dans l'outil —
+      JSON, listes, lexiques, images — dans `assets/content/`, pour qu'elle
+      soit jouable à la compilation suivante. Le chemin reste à choisir.
 
 ## Outil de création d'une journée
 

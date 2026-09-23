@@ -11,8 +11,8 @@ import 'package:grisbie/ui/widgets/scene_layout.dart';
 import 'package:grisbie/ui/widgets/shake.dart';
 import 'package:grisbie/ui/widgets/word_label.dart';
 
-/// L'ecran d'une etape : le decor, les mots a classer, les zones de depot et
-/// les departs possibles.
+/// L'ecran d'une etape : l'enonce, le decor, les mots a classer, les zones de
+/// depot et les departs possibles.
 ///
 /// Cette page n'applique aucune regle. Elle transmet les gestes au
 /// [StageEngine] et affiche l'etat qu'il renvoie. Toute tentation d'y decider
@@ -70,10 +70,7 @@ class _StagePageState extends State<StagePage> {
   }
 
   void _createEngine() {
-    _engine = StageEngine(
-      stage: widget.stage,
-      random: widget.random,
-    );
+    _engine = StageEngine(stage: widget.stage, random: widget.random);
     _shakeKeys
       ..clear()
       ..addEntries(
@@ -133,10 +130,8 @@ class _StagePageState extends State<StagePage> {
                       isOpen: _engine.state.completedFamilyIds.contains(
                         family.id,
                       ),
-                      onWordDropped: (wordText) => _handleDrop(
-                        wordText: wordText,
-                        familyId: family.id,
-                      ),
+                      onWordDropped: (wordText) =>
+                          _handleDrop(wordText: wordText, familyId: family.id),
                     ),
                   ),
             ],
@@ -145,6 +140,7 @@ class _StagePageState extends State<StagePage> {
             child: Column(
               children: <Widget>[
                 _WordTray(
+                  statement: widget.stage.narrative.onArrival,
                   slots: _visibleSlots,
                   shakeKeys: _shakeKeys,
                 ),
@@ -163,13 +159,20 @@ class _StagePageState extends State<StagePage> {
   }
 }
 
-/// La grille des mots proposes, en haut de l'ecran.
+/// L'enonce et la grille des mots proposes, en haut de l'ecran.
+///
+/// **L'enonce donne son sens au tri** : il situe l'enfant et pose la question
+/// que les mots vont trancher. Il se lit donc pendant qu'on trie, dans le meme
+/// cartouche que les mots, et reste quand ils sont tous classes. Aucune
+/// consigne generique ne l'accompagne : l'auteur l'a retiree, l'enonce disant
+/// deja ce qu'il faut faire.
 ///
 /// Chaque case correspond a un emplacement du moteur, et garde sa position :
 /// un mot classe est remplace sur place par un mot de la reserve, les autres
 /// ne bougent pas.
 class _WordTray extends StatelessWidget {
   const _WordTray({
+    required this.statement,
     required this.slots,
     required this.shakeKeys,
   });
@@ -177,12 +180,16 @@ class _WordTray extends StatelessWidget {
   /// Trois colonnes : avec six emplacements, deux lignes pleines.
   static const int _columns = 3;
 
+  /// Le texte d'arrivee du lieu, ou `null` s'il n'en a pas.
+  final String? statement;
+
   final List<Word?> slots;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
 
   @override
   Widget build(BuildContext context) {
-    if (slots.every((word) => word == null)) return const SizedBox.shrink();
+    final hasWords = slots.any((word) => word != null);
+    if (!hasWords && statement == null) return const SizedBox.shrink();
 
     // La hauteur de ce bandeau est contrainte : les zones de depot sont
     // ancrees au decor, et la premiere — le bus — commence vers 29 % de la
@@ -200,40 +207,45 @@ class _WordTray extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Text(
-            UiStringsFr.dragInvitation,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF4A4A4A),
-            ),
-          ),
-          const SizedBox(height: 6),
-          for (final row in _rows(slots))
+          if (statement != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  for (final word in row)
-                    Expanded(
-                      child: Center(
-                        // Un emplacement vide garde sa place : la grille ne se
-                        // reorganise pas sous les doigts de l'enfant.
-                        child: word == null
-                            ? const SizedBox.shrink()
-                            : Shake(
-                                key: shakeKeys[word.text],
-                                child: DraggableWordLabel(word: word),
-                              ),
-                      ),
-                    ),
-                  for (var i = row.length; i < _columns; i++)
-                    const Expanded(child: SizedBox.shrink()),
-                ],
+              padding: EdgeInsets.fromLTRB(4, 0, 4, hasWords ? 8 : 0),
+              child: Text(
+                statement!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1B1B1B),
+                ),
               ),
             ),
+          if (hasWords)
+            for (final row in _rows(slots))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    for (final word in row)
+                      Expanded(
+                        child: Center(
+                          // Un emplacement vide garde sa place : la grille ne se
+                          // reorganise pas sous les doigts de l'enfant.
+                          child: word == null
+                              ? const SizedBox.shrink()
+                              : Shake(
+                                  key: shakeKeys[word.text],
+                                  child: DraggableWordLabel(word: word),
+                                ),
+                        ),
+                      ),
+                    for (var i = row.length; i < _columns; i++)
+                      const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
+              ),
         ],
       ),
     );

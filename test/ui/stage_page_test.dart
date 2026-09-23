@@ -14,18 +14,16 @@ import '../support/stage_builders.dart' as build;
 
 /// Etape sans illustration : les tests portent sur le comportement, pas sur le
 /// decor, et une image absente du bundle de test ferait echouer le rendu.
-Stage buildTestStage() {
+Stage buildTestStage({String? statement}) {
   return build.stage(
     id: 'maison',
     location: 'Devant la maison',
+    arrivalText: statement,
     families: <WordFamily>[
       build.family(
         id: 'en_bus',
         label: 'En bus',
-        words: <Word>[
-          build.word('arrêt'),
-          build.word('ticket'),
-        ],
+        words: <Word>[build.word('arrêt'), build.word('ticket')],
         destination: 'gare',
         area: const RelativeArea(
           left: 0.04,
@@ -37,10 +35,7 @@ Stage buildTestStage() {
       build.family(
         id: 'a_pied',
         label: 'À pied',
-        words: <Word>[
-          build.word('chaussure'),
-          build.word('sentier'),
-        ],
+        words: <Word>[build.word('chaussure'), build.word('sentier')],
         destination: 'rue',
         area: const RelativeArea(
           left: 0.55,
@@ -54,7 +49,10 @@ Stage buildTestStage() {
 }
 
 /// Monte la page dans un ecran de taille fixe, en portrait.
-Future<List<String>> pumpStagePage(WidgetTester tester) async {
+Future<List<String>> pumpStagePage(
+  WidgetTester tester, {
+  String? statement,
+}) async {
   final departures = <String>[];
 
   tester.view.physicalSize = const Size(1080, 1920);
@@ -65,7 +63,7 @@ Future<List<String>> pumpStagePage(WidgetTester tester) async {
   await tester.pumpWidget(
     MaterialApp(
       home: StagePage(
-        stage: buildTestStage(),
+        stage: buildTestStage(statement: statement),
         onDeparture: departures.add,
         random: Random(7),
       ),
@@ -99,6 +97,66 @@ Future<void> dragWordOnto(
 }
 
 void main() {
+  group('L\'enonce', () {
+    // Le texte d'arrivee d'un lieu de jeu est ce qui donne son sens au tri :
+    // il pose la question que les mots tranchent. Il se lit donc pendant
+    // qu'on trie, pas sur un ecran qu'on a deja quitte.
+    const statement = 'Y ira-t-elle à pied ou en bus ?';
+
+    testWidgets('il s\'affiche dans le bandeau, au-dessus des mots', (
+      tester,
+    ) async {
+      await pumpStagePage(tester, statement: statement);
+
+      final shown = find.descendant(
+        of: find.byKey(StagePage.wordTrayKey),
+        matching: find.text(statement),
+      );
+      expect(shown, findsOneWidget);
+      expect(
+        tester.getBottomLeft(shown).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.text('arrêt')).dy),
+      );
+    });
+
+    testWidgets('il reste quand tous les mots sont classes', (tester) async {
+      await pumpStagePage(tester, statement: statement);
+
+      for (final (word, family) in <(String, String)>[
+        ('arrêt', 'en_bus'),
+        ('ticket', 'en_bus'),
+        ('chaussure', 'a_pied'),
+        ('sentier', 'a_pied'),
+      ]) {
+        await dragWordOnto(tester, word: word, familyId: family);
+      }
+
+      expect(find.text(statement), findsOneWidget);
+    });
+
+    testWidgets('aucune consigne generique ne s\'affiche', (tester) async {
+      // Retiree par l'auteur : l'enonce dit deja ce qu'il faut faire, et une
+      // phrase qui ne change jamais finit par ne plus etre lue.
+      await pumpStagePage(tester, statement: statement);
+
+      expect(find.text('Pose les mots au bon endroit'), findsNothing);
+    });
+
+    testWidgets('sans enonce, le bandeau ne porte que les mots', (
+      tester,
+    ) async {
+      await pumpStagePage(tester);
+
+      expect(
+        find.descendant(
+          of: find.byKey(StagePage.wordTrayKey),
+          matching: find.byType(Text),
+        ),
+        findsNWidgets(4),
+      );
+    });
+  });
+
   testWidgets('les mots a classer sont tous proposes', (tester) async {
     await pumpStagePage(tester);
 
@@ -141,9 +199,7 @@ void main() {
     expect(find.text('arrêt'), findsOneWidget);
   });
 
-  testWidgets('une erreur ne fait rien apparaitre sous le mot', (
-    tester,
-  ) async {
+  testWidgets('une erreur ne fait rien apparaitre sous le mot', (tester) async {
     // L'aide par le decoupage a ete retiree (0.33.0) : l'etiquette tremble et
     // revient, et l'enfant reessaie. Rien d'autre ne s'affiche.
     await pumpStagePage(tester);
@@ -190,9 +246,7 @@ void main() {
     expect(departures, <String>['gare']);
   });
 
-  testWidgets('deux familles completes proposent deux departs', (
-    tester,
-  ) async {
+  testWidgets('deux familles completes proposent deux departs', (tester) async {
     await pumpStagePage(tester);
 
     await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');

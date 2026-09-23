@@ -21,8 +21,8 @@ Map<String, String> buildFiles({
     'lexicon/test.json': '''
 { "domain": "test", "words": [
   ${lexiconWords ?? '''
-  { "text": "un", "syllables": ["un"] },
-  { "text": "deux", "syllables": ["deux"] }'''}
+  { "text": "un" },
+  { "text": "deux" }'''}
 ] }''',
     'lists/test.json': '''
 { "domain": "test", "lists": [
@@ -111,9 +111,9 @@ void main() {
       // contredisent : rien ne dirait lequel des deux decoupages s'applique.
       final files = buildFiles(
         lexiconWords: '''
-        { "text": "un", "syllables": ["un"] },
-        { "text": "un", "syllables": ["u", "n"] },
-        { "text": "deux", "syllables": ["deux"] }''',
+        { "text": "un" },
+        { "text": "un" },
+        { "text": "deux" }''',
       );
 
       expect(
@@ -158,14 +158,14 @@ void main() {
         '"startStageId": "start",',
         '"startStageId": "start",'
         '"opening": { "title": "Le grand depart", '
-        '"image": "assets/pictures/cover.jpg", "text": "Il etait une fois." },',
+        '"image": "pictures/cover.jpg", "text": "Il etait une fois." },',
       );
 
       final adventure = await buildRepository(files).loadAdventure('test');
 
       expect(adventure.opening, isNotNull);
       expect(adventure.opening!.titleOr(adventure.title), 'Le grand depart');
-      expect(adventure.opening!.imageAsset, 'assets/pictures/cover.jpg');
+      expect(adventure.opening!.imageAsset, 'pictures/cover.jpg');
       expect(adventure.opening!.text, 'Il etait une fois.');
     });
 

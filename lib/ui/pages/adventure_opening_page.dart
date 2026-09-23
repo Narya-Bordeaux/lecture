@@ -5,8 +5,7 @@ import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// La page de garde d'une aventure.
 ///
-/// Sa mise en page differe volontairement de celle des moments de recit : ici
-/// le titre annonce en haut, l'illustration occupe toute la largeur, et le
+/// C'est le seul ecran de lecture du jeu : le titre annonce en haut, l'illustration occupe toute la largeur, et le
 /// texte se lit dessous. C'est un seuil que l'on franchit une fois, pas une
 /// transition entre deux lieux.
 ///

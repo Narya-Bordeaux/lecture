@@ -44,6 +44,31 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.35.0+54 — 23 septembre 2026 — L'énoncé sur la scène
+
+**Vu par l'auteur** : le texte d'arrivée saisi dans l'outil ne paraissait pas
+sur la page de jeu. Il s'affichait sur un écran de récit intercalé, avant la
+scène — or c'est lui qui donne son sens au tri : il pose la question que les
+mots tranchent.
+
+- **L'énoncé se lit en haut de la scène**, dans le cartouche des mots, et y
+  reste quand ils sont tous classés. `StoryMomentPage` est retiré : un lieu de
+  jeu s'ouvre directement sur sa scène.
+- **La consigne générique est retirée** (« Pose les mots au bon endroit »).
+- L'éditeur de lieu appelle le champ « L'énoncé ». Le calage, qui monte la
+  même page, montre l'énoncé réel : l'auteur voit la place qu'il prend.
+- La règle « pas d'`onArrival` au lieu de départ quand il y a une page de
+  garde » tombe : la page de garde raconte, l'énoncé demande.
+
+**Les trois tolérances héritées sont retirées** (règle du §1 de CLAUDE.md) :
+le champ `syllables` n'est plus nettoyé à l'enregistrement, un récit écrit en
+simple chaîne n'est plus lu, et une image ne se lit plus que par la source de
+contenu — ni `assets/…`, ni adresse `http:` ou `blob:`.
+
+**Défaut mesuré, non corrigé** : sur un 360×640, l'énoncé de deux phrases que
+l'auteur a écrit pour la maison fait recouvrir la zone du bus par le bandeau
+(22 px). Solution à choisir, voir `TODO.md`. 509 tests au vert.
+
 ### 0.34.2+53 — 23 septembre 2026 — Plus de personnage
 
 **Décision de l'auteur** : le personnage était de la dette. Il mêlait deux

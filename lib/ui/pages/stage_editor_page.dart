@@ -197,7 +197,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
             ),
           ),
         ],
-        if (path.isNotEmpty && !path.startsWith('assets/'))
+        if (path.isNotEmpty)
           // Dit ou en est l'image, sans en faire une alerte : c'est l'etat
           // normal tant que le depot ne l'a pas recue.
           //
@@ -249,7 +249,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Le récit', style: Theme.of(context).textTheme.titleSmall),
+        Text('L\'énoncé', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         TextField(
           key: const Key('onArrival'),
@@ -259,7 +259,8 @@ class _StageEditorPageState extends State<StageEditorPage> {
           textCapitalization: TextCapitalization.sentences,
           decoration: const InputDecoration(
             labelText: 'En arrivant',
-            helperText: 'Avant de jouer : ce qui donne son sens au lieu.',
+            helperText: 'En haut de la scène, au-dessus des mots : ce qui '
+                'donne son sens au tri.',
             border: OutlineInputBorder(),
           ),
         ),

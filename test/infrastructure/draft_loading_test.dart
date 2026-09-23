@@ -28,7 +28,7 @@ Map<String, String> buildDraftFiles() {
   ]
 }''',
     'lexicon/test.json':
-        '{ "domain": "test", "words": [ { "text": "un", "syllables": ["un"] } ] }',
+        '{ "domain": "test", "words": [ { "text": "un" } ] }',
     'lists/test.json':
         '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", "words": [] } ] }',
     'adventures/b.json': '''
