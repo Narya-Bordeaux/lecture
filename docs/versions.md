@@ -44,6 +44,27 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.37.0+56 — 23 septembre 2026 — Les images se choisissent dans le dépôt
+
+**Décision de l'auteur** : il verse ses images dans `assets/content/pictures/`
+sous le nom qu'il veut, et l'outil les propose. L'outil est compilé à partir
+du dépôt, comme le jeu : une image choisie là existe forcément dans le jeu.
+
+- **« Choisir une image »** ouvre `PictureChooserPage` : les images du bundle,
+  en vignettes, avec leur nom. `PictureCatalog` (domaine) et
+  `BundledPictureCatalog` (manifeste du bundle) les listent.
+- **`PictureField`**, un seul champ d'image pour le lieu et la page de garde,
+  qui en avaient chacun une copie. Il signale une image citée qui n'est pas
+  dans le dépôt : le jeu ne l'afficherait pas.
+- **Retirés** : la photothèque de l'appareil (`PicturePicker`,
+  `DevicePicturePicker`, `StoredPictureLibrary`, `PictureLibrary`), la copie
+  renommée `gare_<horodatage>.jpg`, la mention « image de travail », et la
+  dépendance `image_picker`. Sur Android le nom d'origine n'était de toute façon
+  pas connu.
+
+Le catalogue lit le vrai bundle en test, noms accentués compris ; aucun
+navigateur ne l'a encore fait. 509 tests au vert.
+
 ### 0.36.0+55 — 23 septembre 2026 — Le bandeau au-dessus de la scène
 
 **Décision de l'auteur (option A)** : le bandeau des mots est posé au-dessus

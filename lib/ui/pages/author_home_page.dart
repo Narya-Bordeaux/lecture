@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/repositories/author_account.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
+import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/domain/models/word_library.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/ui/pages/author_sign_in_page.dart';
@@ -22,7 +22,7 @@ import 'package:grisbie/ui/pages/outline_page.dart';
 class AuthorHomePage extends StatefulWidget {
   const AuthorHomePage({
     required this.openRepository,
-    this.openPictures,
+    this.pictures,
     this.onSave,
     this.account,
     super.key,
@@ -40,15 +40,11 @@ class AuthorHomePage extends StatefulWidget {
   /// l'interface que le jeu emploie.
   final ContentRepository Function() openRepository;
 
-  /// De quoi choisir une illustration, **à neuf**.
+  /// Les images du dépôt, transmises aux éditeurs.
   ///
-  /// Une fabrique pour la même raison que le dépôt : se connecter change
-  /// l'endroit où l'image sera rangée, et une photothèque construite une fois
-  /// pour toutes continuerait d'écrire sur l'appareil après la connexion.
-  ///
-  /// Elle peut rendre `null` — un navigateur non connecté n'a nulle part de
-  /// durable où ranger une image. Le bouton ne paraît alors pas.
-  final PictureLibrary? Function()? openPictures;
+  /// Pas une fabrique, contrairement au dépôt de contenu : les images viennent
+  /// du bundle, que se connecter ne change pas.
+  final PictureCatalog? pictures;
 
   /// Ce qui écrit une aventure. Nul, l'écran du parcours ne le propose pas.
   final Future<List<String>> Function(Adventure adventure)? onSave;
@@ -66,7 +62,6 @@ class AuthorHomePage extends StatefulWidget {
 class _AuthorHomePageState extends State<AuthorHomePage> {
   late ContentRepository _repository;
   late Future<ContentIndex> _index;
-  PictureLibrary? _pictures;
 
   @override
   void initState() {
@@ -81,7 +76,6 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
   void _reopen() {
     _repository = widget.openRepository();
     _index = _repository.loadIndex();
-    _pictures = widget.openPictures?.call();
   }
 
   void _reload() => setState(_reopen);
@@ -131,7 +125,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
       MaterialPageRoute<Adventure>(
         builder: (_) => OutlinePage(
           adventure: adventure,
-          pictures: _pictures,
+          pictures: widget.pictures,
           contentSource: _repository.source,
           onSave: widget.onSave,
           library: library,

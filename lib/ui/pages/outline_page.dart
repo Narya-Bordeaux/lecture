@@ -4,7 +4,7 @@ import 'package:grisbie/application/adventure_outline.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
+import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/word_library.dart';
@@ -48,8 +48,8 @@ class OutlinePage extends StatefulWidget {
   /// d'entree qui sait ou l'on ecrit, pas cet ecran.
   final Future<List<String>> Function(Adventure adventure)? onSave;
 
-  /// De quoi choisir une illustration dans l'appareil, transmise aux editeurs.
-  final PictureLibrary? pictures;
+  /// Les images du depot, transmises aux editeurs.
+  final PictureCatalog? pictures;
 
   /// D'ou lire le contenu, illustrations comprises.
   ///

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.36.0+55** — 23 septembre 2026
+**Version : 0.37.0+56** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.37.0+56 — Les images se choisissent dans le dépôt
+- L'auteur verse ses images dans `assets/content/pictures/` ; « Choisir une
+  image » les montre en vignettes, par leur nom. Une image absente du dépôt
+  est signalée.
+- La photothèque de l'appareil et `image_picker` sont retirés.
+- **Prochain sujet** : « Intégrer au dépôt » — le JSON, les listes et les
+  lexiques ; et l'aventure que le jeu lance.
+- 509 tests au vert.
+
 ### 0.36.0+55 — Le bandeau au-dessus de la scène
 - **Option A, choisie par l'auteur** : l'illustration occupe ce que le
   bandeau laisse ; un énoncé, même long, ne peut plus recouvrir une zone.
@@ -123,16 +132,6 @@ un travail d'auteur, pas de code.
   recouvre la zone du bus. À trancher avec l'auteur.
 - 509 tests au vert.
 
-### 0.34.2+53 — Plus de personnage
-- **Décision de l'auteur** : le personnage mêlait narration et mécanique ; la
-  mécanique vit dans la structure, le reste relève du récit. Modèle, fichier
-  `characters.json` et réplique retirés.
-- **Règle nouvelle** : le jeu n'est pas en ligne, aucune compatibilité ne se
-  construit (CLAUDE.md §1).
-- **En discussion** : l'énoncé en haut de la scène de jeu, et un type « page
-  de récit » pour la page de garde, les transitions et les fins (`TODO.md`).
-- 508 tests au vert.
-
 ## Décisions prises
 
 - **Plateformes** : Web, Android, Windows. iOS et macOS ne sont pas visés, et `ios/`
@@ -140,11 +139,10 @@ un travail d'auteur, pas de code.
 - **Le web sert d'abord l'outil d'auteur** : écrire sur un poste, illustrer sur
   le téléphone. Le jeu compile aussi pour le web, mais ce n'est pas ce qui a
   motivé la cible.
-- **Deux dépendances tierces, pour l'outil d'auteur seulement** :
-  `image_picker` et `path_provider`, de l'équipe Flutter. Embarquées dans le
-  jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui, et un test
-  l'exige. `image_picker` passe par le Photo Picker d'Android 13+, qui ne
-  demande aucune permission.
+- **Les dépendances tierces servent l'outil d'auteur seulement**. Embarquées
+  dans le jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui,
+  et un test l'exige. `image_picker` a été retiré en 0.37.0 : les images se
+  choisissent dans le dépôt.
 - **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
   étant mineur, aucune donnée personnelle ne sort de la machine.
 - **Firebase ne s'initialise jamais tout seul** : des `FirebaseOptions`

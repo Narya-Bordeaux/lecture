@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
+import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
 
 import '../support/disk_content.dart';
@@ -18,7 +18,7 @@ import '../support/disk_content.dart';
 Future<Stage?> pumpEditor(
   WidgetTester tester,
   Stage stage, {
-  PictureLibrary? pictures,
+  PictureCatalog? pictures,
 }) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1;
@@ -101,64 +101,89 @@ void main() {
     });
   });
 
-  group('Choisir une image dans l\'appareil', () {
-    testWidgets('sans photothegue, le champ reste seul', (tester) async {
-      // Une plateforme sans selecteur — ou un test — garde la saisie au
-      // clavier plutot qu'un bouton qui ne ferait rien.
+  group('Choisir une image dans le depot', () {
+    // L'auteur verse ses images dans `assets/content/pictures/` ; l'outil les
+    // propose, et le jeu compile en meme temps les embarque. Rien n'est copie
+    // ni renomme.
+
+    testWidgets('sans catalogue, le champ reste seul', (tester) async {
       await pumpEditor(tester, realAdventure.startStage);
 
       expect(find.text('Choisir une image'), findsNothing);
     });
 
     testWidgets('l\'image choisie remplit le chemin', (tester) async {
-      final pictures = FakePictureLibrary('pictures/gare_1.jpg');
       await pumpEditor(
         tester,
         realAdventure.findStage('gare')!,
-        pictures: pictures,
+        pictures: FakePictureCatalog(<String>[
+          'pictures/Grisbie carrefour.jpg',
+          'pictures/Grisbie gare.jpg',
+        ]),
       );
 
       await tester.tap(find.text('Choisir une image'));
       await tester.pumpAndSettle();
 
-      // Le chemin est **relatif au dossier du contenu** : l'image y a ete
-      // ecrite, et voyagera avec le JSON.
-      expect(find.text('pictures/gare_1.jpg'), findsOneWidget);
-      // Le fichier est nomme d'apres le lieu, pas d'apres la photo.
-      expect(pictures.askedFor, 'gare');
-    });
-
-    testWidgets('une image de travail se signale comme telle', (tester) async {
-      await pumpEditor(
-        tester,
-        realAdventure.findStage('gare')!,
-        pictures: FakePictureLibrary('pictures/gare_1.jpg'),
-      );
-
-      await tester.tap(find.text('Choisir une image'));
+      // La liste montre les noms, pas les chemins.
+      expect(find.text('Grisbie carrefour.jpg'), findsOneWidget);
+      await tester.tap(find.text('Grisbie gare.jpg'));
       await tester.pumpAndSettle();
 
-      // C'est l'etat normal tant que le depot git ne l'a pas recue : une
-      // mention, pas une alerte.
-      expect(find.textContaining('Image de travail'), findsOneWidget);
-      expect(
-        find.textContaining('déposée avec le contenu'),
-        findsOneWidget,
-        reason: 'l\'image voyage avec le JSON, elle ne reste plus a part',
-      );
+      expect(find.text('pictures/Grisbie gare.jpg'), findsOneWidget);
     });
 
     testWidgets('renoncer laisse le chemin d\'avant', (tester) async {
       await pumpEditor(
         tester,
         realAdventure.startStage,
-        pictures: FakePictureLibrary(null),
+        pictures: FakePictureCatalog(<String>['pictures/Grisbie gare.jpg']),
+      );
+
+      await tester.tap(find.text('Choisir une image'));
+      await tester.pumpAndSettle();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.text('pictures/Grisbie_plage2.jpg'), findsOneWidget);
+    });
+
+    testWidgets('un depot vide dit ou verser les images', (tester) async {
+      await pumpEditor(
+        tester,
+        realAdventure.startStage,
+        pictures: FakePictureCatalog(const <String>[]),
       );
 
       await tester.tap(find.text('Choisir une image'));
       await tester.pumpAndSettle();
 
-      expect(find.text('pictures/Grisbie_plage2.jpg'), findsOneWidget);
+      expect(find.textContaining('assets/content/pictures/'), findsOneWidget);
+    });
+
+    testWidgets('une image absente du depot est signalee', (tester) async {
+      // Une image rangee autrefois par l'outil sur le depot distant n'existe
+      // pas dans le jeu compile : l'enfant verrait un fond uni.
+      await pumpEditor(
+        tester,
+        realAdventure.startStage.copyWith(
+          backgroundAsset: 'pictures/gare_1790155902917.jpg',
+        ),
+        pictures: FakePictureCatalog(<String>['pictures/Grisbie gare.jpg']),
+      );
+
+      expect(find.textContaining('pas dans le dépôt'), findsOneWidget);
+    });
+
+    testWidgets('une image du depot ne signale rien', (tester) async {
+      await pumpEditor(
+        tester,
+        realAdventure.startStage,
+        pictures: FakePictureCatalog(<String>['pictures/Grisbie_plage2.jpg']),
+      );
+
+      expect(find.textContaining('pas dans le dépôt'), findsNothing);
+      expect(find.textContaining('Image de travail'), findsNothing);
     });
   });
 
@@ -260,19 +285,12 @@ Future<void> _withEditor(
   await act(tester);
 }
 
-/// Une photothegue qui rend toujours la meme image, sans appareil ni greffon.
-class FakePictureLibrary implements PictureLibrary {
-  FakePictureLibrary(this.path);
+/// Un catalogue fixe, sans bundle.
+class FakePictureCatalog implements PictureCatalog {
+  FakePictureCatalog(this.pictures);
 
-  /// Ce que le selecteur rendra. Nul : l'auteur a referme sans choisir.
-  final String? path;
-
-  /// Le nom demande au dernier appel, pour verifier d'ou il vient.
-  String? askedFor;
+  final List<String> pictures;
 
   @override
-  Future<String?> pickPicture({required String baseName}) async {
-    askedFor = baseName;
-    return path;
-  }
+  Future<List<String>> listPictures() async => pictures;
 }

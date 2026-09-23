@@ -3,9 +3,9 @@ import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
+import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
-import 'package:grisbie/ui/widgets/content_image.dart';
+import 'package:grisbie/ui/widgets/picture_field.dart';
 
 /// Tout ce qu'un lieu porte, sauf ses mots.
 ///
@@ -32,11 +32,11 @@ class StageEditorPage extends StatefulWidget {
 
   final Stage stage;
 
-  /// De quoi choisir une illustration dans l'appareil.
+  /// Les images du depot, parmi lesquelles choisir l'illustration.
   ///
-  /// Nulle, le champ reste saisissable au clavier et le bouton ne paraît pas :
-  /// c'est le cas des tests, et de toute plateforme sans photothegue.
-  final PictureLibrary? pictures;
+  /// Nul, le champ reste saisissable au clavier et le bouton ne paraît pas :
+  /// c'est le cas des tests qui ne portent pas sur l'image.
+  final PictureCatalog? pictures;
 
   /// D'ou lire le contenu, illustrations comprises.
   ///
@@ -97,20 +97,6 @@ class _StageEditorPageState extends State<StageEditorPage> {
     );
   }
 
-  /// Demande une image a l'appareil et la pose sur le lieu.
-  ///
-  /// Le chemin obtenu est celui de la **copie rangee**, pas celui du fichier
-  /// d'origine : l'image doit survivre a une purge du cache.
-  Future<void> _pickPicture() async {
-    final pictures = widget.pictures;
-    if (pictures == null) return;
-
-    final path = await pictures.pickPicture(baseName: widget.stage.id);
-    if (path == null || !mounted) return;
-
-    setState(() => _background.text = path);
-  }
-
   /// Ouvre le calage des zones sur l'etape en cours d'edition.
   ///
   /// C'est bien l'etape **editee** qu'on cale, illustration comprise : sans
@@ -168,62 +154,19 @@ class _StageEditorPageState extends State<StageEditorPage> {
   }
 
   Widget _buildBackground(BuildContext context) {
-    final path = _backgroundPath;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text('L\'illustration', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
-        TextField(
-          key: const Key('background'),
+        PictureField(
+          fieldKey: const Key('background'),
           controller: _background,
-          decoration: const InputDecoration(
-            labelText: 'Chemin de l\'image',
-            hintText: 'pictures/…',
-            border: OutlineInputBorder(),
-          ),
+          catalog: widget.pictures,
+          contentSource: widget.contentSource,
           // L'apercu et le bouton de calage suivent ce qui est saisi.
-          onChanged: (_) => setState(() {}),
+          onChanged: () => setState(() {}),
         ),
-        if (widget.pictures != null) ...<Widget>[
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: _pickPicture,
-              icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('Choisir une image'),
-            ),
-          ),
-        ],
-        if (path.isNotEmpty)
-          // Dit ou en est l'image, sans en faire une alerte : c'est l'etat
-          // normal tant que le depot ne l'a pas recue.
-          //
-          // Et dit si elle survivra a la session : dans un navigateur elle
-          // tient a une adresse « blob: » qui meurt avec l'onglet. Le taire
-          // ferait croire le travail conserve, et l'auteur ne comprendrait pas
-          // de retrouver son lieu sans illustration.
-          _Note(
-            'Image de travail, déposée avec le contenu. Le jeu ne la verra '
-            'qu\'une fois le contenu rapatrié dans « assets/content/ » et '
-            'recompilé.',
-          ),
-        if (path.isNotEmpty) ...<Widget>[
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: ContentImage(
-              path: path,
-              source: widget.contentSource,
-              fit: BoxFit.fitWidth,
-              errorBuilder: (context, error, stack) => _Note(
-                'Image introuvable — le jeu affichera un fond uni.',
-              ),
-            ),
-          ),
-        ],
         // Une fin, ou un lieu pas encore ecrit, n'a rien a deposer : le bouton
         // n'aurait aucune cible.
         if (_families.isNotEmpty) ...<Widget>[

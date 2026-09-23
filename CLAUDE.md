@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.36.0+55** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.37.0+56** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -54,21 +54,19 @@ sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
 première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 éléments sans reprendre le document.
 
-**Six dépendances tierces** — `image_picker` et `path_provider` (équipe
-Flutter), `web` (équipe Dart), `firebase_core`, `firebase_storage` et
-`firebase_auth`. Elles ne servent qu'à l'outil d'auteur : choisir
-l'illustration d'un lieu dans l'appareil, savoir où écrire, rendre les fichiers
-par le téléchargement d'un navigateur, et déposer le contenu sur le dépôt
-distant.
+**Cinq dépendances tierces** — `path_provider` (équipe Flutter), `web`
+(équipe Dart), `firebase_core`, `firebase_storage` et `firebase_auth`. Elles
+ne servent qu'à l'outil d'auteur : savoir où écrire, rendre les fichiers par
+le téléchargement d'un navigateur, et déposer le contenu sur le dépôt
+distant. `image_picker` a été retiré en 0.37.0 : les images se choisissent
+dans le dépôt, plus dans l'appareil.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
 `test/infrastructure/author_only_test.dart` exige que les greffons ne soient
-importés que par l'infrastructure dédiée, que `DevicePicturePicker` et
-`AuthorRemote` ne se construisent que dans `main_author.dart`, que **rien
-n'initialise Firebase** hors de `author_remote.dart`, et que `main.dart` ne
-mène à aucun écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
-général : sur Android 13 et au-delà il passe par le Photo Picker du système,
-qui **ne demande aucune permission**.
+importés que par l'infrastructure dédiée, qu'aucun code n'ouvre plus la
+photothèque de l'appareil, qu'`AuthorRemote` ne se construise que dans
+`main_author.dart`, que **rien n'initialise Firebase** hors de
+`author_remote.dart`, et que `main.dart` ne mène à aucun écran d'auteur.
 
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
@@ -472,31 +470,22 @@ elle disparaissait avant d'être affichée, le système révoquant l'adresse. Un
 `ContentSink.writeBytes` et un `ContentSource.readBytes` ont supprimé les deux
 problèmes et une branche de plateforme.
 
-**Choisir une image, et l'écrire dans le contenu** — deux interfaces de
-domaine, et c'est la séparation qui rend le tout éprouvable.
-`PicturePicker` ouvre la photothèque et rend des **octets** ;
-`StoredPictureLibrary` les écrit dans l'arbre de contenu par un `ContentSink`
-et rend le chemin `pictures/…`. `DevicePicturePicker` implémente le premier
-avec `image_picker`, qui sert aussi bien sur un appareil que dans un navigateur
-(`image_picker_for_web`).
+**Une image se choisit dans le dépôt** (0.37.0) — l'auteur verse ses fichiers
+dans `assets/content/pictures/`, sous le nom qu'il veut, et l'outil les
+propose : `PictureCatalog` (domaine) les liste, `BundledPictureCatalog` les lit
+dans le manifeste du bundle, `PictureChooserPage` les montre en vignettes avec
+leur nom. L'outil est compilé à partir du dépôt, comme le jeu : **une image
+choisie là existe forcément dans le jeu**. Rien n'est copié ni renommé.
 
-**Des octets, jamais le chemin rendu par le greffon** : sur un appareil c'est un
-fichier de cache qu'Android peut purger, et dans un navigateur une adresse
-`blob:` que le système révoque aussitôt — c'était la cause de l'aperçu vide sur
-le web. Il n'y a plus de chemin à lire, donc plus rien à révoquer.
+Ce que cela a remplacé : une photothèque qui copiait la photo de l'appareil
+sous un nom fabriqué (`gare_1790155902917.jpg`) dans le dossier de travail.
+L'image vivait alors sur le dépôt distant, jamais dans le dépôt git, et le jeu
+ne l'aurait pas vue ; sur Android, le nom d'origine n'était même pas connu.
 
-**Le nom porte un horodatage**, sans lequel une seconde photo pour le même lieu
-écrirait au même chemin : le cache d'images de Flutter, qui indexe par chemin,
-continuerait d'afficher l'ancienne et le geste paraîtrait sans effet.
-
-**La photothèque est nulle quand il n'y a nulle part de durable où écrire** —
-un navigateur non connecté au dépôt, dont le seul puits est le téléchargement.
-Le bouton ne paraît alors pas et le champ reste saisissable au clavier ; c'est
-plus honnête que de proposer un geste dont l'effet disparaît aussitôt.
-
-Une image ainsi prise est **une image de travail** : l'éditeur le dit sous le
-champ. Le jeu ne la verra qu'une fois le contenu rapatrié dans
-`assets/content/` et recompilé.
+**`PictureField` est le seul champ d'image** — le lieu et la page de garde s'en
+servent tous deux : chemin saisissable, bouton « Choisir une image », aperçu,
+et **alerte quand l'image citée n'est pas dans le dépôt** — une image rangée
+autrefois sur le dépôt distant, par exemple, que l'enfant ne verrait jamais.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir
@@ -572,10 +561,8 @@ rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convie
 quand la destination possède déjà le reste — un dépôt, ou le dossier de
 téléchargement d'un navigateur.
 
-**L'accueil reçoit aussi une fabrique de photothèque** — même raison que pour
-le dépôt : se connecter change l'endroit où l'image sera rangée, et une
-photothèque construite une fois pour toutes écrirait encore sur l'appareil
-après la connexion.
+**L'accueil reçoit le catalogue d'images tel quel**, pas une fabrique : il
+vient du bundle, que se connecter ne change pas.
 
 **Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
 puits : le dépôt distant quand l'auteur y est connecté (`RemoteContentStore`),

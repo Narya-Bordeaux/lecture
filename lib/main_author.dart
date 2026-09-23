@@ -2,9 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/repositories/content_sink.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 import 'package:grisbie/infrastructure/content/browser_content_sink.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
@@ -12,8 +10,7 @@ import 'package:grisbie/infrastructure/content/content_saver.dart';
 import 'package:grisbie/infrastructure/content/content_writer.dart';
 import 'package:grisbie/infrastructure/content/device_content_folder.dart';
 import 'package:grisbie/infrastructure/content/fallback_content_source.dart';
-import 'package:grisbie/infrastructure/pictures/device_picture_picker.dart';
-import 'package:grisbie/infrastructure/pictures/stored_picture_library.dart';
+import 'package:grisbie/infrastructure/pictures/bundled_picture_catalog.dart';
 import 'package:grisbie/infrastructure/remote/author_remote.dart';
 import 'package:grisbie/ui/pages/author_home_page.dart';
 
@@ -89,31 +86,6 @@ ContentSource authorContentSource({
     preferred: DeviceContentFolder.sourceAt(deviceDirectory),
     fallback: shipped,
   );
-}
-
-/// La photothegue, quand il y a **un endroit durable ou ranger l'image**.
-///
-/// Une illustration est du contenu : elle s'ecrit dans le meme arbre que le
-/// JSON, par le meme puits. Il faut donc que ce puits se relise — un dossier
-/// de l'appareil, ou le depot distant.
-///
-/// Nulle dans un navigateur non connecte : le puits y est le telechargement,
-/// qui fait descendre un fichier sans jamais le rendre. Le bouton ne parait
-/// alors pas, et le champ reste saisissable au clavier ; c'est plus honnete
-/// que de proposer un geste dont l'effet disparait aussitot.
-PictureLibrary? authorPictureLibrary({
-  required AuthorRemote? remote,
-  required String? deviceDirectory,
-}) {
-  final ContentSink? sink = switch ((remote, deviceDirectory)) {
-    (final AuthorRemote remote, _) when remote.account.isSignedIn =>
-      remote.store,
-    (_, final String directory) => DeviceContentFolder.sinkAt(directory),
-    _ => null,
-  };
-  if (sink == null) return null;
-
-  return StoredPictureLibrary(picker: DevicePicturePicker(), sink: sink);
 }
 
 /// Ou va le contenu enregistre, selon la plateforme.
@@ -193,16 +165,9 @@ class AuthorToolsApp extends StatelessWidget {
             deviceDirectory: deviceDirectory,
           ),
         ),
-        // La photothegue. **Le seul endroit du depot qui la construise**, et
-        // il est dans l'outil d'auteur : le jeu n'a aucun chemin vers elle.
-        //
-        // Une fabrique, comme le depot : se connecter change l'endroit ou
-        // l'image sera rangee, et une photothegue construite une fois pour
-        // toutes ecrirait encore sur l'appareil apres la connexion.
-        openPictures: () => authorPictureLibrary(
-          remote: remote,
-          deviceDirectory: deviceDirectory,
-        ),
+        // Les images se choisissent dans le depot : l'outil est compile a
+        // partir de lui, comme le jeu, et embarque donc les memes.
+        pictures: const BundledPictureCatalog(),
         account: remote?.account,
         onSave: (adventure) => saveAdventure(
           adventure,

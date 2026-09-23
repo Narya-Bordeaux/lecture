@@ -5,15 +5,16 @@ n'existe plus que dans `versions.md`.
 
 ## Pages de récit, images et dépôt — en discussion avec l'auteur
 
-- [ ] **Les images par leur nom** : l'auteur verse ses images dans
-      `assets/content/pictures/` et l'outil les désigne par leur nom de
-      fichier. Modalités en discussion (voir `current.md`).
+- [ ] **Éprouver le choix d'une image dans Chrome et sur le téléphone** —
+      les noms portent des espaces et des accents (`Grisbie forêt.jpg`) :
+      les tests les lisent, aucun navigateur ne l'a encore fait.
 - [ ] **La page de récit**, type de page à part (titre, illustration, texte,
       une seule suite, ou marquée fin) : page de garde, transition, fin. Le
       type se choisit à la création de la page.
 - [ ] **« Intégrer au dépôt »** : verser l'aventure écrite dans l'outil —
-      JSON, listes, lexiques, images — dans `assets/content/`, pour qu'elle
-      soit jouable à la compilation suivante. Le chemin reste à choisir.
+      JSON, listes, lexiques — dans `assets/content/`, pour qu'elle soit
+      jouable à la compilation suivante. Les images y sont déjà. Le chemin
+      reste à choisir, et l'aventure que le jeu lance aussi.
 
 ## Outil de création d'une journée
 
