@@ -9,51 +9,22 @@
 /// Ils ne le pourraient pas de toute facon, l'enfant ne voyant que
 /// l'orthographe a l'ecran.
 ///
-/// Le decoupage est porte par le mot lui-meme : c'est une donnee de contenu,
-/// jamais calculee par le code. Le francais n'a pas de regle de syllabation
-/// assez sure pour etre automatisee, et une coupe fausse induirait l'enfant en
-/// erreur sur le point meme que le jeu cherche a travailler.
+/// **Le mot n'est plus que son orthographe.** Il portait son decoupage en
+/// syllabes, qui ne servait qu'a l'aide affichee apres une erreur. L'aide a
+/// ete retiree du jeu (0.33.0), et le decoupage avec elle : une donnee que
+/// rien n'utilise finit fausse sans que personne ne le voie. Un contenu ecrit
+/// avant se lit toujours — le champ `syllables` y est ignore.
 class Word {
-  const Word({
-    required this.text,
-    required this.syllables,
-  });
+  const Word({required this.text});
 
   factory Word.fromJson(Map<String, dynamic> json) {
-    return Word(
-      text: json['text'] as String,
-      syllables: List<String>.unmodifiable(
-        (json['syllables'] as List<dynamic>).cast<String>(),
-      ),
-    );
+    return Word(text: json['text'] as String);
   }
 
   /// Le mot tel que l'enfant le lit, et la clef qui le designe partout.
   final String text;
 
-  /// Le decoupage, dans l'ordre : ['chau', 'ssure'].
-  ///
-  /// Il suit les sons et non la coupure graphique academique — « a », « rê »
-  /// pour « arret ». Il peut donc s'ecarter de l'orthographe : c'est un choix
-  /// pedagogique, que le code laisse a l'auteur du contenu.
-  final List<String> syllables;
-
-  Word copyWith({
-    String? text,
-    List<String>? syllables,
-  }) {
-    return Word(
-      text: text ?? this.text,
-      syllables: syllables ?? this.syllables,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      'text': text,
-      'syllables': syllables,
-    };
-  }
+  Map<String, dynamic> toJson() => <String, dynamic>{'text': text};
 
   @override
   bool operator ==(Object other) => other is Word && other.text == text;

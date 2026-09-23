@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:grisbie/domain/models/hint.dart';
-import 'package:grisbie/domain/models/hint_policy.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -35,37 +33,30 @@ class AvailableDestination {
 class PlacementResult {
   const PlacementResult({
     required this.accepted,
-    required this.unlockedHints,
     this.completedFamilyId,
   });
 
   /// Vrai si le mot appartenait bien a cette famille.
-  final bool accepted;
-
-  /// Les aides debloquees par cette tentative precisement.
   ///
-  /// Vide si aucune aide nouvelle : l'interface s'en sert pour n'annoncer une
-  /// aide qu'au moment ou elle apparait.
-  final Set<Hint> unlockedHints;
+  /// Un refus ne coute rien et n'ouvre rien : le mot reste a sa place, et
+  /// l'enfant reessaie. Il n'y a plus d'aide qui se debloquerait a l'erreur.
+  final bool accepted;
 
   /// La famille que ce placement vient de completer, s'il y en a une.
   final String? completedFamilyId;
 
   @override
   String toString() =>
-      'PlacementResult(accepted: $accepted, hints: $unlockedHints)';
+      'PlacementResult(accepted: $accepted)';
 }
 
 /// L'etat d'une etape en cours, en lecture seule pour l'interface.
 class StageState {
-  StageState._(this._stage, this._hintPolicy);
+  StageState._(this._stage);
 
   final Stage _stage;
-  final HintPolicy _hintPolicy;
 
   final Map<String, String> _placements = <String, String>{};
-  final Map<String, int> _errorCounts = <String, int>{};
-  final Map<String, Set<Hint>> _requestedHints = <String, Set<Hint>>{};
   String? _departedTo;
 
   /// Les mots qui attendent leur tour, dans l'ordre ou ils apparaitront.
@@ -78,18 +69,6 @@ class StageState {
   Map<String, String> get placements => Map<String, String>.unmodifiable(
         _placements,
       );
-
-  /// Nombre d'erreurs commises sur ce mot depuis le debut de l'etape.
-  int errorCountFor(String wordText) => _errorCounts[wordText] ?? 0;
-
-  /// Les aides disponibles sur ce mot, qu'elles aient ete debloquees par les
-  /// erreurs ou demandees par l'enfant.
-  Set<Hint> hintsFor(String wordText) {
-    return <Hint>{
-      ..._hintPolicy.hintsFor(errorCountFor(wordText)),
-      ...?_requestedHints[wordText],
-    };
-  }
 
   /// Les familles dont l'objectif est atteint.
   Set<String> get completedFamilyIds {
@@ -153,16 +132,15 @@ class StageEngine {
   /// connaitre une regle de jeu, et le [Random] injecte est deja la.
   factory StageEngine({
     required Stage stage,
-    HintPolicy hintPolicy = const HintPolicy(),
     Random? random,
   }) {
     final draw = random ?? Random();
-    return StageEngine._(stage.drawnWith(draw), hintPolicy, draw);
+    return StageEngine._(stage.drawnWith(draw), draw);
   }
 
-  StageEngine._(Stage stage, HintPolicy hintPolicy, this._random)
+  StageEngine._(Stage stage, this._random)
       : _stage = stage,
-        state = StageState._(stage, hintPolicy) {
+        state = StageState._(stage) {
     _fillInitialSlots();
   }
 
@@ -237,7 +215,7 @@ class StageEngine {
     }
 
     if (!family.accepts(wordText)) {
-      return _rejectPlacement(wordText);
+      return const PlacementResult(accepted: false);
     }
 
     state._placements[wordText] = familyId;
@@ -245,7 +223,6 @@ class StageEngine {
 
     return PlacementResult(
       accepted: true,
-      unlockedHints: const <Hint>{},
       completedFamilyId: state._isFamilyComplete(family) ? family.id : null,
     );
   }
@@ -260,30 +237,6 @@ class StageEngine {
     if (slot < 0) return;
 
     _slots[slot] = state._supply.isEmpty ? null : state._supply.removeAt(0);
-  }
-
-  /// Comptabilise l'erreur et retourne les aides qu'elle fait apparaitre.
-  PlacementResult _rejectPlacement(String wordText) {
-    final hintsBefore = state.hintsFor(wordText);
-    state._errorCounts[wordText] = state.errorCountFor(wordText) + 1;
-    final hintsAfter = state.hintsFor(wordText);
-
-    return PlacementResult(
-      accepted: false,
-      unlockedHints: hintsAfter.difference(hintsBefore),
-    );
-  }
-
-  /// Rend une aide disponible a la demande de l'enfant, sans erreur commise.
-  void requestHint({required String wordText, required Hint hint}) {
-    if (_stage.findWord(wordText) == null) {
-      throw ArgumentError.value(
-        wordText,
-        'wordText',
-        'Mot absent de l\'etape "${_stage.id}"',
-      );
-    }
-    state._requestedHints.putIfAbsent(wordText, () => <Hint>{}).add(hint);
   }
 
   /// Fait partir le chat vers [stageId], qui doit etre une destination ouverte.

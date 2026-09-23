@@ -147,7 +147,7 @@ arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :
       retrouver devant un enfant. La règle qui l'interdit est désormais dans
       `CLAUDE.md` §1.
 - [ ] **Éprouver l'écran de liste sur le téléphone et dans Chrome** : créer,
-      réutiliser, taper des mots et leur découpage, cocher les listes du
+      réutiliser, taper des mots, cocher les listes du
       reste, puis enregistrer et vérifier `lexicon/<id>.json` et
       `lists/<id>.json` sur le dépôt. Rien de cela n'a été ouvert.
 - [ ] **Nommer un trajet et sa liste depuis l'écran de liste** : le nom du
@@ -234,7 +234,7 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       une liste peut être plus grande que la partie, ce qui fait varier les
       mots d'une partie à l'autre — mais les sept listes livrées font encore
       exactement la taille jouée, et ne tirent donc rien. C'est du vocabulaire
-      à écrire, avec son découpage.
+      à écrire.
 - [ ] **Une liste d'objets hétéroclites, commune à tous les tris uniques.**
       `objets_divers` existe déjà pour la boutique ; l'exclusion par lieu
       permet de la partager, chaque tri unique en retranchant son thème.

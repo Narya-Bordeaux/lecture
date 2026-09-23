@@ -36,7 +36,7 @@ WordFamily trip(String id, String label, {String? to}) {
   return family(
     id: id,
     label: label,
-    words: <Word>[word('$id-mot', const <String>['a'])],
+    words: <Word>[word('$id-mot')],
     destination: to,
   );
 }

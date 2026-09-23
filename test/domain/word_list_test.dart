@@ -7,14 +7,14 @@ import 'package:grisbie/domain/models/word_list_catalog.dart';
 /// La liste de mots : l'objet reutilisable, entre le lexique et la famille.
 ///
 /// Trois objets, trois questions distinctes. Le lexique dit **comment un mot
-/// s'ecrit et se decoupe**, la liste dit **de quoi il parle**, la famille dit
+/// s'ecrit**, la liste dit **de quoi il parle**, la famille dit
 /// **ou cette liste se pose dans ce lieu**. Un mot appartient a plusieurs
 /// listes ; il n'est defini qu'une fois.
 
 Lexicon buildLexicon(List<String> texts) {
   return Lexicon(<String, Word>{
     for (final text in texts)
-      text: Word(text: text, syllables: <String>[text]),
+      text: Word(text: text),
   });
 }
 
@@ -35,9 +35,9 @@ void main() {
       expect(list.id, 'bus');
       expect(list.name, 'Le bus');
       expect(list.wordTexts, <String>{'arret', 'ticket'});
-      // Le decoupage vient du lexique, pas de la liste : c'est tout l'interet
-      // de la separation.
-      expect(list.words.first.syllables, <String>['arret']);
+      // Le mot vient du lexique, pas de la liste : c'est tout l'interet de la
+      // separation.
+      expect(list.words.first, lexicon.resolve('arret'));
     });
 
     test('un mot inconnu du lexique est nomme', () {

@@ -69,7 +69,7 @@ void main() {
           family(
             id: 'en_bus',
             label: 'En bus',
-            words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+            words: <Word>[word('ticket')],
             destination: 'plage',
           ),
         ]),

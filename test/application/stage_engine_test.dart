@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/stage_engine.dart';
-import 'package:grisbie/domain/models/hint.dart';
-import 'package:grisbie/domain/models/hint_policy.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -31,8 +29,8 @@ Stage buildTestStage() {
         id: 'a_pied',
         label: 'A pied',
         words: <Word>[
-          build.word('chaussure', <String>['chau', 'ssure']),
-          build.word('trottoir', <String>['trot', 'toir']),
+          build.word('chaussure'),
+          build.word('trottoir'),
         ],
         destination: 'rue',
       ),
@@ -40,13 +38,9 @@ Stage buildTestStage() {
   );
 }
 
-StageEngine buildEngine({HintPolicy policy = const HintPolicy()}) {
+StageEngine buildEngine() {
   // Graine fixee : l'ordre des mots doit etre reproductible d'un test a l'autre.
-  return StageEngine(
-    stage: buildTestStage(),
-    hintPolicy: policy,
-    random: Random(42),
-  );
+  return StageEngine(stage: buildTestStage(), random: Random(42));
 }
 
 void main() {
@@ -104,89 +98,31 @@ void main() {
     });
   });
 
-  group('Comptage des erreurs', () {
-    test('compte les erreurs mot par mot, sans les melanger', () {
+  group('Une erreur', () {
+    // Il n'y a plus d'aide (0.33.0) : un mot mal place est refuse, reste a sa
+    // place, et l'enfant reessaie. L'erreur ne coute rien et n'ouvre rien.
+
+    test('est refusee sans rien changer', () {
       final engine = buildEngine();
-
-      engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      engine.placeWord(wordText: 'chaussure', familyId: 'en_train');
-
-      expect(engine.state.errorCountFor('train'), 2);
-      expect(engine.state.errorCountFor('chaussure'), 1);
-      expect(engine.state.errorCountFor('trottoir'), 0);
-    });
-
-    test('un placement correct n\'incremente aucun compteur', () {
-      final engine = buildEngine();
-
-      engine.placeWord(wordText: 'train', familyId: 'en_train');
-
-      expect(engine.state.errorCountFor('train'), 0);
-    });
-  });
-
-  group('Deblocage automatique des aides', () {
-    test('la premiere erreur debloque le decoupage en syllabes', () {
-      final engine = buildEngine();
+      final visible = engine.visibleWords;
 
       final result = engine.placeWord(wordText: 'train', familyId: 'a_pied');
 
-      expect(result.unlockedHints, contains(Hint.syllables));
-      expect(engine.state.hintsFor('train'), contains(Hint.syllables));
+      expect(result.accepted, isFalse);
+      expect(result.completedFamilyId, isNull);
+      expect(engine.state.placedWordTexts, isEmpty);
+      expect(engine.visibleWords, visible);
     });
 
-    test('le decoupage est la seule aide du jeu', () {
-      // L'illustration a ete ecartee : avec trois familles, les possibilites
-      // se reduisent d'elles-memes et montrer l'image donnerait la reponse.
+    test('se retente autant qu\'il le faut', () {
       final engine = buildEngine();
 
-      for (var attempt = 1; attempt <= 8; attempt++) {
+      for (var attempt = 1; attempt <= 5; attempt++) {
         engine.placeWord(wordText: 'train', familyId: 'a_pied');
       }
+      final result = engine.placeWord(wordText: 'train', familyId: 'en_train');
 
-      expect(engine.state.hintsFor('train'), <Hint>{Hint.syllables});
-      expect(Hint.values, <Hint>[Hint.syllables]);
-    });
-
-    test('une aide n\'est signalee comme nouvelle qu\'une seule fois', () {
-      final engine = buildEngine();
-
-      engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      final second = engine.placeWord(wordText: 'train', familyId: 'a_pied');
-
-      expect(second.unlockedHints, isEmpty);
-      expect(engine.state.hintsFor('train'), contains(Hint.syllables));
-    });
-
-    test('les aides restent acquises apres le placement correct', () {
-      final engine = buildEngine();
-
-      engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      engine.placeWord(wordText: 'train', familyId: 'en_train');
-
-      expect(engine.state.hintsFor('train'), contains(Hint.syllables));
-    });
-
-    test('le seuil est celui de la politique injectee', () {
-      final engine = buildEngine(
-        policy: const HintPolicy(syllablesThreshold: 2),
-      );
-
-      final first = engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      expect(first.unlockedHints, isEmpty);
-
-      final second = engine.placeWord(wordText: 'train', familyId: 'a_pied');
-      expect(second.unlockedHints, contains(Hint.syllables));
-    });
-
-    test('une aide peut etre demandee sans avoir commis d\'erreur', () {
-      final engine = buildEngine();
-
-      engine.requestHint(wordText: 'chaussure', hint: Hint.syllables);
-
-      expect(engine.state.hintsFor('chaussure'), contains(Hint.syllables));
-      expect(engine.state.errorCountFor('chaussure'), 0);
+      expect(result.accepted, isTrue);
     });
   });
 

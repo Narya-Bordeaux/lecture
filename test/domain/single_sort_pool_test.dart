@@ -20,19 +20,19 @@ import '../support/stage_builders.dart';
 /// lesquelles sont sures pour ce theme.
 
 final WordList _food = wordList('nourriture', <Word>[
-  word('pomme', const <String>['po', 'mme']),
+  word('pomme'),
   word('pain'),
-  word('gâteau', const <String>['gâ', 'teau']),
+  word('gâteau'),
 ]);
 
 final WordList _objects = wordList('objets', <Word>[
   word('clé'),
   word('banc'),
-  word('pomme', const <String>['po', 'mme']),
+  word('pomme'),
 ]);
 
 final WordList _tools = wordList('outils', <Word>[
-  word('marteau', const <String>['mar', 'teau']),
+  word('marteau'),
   word('clé'),
 ]);
 

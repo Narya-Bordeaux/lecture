@@ -84,6 +84,10 @@ class ContentSaver {
       index.lexiconFiles,
       array: 'words',
       key: 'text',
+      // Le decoupage a quitte le modele avec l'aide du jeu (0.33.0). Un mot
+      // qui le porte encore est reecrit sans lui : une donnee que rien
+      // n'utilise finirait fausse sans que personne ne le voie.
+      obsoleteFields: const <String>{'syllables'},
     );
 
     final listPaths = listFiles.merge(
@@ -141,13 +145,19 @@ class ContentSaver {
     List<String> paths, {
     required String array,
     required String key,
+    Set<String> obsoleteFields = const <String>{},
   }) async {
     final files = <String, Map<String, dynamic>>{};
     for (final path in paths) {
       files[path] =
           jsonDecode(await source.readFile(path)) as Map<String, dynamic>;
     }
-    return _ContentFiles(files: files, array: array, key: key);
+    return _ContentFiles(
+      files: files,
+      array: array,
+      key: key,
+      obsoleteFields: obsoleteFields,
+    );
   }
 }
 
@@ -160,6 +170,7 @@ class _ContentFiles {
     required this.files,
     required this.array,
     required this.key,
+    this.obsoleteFields = const <String>{},
   });
 
   /// Le contenu de chaque fichier, modifie sur place par [merge].
@@ -170,6 +181,10 @@ class _ContentFiles {
 
   /// Ce qui identifie une entree : `id` pour une liste, `text` pour un mot.
   final String key;
+
+  /// Les champs que le modele ne connait plus. Une entree qui en porte un
+  /// est reecrite sans lui, meme si rien d'autre n'a change.
+  final Set<String> obsoleteFields;
 
   List<Map<String, dynamic>> _entriesOf(Map<String, dynamic> json) {
     return (json[array] as List<dynamic>? ?? <dynamic>[])
@@ -209,13 +224,22 @@ class _ContentFiles {
 
       final existing = _entriesOf(json);
       final position = existing.indexWhere((each) => each[key] == id);
-      if (position >= 0 && _same(existing[position], entry)) continue;
+      if (position >= 0 &&
+          _same(existing[position], entry) &&
+          !existing[position].keys.any(obsoleteFields.contains)) {
+        continue;
+      }
 
       final updated = List<dynamic>.of(existing);
       if (position >= 0) {
         // Seuls les champs que le modele connait sont remplaces : un champ
-        // ajoute a la main dans le fichier n'est pas perdu.
-        updated[position] = <String, dynamic>{...existing[position], ...entry};
+        // ajoute a la main dans le fichier n'est pas perdu. Un champ que le
+        // modele a abandonne, lui, s'en va.
+        updated[position] = <String, dynamic>{
+          for (final field in existing[position].entries)
+            if (!obsoleteFields.contains(field.key)) field.key: field.value,
+          ...entry,
+        };
       } else {
         updated.add(entry);
       }

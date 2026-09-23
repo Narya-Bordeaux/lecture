@@ -1,11 +1,11 @@
 {
   "domain": "nourriture",
   "words": [
-    { "text": "gâteau", "syllables": ["gâ", "teau"] },
-    { "text": "bonbon", "syllables": ["bon", "bon"] },
-    { "text": "jus", "syllables": ["jus"] },
-    { "text": "biscuit", "syllables": ["bis", "cuit"] },
-    { "text": "pomme", "syllables": ["pomme"] },
-    { "text": "pain", "syllables": ["pain"] }
+    { "text": "gâteau" },
+    { "text": "bonbon" },
+    { "text": "jus" },
+    { "text": "biscuit" },
+    { "text": "pomme" },
+    { "text": "pain" }
   ]
 }

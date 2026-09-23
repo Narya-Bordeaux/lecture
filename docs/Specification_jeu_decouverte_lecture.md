@@ -1,6 +1,6 @@
 # Spécification du jeu de découverte de la lecture
 
-**Version de travail 0.8 — 20 septembre 2026**
+**Version de travail 0.9 — 23 septembre 2026**
 
 ## Objet du document
 
@@ -41,7 +41,7 @@ Quand une famille est remplie, il peut avancer sur cette histoire. Il aura alors
 3. L’étape présente plusieurs mots visibles et plusieurs familles désignées par leur nom.
 4. L’enfant choisit un mot et le fait glisser vers le nom de la famille correspondante.
 5. Toutes les familles acceptent leurs mots. L’enfant classe librement, dans l’ordre qu’il veut.
-6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Le découpage syllabique se débloque sur le mot concerné, voir « Aides à la lecture ».
+6. Si le classement est incorrect, le jeu refuse immédiatement le placement et permet un nouvel essai. Aucune aide n’apparaît, voir « Aides à la lecture ».
 7. Dès qu’une famille atteint son objectif, **sa destination devient disponible** : elle s’active sur la carte, sans que l’enfant y soit envoyé. Il peut continuer à classer et rendre plusieurs destinations disponibles.
 8. L’enfant part quand il le décide, vers la destination disponible de son choix. À ce moment seulement l’étape se termine, les mots restants disparaissent et le chat avance.
 
@@ -96,17 +96,18 @@ est récursive, un lieu contenant une étape qui mène à d’autres lieux.
 
 ## Aides à la lecture
 
-Une seule aide est proposée pendant le classement : **afficher le découpage du
-mot en syllabes**. Elle apparaît dès la première erreur sur ce mot, et peut
-aussi être demandée sans avoir commis d’erreur. Une fois obtenue sur un mot,
-elle y reste jusqu’à la fin de l’étape.
+**Le jeu ne propose aucune aide pendant le classement** (décision du
+23 septembre 2026). Un mot mal placé est refusé, l’étiquette revient, et
+l’enfant réessaie autant qu’il le faut.
 
-Le découpage aide à déchiffrer sans livrer le sens : l’enfant garde tout le
-travail de compréhension, qui est l’objet du jeu.
+Le découpage du mot en syllabes, affiché dès la première erreur, a été
+l’aide unique des versions précédentes. Il a été **retiré**, et avec lui la
+donnée elle-même : un mot n’est plus que son orthographe, et l’auteur n’a
+plus de découpage à saisir.
 
 ### Pourquoi pas d’illustration
 
-Une seconde aide — montrer une image du mot — a été prévue puis **écartée**. Le
+Une autre aide — montrer une image du mot — avait été prévue puis **écartée**. Le
 nombre de familles fait déjà office d’aide : avec trois catégories, les
 possibilités se réduisent d’elles-mêmes à mesure qu’elles se remplissent, et
 l’enfant qui a oublié le sens d’un mot finit par n’avoir plus qu’un choix.
@@ -122,7 +123,6 @@ Ajouter l’image reviendrait à donner la réponse.
 La difficulté doit pouvoir varier au sein du même jeu. Les axes de progression déjà retenus sont les suivants :
 
 - la longueur des mots et leur difficulté de déchiffrage ;
-- le seuil d’apparition du découpage syllabique, voire son absence ;
 - le caractère plus ou moins évident des familles ;
 - le nombre de familles et de mots visibles, qui varie selon le niveau. Plus il
   y a de familles, moins leur remplissage progressif aide l’enfant.
@@ -148,7 +148,7 @@ Les mots ambigus, qui pourraient raisonnablement appartenir à plusieurs famille
 
 | État | Éléments concernés |
 |---|---|
-| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, découpage syllabique comme aide unique dès la première erreur, abandon de l’illustration, listes pleines, réserve et renouvellement sur place, classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie, **tri unique** (une liste et son complément, une seule sortie) comme seconde mécanique de classement, personnage rencontré réduit à un ornement sans effet sur la mécanique. |
+| Confirmé | Public, objectifs pédagogiques, support numérique, classement par glisser-déposer, refus immédiat d’une erreur, **aucune aide à la lecture** (découpage syllabique retiré, illustration écartée), listes pleines, réserve et renouvellement sur place, classement libre sans engagement préalable, destination rendue disponible par la complétion de sa famille, départ à l’initiative de l’enfant, disparition des mots restants, étapes imbriquées, retour immédiat aux bifurcations, personnage nommé mais jamais représenté, parcours narratif autour du chat Grisbie, **tri unique** (une liste et son complément, une seule sortie) comme seconde mécanique de classement, personnage rencontré réduit à un ornement sans effet sur la mécanique. |
 | À préciser | Forme de la carte, niveaux détaillés, récompenses, durée d’une session, suivi de la progression et rôle précis de l’adulte. |
 
 ## Questions ouvertes pour la prochaine version

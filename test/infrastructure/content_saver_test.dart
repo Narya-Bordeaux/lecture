@@ -35,8 +35,8 @@ MemoryContentFolder shippedFolder() {
 }''',
     'lexicon/transport.json': '''
 { "domain": "transport", "words": [
-  { "text": "quai", "syllables": ["quai"] },
-  { "text": "billet", "syllables": ["bi", "llet"] }
+  { "text": "quai" },
+  { "text": "billet" }
 ] }''',
     'lists/transport.json': '''
 { "domain": "transport", "lists": [
@@ -90,11 +90,7 @@ Adventure freshWithList() {
   ).addTrips('devant_la_maison', const <NewTrip>[NewTrip(name: 'En bus')]);
   final listed = WordListBuilder(built)
       .createListFor('devant_la_maison', 'en_bus', name: 'Ce qui roule');
-  return WordListBuilder(listed).addWord(
-    'ce_qui_roule',
-    text: 'volant',
-    syllables: const <String>['vo', 'lant'],
-  );
+  return WordListBuilder(listed).addWord('ce_qui_roule', text: 'volant');
 }
 
 /// Les entrees d'un tableau JSON d'un fichier ecrit, par cle.
@@ -245,7 +241,7 @@ void main() {
       // Une liste est la meme partout ou elle sert : l'ecrire ailleurs en
       // ferait un doublon, et le chargement refuserait tout.
       final changed = WordListBuilder(shippedAdventure)
-          .addWord('train', text: 'wagon', syllables: const <String>['wa', 'gon']);
+          .addWord('train', text: 'wagon');
 
       final written = await saveInto(shipped, changed);
       final train = entriesOf(written, 'lists/transport.json', 'lists', 'id')['train']!;
@@ -279,7 +275,7 @@ void main() {
       final written = await saveInto(shipped, freshWithList());
       final words = entriesOf(written, 'lexicon/grisbie_au_marche.json', 'words', 'text');
 
-      expect(words['volant']!['syllables'], <String>['vo', 'lant']);
+      expect(words['volant'], <String, dynamic>{'text': 'volant'});
       expect((await indexOf(written))['lexicons'], contains('lexicon/grisbie_au_marche.json'));
     });
 
@@ -287,7 +283,7 @@ void main() {
       // Le lexique refuse le doublon : un mot defini deux fois ferait refuser
       // tout le contenu au chargement.
       final reused = WordListBuilder(freshWithList())
-          .addWord('ce_qui_roule', text: 'quai', syllables: const <String>['quai']);
+          .addWord('ce_qui_roule', text: 'quai');
 
       final written = await saveInto(shipped, reused);
       final words = entriesOf(written, 'lexicon/grisbie_au_marche.json', 'words', 'text');
@@ -302,15 +298,26 @@ void main() {
       expect((await indexOf(written))['lexicons'], <String>['lexicon/transport.json']);
     });
 
-    test('un decoupage corrige reecrit le lexique ou vit le mot', () async {
-      final recut = WordListBuilder(shippedAdventure)
-          .changeSyllables('billet', const <String>['bil', 'let']);
+    test('un ancien decoupage disparait du lexique qu\'on reecrit', () async {
+      // Le decoupage a quitte le modele avec l'aide du jeu (0.33.0). Un mot
+      // enregistre avant le porte encore : il est reecrit sans lui.
+      final old = shippedFolder()
+        ..files['lexicon/transport.json'] = '''
+{ "domain": "transport", "words": [
+  { "text": "quai", "syllables": ["quai"] },
+  { "text": "billet", "syllables": ["bi", "llet"] }
+] }''';
+      final adventure =
+          await ContentRepository(source: old).loadAdventure('plage');
 
-      final written = await saveInto(shipped, recut);
+      final written = await saveInto(old, adventure, includeUnchanged: false);
       final words = entriesOf(written, 'lexicon/transport.json', 'words', 'text');
 
-      expect(words['billet']!['syllables'], <String>['bil', 'let']);
-      expect(words['quai']!['syllables'], <String>['quai']);
+      expect(words['quai'], <String, dynamic>{'text': 'quai'});
+      expect(words['billet'], <String, dynamic>{'text': 'billet'});
+      final json = jsonDecode(written.files['lexicon/transport.json']!)
+          as Map<String, dynamic>;
+      expect(json['domain'], 'transport');
     });
   });
 
@@ -324,11 +331,8 @@ void main() {
       final first = freshWithList();
       await saver.save(first);
 
-      final second = WordListBuilder(first).addWord(
-        'ce_qui_roule',
-        text: 'quai',
-        syllables: const <String>['quai'],
-      );
+      final second =
+          WordListBuilder(first).addWord('ce_qui_roule', text: 'quai');
       await saver.save(second);
 
       final list = entriesOf(folder, 'lists/grisbie_au_marche.json', 'lists', 'id')['ce_qui_roule']!;
@@ -360,11 +364,8 @@ void main() {
 
       final first = freshWithList();
       await saver.save(first);
-      final second = WordListBuilder(first).addWord(
-        'ce_qui_roule',
-        text: 'klaxon',
-        syllables: const <String>['kla', 'xon'],
-      );
+      final second =
+          WordListBuilder(first).addWord('ce_qui_roule', text: 'klaxon');
       await saver.save(second);
 
       expect(

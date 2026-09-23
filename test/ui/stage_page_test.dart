@@ -23,8 +23,8 @@ Stage buildTestStage() {
         id: 'en_bus',
         label: 'En bus',
         words: <Word>[
-          build.word('arrêt', <String>['ar', 'rêt']),
-          build.word('ticket', <String>['tic', 'ket']),
+          build.word('arrêt'),
+          build.word('ticket'),
         ],
         destination: 'gare',
         area: const RelativeArea(
@@ -38,8 +38,8 @@ Stage buildTestStage() {
         id: 'a_pied',
         label: 'À pied',
         words: <Word>[
-          build.word('chaussure', <String>['chaus', 'sure']),
-          build.word('sentier', <String>['sen', 'tier']),
+          build.word('chaussure'),
+          build.word('sentier'),
         ],
         destination: 'rue',
         area: const RelativeArea(
@@ -141,16 +141,18 @@ void main() {
     expect(find.text('arrêt'), findsOneWidget);
   });
 
-  testWidgets('une erreur fait apparaitre le decoupage en syllabes', (
+  testWidgets('une erreur ne fait rien apparaitre sous le mot', (
     tester,
   ) async {
+    // L'aide par le decoupage a ete retiree (0.33.0) : l'etiquette tremble et
+    // revient, et l'enfant reessaie. Rien d'autre ne s'affiche.
     await pumpStagePage(tester);
-
-    expect(find.text('ar - rêt'), findsNothing);
+    final before = find.byType(Text).evaluate().length;
 
     await dragWordOnto(tester, word: 'arrêt', familyId: 'a_pied');
 
-    expect(find.text('ar - rêt'), findsOneWidget);
+    expect(find.byType(Text).evaluate().length, before);
+    expect(find.textContaining(' - '), findsNothing);
   });
 
   testWidgets('aucun depart n\'est propose tant qu\'une famille est ouverte', (

@@ -44,6 +44,42 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.33.0+50 — 23 septembre 2026 — Plus d'aide, plus de découpage
+
+**L'auteur retire le système d'indice du jeu.** Jusqu'ici, la première erreur
+sur un mot faisait apparaître son découpage en syllabes sous l'étiquette. Un
+mot mal placé est désormais refusé, l'étiquette tremble et revient, et
+l'enfant réessaie — rien d'autre.
+
+**Le découpage part avec l'aide.** Il n'avait pas d'autre usage, et pesait
+dans l'outil : exigé pour tout mot neuf, signalé tant qu'il manquait, porté
+par chaque entrée du lexique. Trois voies ont été présentées — tout retirer,
+le garder en réserve, le rendre facultatif ; l'auteur a choisi de **tout
+retirer**. Une donnée que rien n'utilise finit fausse sans que personne ne le
+voie.
+
+- `Word` n'a plus que `text`. `Word.fromJson` ignore `syllables` : un contenu
+  écrit avant se lit toujours.
+- `Hint`, `HintPolicy` et le compteur d'erreurs de `StageEngine`
+  disparaissent ; `PlacementResult` ne dit plus que si le mot est accepté.
+- `validate()` ne signale plus de « mot sans découpage ».
+- `WordListBuilder` perd la saisie et la correction du découpage ;
+  `WordLibrary` ne porte plus que les listes.
+- **L'écran de liste n'a plus qu'un champ**, et Entrée ajoute le mot. Au
+  passage, il montre enfin l'alerte « un mot apparaît dans le nom de sa
+  famille » : elle était filtrée avec les alertes de découpage, qui
+  encombraient chaque ligne.
+- **Les lexiques livrés sont nettoyés** — champ retiré, mots inchangés. Un
+  test vérifie qu'aucun n'en porte plus, et `ContentSaver` retire le champ des
+  lexiques qu'il réécrit : ceux déjà déposés sur le dépôt distant se nettoient
+  au fil des enregistrements.
+
+La spécification passe en **version de travail 0.9** : « aucune aide à la
+lecture » remplace « découpage syllabique comme aide unique » parmi les points
+confirmés.
+
+473 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.32.0+49 — 22 septembre 2026 — L'écran de liste
 
 Troisième et dernière livraison convenue pour les listes : l'écran, sur le

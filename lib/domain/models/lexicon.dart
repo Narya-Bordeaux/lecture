@@ -3,12 +3,12 @@ import 'package:grisbie/domain/models/word.dart';
 /// Le vocabulaire du jeu, chaque mot defini une seule fois.
 ///
 /// Un meme mot sert dans plusieurs etapes — « gateau » vaut pour la boutique
-/// d'une station-service comme pour un gouter. Le definir a chaque endroit
-/// finirait par produire deux decoupages differents du meme mot, ce que
-/// l'enfant verrait. Ici il n'existe qu'une fois.
+/// d'une station-service comme pour un gouter. Les listes le citent ; le
+/// lexique dit qu'il existe, une seule fois, et nomme la faute de frappe
+/// d'une liste qui cite un mot inconnu.
 ///
 /// La clef est le mot lui-meme : deux entrees de meme orthographe sont donc
-/// refusees, y compris lorsqu'elles portent des decoupages differents.
+/// refusees.
 class Lexicon {
   const Lexicon(this.words);
 

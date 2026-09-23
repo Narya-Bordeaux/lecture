@@ -1,12 +1,13 @@
 # État courant
 
-**Version : 0.32.0+49** — 22 septembre 2026
+**Version : 0.33.0+50** — 23 septembre 2026
 
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
 `Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
-bus, la voiture et le sentier, glisser-déposer, aides et bouton de départ.
+bus, la voiture et le sentier, glisser-déposer et bouton de départ. **Aucune
+aide à la lecture** depuis 0.33.0 : un mot mal placé est refusé, et c'est tout.
 Chaque famille puise dans une liste pleine de sept mots, et un mot bien classé
 est remplacé sur place par un mot de la réserve. La spécification est en version
 de travail 0.8.
@@ -105,6 +106,19 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.33.0+50 — Plus d'aide, plus de découpage
+- **Le jeu ne propose plus aucune aide** : un mot mal placé est refusé,
+  l'étiquette tremble et revient, rien ne s'affiche dessous.
+- **Le découpage syllabique quitte le contenu** (option A, choisie par
+  l'auteur) : `Word` n'est plus que son orthographe. `Hint`, `HintPolicy` et
+  le compteur d'erreurs disparaissent.
+- **L'écran de liste n'a plus qu'un champ** : on tape le mot, Entrée pour
+  enchaîner. L'alerte « mot dans le nom du trajet » s'y voit désormais.
+- Les lexiques livrés sont nettoyés ; un contenu ancien se lit toujours, et
+  l'enregistrement retire le champ des lexiques qu'il réécrit.
+- Spécification en version 0.9.
+- 473 tests au vert.
+
 ### 0.32.0+49 — L'écran de liste
 - **Toucher un trajet ouvre sa liste** : créer une liste ou en réutiliser
   une, taper un mot et son découpage (`a-rê`). Un mot connu reprend le sien.
@@ -129,18 +143,6 @@ un travail d'auteur, pas de code.
 - **Défaut corrigé** : un second enregistrement effaçait les listes du
   premier, et perdait les mots ajoutés à une liste déjà écrite.
 - 463 tests au vert. L'écran de liste est la livraison suivante.
-
-### 0.30.0+47 — Que fait l'enfant ici ?
-- **La nature se dit sur la carte du lieu**, plus au moment d'ajouter un
-  trajet : plusieurs listes, tri unique, ou fin — du texte, pas de jeu.
-- **Le sélecteur de nombre ne paraît plus pour un tri unique** : il n'a
-  qu'une sortie, celle du thème. C'était le défaut signalé.
-- Tout lieu créé naît **à définir**, et sa carte pose la question.
-- **Sept mots par liste** dans ce que l'outil écrit.
-- En tête du parcours : **jouable**, **pas complète** ou **contient des
-  erreurs** — « jouable » réservé à ce que le jeu ouvrira vraiment.
-- Une famille sans zone est signalée *à finir*, sur un lieu illustré.
-- 419 tests au vert.
 
 ## Décisions prises
 
@@ -190,17 +192,17 @@ un travail d'auteur, pas de code.
 - **Le contenu est écrit en français, identifiants compris**, et **un mot est
   désigné par son orthographe** : `Word` n'a pas de clé technique. Deux mots de
   même orthographe deviennent impossibles, ce qu'ils étaient déjà en pratique.
-- **Le découpage syllabique suit les sons, pas les lettres** : `["a", "rê"]` pour
-  « arrêt ». Il n'a donc pas à reconstituer l'orthographe, et **aucun test ne doit
-  l'exiger** — un tel contrôle interdirait les découpages recherchés.
+- **Un mot n'est que son orthographe** : le découpage syllabique a quitté le
+  contenu avec l'aide qu'il servait (0.33.0).
 - **Contenu pédagogique séparé du code** : les mots, familles et niveaux vivent dans
   `assets/content/` en JSON.
 - **Le classement est libre, le départ est choisi** : compléter une famille ouvre sa
   destination sans y envoyer l'enfant. Plusieurs destinations peuvent être ouvertes
   en même temps ; l'enfant part quand il le décide.
-- **Une seule aide** : le découpage syllabique, dès la 1ʳᵉ erreur sur le mot.
-  L'illustration a été écartée — avec trois familles, les possibilités se
-  réduisent d'elles-mêmes à mesure que les catégories se remplissent.
+- **Aucune aide à la lecture** (décision de l'auteur, 23 septembre 2026) : le
+  découpage syllabique après une erreur est retiré, l'illustration avait déjà
+  été écartée — avec trois familles, les possibilités se réduisent d'elles-mêmes
+  à mesure que les catégories se remplissent.
 - **Listes pleines** : une famille s'ouvre quand tous ses mots sont classés.
   Remplir une catégorie est en soi une aide pour les mots suivants.
 - **Étapes imbriquées** : une destination atteinte ouvre une étape de même nature,

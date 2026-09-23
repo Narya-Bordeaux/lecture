@@ -11,13 +11,8 @@ import 'package:grisbie/domain/models/word_list.dart';
 /// du moteur n'ont pas besoin de ce detour : ils declarent leurs mots sur
 /// place, ce qui garde chaque test lisible d'un seul tenant.
 
-/// Un mot, dont le decoupage vaut par defaut le mot entier.
-Word word(String text, [List<String>? syllables]) {
-  return Word(
-    text: text,
-    syllables: syllables ?? <String>[text],
-  );
-}
+/// Un mot : son orthographe, et rien d'autre.
+Word word(String text) => Word(text: text);
 
 /// Une liste de mots, nommee d'apres son identifiant.
 WordList wordList(String id, List<Word> words) {

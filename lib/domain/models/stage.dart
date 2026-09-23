@@ -332,16 +332,6 @@ class Stage {
       issues.addAll(_validateSupplyOf(family));
 
       for (final word in family.words) {
-        if (word.syllables.isEmpty) {
-          // Le mot est pose, ses syllabes restent a taper.
-          issues.add(ContentIssue.incomplete(
-            'Le mot "${word.text}" n\'a pas de decoupage.',
-            stageId: id,
-            familyId: family.id,
-            wordText: word.text,
-          ));
-        }
-
         // Un mot dont le texte se retrouve dans le nom de sa famille se classe
         // en comparant les lettres, sans comprendre le sens.
         if (family.label.toLowerCase().contains(word.text.toLowerCase())) {

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -114,18 +115,15 @@ void main() {
       expect(adventure.findStage('plage')!.isEnding, isTrue);
     });
 
-    test('chaque mot possede un decoupage', () {
-      // Le decoupage suit les sons, pas les lettres : « arret » se coupe en
-      // « a » et « rê ». Il n'a donc pas a reconstituer l'orthographe, et rien
-      // ne le controle — seule son absence est une faute de contenu.
-      for (final stage in adventure.stages.values) {
-        for (final word in stage.words) {
-          expect(
-            word.syllables,
-            isNotEmpty,
-            reason: 'Mot sans decoupage : ${word.text}',
-          );
-        }
+    test('aucun mot ne porte plus de decoupage', () {
+      // L'aide par le decoupage a ete retiree (0.33.0), et le champ avec elle :
+      // le contenu livre n'en ecrit plus.
+      final lexicons = Directory('assets/content/lexicon')
+          .listSync()
+          .whereType<File>()
+          .map((file) => file.readAsStringSync());
+      for (final lexicon in lexicons) {
+        expect(lexicon, isNot(contains('syllables')));
       }
     });
   });

@@ -33,9 +33,8 @@ class ListUsage {
 /// geste en rend une nouvelle.
 ///
 /// **L'aventure fait foi, la bibliotheque vient derriere.** Une liste deja
-/// modifiee dans l'aventure l'emporte sur sa version enregistree ; un mot
-/// ecrit plus tot dans la seance est connu comme s'il venait du lexique. Sans
-/// cela, reutiliser une liste qu'on vient de retoucher ramenerait sa version
+/// modifiee dans l'aventure l'emporte sur sa version enregistree. Sans cela,
+/// reutiliser une liste qu'on vient de retoucher ramenerait sa version
 /// d'avant.
 ///
 /// **Une liste est la meme partout ou elle sert.** La modifier depuis un
@@ -48,20 +47,6 @@ class WordListBuilder {
 
   /// Le vocabulaire deja ecrit, ailleurs que dans cette aventure.
   final WordLibrary library;
-
-  /// Les syllabes d'un decoupage tape au clavier : `a-rê`, `a · rê`, `a rê`.
-  ///
-  /// Tiret, point median, barre ou espace : on separe comme on en a
-  /// l'habitude, sans avoir a apprendre une convention.
-  static List<String> parseSyllables(String typed) {
-    return typed
-        .split(RegExp(r'[-·/\s]+'))
-        .where((syllable) => syllable.isNotEmpty)
-        .toList(growable: false);
-  }
-
-  /// Un decoupage tel qu'on le retape : `a-rê`.
-  static String formatSyllables(List<String> syllables) => syllables.join('-');
 
   /// Les listes de l'aventure, par identifiant — celles qui font foi.
   Map<String, WordList> get _adventureLists => <String, WordList>{
@@ -80,17 +65,6 @@ class WordListBuilder {
 
   WordList? findList(String listId) {
     return _adventureLists[listId] ?? library.lists.lists[listId];
-  }
-
-  /// Le mot tel qu'il est deja defini : dans l'aventure, sinon au lexique.
-  Word? findWord(String text) {
-    final wanted = text.trim();
-    for (final list in adventure.wordLists) {
-      for (final word in list.words) {
-        if (word.text == wanted) return word;
-      }
-    }
-    return library.lexicon.words[wanted];
   }
 
   /// Les trajets de l'aventure qui citent cette liste, dans l'ordre des lieux.
@@ -161,15 +135,10 @@ class WordListBuilder {
 
   /// Ajoute un mot a une liste citee par l'aventure.
   ///
-  /// Un mot deja connu garde son decoupage : le lexique n'en admet qu'un, et
-  /// [syllables] est alors ignore — [changeSyllables] sert a le corriger. Un
-  /// mot neuf, lui, ne s'ajoute pas sans son decoupage : il n'est jamais
-  /// calcule.
-  Adventure addWord(
-    String listId, {
-    required String text,
-    List<String>? syllables,
-  }) {
+  /// Un mot n'est que son orthographe : l'ajouter, c'est l'ecrire. Qu'il soit
+  /// deja au lexique ou non ne change rien ici — c'est l'enregistrement qui
+  /// range un mot neuf.
+  Adventure addWord(String listId, {required String text}) {
     final list = _requireCited(listId);
     final wanted = text.trim();
     if (wanted.isEmpty) {
@@ -179,19 +148,10 @@ class WordListBuilder {
       throw StateError('"$wanted" est deja dans la liste "${list.name}".');
     }
 
-    final known = findWord(wanted);
-    final cleaned = _cleanSyllables(syllables);
-    if (known == null && cleaned.isEmpty) {
-      throw ArgumentError.value(
-        syllables,
-        'syllables',
-        '"$wanted" est un mot neuf : son decoupage est a saisir',
-      );
-    }
-
-    final added = known ?? Word(text: wanted, syllables: cleaned);
     return _replaceList(
-      list.copyWith(words: List<Word>.unmodifiable(<Word>[...list.words, added])),
+      list.copyWith(
+        words: List<Word>.unmodifiable(<Word>[...list.words, Word(text: wanted)]),
+      ),
     );
   }
 
@@ -200,28 +160,6 @@ class WordListBuilder {
   Adventure removeWord(String listId, String text) {
     final list = _requireCited(listId);
     return _replaceList(list.without(<String>{text}));
-  }
-
-  /// Corrige le decoupage d'un mot, partout ou l'aventure le cite.
-  Adventure changeSyllables(String text, List<String> syllables) {
-    final cleaned = _cleanSyllables(syllables);
-    if (cleaned.isEmpty) {
-      throw ArgumentError.value(syllables, 'syllables', 'Decoupage vide');
-    }
-
-    var result = adventure;
-    for (final list in adventure.wordLists) {
-      if (!list.contains(text)) continue;
-      result = WordListBuilder(result, library: library)._replaceList(
-        list.copyWith(
-          words: List<Word>.unmodifiable(<Word>[
-            for (final word in list.words)
-              word.text == text ? Word(text: text, syllables: cleaned) : word,
-          ]),
-        ),
-      );
-    }
-    return result;
   }
 
   /// Renomme une liste. Son identifiant ne suit pas : il est cite ailleurs.
@@ -246,13 +184,6 @@ class WordListBuilder {
       );
     }
     return list;
-  }
-
-  static List<String> _cleanSyllables(List<String>? syllables) {
-    return <String>[
-      for (final syllable in syllables ?? const <String>[])
-        if (syllable.trim().isNotEmpty) syllable.trim(),
-    ];
   }
 
   /// Remplace une liste partout ou l'aventure la cite.

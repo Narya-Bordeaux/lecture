@@ -33,9 +33,9 @@ class WordList {
 
   /// Construit la liste en resolvant ses mots dans le lexique.
   ///
-  /// Une liste **cite** des mots, elle n'en definit aucun : le decoupage
-  /// syllabique n'existe qu'a un seul endroit, et deux listes qui partagent un
-  /// mot partagent forcement son decoupage.
+  /// Une liste **cite** des mots, elle n'en definit aucun : chaque mot
+  /// n'existe qu'une fois, au lexique, et un mot absent du lexique est une
+  /// faute de frappe qu'il vaut mieux nommer que jouer.
   factory WordList.fromJson(Map<String, dynamic> json, Lexicon lexicon) {
     final id = json['id'] as String;
     final texts =

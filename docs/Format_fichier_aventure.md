@@ -29,16 +29,15 @@ les afficher pendant l'édition, et de tout faire redescendre d'un bloc vers le
 dépôt git.
 
 Le principe est simple : **un mot n'est défini qu'une fois**, dans le lexique.
-Tout le reste ne fait que le citer. C'est ce qui évite qu'un même mot se
-retrouve découpé `gâ-teau` à un endroit et `gât-eau` à un autre — l'enfant
-verrait les deux.
+Tout le reste ne fait que le citer. Une liste qui cite un mot inconnu du
+lexique trahit une faute de frappe, et le chargement la nomme.
 
 Trois fichiers, trois questions distinctes, et c'est ce qui justifie qu'ils
 soient séparés :
 
 | Fichier | Répond à |
 |---|---|
-| `lexicon/*.json` | comment le mot s'écrit et se découpe |
+| `lexicon/*.json` | quels mots existent, et comment ils s'écrivent |
 | `lists/*.json` | de quoi le mot parle |
 | `adventures/*.json` | où cette liste se pose, sous quel nom, vers quelle sortie |
 
@@ -91,8 +90,8 @@ en domaines n'a aucun effet sur le jeu, il sert seulement à s'y retrouver.
 {
   "domain": "nourriture",
   "words": [
-    { "text": "gâteau", "syllables": ["gâ", "teau"] },
-    { "text": "pomme", "syllables": ["pomme"] }
+    { "text": "gâteau" },
+    { "text": "pomme" }
   ]
 }
 ```
@@ -100,19 +99,11 @@ en domaines n'a aucun effet sur le jeu, il sert seulement à s'y retrouver.
 - `text` — le mot tel que l'enfant le lit, accents compris. **C'est lui qui
   identifie le mot** : c'est ce qu'on écrira dans les aventures, et il doit
   être unique dans tout le jeu.
-- `syllables` — le découpage, dans l'ordre. Un mot d'une seule syllabe s'écrit
-  `["pomme"]`.
-
-**Le découpage suit les sons, pas les lettres.** C'est une règle pédagogique et
-non la syllabation graphique académique : on écrit `["a", "rê"]` pour « arrêt »,
-`["é", "ssence"]` pour « essence ». Le découpage n'a donc pas à reconstituer
-l'orthographe du mot, et rien ne le vérifie — c'est votre jugement qui fait foi.
-L'enfant voit de toute façon les deux : le mot écrit sur l'étiquette, et son
-découpage juste en dessous.
-
-Le découpage n'est jamais calculé par le jeu. Le français n'a pas de règle de
-syllabation assez sûre pour être automatisée, et une coupe fausse tromperait
-l'enfant sur le point même qu'on cherche à travailler.
+**Un mot n'est que son orthographe.** Il portait autrefois son découpage en
+syllabes (`"syllables"`), qui servait d'aide après une erreur ; l'aide a été
+retirée du jeu en 0.33.0, et le découpage avec elle. Un fichier qui l'écrit
+encore se lit sans erreur — le champ est ignoré —, et l'outil d'auteur le
+retire des lexiques qu'il réécrit.
 
 > **Deux mots de même orthographe sont impossibles.** « La marche » et « il
 > marche » ne peuvent pas coexister : à l'écran, l'enfant ne verrait qu'une
@@ -443,8 +434,8 @@ Sont détectés :
 
 - un mot cité mais absent du lexique, **nommé** ;
 - **deux entrées de même orthographe**, dans le même fichier ou entre deux
-  fichiers : le mot étant sa propre clé, rien ne dirait lequel des deux
-  découpages s'applique ;
+  fichiers : le mot étant sa propre clé, rien ne dirait lequel des deux fait
+  foi ;
 - un personnage cité mais absent de `characters.json` ;
 - une destination qui désigne un lieu inexistant ;
 - un lieu qu'aucun chemin ne permet d'atteindre ;
@@ -489,8 +480,7 @@ nom de sa famille, une liste entièrement absorbée par ses voisines, une zone q
 déborde ou qui en chevauche une autre, un lieu de départ introuvable.
 
 **Incomplet** — état normal d'un lieu qu'on vient de créer : une famille sans
-mots, une liste à qui il manque quelques mots pour son tirage, un mot sans
-découpage, un lieu dont aucune famille ne mène encore ailleurs, un lieu que rien
+mots, une liste à qui il manque quelques mots pour son tirage, un lieu dont aucune famille ne mène encore ailleurs, un lieu que rien
 ne relie, une destination annoncée avant que son lieu existe.
 
 Cette dernière mérite un mot. Écrire « le bus va au marché » puis créer le marché
@@ -502,12 +492,6 @@ relecture, et au refus du jeu, qu'une destination fantôme se voit.
 ## 8. Les pièges de contenu, qui eux ne sont pas détectables
 
 Le jeu ne peut pas juger du sens. Ces points relèvent de la relecture humaine.
-
-**Le découpage syllabique.** Il suit les sons, il peut donc légitimement
-s'écarter de l'orthographe : aucun contrôle automatique n'est possible sans
-interdire du même coup les découpages que vous voulez. Seule son absence est
-signalée. C'est le point à relire le plus attentivement, puisque c'est la seule
-aide du jeu.
 
 **Des familles au vocabulaire disjoint.** C'est la contrainte la plus coûteuse,
 et le jeu n'en prend en charge que la moitié facile — voir « Les mots communs »

@@ -178,23 +178,6 @@ void main() {
       expect(issuesOf(adventure, IssueSeverity.incomplete), hasLength(1));
     });
 
-    test('un mot sans decoupage syllabique', () {
-      final adventure = adventureWith(<WordFamily>[
-        family(
-          id: 'en_bus',
-          label: 'En autocar',
-          words: <Word>[word('ticket', const <String>[])],
-          destination: 'depart',
-        ),
-      ]);
-
-      // Le mot est pose, ses syllabes restent a taper.
-      expect(issuesOf(adventure, IssueSeverity.wrong), isEmpty);
-      final incomplete = issuesOf(adventure, IssueSeverity.incomplete);
-      expect(incomplete, hasLength(1));
-      expect(incomplete.single.wordText, 'ticket');
-    });
-
     test('une etape dont aucune famille ne mene ailleurs', () {
       final adventure = adventureWith(<WordFamily>[
         family(
@@ -282,7 +265,7 @@ void main() {
             family(
               id: 'en_bus',
               label: 'En autocar',
-              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              words: <Word>[word('ticket')],
               destination: 'plage',
             ),
           ],
@@ -301,7 +284,7 @@ void main() {
             family(
               id: 'en_bus',
               label: 'En autocar',
-              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              words: <Word>[word('ticket')],
               destination: 'marche',
             ),
           ],
@@ -326,7 +309,7 @@ void main() {
             family(
               id: 'en_bus',
               label: 'En autocar',
-              words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+              words: <Word>[word('ticket')],
               destination: 'depart',
             ),
           ],
@@ -357,11 +340,11 @@ void main() {
           family(
             id: 'a_manger',
             label: 'Ce qui se mange',
-            words: <Word>[word('pain', const <String>['pain'])],
+            words: <Word>[word('pain')],
             destination: 'depart',
           ),
           family(id: 'le_reste', label: 'Le reste', words: <Word>[
-            word('vélo', const <String>['vé', 'lo']),
+            word('vélo'),
           ]),
         ],
       );
@@ -376,7 +359,7 @@ void main() {
           family(
             id: 'en_bus',
             label: 'En autocar',
-            words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+            words: <Word>[word('ticket')],
             destination: 'depart',
           ),
         ],
@@ -393,17 +376,17 @@ void main() {
             family(
               id: 'a_manger',
               label: 'Ce qui se mange',
-              words: <Word>[word('pain', const <String>['pain'])],
+              words: <Word>[word('pain')],
               destination: 'depart',
             ),
             family(
               id: 'a_boire',
               label: 'Ce qui se boit',
-              words: <Word>[word('eau', const <String>['eau'])],
+              words: <Word>[word('eau')],
               destination: 'depart',
             ),
             family(id: 'le_reste', label: 'Le reste', words: <Word>[
-              word('vélo', const <String>['vé', 'lo']),
+              word('vélo'),
             ]),
           ],
         ),
@@ -424,11 +407,11 @@ void main() {
           family(
             id: 'a_manger',
             label: 'Ce qui se mange',
-            words: <Word>[word('pain', const <String>['pain'])],
+            words: <Word>[word('pain')],
             destination: 'depart',
           ),
           family(id: 'a_laisser', label: 'Laisse-le', words: <Word>[
-            word('vélo', const <String>['vé', 'lo']),
+            word('vélo'),
           ]),
         ],
       );
@@ -445,7 +428,7 @@ void main() {
         family(
           id: 'en_bus',
           label: 'En autocar',
-          words: <Word>[word('ticket', const <String>['ti', 'ket'])],
+          words: <Word>[word('ticket')],
           destination: 'depart',
         ),
       ]);
@@ -458,7 +441,7 @@ void main() {
         family(
           id: 'en_bus',
           label: 'En bus',
-          words: <Word>[word('bus'), word('ticket', const <String>[])],
+          words: <Word>[word('bus'), word('ticket')],
         ),
       ]);
 

@@ -101,12 +101,10 @@ class ContentRepository implements AdventureRepository {
     );
   }
 
-  /// Tout le vocabulaire deja ecrit : le lexique et les listes de tous les
-  /// domaines.
+  /// Toutes les listes deja ecrites, de tous les domaines.
   ///
-  /// L'outil d'auteur s'en sert pour reutiliser une liste et retrouver le
-  /// decoupage d'un mot deja defini. Deja en memoire apres une ouverture
-  /// d'aventure, il n'est alors pas relu.
+  /// L'outil d'auteur s'en sert pour reutiliser une liste. Deja en memoire
+  /// apres une ouverture d'aventure, rien n'est alors relu.
   Future<WordLibrary> loadLibrary() async {
     final index = await loadIndex();
     if (_wordLists == null) {
@@ -116,7 +114,7 @@ class ContentRepository implements AdventureRepository {
       });
       _resolveWordLists(index, files);
     }
-    return WordLibrary(lexicon: _lexicon!, lists: _wordLists!);
+    return WordLibrary(lists: _wordLists!);
   }
 
   /// Lit plusieurs fichiers **simultanement**, et les rend par chemin.

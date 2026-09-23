@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:grisbie/application/stage_engine.dart';
-import 'package:grisbie/domain/models/hint.dart';
-import 'package:grisbie/domain/models/hint_policy.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
@@ -23,7 +21,6 @@ class StagePage extends StatefulWidget {
   const StagePage({
     required this.stage,
     required this.onDeparture,
-    this.hintPolicy = const HintPolicy(),
     this.random,
     this.contentSource,
     super.key,
@@ -39,7 +36,6 @@ class StagePage extends StatefulWidget {
   /// Appele avec l'identifiant de l'etape choisie quand l'enfant part.
   final void Function(String stageId) onDeparture;
 
-  final HintPolicy hintPolicy;
   final Random? random;
 
   /// Identifie le bandeau des mots, pour pouvoir le mesurer entierement dans
@@ -76,7 +72,6 @@ class _StagePageState extends State<StagePage> {
   void _createEngine() {
     _engine = StageEngine(
       stage: widget.stage,
-      hintPolicy: widget.hintPolicy,
       random: widget.random,
     );
     _shakeKeys
@@ -151,7 +146,6 @@ class _StagePageState extends State<StagePage> {
               children: <Widget>[
                 _WordTray(
                   slots: _visibleSlots,
-                  hintsFor: _engine.state.hintsFor,
                   shakeKeys: _shakeKeys,
                   // Quand un personnage pose la question, sa replique tient
                   // lieu de consigne : elle dit ce qu'il faut faire, et mieux
@@ -181,7 +175,6 @@ class _StagePageState extends State<StagePage> {
 class _WordTray extends StatelessWidget {
   const _WordTray({
     required this.slots,
-    required this.hintsFor,
     required this.shakeKeys,
     this.invitation,
   });
@@ -190,7 +183,6 @@ class _WordTray extends StatelessWidget {
   static const int _columns = 3;
 
   final List<Word?> slots;
-  final Set<Hint> Function(String wordText) hintsFor;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
 
   /// La consigne affichee au-dessus des mots. Par defaut une invitation
@@ -242,10 +234,7 @@ class _WordTray extends StatelessWidget {
                             ? const SizedBox.shrink()
                             : Shake(
                                 key: shakeKeys[word.text],
-                                child: DraggableWordLabel(
-                                  word: word,
-                                  hints: hintsFor(word.text),
-                                ),
+                                child: DraggableWordLabel(word: word),
                               ),
                       ),
                     ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -15,14 +14,12 @@ import '../support/stage_builders.dart';
 /// L'ecran de liste, ouvert en touchant un trajet.
 ///
 /// **Il n'y a pas de mot seul** : un trajet sans liste en cree une ou en
-/// reutilise une. Un mot deja connu garde son decoupage ; un mot neuf ne
-/// s'ajoute pas sans le sien. Le reste d'un tri unique, lui, se compose en
-/// cochant des listes.
+/// reutilise une, puis on y tape des mots. Le reste d'un tri unique, lui, se
+/// compose en cochant des listes.
 
-final Word _ticket = word('ticket', const <String>['ti', 'ket']);
+final Word _ticket = word('ticket');
 
 final WordLibrary _library = WordLibrary(
-  lexicon: Lexicon(<String, Word>{'ticket': _ticket, 'clé': word('clé')}),
   lists: WordListCatalog(<String, WordList>{
     'bus': wordList('bus', <Word>[_ticket]),
     'objets': wordList('objets', <Word>[word('clé')]),
@@ -123,13 +120,9 @@ Future<void> createList(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> typeWord(WidgetTester tester, String text, [String? syllables]) async {
+Future<void> typeWord(WidgetTester tester, String text) async {
   await tester.enterText(find.byKey(const Key('word-text')), text);
   await tester.pumpAndSettle();
-  if (syllables != null) {
-    await tester.enterText(find.byKey(const Key('word-syllables')), syllables);
-    await tester.pumpAndSettle();
-  }
 }
 
 WordFamily familyIn(Adventure adventure, String stageId, String familyId) =>
@@ -169,53 +162,50 @@ void main() {
   });
 
   group('Ajouter des mots', () {
-    testWidgets('un mot neuf demande son decoupage', (tester) async {
+    testWidgets('sans mot tape, rien ne s\'ajoute', (tester) async {
       await pumpList(tester);
       await createList(tester);
-      await typeWord(tester, 'volant');
 
-      // Sans decoupage, rien ne s'ajoute : il n'est jamais calcule.
       final add = tester.widget<FilledButton>(find.byKey(const Key('word-add')));
       expect(add.onPressed, isNull);
     });
 
-    testWidgets('un mot neuf entre avec son decoupage', (tester) async {
+    testWidgets('un mot tape entre dans la liste', (tester) async {
       final outcome = await pumpList(tester);
       await createList(tester);
-      await typeWord(tester, 'volant', 'vo-lant');
+      await typeWord(tester, 'volant');
       await tester.tap(find.byKey(const Key('word-add')));
       await tester.pumpAndSettle();
       await keep(tester);
 
-      expect(
-        familyIn(outcome.kept!, 'maison', 'en_bus').words.single.syllables,
-        <String>['vo', 'lant'],
-      );
+      expect(familyIn(outcome.kept!, 'maison', 'en_bus').wordTexts, <String>{'volant'});
     });
 
-    testWidgets('un mot connu reprend son decoupage', (tester) async {
-      final outcome = await pumpList(tester);
-      await createList(tester);
-      await typeWord(tester, 'ticket');
-
-      // Le lexique n'en admet qu'un : le champ disparait, le decoupage se lit.
-      expect(find.byKey(const Key('word-syllables')), findsNothing);
-      expect(find.text('Déjà connu : ti-ket'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('word-add')));
-      await tester.pumpAndSettle();
-      await keep(tester);
-
-      expect(
-        familyIn(outcome.kept!, 'maison', 'en_bus').words.single.syllables,
-        <String>['ti', 'ket'],
-      );
-    });
-
-    testWidgets('les champs se vident pour le mot suivant', (tester) async {
+    testWidgets('aucun decoupage n\'est demande', (tester) async {
+      // L'aide par le decoupage a ete retiree du jeu (0.33.0) : un mot n'est
+      // plus que son orthographe.
       await pumpList(tester);
       await createList(tester);
-      await typeWord(tester, 'volant', 'vo-lant');
+
+      expect(find.byKey(const Key('word-syllables')), findsNothing);
+      expect(find.textContaining('découpage'), findsNothing);
+    });
+
+    testWidgets('Entree ajoute le mot, comme le bouton', (tester) async {
+      final outcome = await pumpList(tester);
+      await createList(tester);
+      await typeWord(tester, 'volant');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await keep(tester);
+
+      expect(familyIn(outcome.kept!, 'maison', 'en_bus').wordTexts, <String>{'volant'});
+    });
+
+    testWidgets('le champ se vide pour le mot suivant', (tester) async {
+      await pumpList(tester);
+      await createList(tester);
+      await typeWord(tester, 'volant');
       await tester.tap(find.byKey(const Key('word-add')));
       await tester.pumpAndSettle();
 
@@ -224,6 +214,18 @@ void main() {
         isEmpty,
       );
       expect(find.text('volant'), findsOneWidget);
+    });
+
+    testWidgets('un mot dans le nom du trajet est signale ici', (tester) async {
+      // « bus » dans « En bus » se classerait en comparant les lettres : c'est
+      // la ou on l'a tape qu'il faut le voir.
+      await pumpList(tester);
+      await createList(tester);
+      await typeWord(tester, 'bus');
+      await tester.tap(find.byKey(const Key('word-add')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('apparait dans le nom de sa famille'), findsOneWidget);
     });
 
     testWidgets('le decompte dit s\'il y a de quoi jouer', (tester) async {

@@ -352,7 +352,7 @@ void main() {
       final built = twoSingleSorts();
       final boutique = restOf(built, 'boutique');
       final filled = boutique.copyWith(
-        list: wordList('velos', <Word>[word('vélo', const <String>['vé', 'lo'])]),
+        list: wordList('velos', <Word>[word('vélo')]),
       );
 
       expect(filled.words, hasLength(1));

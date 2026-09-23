@@ -13,8 +13,7 @@ import 'package:grisbie/ui/widgets/supply_summary.dart';
 ///
 /// **Il n'y a pas de mot seul.** Un trajet sans liste en recoit une — neuve,
 /// ou reprise d'une liste existante —, et les mots n'entrent que par elle. Un
-/// mot deja connu garde son decoupage ; un mot neuf ne s'ajoute pas sans le
-/// sien, qui n'est jamais calcule.
+/// mot n'est que son orthographe : on le tape, et il entre.
 ///
 /// Le **reste d'un tri unique** ne s'ecrit pas mot a mot : l'auteur y coche
 /// les listes ou le jeu peut prendre les mots qui ne sont pas du theme.
@@ -47,7 +46,6 @@ class _WordListPageState extends State<WordListPage> {
   late Adventure _adventure = widget.adventure;
 
   final TextEditingController _wordText = TextEditingController();
-  final TextEditingController _wordSyllables = TextEditingController();
 
   WordListBuilder get _builder =>
       WordListBuilder(_adventure, library: widget.library);
@@ -59,7 +57,6 @@ class _WordListPageState extends State<WordListPage> {
   @override
   void dispose() {
     _wordText.dispose();
-    _wordSyllables.dispose();
     super.dispose();
   }
 
@@ -256,77 +253,48 @@ class _WordListPageState extends State<WordListPage> {
             isShared: shared.contains(word.text),
             onRemove: () =>
                 _apply((builder) => builder.removeWord(list.id, word.text)),
-            onEdit: () => _editSyllables(word),
           ),
     ];
   }
 
-  /// Les anomalies de cette famille, sauf celles que le decompte dit deja.
+  /// Les anomalies de cette famille — dont le mot qui apparait dans le nom
+  /// du trajet, qu'il faut voir la ou on l'a tape.
   List<ContentIssue> _issuesOf(WordFamily family) {
     return _adventure
         .validate()
         .where(
           (issue) =>
               issue.stageId == widget.stageId &&
-              issue.familyId == widget.familyId &&
-              issue.wordText == null,
+              issue.familyId == widget.familyId,
         )
         .toList(growable: false);
   }
 
-  /// Le mot tape, s'il est deja connu : son decoupage est alors repris.
-  Word? get _knownWord {
-    final text = _wordText.text.trim();
-    if (text.isEmpty) return null;
-    return _builder.findWord(text);
-  }
-
-  bool get _canAddWord {
-    if (_wordText.text.trim().isEmpty) return false;
-    if (_knownWord != null) return true;
-    return WordListBuilder.parseSyllables(_wordSyllables.text).isNotEmpty;
-  }
+  bool get _canAddWord => _wordText.text.trim().isNotEmpty;
 
   Widget _buildWordForm(BuildContext context, WordList list) {
-    final known = _knownWord;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        TextField(
-          key: const Key('word-text'),
-          controller: _wordText,
-          decoration: const InputDecoration(
-            labelText: 'Un mot',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 8),
-        if (known != null)
-          // Le lexique n'admet qu'un decoupage par mot : le redemander
-          // laisserait croire qu'on peut en donner un second.
-          Text(
-            'Déjà connu : ${WordListBuilder.formatSyllables(known.syllables)}',
-            style: Theme.of(context).textTheme.bodySmall,
-          )
-        else
-          TextField(
-            key: const Key('word-syllables'),
-            controller: _wordSyllables,
+        Expanded(
+          child: TextField(
+            key: const Key('word-text'),
+            controller: _wordText,
             decoration: const InputDecoration(
-              labelText: 'Son découpage',
-              hintText: 'a-rê',
-              helperText:
-                  'Les syllabes comme elles se disent, séparées par '
-                  'un tiret. Jamais calculé.',
+              labelText: 'Un mot',
               border: OutlineInputBorder(),
             ),
             onChanged: (_) => setState(() {}),
+            // Au clavier d'un poste, on enchaine les mots sans lacher les
+            // touches : Entree ajoute, et le champ reste pret pour le suivant.
+            onSubmitted: (_) {
+              if (_canAddWord) _addWord(list);
+            },
           ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerRight,
+        ),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
           child: FilledButton.icon(
             key: const Key('word-add'),
             onPressed: _canAddWord ? () => _addWord(list) : null,
@@ -340,17 +308,12 @@ class _WordListPageState extends State<WordListPage> {
 
   void _addWord(WordList list) {
     final added = _apply(
-      (builder) => builder.addWord(
-        list.id,
-        text: _wordText.text,
-        syllables: WordListBuilder.parseSyllables(_wordSyllables.text),
-      ),
+      (builder) => builder.addWord(list.id, text: _wordText.text),
     );
     if (!added) return;
 
-    // On enchaine les mots : les champs se vident pour le suivant.
+    // On enchaine les mots : le champ se vide pour le suivant.
     _wordText.clear();
-    _wordSyllables.clear();
     setState(() {});
   }
 
@@ -363,23 +326,6 @@ class _WordListPageState extends State<WordListPage> {
     if (name == null || name.trim().isEmpty) return;
 
     _apply((builder) => builder.renameList(list.id, name));
-  }
-
-  Future<void> _editSyllables(Word word) async {
-    final typed = await _askText(
-      title: 'Découpage de « ${word.text} »',
-      label: 'Les syllabes',
-      helper: 'Il change partout où ce mot est cité.',
-      initial: WordListBuilder.formatSyllables(word.syllables),
-    );
-    if (typed == null) return;
-
-    _apply(
-      (builder) => builder.changeSyllables(
-        word.text,
-        WordListBuilder.parseSyllables(typed),
-      ),
-    );
   }
 
   // --- Le reste d'un tri unique --------------------------------------------
@@ -539,13 +485,12 @@ class _ListChoice extends StatelessWidget {
   }
 }
 
-/// Un mot de la liste, son decoupage, et ce qu'il devient ici.
+/// Un mot de la liste, et ce qu'il devient ici.
 class _WordTile extends StatelessWidget {
   const _WordTile({
     required this.word,
     required this.isShared,
     required this.onRemove,
-    required this.onEdit,
   });
 
   final Word word;
@@ -553,27 +498,19 @@ class _WordTile extends StatelessWidget {
   /// Vrai si le mot est aussi dans une liste voisine : il ne jouera pas ici.
   final bool isShared;
   final VoidCallback onRemove;
-  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
-    final syllables = word.syllables.isEmpty
-        ? 'Découpage à saisir'
-        : word.syllables.join(' · ');
-
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(word.text),
-      subtitle: Text(
-        isShared
-            ? '$syllables — commun à une autre liste : retiré ici'
-            : syllables,
-      ),
+      subtitle: isShared
+          ? const Text('Commun à une autre liste du lieu : retiré ici')
+          : null,
       leading: Icon(
         isShared ? Icons.call_split : Icons.label_outline,
         size: 20,
       ),
-      onTap: onEdit,
       trailing: IconButton(
         icon: const Icon(Icons.remove_circle_outline),
         tooltip: 'Retirer « ${word.text} »',

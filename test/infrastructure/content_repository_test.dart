@@ -91,11 +91,10 @@ void main() {
         'test',
       );
 
-      // L'aventure ne porte que le mot ; son decoupage vient du lexique.
+      // L'aventure ne porte que le mot ; le lexique dit qu'il existe.
       final word = adventure.startStage.findWord('un');
       expect(word, isNotNull);
       expect(word!.text, 'un');
-      expect(word.syllables, <String>['un']);
     });
 
     test('un mot inconnu est signale en le nommant', () async {
@@ -268,13 +267,11 @@ void main() {
   });
 
   group('La bibliotheque de l\'outil', () {
-    test('elle rend le lexique et toutes les listes', () async {
-      // Pour reutiliser une liste, et retrouver le decoupage d'un mot deja
-      // defini au lieu de le redemander.
+    test('elle rend toutes les listes', () async {
+      // Pour reutiliser une liste plutot que de la reecrire.
       final library = await buildRepository(buildFiles()).loadLibrary();
 
       expect(library.lists.contains('liste_une'), isTrue);
-      expect(library.lexicon.resolve('deux').syllables, <String>['deux']);
     });
 
     test('elle se lit sans ouvrir d\'aventure', () async {

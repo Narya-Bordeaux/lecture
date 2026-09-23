@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.32.0+49** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.33.0+50** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -209,11 +209,11 @@ définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par th�
 `characters.json` porte les personnages, et `adventures/*.json` assemble le tout
 par références. **`pictures/` s'y ajoute** : une illustration est du contenu, et
 tout chemin d'image s'écrit relatif à `assets/content/` — `pictures/gare.jpg`,
-jamais `assets/pictures/gare.jpg`. Un mot défini à deux endroits finirait découpé de deux façons
-différentes ; le chargement refuse le doublon.
+jamais `assets/pictures/gare.jpg`. Un mot n'est défini qu'une fois ; le
+chargement refuse le doublon.
 
 **Trois objets, trois questions** — et c'est ce qui justifie le troisième :
-`Word` dans le lexique dit **comment le mot s'écrit et se découpe**, `WordList`
+`Word` dans le lexique dit **qu'un mot existe, et comment il s'écrit**, `WordList`
 dit **de quoi il parle**, `WordFamily` dit **où cette liste se pose dans ce lieu**,
 sous quel nom et vers quelle sortie. Le lexique refuse le doublon, et pourtant un
 mot doit pouvoir appartenir à plusieurs thèmes ; une famille porte un nom affiché,
@@ -302,16 +302,12 @@ moteur : compléter une famille **ouvre** sa destination sans y envoyer l'enfant
 Plusieurs destinations peuvent être ouvertes à la fois ; seul un départ explicite
 termine l'étape.
 
-Le découpage syllabique est une donnée du contenu, jamais calculé : le français n'a
-pas de règle de syllabation assez sûre pour être automatisée, et une syllabe fausse
-tromperait l'enfant sur ce que le jeu cherche précisément à travailler.
-
-**Le découpage suit les sons, pas les lettres** — règle pédagogique choisie contre
-la syllabation graphique académique : `["a", "rê"]` pour « arrêt ». Il n'a donc pas
-à reconstituer l'orthographe, et **aucun test ne doit l'exiger** : un tel contrôle
-interdirait précisément les découpages recherchés. Seule l'absence de découpage est
-signalée. L'enfant voit les deux de toute façon, le mot écrit sur l'étiquette et son
-découpage juste en dessous.
+**Un mot n'est que son orthographe** — `Word` n'a qu'un champ, `text`. Il
+portait son découpage en syllabes, qui ne servait qu'à l'aide affichée après
+une erreur ; l'aide retirée (0.33.0), la donnée est partie avec elle : une
+donnée que rien n'utilise finit fausse sans que personne ne le voie. Un
+contenu écrit avant se lit toujours — `syllables` y est ignoré —, et
+`ContentSaver` le retire des lexiques qu'il réécrit.
 
 **Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
 bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
@@ -357,10 +353,14 @@ construit l'étape jouée par `stage.drawnWith(random)`, avec le `Random` inject
 L'interface n'a pas à connaître une règle de jeu, et une liste plus grande que la
 partie fait que **rejouer une journée ne redonne pas les mêmes mots**.
 
-**Une seule aide** — le découpage syllabique, dès la première erreur sur le mot.
-L'illustration a été écartée : avec trois familles, les possibilités se
-réduisent d'elles-mêmes et montrer l'image donnerait la réponse. Ne pas la
-réintroduire sans arbitrage — c'est une décision, pas un oubli.
+**Aucune aide à la lecture** — un mot mal placé est refusé, l'étiquette
+tremble et revient, l'enfant réessaie ; rien d'autre ne s'affiche.
+`StageEngine` ne compte plus les erreurs, et `Hint` / `HintPolicy` ont
+disparu (0.33.0). L'aide par le découpage syllabique a été **retirée par
+l'auteur**, l'illustration avait déjà été écartée : avec trois familles, les
+possibilités se réduisent d'elles-mêmes et montrer l'image donnerait la
+réponse. Ne réintroduire aucune aide sans arbitrage — c'est une décision, pas
+un oubli.
 
 **Le tri unique** — une **autre mécanique de lecture**, pas un élément narratif.
 Au lieu de trier entre plusieurs familles homogènes, l'enfant trie entre **une
@@ -389,8 +389,7 @@ l'affiche et `validate()` en tire ses anomalies, d'un seul calcul.
 
 **Pas de mot seul, pas de liste d'office** — un trajet naît **sans liste**.
 L'auteur en crée une ou en réutilise une (`WordListBuilder`, Dart pur), et un
-mot n'entre que par une liste. Un mot connu garde son découpage ; un mot neuf
-n'entre pas sans le sien. Une liste posée d'office aurait pris un identifiant
+mot n'entre que par une liste. Une liste posée d'office aurait pris un identifiant
 tiré du trajet (`en_bus`), que deux aventures se seraient disputé dans le
 catalogue global. **Une liste est la même partout où elle sert** : la modifier
 d'un trajet la modifie pour tous, et `usagesOf` permet de le dire.
@@ -636,9 +635,9 @@ depuis là, sur l'étape **en cours d'édition**, illustration comprise, et rend
 l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
 
 **Toucher un trajet ouvre sa liste** — `WordListPage`. Un trajet sans liste
-propose d'en créer une ou d'en réutiliser une ; ensuite, on tape un mot et son
-découpage (`a-rê`, lu par `WordListBuilder.parseSyllables`). Un mot connu
-affiche son découpage au lieu de le redemander. Le reste d'un tri unique se
+propose d'en créer une ou d'en réutiliser une ; ensuite, on tape des mots, un
+seul champ, Entrée pour enchaîner. L'alerte « un mot apparaît dans le nom de
+sa famille » s'y affiche, là où on l'a tapé. Le reste d'un tri unique se
 compose en **cochant** des listes, celle du thème exclue. Une liste citée
 ailleurs le dit en tête (« sert aussi à… ») : la modifier la modifie partout.
 La page dit « Garder » comme les autres éditeurs.
