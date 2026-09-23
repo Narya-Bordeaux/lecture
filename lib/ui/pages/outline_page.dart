@@ -8,9 +8,12 @@ import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/word_library.dart';
+import 'package:grisbie/infrastructure/content/preloaded_adventure_repository.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
+import 'package:grisbie/ui/pages/adventure_page.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/pages/stage_structure_page.dart';
 import 'package:grisbie/ui/pages/word_list_page.dart';
 import 'package:grisbie/ui/widgets/supply_summary.dart';
@@ -234,6 +237,42 @@ class _OutlinePageState extends State<OutlinePage> {
   ///
   /// Les mots n'y sont pas — ils appartiennent au trajet, et une meme liste
   /// sert a plusieurs lieux.
+  /// Joue ce lieu seul, avec le vrai ecran de jeu, jusqu'au premier depart.
+  ///
+  /// Ce qui a ete regle sur l'ordinateur se verifie ainsi au doigt, sur
+  /// l'ecran reel de l'appareil. Le lieu joue est celui **de l'ecran**,
+  /// enregistre ou non : c'est ce qu'on vient de regler qu'on veut eprouver.
+  /// Partir ramene au parcours — la suite n'est pas ce qu'on essaie.
+  Future<void> _tryStage(OutlineBlock block) async {
+    final stage = _adventure.findStage(block.stageId);
+    if (stage == null) return;
+
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (trialContext) => StagePage(
+          stage: stage,
+          contentSource: widget.contentSource,
+          onDeparture: (_) => Navigator.of(trialContext).pop(),
+        ),
+      ),
+    );
+  }
+
+  /// Joue l'aventure entiere, page de garde comprise, comme le jeu livre.
+  ///
+  /// Le meme ecran que le jeu (`AdventurePage`), nourri de l'aventure de
+  /// l'ecran : le retour du systeme ramene au parcours.
+  Future<void> _playAdventure() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => AdventurePage(
+          repository: PreloadedAdventureRepository(_adventure),
+          adventureId: _adventure.id,
+        ),
+      ),
+    );
+  }
+
   Future<void> _editStage(OutlineBlock block) async {
     final stage = _adventure.findStage(block.stageId);
     if (stage == null) return;
@@ -398,7 +437,7 @@ class _OutlinePageState extends State<OutlinePage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: <Widget>[
-          _IssueSummary(issues: issues),
+          _IssueSummary(issues: issues, onPlay: _playAdventure),
           // Le seuil de la journee, avant le premier lieu — comme a l'ecran
           // du jeu. Il n'a pas de trajet : on n'en repart pas, on y entre.
           _OpeningCard(opening: _adventure.opening, onTap: _editOpening),
@@ -414,6 +453,7 @@ class _OutlinePageState extends State<OutlinePage> {
               onOpenTrip: (trip) => _openList(block, trip),
               onEditStructure: () => _editStructure(block),
               onRemove: () => _removeStage(block),
+              onTry: () => _tryStage(block),
             ),
         ],
       ),
@@ -428,9 +468,13 @@ class _OutlinePageState extends State<OutlinePage> {
 /// telle apprendrait a ignorer l'ecran. L'etat vient du domaine
 /// ([ContentReadiness]) ; cet ecran ne fait que le dire.
 class _IssueSummary extends StatelessWidget {
-  const _IssueSummary({required this.issues});
+  const _IssueSummary({required this.issues, required this.onPlay});
 
   final List<ContentIssue> issues;
+
+  /// Joue l'aventure entiere — offert seulement quand elle est jouable : un
+  /// essai qui s'arreterait sur un lieu inacheve ne dirait rien du jeu.
+  final VoidCallback onPlay;
 
   @override
   Widget build(BuildContext context) {
@@ -444,12 +488,13 @@ class _IssueSummary extends StatelessWidget {
     final checkNote = toCheck > 0 ? ' $toCheck à vérifier.' : '';
     final errorColor = Theme.of(context).colorScheme.error;
 
+    final readiness = ContentReadiness.of(issues);
     final (
       IconData icon,
       Color? color,
       String title,
       String? detail,
-    ) = switch (ContentReadiness.of(issues)) {
+    ) = switch (readiness) {
       ContentReadiness.playable => (
         Icons.check_circle_outline,
         Colors.green.shade700,
@@ -492,6 +537,12 @@ class _IssueSummary extends StatelessWidget {
               ],
             ),
           ),
+          if (readiness == ContentReadiness.playable)
+            FilledButton.icon(
+              onPressed: onPlay,
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Jouer l\'aventure'),
+            ),
         ],
       ),
     );
@@ -564,6 +615,7 @@ class _BlockCard extends StatelessWidget {
     required this.onOpenTrip,
     required this.onEditStructure,
     required this.onRemove,
+    required this.onTry,
   });
 
   final OutlineBlock block;
@@ -590,6 +642,9 @@ class _BlockCard extends StatelessWidget {
 
   /// Supprime le lieu — offert seulement quand rien n'y mene.
   final VoidCallback onRemove;
+
+  /// Joue le lieu seul, sur l'appareil — offert quand il se joue seul.
+  final VoidCallback onTry;
 
   @override
   Widget build(BuildContext context) {
@@ -646,6 +701,15 @@ class _BlockCard extends StatelessWidget {
             const SizedBox(height: 8),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
+            if (block.canBeTried)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: onTry,
+                  icon: const Icon(Icons.play_arrow, size: 18),
+                  label: const Text('Essayer ce lieu'),
+                ),
+              ),
             ..._buildActions(context),
           ],
         ),

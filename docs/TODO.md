@@ -13,8 +13,21 @@ n'existe plus que dans `versions.md`.
       type se choisit à la création de la page.
 - [ ] **« Intégrer au dépôt »** : verser l'aventure écrite dans l'outil —
       JSON, listes, lexiques — dans `assets/content/`, pour qu'elle soit
-      jouable à la compilation suivante. Les images y sont déjà. Le chemin
-      reste à choisir, et l'aventure que le jeu lance aussi.
+      jouable à la compilation suivante. Les images y sont déjà. **Retenu** :
+      depuis Chrome, en écrivant dans le dossier du dépôt désigné par
+      l'auteur.
+- [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
+      entière, après un enregistrement fait depuis l'ordinateur.
+
+## Plus tard — décidé, pas encore le moment
+
+- [ ] **Un écran de choix des aventures dans le jeu.** Le jeu lance toujours
+      `GrisbieApp.defaultAdventureId` ; dès que le dépôt en portera
+      plusieurs, l'enfant devra choisir.
+- [ ] **Un aperçu multi-formats dans l'outil** : la scène dans deux ou trois
+      cadres de téléphone (360×640, 390×844, tablette) sur l'ordinateur,
+      pour attraper sans téléphone un énoncé trop long ou une zone trop
+      petite. Ne remplace pas l'essai au doigt.
 
 ## Outil de création d'une journée
 

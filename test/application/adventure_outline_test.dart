@@ -407,4 +407,16 @@ void main() {
       expect(car.supply!.isEnough, isFalse);
     });
   });
+
+  group('Essayer un lieu', () {
+    test('la carte dit si le lieu se joue seul', () async {
+      final adventure = await loadRealAdventure();
+      final outline = AdventureOutline.of(adventure);
+      OutlineBlock blockOf(String id) =>
+          outline.blocks.firstWhere((block) => block.stageId == id);
+
+      expect(blockOf('maison').canBeTried, isTrue);
+      expect(blockOf('plage').canBeTried, isFalse);
+    });
+  });
 }

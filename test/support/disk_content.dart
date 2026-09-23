@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/content_index.dart';
-import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/infrastructure/content/file_content_source.dart';
+
+// Le depot en memoire vit dans `lib/` depuis que l'outil d'auteur s'en sert
+// pour les essais ; les tests le retrouvent ici, comme avant.
+export 'package:grisbie/infrastructure/content/preloaded_adventure_repository.dart';
 
 /// Lit les fichiers de contenu livres, comme le ferait un auteur.
 ///
@@ -73,30 +75,3 @@ Future<Adventure> loadAdventureFrom({
   ).loadAdventure(id);
 }
 
-/// Sert une aventure deja chargee, sans toucher au disque.
-///
-/// Indispensable dans un test de widget : `pumpAndSettle` fait avancer une
-/// horloge virtuelle, mais n'attend pas les entrees-sorties reelles. Un depot
-/// qui lit des fichiers pendant le rendu laisse le test tourner sans fin.
-class PreloadedAdventureRepository implements AdventureRepository {
-  PreloadedAdventureRepository(this.adventure);
-
-  final Adventure adventure;
-
-  @override
-  Future<ContentIndex> loadIndex() async {
-    return ContentIndex(
-      lexiconFiles: const <String>[],
-      adventures: <AdventureEntry>[
-        AdventureEntry(
-          id: adventure.id,
-          title: adventure.title,
-          file: 'memoire',
-        ),
-      ],
-    );
-  }
-
-  @override
-  Future<Adventure> loadAdventure(String adventureId) async => adventure;
-}

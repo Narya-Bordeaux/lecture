@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.37.0+56** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.38.0+57** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -747,6 +747,23 @@ nommer les sorties — plusieurs, ou le seul thème d'un tri unique
 **Sept mots par liste** — `AdventureBuilder.defaultDrawCount`, posé sur le
 lieu quand il reçoit ses premières listes. Un lieu déjà écrit garde ce qu'il
 demandait, contenu livré compris.
+
+**Essayer sur l'appareil** (0.38.0) — ce qui se règle sur l'ordinateur doit se
+vérifier au doigt, sur l'écran réel du téléphone. L'outil y joue donc le **vrai
+jeu**, et non une imitation : « Essayer ce lieu », sur la carte, monte
+`StagePage` sur le lieu seul et revient au parcours au premier départ ;
+« Jouer l'aventure », en tête d'écran, monte `AdventurePage` sur l'aventure
+entière. Les deux jouent **ce qui est à l'écran**, enregistré ou non.
+`Stage.canBeTriedAlone` dit si un lieu se joue seul : des familles, dont
+aucune n'est vidée par les mots communs — une famille vide s'ouvrirait
+d'elle-même, sans rien trier. L'aventure entière ne se joue que **jouable**,
+et `PreloadedAdventureRepository` refuse, comme le jeu, ce que le jeu
+refuserait.
+
+Un marqueur « en test » dans le jeu a été écarté : il aurait fallu verser les
+brouillons dans le dépôt pour les voir sur le téléphone, et chaque retouche
+aurait demandé commit, compilation et réinstallation. **Une aventure est
+publiée quand elle est dans le dépôt**, et le jeu ne voit que ce qui l'est.
 
 **Où en est l'aventure** — `ContentReadiness`, déduite des anomalies et de
 rien d'autre : *jouable* (aucune), *pas complète* (des manques), *contient

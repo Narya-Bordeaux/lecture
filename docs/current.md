@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.37.0+56** — 23 septembre 2026
+**Version : 0.38.0+57** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.38.0+57 — Essayer sur l'appareil
+- **« Essayer ce lieu »** et **« Jouer l'aventure »** montent le vrai jeu sur
+  l'aventure de l'écran : écrire sur l'ordinateur, vérifier au doigt sur le
+  téléphone.
+- Pas de marqueur « en test » : une aventure est publiée quand elle est dans
+  le dépôt.
+- **Prochain** : « Intégrer au dépôt », depuis Chrome.
+- 521 tests au vert.
+
 ### 0.37.0+56 — Les images se choisissent dans le dépôt
 - L'auteur verse ses images dans `assets/content/pictures/` ; « Choisir une
   image » les montre en vignettes, par leur nom. Une image absente du dépôt
@@ -122,15 +131,6 @@ un travail d'auteur, pas de code.
 - Les images de l'auteur sont dans `assets/content/pictures/`. **En
   discussion** : l'outil les désigne par leur nom de fichier.
 - 511 tests au vert.
-
-### 0.35.0+54 — L'énoncé sur la scène
-- **Le texte d'arrivée d'un lieu de jeu est son énoncé**, affiché en haut de
-  la scène au-dessus des mots. Plus d'écran de récit intercalé, plus de
-  consigne générique.
-- Les trois tolérances héritées sont retirées.
-- **Défaut mesuré** : sur un petit téléphone, un énoncé de deux phrases
-  recouvre la zone du bus. À trancher avec l'auteur.
-- 509 tests au vert.
 
 ## Décisions prises
 

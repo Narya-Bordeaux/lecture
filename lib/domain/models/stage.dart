@@ -233,6 +233,16 @@ class Stage {
     );
   }
 
+  /// Vrai si le lieu peut se jouer seul, pour que l'auteur l'essaie.
+  ///
+  /// Il faut des familles, et que chacune garde au moins un mot une fois les
+  /// mots communs retires. Une famille vide s'ouvrirait d'elle-meme, sans que
+  /// rien ait ete trie : l'essai mentirait sur ce que l'enfant vivra. Une fin,
+  /// ou un lieu a definir, n'a rien a trier.
+  bool get canBeTriedAlone =>
+      families.isNotEmpty &&
+      families.every((family) => supplyOf(family).available > 0);
+
   /// Ce qu'il reste a cette famille une fois les mots communs retires.
   ///
   /// C'est dans cette liste-la que le tirage puise, et c'est elle que

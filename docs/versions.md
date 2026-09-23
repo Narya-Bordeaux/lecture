@@ -44,6 +44,28 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.38.0+57 — 23 septembre 2026 — Essayer sur l'appareil
+
+**Le besoin de l'auteur** : créer sur l'ordinateur, vérifier sur le téléphone
+avant de publier — seul moyen de savoir si un réglage rend proprement sur un
+petit écran.
+
+- **« Essayer ce lieu »**, sur la carte : le vrai écran de jeu, sur le lieu
+  seul, jusqu'au premier départ. Offert quand `Stage.canBeTriedAlone` : des
+  familles, dont aucune n'est vidée par les mots communs.
+- **« Jouer l'aventure »**, en tête du parcours, quand elle est jouable : le
+  vrai déroulé du jeu, page de garde comprise.
+- Les deux jouent l'aventure **de l'écran**, enregistrée ou non.
+  `PreloadedAdventureRepository` passe des tests à `lib/`, et refuse
+  désormais une aventure injouable, comme le jeu.
+
+**Écarté** : un marqueur « en test » dans le jeu. Il aurait fallu verser les
+brouillons dans le dépôt pour les voir, et recompiler à chaque retouche. Une
+aventure est publiée quand elle est dans le dépôt.
+
+Au TODO, décidés pour plus tard : l'écran de choix des aventures, l'aperçu
+multi-formats. 521 tests au vert.
+
 ### 0.37.0+56 — 23 septembre 2026 — Les images se choisissent dans le dépôt
 
 **Décision de l'auteur** : il verse ses images dans `assets/content/pictures/`

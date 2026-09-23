@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
 
@@ -868,6 +870,54 @@ void main() {
       // Un trajet, et son arrivee en carte : la page blanche se remplit.
       expect(find.text('En bus'), findsNWidgets(2));
       expect(find.text('B1'), findsNWidgets(2));
+    });
+  });
+
+  group('Essayer sur l\'appareil', () {
+    // Ce qui a ete regle sur l'ordinateur doit se verifier au doigt, sur
+    // l'ecran reel. L'essai monte le vrai jeu, pas une imitation.
+
+    testWidgets('un lieu jouable propose de l\'essayer', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Essayer ce lieu').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(StagePage.wordTrayKey), findsOneWidget);
+    });
+
+    testWidgets('une fin ne propose pas d\'essai', (tester) async {
+      final endingOnly = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Départ',
+      );
+      await pumpOutline(
+        tester,
+        AdventureBuilder(endingOnly).defineAsEnding('depart'),
+      );
+
+      expect(find.text('Essayer ce lieu'), findsNothing);
+    });
+
+    testWidgets('une aventure jouable se joue en entier', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Jouer l\'aventure'));
+      await tester.pumpAndSettle();
+
+      // La page de garde d'abord, comme dans le jeu.
+      expect(find.text(UiStringsFr.startAdventure), findsOneWidget);
+    });
+
+    testWidgets('une aventure inachevee ne se joue pas en entier', (
+      tester,
+    ) async {
+      await pumpOutline(
+        tester,
+        AdventureBuilder.createAdventure(title: 'Essai', startName: 'Départ'),
+      );
+
+      expect(find.text('Jouer l\'aventure'), findsNothing);
     });
   });
 }
