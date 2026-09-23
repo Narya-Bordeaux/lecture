@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.34.0+51** — 23 septembre 2026
+**Version : 0.34.1+52** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,13 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.34.1+52 — Un lieu rouvert se redéfinit sur place
+- **Défaut vu par l'auteur** : après « Rouvrir ce lieu », l'écran de
+  structure ne disait que « Choisissez sur la carte » — une impasse.
+- Il offre désormais les trois réponses de la carte — plusieurs listes, tri
+  unique, fin — ainsi qu'« Ajouter des trajets » et « Ajouter la sortie ».
+- 512 tests au vert.
+
 ### 0.34.0+51 — Revenir sur un choix de circuit
 - **La ligne « Plusieurs listes / Tri unique / Fin » d'une carte ouvre la
   structure du lieu** : changer de nature, renommer, rediriger ou retirer
@@ -129,18 +136,6 @@ un travail d'auteur, pas de code.
   l'enregistrement retire le champ des lexiques qu'il réécrit.
 - Spécification en version 0.9.
 - 473 tests au vert.
-
-### 0.32.0+49 — L'écran de liste
-- **Toucher un trajet ouvre sa liste** : créer une liste ou en réutiliser
-  une, taper un mot et son découpage (`a-rê`). Un mot connu reprend le sien.
-- **Le reste d'un tri unique se compose en cochant des listes**, celle du
-  thème exclue, avec l'avertissement sur les listes sûres.
-- Une liste citée ailleurs **le dit** avant qu'on la modifie.
-- **Chaque trajet dit s'il a de quoi jouer**, sur la carte : `7/7`, `3/7`, ou
-  « pas de liste ».
-- Défaut évité, attrapé par les tests : le champ d'une boîte de dialogue
-  libéré pendant qu'elle se refermait.
-- 484 tests au vert ; rien n'a encore été ouvert sur un appareil.
 
 ## Décisions prises
 

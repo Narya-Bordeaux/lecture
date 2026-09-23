@@ -4,6 +4,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
+import 'package:grisbie/ui/pages/add_trips_page.dart';
 
 /// La structure d'un lieu : ce que l'enfant y fait, et les trajets qui en
 /// partent.
@@ -150,12 +151,34 @@ class _StageStructurePageState extends State<StageStructurePage> {
   List<Widget> _conversions(Stage stage) {
     switch (stage.nature) {
       case StageNature.undefined:
-        return const <Widget>[
-          Text('Choisissez sur la carte du lieu ce que l\'enfant y fait.'),
+        // Les memes trois reponses que sur la carte : un lieu qu'on vient de
+        // rouvrir ne doit pas renvoyer ailleurs pour etre redefini.
+        return <Widget>[
+          OutlinedButton.icon(
+            onPressed: () => _addTrips(singleExit: false),
+            icon: const Icon(Icons.dashboard_outlined, size: 18),
+            label: const Text('Plusieurs listes'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _defineSingleSort,
+            icon: const Icon(Icons.filter_alt_outlined, size: 18),
+            label: const Text('Tri unique'),
+          ),
+          OutlinedButton.icon(
+            onPressed: () =>
+                _apply((builder) => builder.defineAsEnding(widget.stageId)),
+            icon: const Icon(Icons.flag_outlined, size: 18),
+            label: const Text('Une fin'),
+          ),
         ];
 
       case StageNature.sorting:
         return <Widget>[
+          OutlinedButton.icon(
+            onPressed: () => _addTrips(singleExit: false),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text('Ajouter des trajets'),
+          ),
           OutlinedButton.icon(
             onPressed: _toSingleSort,
             icon: const Icon(Icons.filter_alt_outlined, size: 18),
@@ -169,7 +192,14 @@ class _StageStructurePageState extends State<StageStructurePage> {
         ];
 
       case StageNature.singleSort:
+        final hasExit = stage.families.any((f) => f.leadsSomewhere);
         return <Widget>[
+          if (!hasExit)
+            OutlinedButton.icon(
+              onPressed: () => _addTrips(singleExit: true),
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Ajouter la sortie'),
+            ),
           OutlinedButton.icon(
             onPressed: _toSorting,
             icon: const Icon(Icons.dashboard_outlined, size: 18),
@@ -191,6 +221,44 @@ class _StageStructurePageState extends State<StageStructurePage> {
           ),
         ];
     }
+  }
+
+  /// Demande des trajets a nommer, comme depuis la carte.
+  Future<List<NewTrip>?> _askTrips({required bool singleExit}) async {
+    final trips = await Navigator.of(context).push<List<NewTrip>>(
+      MaterialPageRoute<List<NewTrip>>(
+        builder: (_) => AddTripsPage(
+          locationName: _stage.locationName,
+          allowsOneTripOnly: singleExit,
+          existingTrips: _stage.families
+              .where((family) => family.leadsSomewhere)
+              .map((family) => family.label)
+              .toList(growable: false),
+          existingPlaces: <String, String>{
+            for (final stage in _adventure.stages.values)
+              if (stage.id != widget.stageId) stage.id: stage.locationName,
+          },
+        ),
+      ),
+    );
+    if (trips == null || trips.isEmpty) return null;
+    return trips;
+  }
+
+  /// Ajoute des trajets : fait d'un lieu a definir un lieu a plusieurs
+  /// listes, en prolonge un, ou pose la sortie d'un tri unique.
+  Future<void> _addTrips({required bool singleExit}) async {
+    final trips = await _askTrips(singleExit: singleExit);
+    if (trips == null) return;
+    _apply((builder) => builder.addTrips(widget.stageId, trips));
+  }
+
+  Future<void> _defineSingleSort() async {
+    final trips = await _askTrips(singleExit: true);
+    if (trips == null) return;
+    _apply(
+      (builder) => builder.defineAsSingleSort(widget.stageId, trips.first),
+    );
   }
 
   /// Plusieurs listes → tri unique : l'auteur choisit le trajet du theme.

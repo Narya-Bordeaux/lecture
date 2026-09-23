@@ -44,6 +44,22 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.34.1+52 — 23 septembre 2026 — Un lieu rouvert se redéfinit sur place
+
+**Vu par l'auteur, à l'écran** : une fin rouverte depuis sa structure
+redevenait *à définir*, et l'écran de structure affichait alors « Choisissez
+sur la carte du lieu ce que l'enfant y fait » — sans rien pour le faire. Il
+fallait fermer, revenir au parcours, et chercher la carte.
+
+L'écran offre désormais les **trois réponses de la carte** — plusieurs
+listes, tri unique, fin —, qui ouvrent la même page de trajets. Il gagne au
+passage « Ajouter des trajets » pour un lieu à plusieurs listes, et
+« Ajouter la sortie » pour un tri unique qui n'en aurait pas : tout ce que
+la carte propose sur la structure, la structure le propose aussi. Trois
+tests rejouent le parcours de l'auteur.
+
+512 tests au vert ; les deux points d'entrée compilent pour le web.
+
 ### 0.34.0+51 — 23 septembre 2026 — Revenir sur un choix de circuit
 
 **Le manque signalé par l'auteur** : une fois la nature d'un lieu choisie,

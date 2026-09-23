@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.34.0+51** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.34.1+52** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -668,7 +668,9 @@ que le lieu montre (`StageEditorPage`), un trajet ouvre sa liste
 (`WordListPage`), et la **ligne de nature** — « Plusieurs listes », « Tri
 unique », « Fin », avec une icône de réglage — ouvre sa **structure**
 (`StageStructurePage`) : changer de nature, renommer, rediriger ou retirer un
-trajet. Aucun écran ne permettait de revenir sur un choix de circuit.
+trajet. Aucun écran ne permettait de revenir sur un choix de circuit. Un lieu
+à définir — une fin qu'on vient d'y rouvrir — y reçoit **les trois réponses
+de la carte** : renvoyer à la carte pour le redéfinir était une impasse.
 
 Les conversions gardent ce qui peut l'être (`AdventureBuilder` :
 `convertToSingleSort` avec le trajet choisi pour thème, `convertToSorting`,

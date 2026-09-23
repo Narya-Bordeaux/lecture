@@ -117,6 +117,47 @@ void main() {
     });
   });
 
+  group('Un lieu rouvert se redefinit sur place', () {
+    // Le defaut signale par l'auteur : apres « Rouvrir ce lieu », l'ecran
+    // disait seulement « Choisissez sur la carte », une impasse.
+
+    testWidgets('les trois reponses sont offertes ici meme', (tester) async {
+      await pumpStructure(tester, stageId: 'gare');
+      await tapAndSettle(tester, find.text('Rouvrir ce lieu'));
+
+      expect(find.text('Plusieurs listes'), findsOneWidget);
+      expect(find.text('Tri unique'), findsOneWidget);
+      expect(find.text('Une fin'), findsOneWidget);
+      expect(find.textContaining('Choisissez sur la carte'), findsNothing);
+    });
+
+    testWidgets('« Plusieurs listes » demande ses trajets, et les pose', (
+      tester,
+    ) async {
+      final outcome = await pumpStructure(tester, stageId: 'gare');
+      await tapAndSettle(tester, find.text('Rouvrir ce lieu'));
+      await tapAndSettle(tester, find.text('Plusieurs listes'));
+
+      await tester.enterText(find.byKey(const Key('trip-name-0')), 'Le train');
+      await tester.pumpAndSettle();
+      await tapAndSettle(tester, find.text('Créer'));
+      await tapAndSettle(tester, find.text('Garder'));
+
+      final gare = outcome.kept!.findStage('gare')!;
+      expect(gare.nature, StageNature.sorting);
+      expect(gare.families.single.label, 'Le train');
+    });
+
+    testWidgets('« Une fin » la referme', (tester) async {
+      final outcome = await pumpStructure(tester, stageId: 'gare');
+      await tapAndSettle(tester, find.text('Rouvrir ce lieu'));
+      await tapAndSettle(tester, find.text('Une fin'));
+      await tapAndSettle(tester, find.text('Garder'));
+
+      expect(outcome.kept!.findStage('gare')!.nature, StageNature.ending);
+    });
+  });
+
   group('Les trajets', () {
     testWidgets('un trajet se renomme', (tester) async {
       final outcome = await pumpStructure(tester);
