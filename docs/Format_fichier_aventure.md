@@ -228,11 +228,10 @@ trie, et c'est ce qui donne son sens au tri : il situe l'enfant et pose la
 question que les mots tranchent — « Peut-elle aller acheter quelque chose, ou
 doit-elle prendre le train ? ». Aucune autre consigne ne s'affiche.
 
-**Restez court.** L'énoncé agrandit le bandeau des mots, et un bandeau trop
-haut recouvre les zones de dépôt placées haut dans l'image : le doigt de
-l'enfant y serait arrêté sans rien pour le dire. Deux phrases courtes tiennent
-sur un téléphone courant ; sur un petit téléphone, elles recouvrent déjà une
-zone posée au tiers de la hauteur. Vérifiez au calage, qui montre l'énoncé.
+**Restez court.** L'énoncé agrandit le bandeau des mots, posé au-dessus de
+l'illustration : plus il est long, plus l'image rapetisse pour lui laisser la
+place, et avec elle les zones de dépôt. Aucune zone ne peut être recouverte,
+mais une zone trop petite se touche mal. Le calage montre l'énoncé réel.
 
 Ne pas confondre les deux nombres. `drawCount` dit combien de mots entrent en
 jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.

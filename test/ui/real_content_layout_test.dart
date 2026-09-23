@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/stage_engine.dart';
+import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
@@ -26,7 +27,16 @@ late final Stage _homeStage;
 
 Future<void> loadHomeStage() async {
   final adventure = await loadRealAdventure();
-  _homeStage = adventure.startStage.copyWith(backgroundAsset: '');
+  _homeStage = adventure.startStage.copyWith(
+    backgroundAsset: '',
+    // L'enonce agrandit le bandeau : c'est lui qui risque de descendre sur
+    // la zone du bus. Celui-ci est le texte que l'auteur a ecrit pour ce
+    // lieu, sur deux lignes au moins d'un petit telephone.
+    narrative: const Narrative(
+      onArrival: 'Grisbie veut partir à la plage. Y ira-t-elle à pied, en '
+          'bus ou en voiture?',
+    ),
+  );
 }
 
 Stage loadHomeStageWithoutBackground() => _homeStage;
@@ -86,7 +96,7 @@ Future<void> dragWordOnto(
 
 void main() {
   // Le contenu est charge une fois : il traverse le fichier pere, les lexiques
-  // et les personnages, ce qui n'a pas a etre refait a chaque test.
+  // et les listes, ce qui n'a pas a etre refait a chaque test.
   setUpAll(loadHomeStage);
 
   // Trois formats courants, du plus contraint au plus confortable.

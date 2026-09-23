@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
@@ -7,6 +8,7 @@ import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/pages/area_editor_page.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
+import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 
 import '../support/memory_content.dart';
 
@@ -115,6 +117,37 @@ void main() {
       // la poignee de l'outil.
       expect(find.text('En bus'), findsWidgets);
       expect(find.text('En voiture'), findsWidgets);
+    });
+
+    testWidgets('chaque poignee recouvre exactement la zone du jeu', (
+      tester,
+    ) async {
+      // L'illustration commence sous le bandeau, et le bandeau grandit avec
+      // l'enonce. Une poignee calculee sur l'ecran entier serait decalee
+      // d'autant : l'auteur calerait sa zone a cote de celle que l'enfant
+      // touchera.
+      const bus = RelativeArea(left: 0.1, top: 0.1, width: 0.3, height: 0.2);
+      final stage = buildStage(busArea: bus, carArea: _topLeft);
+      await pumpEditor(
+        tester,
+        stage.copyWith(
+          narrative: const Narrative(
+            onArrival:
+                'Un énoncé assez long pour tenir sur deux lignes, '
+                'et même sur trois quand l\'écran est étroit.',
+          ),
+        ),
+      );
+
+      final handle = tester.getRect(
+        find.byKey(AreaEditorPage.handleKeyFor('en_bus')),
+      );
+      final zone = tester.getRect(
+        find.byKey(FamilyDropZone.frameKeyFor('en_bus')),
+      );
+      expect(handle.top, closeTo(zone.top, 1));
+      expect(handle.left, closeTo(zone.left, 1));
+      expect(handle.height, closeTo(zone.height, 1));
     });
 
     testWidgets('aucun JSON n\'est montre ni a copier', (tester) async {

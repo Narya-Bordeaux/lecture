@@ -3,12 +3,11 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
-## Pages de récit, et verser au dépôt — en discussion avec l'auteur
+## Pages de récit, images et dépôt — en discussion avec l'auteur
 
-- [ ] **L'énoncé recouvre une zone sur un petit téléphone** : deux phrases
-      font descendre le bandeau de 22 px sous le haut de la zone du bus
-      (360×640). Solution à choisir avec l'auteur ; le test de mise en page
-      devra monter un lieu avec énoncé.
+- [ ] **Les images par leur nom** : l'auteur verse ses images dans
+      `assets/content/pictures/` et l'outil les désigne par leur nom de
+      fichier. Modalités en discussion (voir `current.md`).
 - [ ] **La page de récit**, type de page à part (titre, illustration, texte,
       une seule suite, ou marquée fin) : page de garde, transition, fin. Le
       type se choisit à la création de la page.

@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.36.0+55 — 23 septembre 2026 — Le bandeau au-dessus de la scène
+
+**Décision de l'auteur (option A)** : le bandeau des mots est posé au-dessus
+de l'illustration, qui occupe ce qu'il laisse. Superposé, il recouvrait la
+zone du bus dès qu'un énoncé de deux phrases s'affichait sur un petit
+téléphone (22 px sur un 360×640) : le doigt de l'enfant y était arrêté sans
+message. Le recouvrement est désormais impossible, quelle que soit la longueur
+du texte ; l'image rapetisse d'autant.
+
+**Le calage suit.** Ses poignées étaient placées par un calcul sur l'écran
+entier, qui ne savait rien du bandeau : elles auraient été décalées de sa
+hauteur. `StagePage.sceneOverlayBuilder` les pose dans la scène même, avec le
+rectangle qu'elle a calculé, et `StagePage.interactive` rend l'aperçu inerte.
+
+Trois tests : la scène commence sous le bandeau, même sous un énoncé très
+long ; chaque poignée recouvre exactement sa zone de jeu ; l'étape réelle,
+munie de l'énoncé que l'auteur a écrit pour la maison, ne recouvre rien sur
+trois formats. **Les images de l'auteur** sont arrivées dans
+`assets/content/pictures/`. 511 tests au vert.
+
 ### 0.35.0+54 — 23 septembre 2026 — L'énoncé sur la scène
 
 **Vu par l'auteur** : le texte d'arrivée saisi dans l'outil ne paraissait pas

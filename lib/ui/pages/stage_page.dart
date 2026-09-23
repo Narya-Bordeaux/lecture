@@ -23,10 +23,21 @@ class StagePage extends StatefulWidget {
     required this.onDeparture,
     this.random,
     this.contentSource,
+    this.interactive = true,
+    this.sceneOverlayBuilder,
     super.key,
   });
 
   final Stage stage;
+
+  /// Faux pour un apercu : la page s'affiche telle que l'enfant la verra, mais
+  /// aucun geste n'y est transmis. C'est le cas de l'outil de calage.
+  final bool interactive;
+
+  /// Un calque pose sur l'illustration, dans son repere — voir
+  /// [SceneLayout.overlayBuilder]. Il recoit les gestes meme quand la page
+  /// n'est pas [interactive] : ce sont les poignees de l'outil de calage.
+  final Widget Function(Rect imageRect)? sceneOverlayBuilder;
 
   /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle : c'est
   /// le cas du jeu. L'outil de calage y passe la source de travail, sans quoi
@@ -106,53 +117,81 @@ class _StagePageState extends State<StagePage> {
   Widget build(BuildContext context) {
     final destinations = _engine.state.availableDestinations;
 
+    final backgroundColor = widget.stage.backgroundColor == null
+        ? const Color(0xFF4AB8FD)
+        : Color(widget.stage.backgroundColor!);
+
+    // **L'illustration occupe ce que le bandeau laisse** (option A, choisie
+    // par l'auteur). Posee sous le bandeau, une zone ancree haut dans l'image
+    // passait dessous des que l'enonce s'allongeait, et le doigt y etait
+    // arrete sans rien pour le dire. Ici le recouvrement est impossible, quelle
+    // que soit la longueur du texte ; l'image rapetisse d'autant sur un petit
+    // ecran.
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          SceneLayout(
-            backgroundAsset: widget.stage.backgroundAsset,
-            contentSource: widget.contentSource,
-            backgroundColor: widget.stage.backgroundColor == null
-                ? const Color(0xFF4AB8FD)
-                : Color(widget.stage.backgroundColor!),
-            // Le bas du decor porte le personnage : le caler au-dessus de la
-            // barre de navigation evite qu'il passe sous les boutons.
-            bottomInset: MediaQuery.paddingOf(context).bottom,
-            children: <SceneChild>[
-              for (final family in widget.stage.families)
-                if (family.area != null)
-                  SceneChild(
-                    area: family.area!,
-                    child: FamilyDropZone(
-                      family: family,
-                      placedWords: _wordsPlacedIn(family.id),
-                      isOpen: _engine.state.completedFamilyIds.contains(
-                        family.id,
-                      ),
-                      onWordDropped: (wordText) =>
-                          _handleDrop(wordText: wordText, familyId: family.id),
-                    ),
+          Column(
+            children: <Widget>[
+              SafeArea(
+                bottom: false,
+                child: IgnorePointer(
+                  ignoring: !widget.interactive,
+                  child: _WordTray(
+                    statement: widget.stage.narrative.onArrival,
+                    slots: _visibleSlots,
+                    shakeKeys: _shakeKeys,
                   ),
+                ),
+              ),
+              Expanded(
+                child: SceneLayout(
+                  backgroundAsset: widget.stage.backgroundAsset,
+                  contentSource: widget.contentSource,
+                  backgroundColor: backgroundColor,
+                  // Le bas du decor porte le chemin : le caler au-dessus de la
+                  // barre de navigation evite qu'il passe sous les boutons.
+                  bottomInset: MediaQuery.paddingOf(context).bottom,
+                  overlayBuilder: widget.sceneOverlayBuilder,
+                  children: <SceneChild>[
+                    for (final family in widget.stage.families)
+                      if (family.area != null)
+                        SceneChild(
+                          area: family.area!,
+                          child: IgnorePointer(
+                            ignoring: !widget.interactive,
+                            child: FamilyDropZone(
+                              family: family,
+                              placedWords: _wordsPlacedIn(family.id),
+                              isOpen: _engine.state.completedFamilyIds.contains(
+                                family.id,
+                              ),
+                              onWordDropped: (wordText) => _handleDrop(
+                                wordText: wordText,
+                                familyId: family.id,
+                              ),
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
             ],
           ),
-          SafeArea(
-            child: Column(
-              children: <Widget>[
-                _WordTray(
-                  statement: widget.stage.narrative.onArrival,
-                  slots: _visibleSlots,
-                  shakeKeys: _shakeKeys,
+          if (destinations.isNotEmpty && widget.interactive)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                child: _DepartureBar(
+                  destinations: destinations,
+                  onDepart: widget.onDeparture,
                 ),
-                const Spacer(),
-                if (destinations.isNotEmpty)
-                  _DepartureBar(
-                    destinations: destinations,
-                    onDepart: widget.onDeparture,
-                  ),
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );

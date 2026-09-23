@@ -6,8 +6,6 @@ import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
-import 'package:grisbie/ui/widgets/background_image_size.dart';
-import 'package:grisbie/ui/widgets/scene_layout.dart';
 
 /// Outil d'auteur : caler les zones de depot sur l'illustration d'une etape.
 ///
@@ -39,6 +37,11 @@ class AreaEditorPage extends StatefulWidget {
 
   /// Cote des poignees de coin.
   static const double handleSize = 40;
+
+  /// Identifie le corps de la poignee d'une famille, pour verifier qu'il
+  /// recouvre exactement la zone du jeu.
+  static Key handleKeyFor(String familyId) =>
+      ValueKey<String>('handle_$familyId');
 
   @override
   State<AreaEditorPage> createState() => _AreaEditorPageState();
@@ -100,9 +103,14 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
   AreaEditor _editorFor(Rect imageRect) {
     return AreaEditor(
       areas: _areas,
-      minimumWidth: _minimumFraction(AreaEditorPage.minimumSide, imageRect.width),
-      minimumHeight:
-          _minimumFraction(AreaEditorPage.minimumSide, imageRect.height),
+      minimumWidth: _minimumFraction(
+        AreaEditorPage.minimumSide,
+        imageRect.width,
+      ),
+      minimumHeight: _minimumFraction(
+        AreaEditorPage.minimumSide,
+        imageRect.height,
+      ),
     );
   }
 
@@ -141,39 +149,46 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
     });
   }
 
+  /// Le rectangle de l'illustration au dernier rendu, dans le repere de la
+  /// scene : « Garder » en a besoin pour arrondir les zones.
+  Rect _imageRect = Rect.zero;
+
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          // L'etape reelle, inerte : elle sert d'apercu, pas de jeu.
-          IgnorePointer(
-            child: StagePage(
-              stage: _previewStage,
-              onDeparture: (_) {},
-              random: Random(1),
-              contentSource: widget.contentSource,
-            ),
+          // L'etape reelle, inerte : elle sert d'apercu, pas de jeu. Les
+          // poignees se posent **dans sa scene**, par son propre calcul : le
+          // bandeau grandit avec l'enonce et repousse l'illustration, et un
+          // second calcul sur l'ecran entier les decalerait d'autant.
+          StagePage(
+            stage: _previewStage,
+            onDeparture: (_) {},
+            random: Random(1),
+            contentSource: widget.contentSource,
+            interactive: false,
+            sceneOverlayBuilder: _buildHandles,
           ),
-          BackgroundImageSize(
-            source: widget.contentSource,
-            asset: widget.stage.backgroundAsset,
-            builder: (context, imageSize) {
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final imageRect = computeSceneRect(
-                    surface: Size(constraints.maxWidth, constraints.maxHeight),
-                    imageSize: imageSize,
-                    bottomInset: bottomInset,
-                  );
-
-                  return _buildHandles(imageRect);
-                },
-              );
-            },
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _EditorPanel(
+              // L'auteur connait ses familles par leur nom, pas par leur
+              // identifiant.
+              overlappingLabels: <String>[
+                for (final family in widget.stage.families)
+                  if (_editorFor(
+                    _imageRect,
+                  ).overlappingFamilyIds.contains(family.id))
+                    family.label,
+              ],
+              onClose: () => Navigator.of(context).pop(),
+              onApply: () =>
+                  Navigator.of(context).pop(_placedStage(_imageRect)),
+            ),
           ),
         ],
       ),
@@ -181,6 +196,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
   }
 
   Widget _buildHandles(Rect imageRect) {
+    _imageRect = imageRect;
     final editor = _editorFor(imageRect);
     _enforceMinimumOnDefaults(editor);
     final guilty = editor.overlappingFamilyIds;
@@ -195,21 +211,6 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
             imageRect: imageRect,
             overlapping: guilty.contains(family.id),
           ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _EditorPanel(
-            // L'auteur connait ses familles par leur nom, pas par leur
-            // identifiant.
-            overlappingLabels: <String>[
-              for (final family in widget.stage.families)
-                if (guilty.contains(family.id)) family.label,
-            ],
-            onClose: () => Navigator.of(context).pop(),
-            onApply: () => Navigator.of(context).pop(_placedStage(imageRect)),
-          ),
-        ),
       ],
     );
   }
@@ -234,6 +235,7 @@ class _AreaEditorPageState extends State<AreaEditorPage> {
     return <Widget>[
       // Le corps deplace la zone entiere.
       Positioned.fromRect(
+        key: AreaEditorPage.handleKeyFor(familyId),
         rect: rect,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,

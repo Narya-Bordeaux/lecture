@@ -142,6 +142,49 @@ void main() {
       expect(find.text('Pose les mots au bon endroit'), findsNothing);
     });
 
+    testWidgets('la scene commence sous le bandeau, jamais dessous', (
+      tester,
+    ) async {
+      // Option A, choisie par l'auteur : l'illustration occupe ce que le
+      // bandeau laisse. Une zone posee tout en haut de l'image ne peut donc
+      // plus passer sous l'enonce, quelle que soit sa longueur.
+      final longStatement = List<String>.filled(6, statement).join(' ');
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final stage = buildTestStage(statement: longStatement);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: StagePage(
+            stage: stage.copyWith(
+              families: <WordFamily>[
+                stage.families.first.copyWith(
+                  area: const RelativeArea(
+                    left: 0,
+                    top: 0,
+                    width: 0.4,
+                    height: 0.2,
+                  ),
+                ),
+                stage.families.last,
+              ],
+            ),
+            onDeparture: (_) {},
+            random: Random(7),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final tray = tester.getRect(find.byKey(StagePage.wordTrayKey));
+      final zone = tester.getRect(
+        find.byKey(FamilyDropZone.frameKeyFor('en_bus')),
+      );
+      expect(zone.top, greaterThanOrEqualTo(tray.bottom));
+    });
+
     testWidgets('sans enonce, le bandeau ne porte que les mots', (
       tester,
     ) async {

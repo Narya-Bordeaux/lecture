@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.35.0+54** — 23 septembre 2026
+**Version : 0.36.0+55** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,14 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.36.0+55 — Le bandeau au-dessus de la scène
+- **Option A, choisie par l'auteur** : l'illustration occupe ce que le
+  bandeau laisse ; un énoncé, même long, ne peut plus recouvrir une zone.
+- Le calage pose ses poignées dans la scène du jeu, par le même calcul.
+- Les images de l'auteur sont dans `assets/content/pictures/`. **En
+  discussion** : l'outil les désigne par leur nom de fichier.
+- 511 tests au vert.
+
 ### 0.35.0+54 — L'énoncé sur la scène
 - **Le texte d'arrivée d'un lieu de jeu est son énoncé**, affiché en haut de
   la scène au-dessus des mots. Plus d'écran de récit intercalé, plus de
@@ -124,13 +132,6 @@ un travail d'auteur, pas de code.
 - **En discussion** : l'énoncé en haut de la scène de jeu, et un type « page
   de récit » pour la page de garde, les transitions et les fins (`TODO.md`).
 - 508 tests au vert.
-
-### 0.34.1+52 — Un lieu rouvert se redéfinit sur place
-- **Défaut vu par l'auteur** : après « Rouvrir ce lieu », l'écran de
-  structure ne disait que « Choisissez sur la carte » — une impasse.
-- Il offre désormais les trois réponses de la carte — plusieurs listes, tri
-  unique, fin — ainsi qu'« Ajouter des trajets » et « Ajouter la sortie ».
-- 512 tests au vert.
 
 ## Décisions prises
 

@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.35.0+54** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.36.0+55** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -333,7 +333,12 @@ recopier a longtemps été la seule façon d'enregistrer ; « Garder » rend
 désormais l'étape calée, arrondie au centième, à l'éditeur de lieu, et
 « Enregistrer » l'écrit avec le reste. L'aperçu lit le décor **par la source
 de travail** (`StagePage.contentSource`) : sans quoi il cherchait dans le bundle
-une image prise avec l'outil, et l'auteur calait sur un fond vide. Le jeu livré n'en
+une image prise avec l'outil, et l'auteur calait sur un fond vide. **Les
+poignées se posent dans la scène du jeu**, par `StagePage.sceneOverlayBuilder`,
+qui leur passe le rectangle de l'illustration tel que la scène l'a calculé :
+le bandeau grandit avec l'énoncé et repousse l'image, et un second calcul sur
+l'écran entier décalait les poignées d'autant. L'aperçu est rendu inerte par
+`StagePage.interactive`, les poignées seules reçoivent les gestes. Le jeu livré n'en
 contient aucune trace : pas de bouton caché, pas de geste secret. La géométrie
 vit dans `AreaEditor` (`lib/application/`, Dart pur) ; la page ne fait que
 traduire des gestes en fractions.
@@ -777,7 +782,8 @@ tourne sans fin. Charger le contenu dans `setUpAll`, jamais dans le corps d'un
 `testWidgets`, et passer `PreloadedAdventureRepository` à la page.
 
 **L'illustration n'est jamais recadrée** — elle est montrée en entier et calée
-en bas, la bande libre du haut étant comblée par `Stage.backgroundColor`. Un
+en bas, dans la place que le bandeau laisse, la bande libre étant comblée par
+`Stage.backgroundColor`. Un
 recadrage « cover » ferait sortir de l'écran un quart de l'image sur un
 téléphone allongé, et les zones ancrées au décor sortiraient avec lui.
 `computeSceneRect` est une fonction pure, éprouvée par
@@ -785,20 +791,18 @@ téléphone allongé, et les zones ancrées au décor sortiraient avec lui.
 l'image tient, garde ses proportions, et que chaque zone reste à l'écran et
 assez grande pour un doigt.
 
-**Piège de mise en page, vérifié par les tests** — le bandeau des mots occupe le
-haut de l'écran, or les zones sont ancrées au décor et la première commence vers
-29 % de la hauteur. Un bandeau trop haut la recouvre et intercepte le doigt : le
-mot n'atteint jamais sa cible, sans le moindre message. `test/ui/real_content_layout_test.dart`
-monte l'étape réelle sur trois formats d'écran et échoue si cela se reproduit.
-Tout changement de taille dans le bandeau doit être revalidé là.
-
-**L'énoncé agrandit le bandeau**, et d'autant plus qu'il est long. Le contenu
-livré n'en a pas sur le lieu de départ, que le test monte : le test ne
-l'éprouve donc pas. Mesuré avec l'énoncé que l'auteur a écrit pour la maison
-(deux phrases) : le bandeau descend à 207 px et la zone du bus commence à
-186 px sur un 360×640. Sur 390×844 et sur tablette, rien ne se recouvre. Le
-calage montre l'énoncé réel, si bien que l'auteur voit le recouvrement — mais
-sur le format de son propre appareil seulement.
+**Le bandeau est posé au-dessus de la scène, jamais dessus** (0.36.0, option
+A choisie par l'auteur). Il était superposé à l'illustration, or les zones
+sont ancrées au décor et la première commence vers 29 % de la hauteur : un
+bandeau trop haut la recouvrait et interceptait le doigt, sans le moindre
+message. L'énoncé l'a rendu inévitable — deux phrases sur un 360×640
+recouvraient la zone du bus de 22 px. L'illustration occupe désormais ce que
+le bandeau laisse : le recouvrement est impossible quelle que soit la
+longueur du texte, et l'image rapetisse d'autant sur un petit écran.
+`test/ui/real_content_layout_test.dart` monte l'étape réelle, munie de
+l'énoncé que l'auteur a écrit pour elle, sur trois formats d'écran, et
+`stage_page_test.dart` pose une zone tout en haut de l'image sous un énoncé
+très long.
 
 ## 8. Documentation
 
