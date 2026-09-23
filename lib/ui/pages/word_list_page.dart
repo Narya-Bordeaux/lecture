@@ -551,19 +551,22 @@ class _IssueNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wrong = issue.severity == IssueSeverity.wrong;
-    final color = wrong ? Theme.of(context).colorScheme.error : null;
+    final (IconData icon, Color? color) = switch (issue.severity) {
+      IssueSeverity.wrong => (
+        Icons.error_outline,
+        Theme.of(context).colorScheme.error,
+      ),
+      // A verifier : une boucle, permise mais a regarder.
+      IssueSeverity.warning => (Icons.loop, Colors.orange.shade800),
+      IssueSeverity.incomplete => (Icons.pending_outlined, null),
+    };
 
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Icon(
-            wrong ? Icons.error_outline : Icons.pending_outlined,
-            size: 16,
-            color: color,
-          ),
+          Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Expanded(
             child: Text(

@@ -726,8 +726,22 @@ void main() {
 
       await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
-      expect(find.text('La plage'), findsWidgets);
-      expect(find.text('Le garage'), findsWidgets);
+      expect(find.text('Rejoindre « La plage »'), findsWidgets);
+      expect(find.text('Rejoindre « Le garage »'), findsWidgets);
+    });
+
+    testWidgets('tout lieu deja ecrit peut etre rejoint, sauf celui-ci',
+        (tester) async {
+      // Revenir en arriere est permis : la boucle sera signalee, a verifier.
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Ajouter').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Un nouveau lieu'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rejoindre « Devant la maison »'), findsWidgets);
+      expect(find.text('Rejoindre « La gare »'), findsNothing);
     });
 
     testWidgets('choisir une fin existante remplit le nom du trajet',
@@ -738,7 +752,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('La plage').last);
+      await tester.tap(find.text('Rejoindre « La plage »').last);
       await tester.pumpAndSettle();
 
       // Sans quoi « Créer » reste éteint sans qu'on voie pourquoi : le nom

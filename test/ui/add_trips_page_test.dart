@@ -13,7 +13,7 @@ import 'package:grisbie/ui/pages/add_trips_page.dart';
 /// Monte l'ecran et rend les trajets qu'il produit.
 Future<void> pumpAddTrips(
   WidgetTester tester, {
-  Map<String, String> existingEndings = const <String, String>{},
+  Map<String, String> existingPlaces = const <String, String>{},
   bool allowsOneTripOnly = false,
   void Function(List<NewTrip>? trips)? onResult,
 }) async {
@@ -32,7 +32,7 @@ Future<void> pumpAddTrips(
               MaterialPageRoute<List<NewTrip>>(
                 builder: (_) => AddTripsPage(
                   locationName: 'Devant la maison',
-                  existingEndings: existingEndings,
+                  existingPlaces: existingPlaces,
                   allowsOneTripOnly: allowsOneTripOnly,
                 ),
               ),
@@ -119,13 +119,13 @@ void main() {
     // croire qu'on peut le renommer d'ici.
     await pumpAddTrips(
       tester,
-      existingEndings: const <String, String>{'plage': 'La plage'},
+      existingPlaces: const <String, String>{'plage': 'La plage'},
     );
     expect(locationField(), findsOneWidget);
 
     await tester.tap(find.byType(DropdownButton<String?>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('La plage').last);
+    await tester.tap(find.text('Rejoindre « La plage »').last);
     await tester.pumpAndSettle();
 
     expect(locationField(), findsNothing);

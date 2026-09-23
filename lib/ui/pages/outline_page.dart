@@ -11,6 +11,7 @@ import 'package:grisbie/domain/models/word_library.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
+import 'package:grisbie/ui/pages/stage_structure_page.dart';
 import 'package:grisbie/ui/pages/word_list_page.dart';
 import 'package:grisbie/ui/widgets/supply_summary.dart';
 
@@ -115,11 +116,12 @@ class _OutlinePageState extends State<OutlinePage> {
               .where((trip) => trip.destinationStageId != null)
               .map((trip) => trip.label)
               .toList(growable: false),
-          // Le repertoire des fins : plusieurs chemins peuvent aboutir a la
-          // meme, avec un seul ecran, une seule image et un seul texte.
-          existingEndings: <String, String>{
-            for (final ending in _adventure.endings)
-              ending.id: ending.locationName,
+          // Tout lieu deja ecrit peut etre rejoint — une fin partagee, le plus
+          // souvent. Revenir en arriere est permis : la boucle est signalee,
+          // a verifier. Le lieu d'ou l'on part n'est pas propose.
+          existingPlaces: <String, String>{
+            for (final stage in _adventure.stages.values)
+              if (stage.id != block.stageId) stage.id: stage.locationName,
           },
         ),
       ),
@@ -157,6 +159,54 @@ class _OutlinePageState extends State<OutlinePage> {
   /// texte d'arrivee se posent ensuite en ouvrant le lieu.
   void _defineEnding(OutlineBlock block) {
     _change(AdventureBuilder(_adventure).defineAsEnding(block.stageId));
+  }
+
+  /// Ouvre la structure du lieu : sa nature et ses trajets.
+  ///
+  /// Le troisieme geste de la carte : le titre ouvre ce que le lieu montre,
+  /// un trajet ouvre sa liste, la ligne de nature ouvre le circuit.
+  Future<void> _editStructure(OutlineBlock block) async {
+    final edited = await Navigator.of(context).push<Adventure>(
+      MaterialPageRoute<Adventure>(
+        builder: (_) => StageStructurePage(
+          adventure: _adventure,
+          stageId: block.stageId,
+        ),
+      ),
+    );
+    if (edited == null) return;
+
+    _change(edited);
+  }
+
+  /// Supprime un lieu que plus rien n'atteint, apres confirmation.
+  ///
+  /// Le seul endroit ou un lieu disparait : retirer ou rediriger un trajet le
+  /// laisse, detache, pour que rien ne se perde sans avoir ete voulu.
+  Future<void> _removeStage(OutlineBlock block) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Supprimer « ${block.locationName} »'),
+        content: const Text(
+          'Ce lieu, son illustration, ses récits et ses trajets seront '
+          'retirés de l\'aventure. Les lieux où ses trajets menaient restent.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    _change(AdventureBuilder(_adventure).removeStage(block.stageId));
   }
 
   /// Ouvre la liste de mots d'un trajet — ou, pour le reste d'un tri unique,
@@ -362,6 +412,8 @@ class _OutlinePageState extends State<OutlinePage> {
               onDefineEnding: () => _defineEnding(block),
               onOpen: () => _editStage(block),
               onOpenTrip: (trip) => _openList(block, trip),
+              onEditStructure: () => _editStructure(block),
+              onRemove: () => _removeStage(block),
             ),
         ],
       ),
@@ -382,8 +434,14 @@ class _IssueSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wrong = issues.where((i) => i.severity == IssueSeverity.wrong).length;
-    final incomplete = issues.length - wrong;
+    int count(IssueSeverity severity) =>
+        issues.where((i) => i.severity == severity).length;
+    final wrong = count(IssueSeverity.wrong);
+    final incomplete = count(IssueSeverity.incomplete);
+    final toCheck = count(IssueSeverity.warning);
+    // Les boucles ne changent pas l'etat, mais se comptent : c'est ici qu'on
+    // les voit toutes d'un coup.
+    final checkNote = toCheck > 0 ? ' $toCheck à vérifier.' : '';
     final errorColor = Theme.of(context).colorScheme.error;
 
     final (
@@ -396,21 +454,19 @@ class _IssueSummary extends StatelessWidget {
         Icons.check_circle_outline,
         Colors.green.shade700,
         'Cette aventure est jouable.',
-        null,
+        toCheck > 0 ? '$toCheck à vérifier.' : null,
       ),
       ContentReadiness.incomplete => (
         Icons.pending_outlined,
         null,
         'Cette aventure n\'est pas complète.',
-        '$incomplete à finir.',
+        '$incomplete à finir.$checkNote',
       ),
       ContentReadiness.wrong => (
         Icons.error_outline,
         errorColor,
         'Cette aventure contient des erreurs.',
-        incomplete > 0
-            ? '$wrong à corriger, $incomplete à finir.'
-            : '$wrong à corriger.',
+        '${incomplete > 0 ? '$wrong à corriger, $incomplete à finir.' : '$wrong à corriger.'}$checkNote',
       ),
     };
 
@@ -506,6 +562,8 @@ class _BlockCard extends StatelessWidget {
     required this.onDefineEnding,
     required this.onOpen,
     required this.onOpenTrip,
+    required this.onEditStructure,
+    required this.onRemove,
   });
 
   final OutlineBlock block;
@@ -526,6 +584,12 @@ class _BlockCard extends StatelessWidget {
 
   /// Ouvre la liste de mots d'un trajet.
   final void Function(OutlineTrip trip) onOpenTrip;
+
+  /// Ouvre la structure du lieu : sa nature et ses trajets.
+  final VoidCallback onEditStructure;
+
+  /// Supprime le lieu — offert seulement quand rien n'y mene.
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -566,13 +630,21 @@ class _BlockCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (isDetached) _Note('Aucun chemin ne mène ici.'),
-            if (block.isEnding)
-              _Note('Fin de l\'aventure : du texte, pas de jeu.'),
-            if (block.nature == StageNature.sorting)
-              _Note('Plusieurs listes : l\'enfant range dans chacune.'),
-            if (block.isSingleSort)
-              _Note('Tri unique : ce qui est du thème, et tout le reste.'),
+            if (isDetached)
+              Row(
+                children: <Widget>[
+                  Expanded(child: _Note('Aucun chemin ne mène ici.')),
+                  // Le seul endroit ou un lieu disparait, et seulement quand
+                  // plus rien n'y mene : aucun trajet ne mene alors nulle part.
+                  TextButton.icon(
+                    onPressed: onRemove,
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    label: const Text('Supprimer ce lieu'),
+                  ),
+                ],
+              ),
+            if (block.nature != StageNature.undefined)
+              _NatureLine(nature: block.nature, onTap: onEditStructure),
             const SizedBox(height: 8),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
@@ -728,6 +800,48 @@ class _BlockCard extends StatelessWidget {
   }
 }
 
+/// Ce que l'enfant fait ici, et le geste pour y revenir.
+///
+/// La ligne se touche : elle ouvre la structure du lieu. L'icone de reglage
+/// le dit, sans quoi rien ne distinguerait cette ligne d'une simple note.
+class _NatureLine extends StatelessWidget {
+  const _NatureLine({required this.nature, required this.onTap});
+
+  final StageNature nature;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = switch (nature) {
+      StageNature.ending => 'Fin de l\'aventure : du texte, pas de jeu.',
+      StageNature.sorting => 'Plusieurs listes : l\'enfant range dans chacune.',
+      StageNature.singleSort =>
+        'Tri unique : ce qui est du thème, et tout le reste.',
+      StageNature.undefined => '',
+    };
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: <Widget>[
+            Expanded(child: _Note(text)),
+            Tooltip(
+              message: 'Modifier la structure du lieu',
+              child: Icon(
+                Icons.tune,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Une precision discrete sous le titre d'un point.
 class _Note extends StatelessWidget {
   const _Note(this.text);
@@ -751,21 +865,25 @@ class _IssueLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wrong = issue.severity == IssueSeverity.wrong;
-    final color = wrong
-        ? Theme.of(context).colorScheme.error
-        : Theme.of(context).textTheme.bodySmall?.color;
+    final (IconData icon, Color? color) = switch (issue.severity) {
+      IssueSeverity.wrong => (
+        Icons.error_outline,
+        Theme.of(context).colorScheme.error,
+      ),
+      // A verifier : une boucle, permise mais a regarder.
+      IssueSeverity.warning => (Icons.loop, Colors.orange.shade800),
+      IssueSeverity.incomplete => (
+        Icons.pending_outlined,
+        Theme.of(context).textTheme.bodySmall?.color,
+      ),
+    };
 
     return Padding(
       padding: const EdgeInsets.only(top: 4, left: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Icon(
-            wrong ? Icons.error_outline : Icons.pending_outlined,
-            size: 14,
-            color: color,
-          ),
+          Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
           Expanded(
             child: Text(

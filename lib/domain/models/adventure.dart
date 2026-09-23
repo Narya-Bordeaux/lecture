@@ -194,7 +194,54 @@ class Adventure {
       }
     }
 
+    issues.addAll(_validateLoops());
+
     return issues;
+  }
+
+  /// Les trajets qui ramenent a un lieu deja traverse.
+  ///
+  /// Un trajet de `s` vers `d` fait partie d'une boucle quand, depuis `d`, on
+  /// peut revenir a `s`. Tous les trajets de la boucle sont nommes : c'est
+  /// l'un d'eux que l'auteur voudra peut-etre rediriger, et rien ne dit
+  /// lequel. **Un avertissement, jamais une faute** : rejoindre un lieu deja
+  /// ecrit est permis, l'outil se contente de le montrer.
+  List<ContentIssue> _validateLoops() {
+    final issues = <ContentIssue>[];
+    for (final stage in stages.values) {
+      for (final family in stage.families) {
+        final destination = family.destinationStageId;
+        if (destination == null || !stages.containsKey(destination)) continue;
+        if (!_canReach(destination, stage.id)) continue;
+
+        final target = stages[destination]!.locationName;
+        issues.add(ContentIssue.warning(
+          'Le trajet "${family.label}" mene a "$target", d\'ou l\'on peut '
+          'revenir ici : l\'enfant peut tourner en rond.',
+          stageId: stage.id,
+          familyId: family.id,
+        ));
+      }
+    }
+    return issues;
+  }
+
+  /// Vrai si un chemin mene de [from] a [to] — [from] compris.
+  bool _canReach(String from, String to) {
+    final seen = <String>{};
+    final queue = <String>[from];
+    while (queue.isNotEmpty) {
+      final current = queue.removeLast();
+      if (current == to) return true;
+      if (!seen.add(current)) continue;
+      final stage = stages[current];
+      if (stage == null) continue;
+      for (final family in stage.families) {
+        final next = family.destinationStageId;
+        if (next != null) queue.add(next);
+      }
+    }
+    return false;
   }
 
   /// Jouable, incomplete ou fausse : ce que l'outil annonce en tete.

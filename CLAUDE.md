@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.33.0+50** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.34.0+51** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -660,20 +660,38 @@ où en créer une. `OpeningEdit` enveloppe le résultat de son éditeur parce qu
 
 **Une fin garde sa carte, mais n'a aucun bouton** — la journée s'y arrête, et
 proposer d'en repartir contredirait ce que la carte vient d'annoncer. Sa carte
-reste, elle : il y aura une illustration et un texte d'arrivée à y poser.
-`AdventureBuilder` continue d'accepter qu'on prolonge une fin — sans quoi le
-marqueur et la structure pourraient se contredire — mais l'écran ne l'offre
-plus. **Conséquence assumée : une fin créée par erreur ne se rouvre pas depuis
-cet écran** ; c'est noté dans `TODO.md`.
+reste, elle : il y aura une illustration et un texte d'arrivée à y poser. Une
+fin créée par erreur **se rouvre depuis sa structure** (ci-dessous).
+
+**Trois gestes sur une carte, trois choses différentes** — le titre ouvre ce
+que le lieu montre (`StageEditorPage`), un trajet ouvre sa liste
+(`WordListPage`), et la **ligne de nature** — « Plusieurs listes », « Tri
+unique », « Fin », avec une icône de réglage — ouvre sa **structure**
+(`StageStructurePage`) : changer de nature, renommer, rediriger ou retirer un
+trajet. Aucun écran ne permettait de revenir sur un choix de circuit.
+
+Les conversions gardent ce qui peut l'être (`AdventureBuilder` :
+`convertToSingleSort` avec le trajet choisi pour thème, `convertToSorting`,
+`convertToEnding`, `reopen`, `renameTrip`, `redirectTrip`, `removeTrip`), et
+chaque retrait se confirme en nommant ce qui part. **Aucun lieu ne disparaît
+en passant** : celui que plus rien n'atteint reste, « Aucun chemin ne mène
+ici », et sa carte offre alors — alors seulement — « Supprimer ce lieu »
+(`removeStage`, qui refuse un lieu encore atteint et le point de départ).
 
 **Le répertoire des fins** — une fin porte un écran, une illustration et un
 texte. Plusieurs chemins qui aboutissent au même endroit doivent donc partager
 la **même**, sans quoi l'auteur écrit deux fois la même arrivée et les deux
 finissent par différer. `NewTrip.existingStageId` relie un trajet à un lieu déjà
-écrit au lieu d'en créer un ; `AddTripsPage` propose les fins existantes
-(`Adventure.endings`) dès qu'il y en a. Le mécanisme vaut pour n'importe quel
-lieu — l'écran ne l'offre que pour les fins, les seules où la convergence est
-sûre de ne pas créer de boucle.
+écrit au lieu d'en créer un ; `AddTripsPage` propose **tous les lieux déjà
+écrits** (`existingPlaces`), celui d'où l'on part excepté, et la structure
+d'un lieu permet de rediriger un trajet.
+
+**Une boucle est permise, et signalée** — revenir en arrière crée un chemin
+où l'enfant peut tourner en rond. La spécification ne l'interdit pas, et
+l'auteur a voulu garder le geste. `Adventure.validate()` nomme chaque trajet
+d'une boucle avec une troisième sévérité, `IssueSeverity.warning`, *à
+vérifier* : elle **ne bloque ni le jeu ni la mention « jouable »**
+(`ContentIssue.blocksPlay`), et l'écran la montre en orange.
 
 Le nom saisi reste celui du **trajet**, jamais celui du lieu rejoint : c'est ce
 que l'enfant lit sur la zone de dépôt. L'écran le propose par commodité quand le

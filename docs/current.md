@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.33.0+50** — 23 septembre 2026
+**Version : 0.34.0+51** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,17 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.34.0+51 — Revenir sur un choix de circuit
+- **La ligne « Plusieurs listes / Tri unique / Fin » d'une carte ouvre la
+  structure du lieu** : changer de nature, renommer, rediriger ou retirer
+  un trajet. Une fin créée par erreur se rouvre enfin.
+- **Rien ne disparaît en passant** : un lieu que plus rien n'atteint reste,
+  et sa carte offre « Supprimer ce lieu ».
+- **Tout lieu déjà écrit peut être rejoint**, pas seulement les fins.
+- **Une boucle est signalée, à vérifier**, sans rien bloquer : nouvelle
+  sévérité `warning`, qui laisse l'aventure jouable.
+- 509 tests au vert.
+
 ### 0.33.0+50 — Plus d'aide, plus de découpage
 - **Le jeu ne propose plus aucune aide** : un mot mal placé est refusé,
   l'étiquette tremble et revient, rien ne s'affiche dessous.
@@ -130,19 +141,6 @@ un travail d'auteur, pas de code.
 - Défaut évité, attrapé par les tests : le champ d'une boîte de dialogue
   libéré pendant qu'elle se refermait.
 - 484 tests au vert ; rien n'a encore été ouvert sur un appareil.
-
-### 0.31.0+48 — Le moteur des listes
-- **Tri unique, option C** : le reste cite plusieurs listes (`"lists"`), et le
-  jeu y tire des mots absents du thème. Le thème garde tous les siens.
-- `WordListBuilder` : créer ou réutiliser une liste, ajouter et retirer des
-  mots, corriger un découpage, cocher les listes du reste. Dart pur.
-- **Un trajet naît sans liste** : plus d'identifiant tiré du trajet, que deux
-  aventures se seraient disputé.
-- **L'enregistrement écrit enfin les mots et les listes modifiées**, chacun
-  dans son fichier d'origine.
-- **Défaut corrigé** : un second enregistrement effaçait les listes du
-  premier, et perdait les mots ajoutés à une liste déjà écrite.
-- 463 tests au vert. L'écran de liste est la livraison suivante.
 
 ## Décisions prises
 
@@ -223,6 +221,10 @@ un travail d'auteur, pas de code.
   tirent dans des listes que l'auteur coche comme sûres pour ce thème, moins
   les mots du thème. Ni liste « autre » écrite exprès (option A), ni tirage
   dans tout le vocabulaire (option B, qui refuserait une bonne réponse).
+- **Une boucle est permise** : un trajet peut rejoindre n'importe quel lieu
+  déjà écrit. L'outil la signale, *à vérifier*, sans bloquer le jeu.
+- **Un lieu ne disparaît que sur demande** : retirer un trajet laisse son lieu,
+  détaché, que l'auteur supprime depuis sa carte s'il le veut.
 - **L'outil n'est jamais entre les mains d'un enfant** : il tolère tout, et
   prévient. C'est le jeu qui refuse une aventure non jouable.
 - **Listes réutilisables, plus grandes que la partie** : le moteur en tire

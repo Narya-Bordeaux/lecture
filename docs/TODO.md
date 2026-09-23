@@ -108,10 +108,9 @@ construisant :
       `assets/content/`. C'est ce qu'un dépôt distant remplacera.
 - [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
       d'un personnage — l'écran ne les demande pas encore.
-- [ ] **Rouvrir une fin créée par erreur.** Depuis 0.18.0 une carte de fin n'a
-      plus de bouton « Ajouter des trajets » : c'est juste, mais cela en fait
-      un cul-de-sac dans l'outil. `AdventureBuilder` sait pourtant prolonger
-      une fin ; il manque le geste, sans doute ailleurs que sur cette carte.
+- [ ] **Éprouver l'écran de structure** sur le téléphone et dans Chrome :
+      changer la nature d'un lieu, rediriger un trajet, supprimer un lieu
+      détaché. Rien n'en a été ouvert.
 
 **La navigation visée depuis l'écran du parcours** — discutée, pas encore
 arbitrée en détail. Elle absorbe les étapes 4 à 6 du chantier :

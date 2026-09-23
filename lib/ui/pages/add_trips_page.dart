@@ -19,7 +19,7 @@ class AddTripsPage extends StatefulWidget {
   const AddTripsPage({
     required this.locationName,
     this.existingTrips = const <String>[],
-    this.existingEndings = const <String, String>{},
+    this.existingPlaces = const <String, String>{},
     this.allowsOneTripOnly = false,
     super.key,
   });
@@ -40,15 +40,17 @@ class AddTripsPage extends StatefulWidget {
   /// Le champ unique nomme alors le theme.
   final bool allowsOneTripOnly;
 
-  /// Les fins deja ecrites, de leur identifiant vers leur nom.
+  /// Les lieux deja ecrits qu'un trajet peut rejoindre, de leur identifiant
+  /// vers leur nom.
   ///
-  /// Une fin porte un ecran, une illustration et un texte : deux chemins qui
-  /// aboutissent au meme endroit doivent partager la meme, sans quoi l'auteur
-  /// ecrit deux fois la meme arrivee et les deux finissent par differer.
+  /// D'abord pour les fins : deux chemins qui aboutissent au meme endroit
+  /// doivent partager la meme, sans quoi l'auteur ecrit deux fois la meme
+  /// arrivee. Mais tout lieu est propose : revenir en arriere est permis, et
+  /// la boucle ainsi creee est signalee, a verifier, sans etre interdite.
   ///
   /// Vide, la question ne se pose pas et l'ecran ne la pose pas : un choix
   /// entre une seule possibilite n'est pas un choix.
-  final Map<String, String> existingEndings;
+  final Map<String, String> existingPlaces;
 
   /// Au-dela, l'etape proposerait trop de directions a un enfant de six ans,
   /// et les zones de depot ne tiendraient plus sur l'illustration.
@@ -82,17 +84,17 @@ class _AddTripsPageState extends State<AddTripsPage> {
   /// de frappe dans le trajet serait incomprehensible.
   final List<bool> _namedLocations = <bool>[false];
 
-  /// La fin deja ecrite que chaque trajet rejoint, nulle pour un lieu neuf.
+  /// Le lieu deja ecrit que chaque trajet rejoint, nul pour un lieu neuf.
   ///
   /// Parallele a [_names] : d'un meme carrefour, un chemin peut rejoindre la
   /// plage et l'autre mener a un lieu qui reste a ecrire.
   final List<String?> _destinations = <String?>[null];
 
-  /// Vrai quand il y a une fin existante a proposer.
+  /// Vrai quand il y a un lieu existant a proposer.
   ///
   /// Vide, la question ne se pose pas : un choix entre une seule possibilite
   /// n'est pas un choix.
-  bool get _offersEndings => widget.existingEndings.isNotEmpty;
+  bool get _offersPlaces => widget.existingPlaces.isNotEmpty;
 
   @override
   void dispose() {
@@ -128,7 +130,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
     });
   }
 
-  /// Choisit la fin rejointe, et propose son nom tant que rien n'est saisi.
+  /// Choisit le lieu rejoint, et propose son nom tant que rien n'est saisi.
   ///
   /// Sans cette proposition, « Créer » reste eteint sans qu'on voie pourquoi.
   /// Le nom reste modifiable : c'est ce que l'enfant lira sur la zone de
@@ -137,7 +139,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
     setState(() {
       _destinations[index] = stageId;
       if (stageId != null && _names[index].text.trim().isEmpty) {
-        _names[index].text = widget.existingEndings[stageId] ?? '';
+        _names[index].text = widget.existingPlaces[stageId] ?? '';
       }
     });
   }
@@ -152,7 +154,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
       trips.add(NewTrip(
         name: name,
         locationName: _locations[index].text.trim(),
-        existingStageId: _offersEndings ? _destinations[index] : null,
+        existingStageId: _offersPlaces ? _destinations[index] : null,
       ));
     }
     return trips;
@@ -223,7 +225,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
     // Le lieu existe deja : son nom n'est pas a saisir, et le proposer
     // laisserait croire qu'on peut le renommer d'ici — alors qu'il est
     // partage avec les autres chemins qui y aboutissent.
-    final joinsExisting = _offersEndings && _destinations[index] != null;
+    final joinsExisting = _offersPlaces && _destinations[index] != null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -251,7 +253,7 @@ class _AddTripsPageState extends State<AddTripsPage> {
             // du lieu suit tant que l'auteur ne l'a pas ecrit lui-meme.
             onChanged: (_) => _setTripName(index),
           ),
-          if (_offersEndings) _buildEndingChoice(index),
+          if (_offersPlaces) _buildPlaceChoice(index),
           if (!joinsExisting) ...<Widget>[
             const SizedBox(height: 12),
             TextField(
@@ -273,12 +275,11 @@ class _AddTripsPageState extends State<AddTripsPage> {
     );
   }
 
-  /// Ou mene ce trajet : vers un lieu neuf, ou vers une fin deja ecrite.
+  /// Ou mene ce trajet : vers un lieu neuf, ou vers un lieu deja ecrit.
   ///
-  /// Une fin porte un ecran, une illustration et un texte : deux chemins qui
-  /// aboutissent au meme endroit doivent partager la meme. Seules les fins
-  /// sont proposees — les seules ou converger ne peut pas creer de boucle.
-  Widget _buildEndingChoice(int index) {
+  /// Tout lieu est propose. Rejoindre une fin est le cas courant ; revenir en
+  /// arriere cree une boucle, que le parcours signale a verifier.
+  Widget _buildPlaceChoice(int index) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, left: 4),
       child: DropdownButton<String?>(
@@ -289,10 +290,10 @@ class _AddTripsPageState extends State<AddTripsPage> {
           const DropdownMenuItem<String?>(
             child: Text('Un nouveau lieu'),
           ),
-          for (final ending in widget.existingEndings.entries)
+          for (final place in widget.existingPlaces.entries)
             DropdownMenuItem<String?>(
-              value: ending.key,
-              child: Text(ending.value),
+              value: place.key,
+              child: Text('Rejoindre « ${place.value} »'),
             ),
         ],
       ),

@@ -44,6 +44,38 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.34.0+51 — 23 septembre 2026 — Revenir sur un choix de circuit
+
+**Le manque signalé par l'auteur** : une fois la nature d'un lieu choisie,
+rien ne permettait d'y revenir. Le titre de la carte ouvre ce que le lieu
+montre, un trajet ouvre sa liste ; la structure elle-même n'avait pas de
+geste.
+
+**La ligne de nature devient ce geste.** « Plusieurs listes », « Tri unique »
+ou « Fin », sur chaque carte, porte une icône de réglage et ouvre
+`StageStructurePage` : changer de nature — plusieurs listes en tri unique en
+choisissant le trajet du thème, tri unique en plusieurs listes, l'un ou
+l'autre en fin, une fin rouverte —, puis renommer, rediriger ou retirer
+chaque trajet. Chaque retrait se confirme en nommant ce qui part. Le TODO
+« rouvrir une fin créée par erreur » est soldé.
+
+**Aucun lieu ne disparaît en passant** (choix A de l'auteur). Un lieu que
+plus rien n'atteint reste sur le parcours, marqué « Aucun chemin ne mène
+ici », et sa carte offre alors « Supprimer ce lieu ». `removeStage` refuse
+un lieu encore atteint et le point de départ.
+
+**Tout lieu déjà écrit peut être rejoint**, et plus seulement les fins — à
+l'ajout d'un trajet comme en le redirigeant. **Une boucle devient possible,
+et elle est signalée** : `Adventure.validate()` nomme chaque trajet d'une
+boucle avec une troisième sévérité, `IssueSeverity.warning`, *à vérifier*.
+Elle ne bloque ni le jeu ni la mention « jouable » (`ContentIssue.blocksPlay`)
+— la spécification n'interdit pas les boucles, et l'auteur a voulu garder le
+geste. Un test du domaine utilisait par commodité un lieu menant à lui-même :
+c'était une boucle, il a reçu un vrai parcours.
+
+509 tests au vert ; les deux points d'entrée compilent pour le web. Rien n'a
+été ouvert sur un appareil.
+
 ### 0.33.0+50 — 23 septembre 2026 — Plus d'aide, plus de découpage
 
 **L'auteur retire le système d'indice du jeu.** Jusqu'ici, la première erreur

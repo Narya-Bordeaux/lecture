@@ -469,10 +469,10 @@ La contrepartie est que les deux ne peuvent pas se contredire : une fin qui
 porte des familles est refusée, et un lieu sans famille qui ne se déclare pas
 fin est signalé comme inachevé.
 
-### Faux, ou seulement incomplet
+### Faux, incomplet, ou à vérifier
 
-Le jeu refuse tout : une aventure qui présente la moindre de ces anomalies est
-injouable, et rien ne sert de la lancer. Mais chaque anomalie porte aussi sa
+Le jeu refuse les fautes et les manques : une aventure qui en présente un
+seul est injouable, et rien ne sert de la lancer. Mais chaque anomalie porte aussi sa
 nature, pour l'outil d'auteur, qui doit pouvoir ouvrir un travail en cours.
 
 **Faux** — ne s'arrangera pas en continuant d'écrire : un mot présent dans le
@@ -482,6 +482,11 @@ déborde ou qui en chevauche une autre, un lieu de départ introuvable.
 **Incomplet** — état normal d'un lieu qu'on vient de créer : une famille sans
 mots, une liste à qui il manque quelques mots pour son tirage, un lieu dont aucune famille ne mène encore ailleurs, un lieu que rien
 ne relie, une destination annoncée avant que son lieu existe.
+
+**À vérifier** — permis, mais à regarder, et **ne bloque rien** : un trajet
+qui mène à un lieu d'où l'on peut revenir, si bien que l'enfant peut tourner
+en rond. Rejoindre un lieu déjà écrit est un geste voulu ; seul l'auteur sait
+si la boucle l'est aussi. Le jeu ouvre l'aventure, et l'outil la dit jouable.
 
 Cette dernière mérite un mot. Écrire « le bus va au marché » puis créer le marché
 est une façon normale d'avancer. Une promesse pas encore tenue et une faute de

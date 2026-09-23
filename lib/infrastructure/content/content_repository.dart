@@ -45,7 +45,11 @@ class ContentRepository implements AdventureRepository {
     // Un contenu incoherent produirait un jeu bloque sans message : mieux vaut
     // echouer ici, avec la liste des problemes. Le fichier est nomme, et non
     // l'aventure : c'est lui que l'auteur doit ouvrir pour corriger.
-    final issues = adventure.validate();
+    //
+    // Un simple avertissement — une boucle — ne bloque pas : l'auteur l'a vu
+    // dans l'outil, et elle peut etre voulue.
+    final issues =
+        adventure.validate().where((issue) => issue.blocksPlay).toList();
     if (issues.isNotEmpty) {
       final file = (await loadIndex()).findAdventure(adventureId)!.file;
       throw FormatException(

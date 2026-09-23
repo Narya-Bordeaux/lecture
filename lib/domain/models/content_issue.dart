@@ -13,6 +13,11 @@ enum IssueSeverity {
   /// Ce qui ne s'arrangera pas en continuant d'ecrire, et se corrige tout de
   /// suite.
   wrong,
+
+  /// Ce qui est permis mais merite un regard : un chemin qui ramene a un lieu
+  /// deja traverse. **Ne bloque rien** — ni le jeu, ni la mention « jouable ».
+  /// L'auteur garde la main : c'est lui qui sait si la boucle est voulue.
+  warning,
 }
 
 /// Une anomalie relevee dans le contenu, et l'endroit ou la corriger.
@@ -45,7 +50,19 @@ class ContentIssue {
     this.wordText,
   }) : severity = IssueSeverity.wrong;
 
+  /// Ce qui est a verifier, sans rien empecher.
+  const ContentIssue.warning(
+    this.message, {
+    this.stageId,
+    this.familyId,
+    this.wordText,
+  }) : severity = IssueSeverity.warning;
+
   final IssueSeverity severity;
+
+  /// Vrai si l'anomalie empeche le jeu d'ouvrir l'aventure : un manque ou une
+  /// faute, jamais un simple avertissement.
+  bool get blocksPlay => severity != IssueSeverity.warning;
 
   /// Ce qui ne va pas, en clair, a montrer tel quel.
   ///
@@ -93,10 +110,13 @@ enum ContentReadiness {
   wrong;
 
   static ContentReadiness of(Iterable<ContentIssue> issues) {
-    if (issues.isEmpty) return ContentReadiness.playable;
     if (issues.any((issue) => issue.severity == IssueSeverity.wrong)) {
       return ContentReadiness.wrong;
     }
-    return ContentReadiness.incomplete;
+    if (issues.any((issue) => issue.severity == IssueSeverity.incomplete)) {
+      return ContentReadiness.incomplete;
+    }
+    // Aucune anomalie, ou seulement des avertissements : le jeu l'ouvrira.
+    return ContentReadiness.playable;
   }
 }

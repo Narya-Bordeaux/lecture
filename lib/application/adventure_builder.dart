@@ -190,21 +190,9 @@ class AdventureBuilder {
     stages[stageId] = source.copyWith(
       families: List<WordFamily>.unmodifiable(<WordFamily>[
         theme,
-        // **Pas `const`** : Dart canoniserait l'objet, et deux tris uniques
-        // partageraient litteralement la meme famille. Elles sont
-        // immutables, donc rien ne pourrait diverger — mais il ne faut pas
-        // avoir a le demontrer pour etre tranquille. Chaque lieu a la sienne.
-        WordFamily(
-          id: _freeFamilyId('le_reste', <WordFamily>[theme]),
-          // Nom provisoire : comment nommer cette seconde liste reste une
-          // question ouverte (voir docs/TODO.md). Un tri par rejet n'est
-          // peut-etre pas le geste le plus juste a six ans.
-          label: 'Le reste',
-          // Aucune liste encore : l'auteur cochera celles ou le jeu peut
-          // prendre les mots qui ne sont pas du theme. Les deviner serait
-          // risquer d'y mettre un mot qui en est.
-          lists: const <WordList>[],
-        ),
+        // Une famille neuve pour chaque lieu : deux tris uniques ne
+        // partagent jamais leur reste.
+        _restFamily(<WordFamily>[theme]),
       ]),
       drawCount: source.drawCount ?? defaultDrawCount,
     );
@@ -218,6 +206,166 @@ class AdventureBuilder {
     final stages = Map<String, Stage>.from(adventure.stages)
       ..[stageId] = source.copyWith(isEnding: true);
     return _withStages(stages);
+  }
+
+  /// Renomme un trajet : ce que l'enfant lit sur la zone de depot.
+  ///
+  /// L'identifiant ne suit pas, comme pour un lieu : il est cite par les
+  /// zones calees et, dans le jeu, par les departs.
+  Adventure renameTrip(String stageId, String familyId, String label) {
+    final wanted = label.trim();
+    if (wanted.isEmpty) {
+      throw ArgumentError.value(label, 'label', 'Un trajet porte un nom');
+    }
+    return _changeFamily(
+      stageId,
+      familyId,
+      (family) => family.copyWith(label: wanted),
+    );
+  }
+
+  /// Fait mener un trajet a un autre lieu **deja ecrit**, quel qu'il soit.
+  ///
+  /// Une boucle devient possible — revenir a un lieu deja traverse — et c'est
+  /// voulu : `validate()` la signale comme *a verifier*, sans l'interdire.
+  /// Le lieu qu'on quitte reste, detache si plus rien n'y mene.
+  Adventure redirectTrip(String stageId, String familyId, String destinationId) {
+    _require(destinationId);
+    return _changeFamily(stageId, familyId, (family) {
+      if (!family.leadsSomewhere) {
+        throw StateError(
+          'Le reste d\'un tri unique ne mene nulle part : c\'est ce qui en '
+          'fait le reste.',
+        );
+      }
+      return family.copyWith(destinationStageId: destinationId);
+    });
+  }
+
+  /// Retire un trajet. Le lieu qu'il desservait reste, detache s'il n'est
+  /// plus atteint : **rien ne disparait sans que l'auteur l'ait decide**.
+  ///
+  /// La nature du lieu suit sa structure : retirer le dernier trajet le rend
+  /// a definir, retirer le reste d'un tri unique en fait un lieu a listes.
+  Adventure removeTrip(String stageId, String familyId) {
+    final source = _require(stageId);
+    if (source.findFamily(familyId) == null) {
+      throw StateError('Trajet inconnu : "$stageId" / "$familyId".');
+    }
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(
+        families: List<WordFamily>.unmodifiable(
+          source.families.where((family) => family.id != familyId),
+        ),
+      ));
+  }
+
+  /// Fait d'un lieu a plusieurs listes un **tri unique**.
+  ///
+  /// Le trajet choisi devient le theme et garde sa liste ; les autres
+  /// partent — leurs lieux restent, detaches. Le reste nait sans liste :
+  /// l'auteur cochera celles ou puiser.
+  Adventure convertToSingleSort(String stageId, {required String themeFamilyId}) {
+    final source = _require(stageId);
+    final theme = source.findFamily(themeFamilyId);
+    if (theme == null || !theme.leadsSomewhere) {
+      throw StateError(
+        'Le thème doit être un trajet de "$stageId" : "$themeFamilyId".',
+      );
+    }
+
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(
+        families: List<WordFamily>.unmodifiable(<WordFamily>[
+          theme,
+          _restFamily(<WordFamily>[theme]),
+        ]),
+        drawCount: source.drawCount ?? defaultDrawCount,
+      ));
+  }
+
+  /// Fait d'un tri unique un lieu a plusieurs listes : le reste part, le
+  /// theme reste un trajet ordinaire, et on pourra en ajouter d'autres.
+  Adventure convertToSorting(String stageId) {
+    final source = _require(stageId);
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(
+        families: List<WordFamily>.unmodifiable(
+          source.families.where((family) => family.leadsSomewhere),
+        ),
+      ));
+  }
+
+  /// Fait d'un lieu une fin : ses trajets partent, leurs lieux restent.
+  Adventure convertToEnding(String stageId) {
+    final source = _require(stageId);
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(
+        families: const <WordFamily>[],
+        isEnding: true,
+      ));
+  }
+
+  /// Rouvre une fin : le lieu redevient a definir, et sa carte repose la
+  /// question. C'est le remede a une fin creee par erreur.
+  Adventure reopen(String stageId) {
+    final source = _require(stageId);
+    if (!source.isEnding) {
+      throw StateError('Le lieu "$stageId" n\'est pas une fin.');
+    }
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(isEnding: false));
+  }
+
+  /// Supprime un lieu que plus aucun trajet n'atteint.
+  ///
+  /// Un lieu encore atteint laisserait un trajet mener nulle part ; le point
+  /// de depart, une aventure sans entree. Les deux sont refuses.
+  Adventure removeStage(String stageId) {
+    _require(stageId);
+    if (stageId == adventure.startStageId) {
+      throw StateError('Le point de départ ne se supprime pas.');
+    }
+    for (final stage in adventure.stages.values) {
+      for (final family in stage.families) {
+        if (family.destinationStageId == stageId && stage.id != stageId) {
+          throw StateError(
+            'Le trajet "${family.label}" mène encore à ce lieu : '
+            'retirez-le ou redirigez-le d\'abord.',
+          );
+        }
+      }
+    }
+    return _withStages(Map<String, Stage>.from(adventure.stages)..remove(stageId));
+  }
+
+  /// La liste du reste d'un tri unique, nee sans liste.
+  static WordFamily _restFamily(List<WordFamily> existing) {
+    return WordFamily(
+      id: _freeFamilyId('le_reste', existing),
+      // Nom provisoire : comment nommer cette seconde liste reste une
+      // question ouverte (voir docs/TODO.md).
+      label: 'Le reste',
+      lists: const <WordList>[],
+    );
+  }
+
+  Adventure _changeFamily(
+    String stageId,
+    String familyId,
+    WordFamily Function(WordFamily family) change,
+  ) {
+    final source = _require(stageId);
+    if (source.findFamily(familyId) == null) {
+      throw StateError('Trajet inconnu : "$stageId" / "$familyId".');
+    }
+    return _withStages(Map<String, Stage>.from(adventure.stages)
+      ..[stageId] = source.copyWith(
+        families: List<WordFamily>.unmodifiable(<WordFamily>[
+          for (final family in source.families)
+            family.id == familyId ? change(family) : family,
+        ]),
+      ));
   }
 
   /// Les familles de ces trajets, et les lieux qu'ils atteignent.

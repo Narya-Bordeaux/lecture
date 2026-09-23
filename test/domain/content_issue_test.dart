@@ -424,13 +424,16 @@ void main() {
 
   group('Ce que l\'outil doit pouvoir dire', () {
     test('une aventure jouable ne presente aucune anomalie', () {
-      final adventure = adventureWith(<WordFamily>[
-        family(
-          id: 'en_bus',
-          label: 'En autocar',
-          words: <Word>[word('ticket')],
-          destination: 'depart',
-        ),
+      final adventure = adventureOf(<Stage>[
+        stage(id: 'depart', families: <WordFamily>[
+          family(
+            id: 'en_bus',
+            label: 'En autocar',
+            words: <Word>[word('ticket')],
+            destination: 'plage',
+          ),
+        ]),
+        ending(id: 'plage'),
       ]);
 
       expect(adventure.validate(), isEmpty);
