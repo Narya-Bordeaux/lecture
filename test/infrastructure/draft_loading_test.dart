@@ -23,7 +23,6 @@ Map<String, String> buildDraftFiles() {
 {
   "lexicons": ["lexicon/test.json"],
   "lists": ["lists/test.json"],
-  "characters": "characters.json",
   "adventures": [
     { "id": "brouillon", "title": "Brouillon", "file": "adventures/b.json" }
   ]
@@ -32,7 +31,6 @@ Map<String, String> buildDraftFiles() {
         '{ "domain": "test", "words": [ { "text": "un", "syllables": ["un"] } ] }',
     'lists/test.json':
         '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", "words": [] } ] }',
-    'characters.json': '{ "characters": [] }',
     'adventures/b.json': '''
 {
   "id": "brouillon",

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/word.dart';
@@ -33,7 +32,7 @@ enum StageNature {
 /// qu'elles ouvrent.
 ///
 /// La nature de l'etape se lit dans sa structure, sans avoir a la declarer :
-/// une etape avec un [encounter] est une rencontre, une etape sans famille est
+/// une famille sans destination fait un tri unique, une etape sans famille est
 /// une arrivee. Declarer le type en plus serait une information en double, qui
 /// finirait par contredire le contenu.
 class Stage {
@@ -47,7 +46,6 @@ class Stage {
     this.narrative = Narrative.none,
     this.backgroundAsset,
     this.backgroundColor,
-    this.encounter,
     this.visibleWordCount = 6,
     this.isEnding = false,
     this.drawCount,
@@ -62,14 +60,11 @@ class Stage {
     return 0xFF000000 | parsed;
   }
 
-  /// Construit l'etape en resolvant mots et personnages.
+  /// Construit l'etape en resolvant ses listes de mots.
   factory Stage.fromJson(
     Map<String, dynamic> json, {
     required WordListCatalog lists,
-    required Map<String, Character> characters,
   }) {
-    final encounter = json['character'] as Map<String, dynamic>?;
-
     return Stage(
       id: json['id'] as String,
       locationName: json['location'] as String,
@@ -79,15 +74,6 @@ class Stage {
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       isEnding: json['ending'] as bool? ?? false,
       drawCount: json['drawCount'] as int?,
-      encounter: encounter == null
-          ? null
-          : Encounter(
-              character: _resolveCharacter(
-                encounter['id'] as String,
-                characters,
-              ),
-              line: encounter['line'] as String,
-            ),
       families: List<WordFamily>.unmodifiable(
         (json['families'] as List<dynamic>? ?? <dynamic>[])
             .map((item) => WordFamily.fromJson(
@@ -96,17 +82,6 @@ class Stage {
                 )),
       ),
     );
-  }
-
-  static Character _resolveCharacter(
-    String id,
-    Map<String, Character> characters,
-  ) {
-    final character = characters[id];
-    if (character == null) {
-      throw FormatException('Personnage inconnu : "$id"');
-    }
-    return character;
   }
 
   final String id;
@@ -126,9 +101,6 @@ class Stage {
   /// allonge, il reste de la place au-dessus. Une couleur prise dans le ciel de
   /// l'image rend la jointure invisible.
   final int? backgroundColor;
-
-  /// Le personnage rencontre ici, s'il y en a un.
-  final Encounter? encounter;
 
   final List<WordFamily> families;
 
@@ -176,12 +148,6 @@ class Stage {
   /// signale un lieu sans famille qui ne se declare pas fin. Les deux ne
   /// peuvent donc pas diverger en silence.
   final bool isEnding;
-
-  /// Vrai si l'etape met en scene un personnage.
-  ///
-  /// C'est un ornement, pas une mecanique : un personnage peut se poser sur
-  /// n'importe quel lieu, et un tri unique peut se passer de lui.
-  bool get isEncounter => encounter != null;
 
   /// Vrai si l'etape fait trier entre **une liste et son complement**.
   ///
@@ -491,7 +457,6 @@ class Stage {
     List<WordFamily>? families,
     String? backgroundAsset,
     int? backgroundColor,
-    Encounter? encounter,
     int? visibleWordCount,
     bool? isEnding,
     int? drawCount,
@@ -508,7 +473,6 @@ class Stage {
           ? null
           : backgroundAsset ?? this.backgroundAsset,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
       isEnding: isEnding ?? this.isEnding,
       drawCount: drawCount ?? this.drawCount,
@@ -524,7 +488,6 @@ class Stage {
       if (backgroundColor != null)
         'backgroundColor':
             '#${(backgroundColor! & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
-      if (encounter != null) 'character': encounter!.toJson(),
       // Ecrit seulement quand il vaut quelque chose : une etape ordinaire n'a
       // pas a porter « ending: false ».
       if (isEnding) 'ending': true,

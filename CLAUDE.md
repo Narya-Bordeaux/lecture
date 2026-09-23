@@ -22,12 +22,20 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.34.1+52** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.34.2+53** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
 réelle. Le chantier en cours l'étend à la création d'une journée entière, voir
 `docs/current.md`.
+
+**Le jeu n'est pas en ligne, et aucune compatibilité ne se construit.** Aucune
+version n'a été publiée, aucun joueur n'a de progression ni de contenu à
+préserver. Quand le modèle ou le format change, on change le contenu du dépôt
+avec lui — jamais de lecture tolérante d'une forme ancienne, de conversion
+automatique, ni de champ gardé « pour ne pas casser ». Ce code-là se paie
+toujours, et ici il ne protège personne. Des tolérances écrites avant cette
+règle subsistent ; elles sont listées dans `docs/TODO.md`.
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
@@ -204,9 +212,9 @@ Ils vivent dans `assets/content/` en JSON et sont chargés par `lib/infrastructu
 quatre sortes de fichiers, champs, contrôles automatiques. Le lire avant de
 toucher au contenu, et le mettre à jour si le format change.
 
-Cinq fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
+Quatre fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
 définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par thème,
-`characters.json` porte les personnages, et `adventures/*.json` assemble le tout
+et `adventures/*.json` assemble le tout
 par références. **`pictures/` s'y ajoute** : une illustration est du contenu, et
 tout chemin d'image s'écrit relatif à `assets/content/` — `pictures/gare.jpg`,
 jamais `assets/pictures/gare.jpg`. Un mot n'est défini qu'une fois ; le
@@ -222,7 +230,7 @@ du milieu. Une famille **cite** une liste (`"list": "bus"`), elle ne porte pas s
 mots.
 
 **Tout le contenu est en français, identifiants compris** — ids d'étapes, de
-familles, de personnages. Le jeu n'a pas vocation à être traduit, et une clé
+familles, de listes. Le jeu n'a pas vocation à être traduit, et une clé
 technique anglaise n'ajoutait qu'un détour : il fallait savoir qu'« arrêt »
 s'appelait `bus_stop` pour l'employer. Seuls les noms de champs JSON restent en
 anglais, puisqu'ils portent directement les champs Dart.
@@ -402,10 +410,12 @@ s'il change, et le fichier propre **garde ce qu'il avait** : il était
 auparavant réécrit avec les seules nouveautés, si bien qu'un second
 enregistrement effaçait les listes du premier.
 
-**Le personnage est un ornement** — un `character` et sa réplique se posent sur
-n'importe quel lieu, et ne définissent aucune mécanique. Un tri unique peut se
-passer de personnage ; un lieu ordinaire peut en porter un. L'outil d'auteur n'en
-invente jamais.
+**Il n'y a plus de personnage** (0.34.2) — `Character`, `characters.json` et
+la réplique qu'un lieu lui prêtait ont été retirés. Le modèle mêlait deux
+choses : quelqu'un qui intervient dans l'histoire, et la mécanique du tri
+unique, qu'il avait longtemps servi à poser. La mécanique vit désormais dans la
+structure ; ce qui restait n'est que de la narration, et c'est au récit de le
+porter.
 
 **Pas de champ « type d'étape »** — la nature d'un lieu se lit dans sa structure :
 une famille sans destination fait un tri unique, aucune famille fait une fin
@@ -547,7 +557,7 @@ des mots inconnus. Le contrôle qui compte est que **le dossier écrit se
 recharge**, et c'est le dernier test de `content_saver_test.dart`.
 
 Deux modes, et ce n'est pas un réglage de confort. `includeUnchanged` recopie
-ce que l'outil ne touche pas — lexiques, personnages, **autres aventures** —
+ce que l'outil ne touche pas — lexiques, listes, **autres aventures** —
 pour que le dossier se suffise : c'est ce qu'il faut sur un appareil, qui n'a
 rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convient
 quand la destination possède déjà le reste — un dépôt, ou le dossier de

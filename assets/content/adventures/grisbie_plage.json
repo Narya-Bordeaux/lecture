@@ -81,10 +81,6 @@
       "narrative": {
         "onArrival": "Grisbie pousse la porte de la boutique."
       },
-      "character": {
-        "id": "marchande",
-        "line": "Tu pars en voyage ? Prends ce qui se mange, et laisse-moi le reste !"
-      },
       "visibleWordCount": 6,
       "families": [
         {

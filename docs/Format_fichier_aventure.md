@@ -1,7 +1,7 @@
 # Comment écrire une aventure
 
 Ce document décrit les fichiers de contenu du jeu. Il s'adresse à qui veut
-**écrire ou modifier une aventure** — ajouter des mots, un lieu, un personnage —
+**écrire ou modifier une aventure** — ajouter des mots, un lieu —
 sans toucher au code. Aucune connaissance de programmation n'est nécessaire.
 
 Tout le contenu vit dans `assets/content/`. Les fichiers sont au format JSON :
@@ -9,14 +9,13 @@ du texte structuré par des accolades, des crochets et des guillemets. Les
 virgules et les guillemets comptent ; un éditeur de texte qui colore le JSON
 (VS Code, Notepad++) signale les oublis immédiatement.
 
-## Les cinq sortes de fichiers
+## Les quatre sortes de fichiers
 
 ```
 assets/content/
   index.json            ← le sommaire : ce qui existe
   lexicon/*.json        ← le vocabulaire, regroupé par domaine
   lists/*.json          ← les listes de mots, par thème
-  characters.json       ← les personnages
   adventures/*.json     ← les aventures et leurs lieux
   pictures/*.jpg        ← les illustrations
 ```
@@ -53,7 +52,6 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 {
   "lexicons": ["lexicon/transport.json", "lexicon/nourriture.json"],
   "lists": ["lists/transport.json", "lists/quotidien.json"],
-  "characters": "characters.json",
   "adventures": [
     {
       "id": "grisbie_plage",
@@ -69,7 +67,6 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 |---|---|---|
 | `lexicons` | oui | Les fichiers de vocabulaire à charger |
 | `lists` | non | Les fichiers de listes de mots à charger |
-| `characters` | non | Le fichier des personnages |
 | `adventures` | oui | Les aventures jouables |
 | `id` | oui | Nom interne, sans espace ni accent |
 | `title` | oui | Le titre montré au joueur |
@@ -140,7 +137,7 @@ autre lieu, dans une autre aventure : on cite son `id`, on ne recopie rien.
 C'est pourquoi les listes ne vivent pas *dans* les aventures.
 
 **Une liste est plus grande que la partie.** À l'entrée d'un lieu, le jeu n'en
-tire que quelques mots (`drawCount`, §5). Écrire vingt mots pour une partie qui
+tire que quelques mots (`drawCount`, §4). Écrire vingt mots pour une partie qui
 en montre sept n'est pas du gâchis : c'est ce qui fait que **rejouer la même
 journée ne redonne pas les mêmes mots**.
 
@@ -151,23 +148,7 @@ journée ne redonne pas les mêmes mots**.
 > En revanche, un mot **répété dans la même liste** est refusé : il compterait
 > deux fois au tirage et pourrait s'afficher en double.
 
-## 4. Les personnages — `characters.json`
-
-```json
-{
-  "characters": [
-    { "id": "pecheur", "name": "Le pêcheur" },
-    { "id": "marchande", "name": "La marchande de journaux", "portrait": "pictures/marchande.png" }
-  ]
-}
-```
-
-Le personnage ne contient que ce qui ne change pas d'une scène à l'autre : son
-nom, son portrait. **Ce qu'il dit appartient au lieu où on le rencontre**, et
-s'écrit dans l'aventure. Le même personnage peut ainsi revenir ailleurs avec
-d'autres répliques.
-
-## 5. Une aventure — `adventures/*.json`
+## 4. Une aventure — `adventures/*.json`
 
 Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 
@@ -239,7 +220,6 @@ son premier lieu.
 | `narrative.onArrival` | non | Texte affiché en arrivant, **avant** de jouer |
 | `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
 | `drawCount` | non | Combien de mots **chaque famille** tire de sa liste (toute la liste par défaut) |
-| `character` | non | Le personnage rencontré ici |
 | `families` | oui | Les catégories à remplir |
 
 **Un lieu raconte son arrivée, jamais son départ.** L'enfant y entre, lit ce qui
@@ -253,9 +233,9 @@ jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.
 temps ; les autres attendent en réserve, et un mot bien classé libère sa place.
 
 **Il n'y a pas de champ indiquant le type du lieu.** La structure le dit : un
-lieu dont une famille n'a pas de `destination` fait un **tri unique** (§6), un
+lieu dont une famille n'a pas de `destination` fait un **tri unique** (§5), un
 lieu sans `families` est une fin. Rien à déclarer, donc rien qui puisse
-contredire le contenu réel — à une exception près, `ending`, expliquée au §7.
+contredire le contenu réel — à une exception près, `ending`, expliquée au §6.
 
 Le `character` ne dit rien du type du lieu : c'est un **ornement**, qu'on pose
 où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
@@ -278,7 +258,7 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 | `id` | oui | Nom interne |
 | `label` | oui | Le nom de la catégorie, lu par l'enfant |
 | `list` | oui* | L'`id` de la liste (§3) où la famille puise ses mots |
-| `lists` | oui* | Plusieurs `id` de listes — pour le **reste d'un tri unique** seulement (§6) |
+| `lists` | oui* | Plusieurs `id` de listes — pour le **reste d'un tri unique** seulement (§5) |
 | `drawCount` | non | Combien de mots tirer ici, si autre chose que le `drawCount` du lieu |
 | `destination` | non | Le lieu qui s'ouvre quand la famille est complète |
 | `area` | non | Où poser la zone sur l'illustration |
@@ -309,8 +289,8 @@ ciel, la jointure devient invisible. Pour la trouver, ouvrez l'image dans
 n'importe quel éditeur et prélevez la couleur d'un pixel du bord supérieur.
 
 Cela veut dire que **le bas de l'illustration est la partie sûre** : c'est elle
-qui reste visible quel que soit l'appareil. Placez-y ce qui compte — le
-personnage, le chemin, les éléments que désignent les zones.
+qui reste visible quel que soit l'appareil. Placez-y ce qui compte — le chemin,
+les éléments que désignent les zones.
 
 ### Où poser une zone — `area`
 
@@ -362,7 +342,7 @@ Au besoin, les valeurs restent calculables à la main : diviser la position d'un
 élément par la largeur (ou la hauteur) totale de l'image. Un élément commençant
 à 300 pixels sur une image large de 1024 donne `left: 0.29`.
 
-## 6. Un tri unique
+## 5. Un tri unique
 
 **C'est une autre mécanique de lecture, pas un ornement narratif.** Au lieu de
 trier entre plusieurs familles homogènes, l'enfant trie entre **une liste et son
@@ -378,18 +358,10 @@ Un tri unique est un lieu portant **deux familles dont une ne mène nulle part**
 et **une seule sortie**, celle que le thème ouvre. Rien ne se déclare : la
 famille sans destination suffit à le dire.
 
-Le personnage ci-dessous est facultatif. Il pose la question qui énonce le
-critère, ce qui aide, mais un tri unique s'en passe très bien, et un lieu
-ordinaire peut en porter un.
-
 ```json
 {
   "id": "port",
   "location": "Le port",
-  "character": {
-    "id": "pecheur",
-    "line": "Aide-moi ! Trouve tout ce qui parle de la mer."
-  },
   "families": [
     { "id": "pour_le_pecheur", "label": "Pour le pêcheur",
       "list": "la_mer", "drawCount": 7,
@@ -400,9 +372,6 @@ ordinaire peut en porter un.
   ]
 }
 ```
-
-La réplique du personnage remplace la consigne habituelle au-dessus des mots :
-elle dit ce qu'il faut faire, et mieux qu'une phrase générique.
 
 **Le reste puise dans des listes que vous cochez.** Vous choisissez la liste
 du thème, puis celles où le jeu peut prendre les mots « autre » : il y tire des
@@ -424,7 +393,7 @@ Comptez **autant de mots tirés du reste que du thème** — deux `drawCount`
 reste et deux destinations ne serait plus un tri unique, mais un tri ordinaire
 affublé d'une liste de rebut. Le chargement le refuse.
 
-## 7. Les règles que le jeu vérifie tout seul
+## 6. Les règles que le jeu vérifie tout seul
 
 Au chargement, le contenu est contrôlé. En cas de problème, le jeu refuse de
 démarrer et affiche la liste précise des fautes — mieux vaut un message clair
@@ -436,7 +405,6 @@ Sont détectés :
 - **deux entrées de même orthographe**, dans le même fichier ou entre deux
   fichiers : le mot étant sa propre clé, rien ne dirait lequel des deux fait
   foi ;
-- un personnage cité mais absent de `characters.json` ;
 - une destination qui désigne un lieu inexistant ;
 - un lieu qu'aucun chemin ne permet d'atteindre ;
 - une famille vide, ou qui ne cite encore aucune liste ;
@@ -494,7 +462,7 @@ frappe sont de toute façon **indiscernables** : les traiter en faute
 interdirait d'écrire le parcours dans l'ordre où il se raconte. C'est donc à la
 relecture, et au refus du jeu, qu'une destination fantôme se voit.
 
-## 8. Les pièges de contenu, qui eux ne sont pas détectables
+## 7. Les pièges de contenu, qui eux ne sont pas détectables
 
 Le jeu ne peut pas juger du sens. Ces points relèvent de la relecture humaine.
 
@@ -541,7 +509,7 @@ Comme l'exclusion se calcule **lieu par lieu**, « assez de mots » n'est jamais
 une propriété de la liste seule : la même liste tient dans un lieu et manque
 dans un autre, selon les listes qui la côtoient.
 
-## 9. Ajouter un lieu : la marche à suivre
+## 8. Ajouter un lieu : la marche à suivre
 
 1. Écrire les mots manquants dans le fichier de lexique du bon domaine.
 2. Les rassembler en une liste dans `lists/`, ou citer une liste existante.

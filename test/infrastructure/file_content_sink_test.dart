@@ -122,7 +122,6 @@ void main() {
       ).loadIndex();
 
       expect(reloaded.lexiconFiles, index.lexiconFiles);
-      expect(reloaded.charactersFile, index.charactersFile);
       expect(
         reloaded.adventures.map((entry) => entry.id),
         index.adventures.map((entry) => entry.id),

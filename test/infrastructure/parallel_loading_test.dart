@@ -64,9 +64,9 @@ void main() {
   test('les fichiers d\'une aventure se demandent ensemble', () async {
     await repository.loadAdventure('grisbie_plage');
 
-    // Trois lexiques, deux listes, les personnages et l'aventure : sept
-    // fichiers après le sommaire. Un par un, le sommet resterait à 1.
-    expect(source.requested, hasLength(8));
+    // Trois lexiques, deux listes et l'aventure : six fichiers après le
+    // sommaire. Un par un, le sommet resterait à 1.
+    expect(source.requested, hasLength(7));
     expect(
       source.peak,
       greaterThan(1),

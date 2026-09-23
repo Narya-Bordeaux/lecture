@@ -3,6 +3,27 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
+## Énoncé et pages de récit — en discussion avec l'auteur
+
+- [ ] **L'énoncé sur la scène de jeu** : `narrative.onArrival` d'un lieu de
+      jeu affiché en haut, au-dessus des mots — c'est lui qui donne son sens
+      au tri. L'écran de récit intercalé disparaît.
+- [ ] **La page de récit**, type de page à part (titre, illustration, texte,
+      une seule suite, ou marquée fin) : page de garde, transition, fin. Le
+      type se choisit à la création de la page.
+
+## Tolérances héritées, à retirer
+
+Écrites avant la règle « aucune compatibilité » (CLAUDE.md §1). Chacune se
+retire en corrigeant le contenu du dépôt **et** celui du dépôt distant.
+
+- [ ] `Word` ignore un champ `syllables`, que `ContentSaver` retire
+      (`obsoleteFields`).
+- [ ] `Narrative.fromJson` accepte un récit écrit en simple chaîne.
+- [ ] `contentImageProvider` lit un chemin `assets/…` ou une adresse
+      `http:`/`https:`/`blob:`. **Le contenu de l'auteur en porte encore** :
+      la page de garde cite `assets/pictures/Grisbie_plage.jpg`.
+
 ## Outil de création d'une journée
 
 Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
@@ -106,8 +127,6 @@ construisant :
       les documents de l'application ; dans un navigateur il descend en
       fichiers séparés au nom aplati. Les deux se reposent à la main dans
       `assets/content/`. C'est ce qu'un dépôt distant remplacera.
-- [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
-      d'un personnage — l'écran ne les demande pas encore.
 - [ ] **Éprouver l'écran de structure** sur le téléphone et dans Chrome :
       changer la nature d'un lieu, rediriger un trajet, supprimer un lieu
       détaché. Rien n'en a été ouvert.
@@ -243,5 +262,3 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       ans.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
-- [ ] Portraits des personnages : `portrait` existe dans le format mais aucun
-      dessin n'est fourni ; seul le nom s'affiche.

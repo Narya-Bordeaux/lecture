@@ -28,7 +28,6 @@ MemoryContentFolder shippedFolder() {
 {
   "lexicons": ["lexicon/transport.json"],
   "lists": ["lists/transport.json"],
-  "characters": "characters.json",
   "adventures": [
     { "id": "plage", "title": "La plage", "file": "adventures/plage.json" }
   ]
@@ -42,7 +41,6 @@ MemoryContentFolder shippedFolder() {
 { "domain": "transport", "lists": [
   { "id": "train", "name": "Le train", "words": ["quai", "billet"] }
 ] }''',
-    'characters.json': '{ "characters": [] }',
     'adventures/plage.json': '''
 {
   "id": "plage",
@@ -137,7 +135,6 @@ void main() {
           'lists/grisbie_au_marche.json',
           'index.json',
           'lexicon/transport.json',
-          'characters.json',
           'lists/transport.json',
         ]),
       );
@@ -168,7 +165,6 @@ void main() {
         written.files['lexicon/transport.json'],
         shipped.files['lexicon/transport.json'],
       );
-      expect(written.files['characters.json'], shipped.files['characters.json']);
     });
   });
 

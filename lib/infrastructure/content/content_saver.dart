@@ -59,7 +59,6 @@ class ContentSaver {
       if (includeUnchanged) ...<String>[
         ...index.lexiconFiles,
         ...index.wordListFiles,
-        ?index.charactersFile,
         for (final entry in index.adventures)
           if (entry.id != adventure.id) entry.file,
       ],

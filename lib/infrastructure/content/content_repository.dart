@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_index.dart';
 import 'package:grisbie/domain/models/lexicon.dart';
 import 'package:grisbie/domain/models/word_library.dart';
@@ -31,7 +30,6 @@ class ContentRepository implements AdventureRepository {
   ContentIndex? _index;
   Lexicon? _lexicon;
   WordListCatalog? _wordLists;
-  Map<String, Character>? _characters;
 
   @override
   Future<ContentIndex> loadIndex() async {
@@ -83,8 +81,7 @@ class ContentRepository implements AdventureRepository {
 
     // **Tout ce qui manque encore part ensemble.** Le sommaire seul devait
     // arriver d'abord — c'est lui qui dit quels fichiers demander —, mais les
-    // lexiques, les listes, les personnages et l'aventure sont independants a
-    // la lecture. Demandes l'un apres l'autre, ils faisaient huit
+    // lexiques, les listes et l'aventure sont independants a la lecture. Demandes l'un apres l'autre, ils faisaient huit
     // allers-retours en file indienne : instantane sur un disque, plusieurs
     // secondes depuis un depot distant.
     // Ce qui est deja en memoire n'est pas redemande : rouvrir une aventure ne
@@ -94,14 +91,12 @@ class ContentRepository implements AdventureRepository {
         ...index.lexiconFiles,
         ...index.wordListFiles,
       ],
-      if (_characters == null) ?index.charactersFile,
       entry.file,
     });
 
     return Adventure.fromJson(
       files[entry.file]!,
       lists: _resolveWordLists(index, files),
-      characters: _resolveCharacters(index, files),
     );
   }
 
@@ -156,23 +151,6 @@ class ContentRepository implements AdventureRepository {
       for (final path in index.wordListFiles)
         WordListCatalog.fromJson(files[path]!, lexicon),
     ]);
-  }
-
-  Map<String, Character> _resolveCharacters(
-    ContentIndex index,
-    Map<String, Map<String, dynamic>> files,
-  ) {
-    if (_characters != null) return _characters!;
-
-    final path = index.charactersFile;
-    if (path == null) return _characters = const <String, Character>{};
-
-    final characters = <String, Character>{};
-    for (final item in files[path]!['characters'] as List<dynamic>) {
-      final character = Character.fromJson(item as Map<String, dynamic>);
-      characters[character.id] = character;
-    }
-    return _characters = Map<String, Character>.unmodifiable(characters);
   }
 
   Future<Map<String, dynamic>> _readJson(String path) async {

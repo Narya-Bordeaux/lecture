@@ -8,7 +8,6 @@
     "lists/transport.json",
     "lists/quotidien.json"
   ],
-  "characters": "characters.json",
   "adventures": [
     {
       "id": "grisbie_plage",

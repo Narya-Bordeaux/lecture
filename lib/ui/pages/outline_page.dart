@@ -616,8 +616,6 @@ class _BlockCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (block.isEncounter)
-                  const Icon(Icons.person_outline, size: 18),
                 if (block.isSingleSort)
                   const Icon(Icons.filter_alt_outlined, size: 18),
                 if (block.isEnding) const Icon(Icons.flag_outlined, size: 18),

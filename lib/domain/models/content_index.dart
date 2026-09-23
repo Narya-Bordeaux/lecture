@@ -51,7 +51,6 @@ class ContentIndex {
     required this.lexiconFiles,
     required this.adventures,
     this.wordListFiles = const <String>[],
-    this.charactersFile,
   });
 
   factory ContentIndex.fromJson(Map<String, dynamic> json) {
@@ -62,7 +61,6 @@ class ContentIndex {
       wordListFiles: List<String>.unmodifiable(
         (json['lists'] as List<dynamic>? ?? <dynamic>[]).cast<String>(),
       ),
-      charactersFile: json['characters'] as String?,
       adventures: List<AdventureEntry>.unmodifiable(
         (json['adventures'] as List<dynamic>? ?? <dynamic>[]).map(
           (item) => AdventureEntry.fromJson(item as Map<String, dynamic>),
@@ -79,9 +77,6 @@ class ContentIndex {
   /// Separes des lexiques, et pour une raison de fond : un lexique definit
   /// chaque mot une seule fois, alors qu'un mot appartient a plusieurs listes.
   final List<String> wordListFiles;
-
-  /// Le fichier des personnages, s'il y en a.
-  final String? charactersFile;
 
   final List<AdventureEntry> adventures;
 
@@ -109,7 +104,6 @@ class ContentIndex {
     return ContentIndex(
       lexiconFiles: lexiconFiles,
       wordListFiles: wordListFiles,
-      charactersFile: charactersFile,
       adventures: List<AdventureEntry>.unmodifiable(entries),
     );
   }
@@ -122,7 +116,6 @@ class ContentIndex {
     return ContentIndex(
       lexiconFiles: List<String>.unmodifiable(<String>[...lexiconFiles, path]),
       wordListFiles: wordListFiles,
-      charactersFile: charactersFile,
       adventures: adventures,
     );
   }
@@ -133,7 +126,6 @@ class ContentIndex {
     return ContentIndex(
       lexiconFiles: lexiconFiles,
       wordListFiles: List<String>.unmodifiable(<String>[...wordListFiles, path]),
-      charactersFile: charactersFile,
       adventures: adventures,
     );
   }
@@ -142,7 +134,6 @@ class ContentIndex {
     return <String, dynamic>{
       'lexicons': lexiconFiles,
       if (wordListFiles.isNotEmpty) 'lists': wordListFiles,
-      if (charactersFile != null) 'characters': charactersFile,
       'adventures': adventures.map((entry) => entry.toJson()).toList(),
     };
   }

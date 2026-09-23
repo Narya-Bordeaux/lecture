@@ -44,6 +44,23 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.34.2+53 — 23 septembre 2026 — Plus de personnage
+
+**Décision de l'auteur** : le personnage était de la dette. Il mêlait deux
+choses — quelqu'un qui intervient dans l'histoire, et la mécanique du tri
+unique qu'il avait servi à poser. La mécanique vit dans la structure depuis
+0.31.0 ; ce qui restait n'était que de la narration.
+
+Retirés : `Character`, `Encounter`, `Stage.encounter` / `isEncounter`,
+`ContentIndex.charactersFile`, la lecture de `characters.json` par
+`ContentRepository` et sa recopie par `ContentSaver`, l'icône de la carte du
+parcours, et la réplique qui remplaçait la consigne sur la scène. Le contenu
+livré perd `characters.json` et la réplique de la marchande.
+
+**Aucune compatibilité** : le jeu n'est pas en ligne. La règle est désormais
+écrite au §1 de CLAUDE.md, et les tolérances écrites avant elle sont listées
+dans `TODO.md`. 508 tests au vert.
+
 ### 0.34.1+52 — 23 septembre 2026 — Un lieu rouvert se redéfinit sur place
 
 **Vu par l'auteur, à l'écran** : une fin rouverte depuis sa structure

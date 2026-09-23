@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.34.1+52** — 23 septembre 2026
+**Version : 0.34.2+53** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -15,8 +15,8 @@ de travail 0.8.
 Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décrits
 par `docs/Format_fichier_aventure.md`. Les mots y sont regroupés en **listes
 thématiques réutilisables**, qu'une famille cite au lieu de les porter. La boutique de la gare est un **tri
-unique** : l'enfant y trie entre une liste et tout le reste, et une marchande y
-pose la question — l'ornement, pas la mécanique.
+unique** : l'enfant y trie entre une liste et tout le reste. Il n'y a plus
+de personnage (0.34.2).
 
 **Un outil d'auteur existe**, sur un second point d'entrée `lib/main_author.dart`.
 Il cale les zones de dépôt au doigt sur l'étape réelle, et les enregistre avec
@@ -106,6 +106,16 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.34.2+53 — Plus de personnage
+- **Décision de l'auteur** : le personnage mêlait narration et mécanique ; la
+  mécanique vit dans la structure, le reste relève du récit. Modèle, fichier
+  `characters.json` et réplique retirés.
+- **Règle nouvelle** : le jeu n'est pas en ligne, aucune compatibilité ne se
+  construit (CLAUDE.md §1).
+- **En discussion** : l'énoncé en haut de la scène de jeu, et un type « page
+  de récit » pour la page de garde, les transitions et les fins (`TODO.md`).
+- 508 tests au vert.
+
 ### 0.34.1+52 — Un lieu rouvert se redéfinit sur place
 - **Défaut vu par l'auteur** : après « Rouvrir ce lieu », l'écran de
   structure ne disait que « Choisissez sur la carte » — une impasse.
@@ -124,18 +134,6 @@ un travail d'auteur, pas de code.
   sévérité `warning`, qui laisse l'aventure jouable.
 - 509 tests au vert.
 
-### 0.33.0+50 — Plus d'aide, plus de découpage
-- **Le jeu ne propose plus aucune aide** : un mot mal placé est refusé,
-  l'étiquette tremble et revient, rien ne s'affiche dessous.
-- **Le découpage syllabique quitte le contenu** (option A, choisie par
-  l'auteur) : `Word` n'est plus que son orthographe. `Hint`, `HintPolicy` et
-  le compteur d'erreurs disparaissent.
-- **L'écran de liste n'a plus qu'un champ** : on tape le mot, Entrée pour
-  enchaîner. L'alerte « mot dans le nom du trajet » s'y voit désormais.
-- Les lexiques livrés sont nettoyés ; un contenu ancien se lit toujours, et
-  l'enregistrement retire le champ des lexiques qu'il réécrit.
-- Spécification en version 0.9.
-- 473 tests au vert.
 
 ## Décisions prises
 
@@ -203,8 +201,8 @@ un travail d'auteur, pas de code.
 - **Un lieu raconte son arrivée, jamais son départ** : la narration appartient
   à celui qui accueille. Un récit de départ a existé, et disait la même chose
   deux fois.
-- **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, les
-  personnages, les aventures. Un mot n'est défini qu'une fois.
+- **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, des
+  listes, les aventures. Un mot n'est défini qu'une fois.
 - **Leurres écrits à la main** : jamais ramassés automatiquement, sous peine de
   sortir un mot appartenant vraiment au thème et de refuser une bonne réponse.
 - **La nature d'un lieu se dit sur sa carte** : plusieurs listes, tri unique,
