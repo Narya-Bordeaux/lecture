@@ -4,12 +4,13 @@ import 'dart:typed_data';
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_sink.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
+import 'package:grisbie/domain/repositories/content_store.dart';
 
 /// Un dossier de contenu tenu en memoire.
 ///
 /// Lit et ecrit au meme endroit, ce qui permet d'enregistrer puis de relire —
 /// le seul controle qui prouve qu'un enregistrement est complet.
-class MemoryContentFolder implements ContentSource, ContentSink {
+class MemoryContentFolder implements ContentStore {
   MemoryContentFolder([Map<String, String>? files])
       : files = <String, String>{...?files};
 

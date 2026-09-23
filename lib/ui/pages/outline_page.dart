@@ -8,6 +8,7 @@ import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/word_library.dart';
+import 'package:grisbie/infrastructure/content/content_integrator.dart';
 import 'package:grisbie/infrastructure/content/preloaded_adventure_repository.dart';
 import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
@@ -34,6 +35,7 @@ class OutlinePage extends StatefulWidget {
     this.pictures,
     this.contentSource,
     this.onSave,
+    this.onIntegrate,
     this.library = WordLibrary.empty,
     super.key,
   });
@@ -50,6 +52,14 @@ class OutlinePage extends StatefulWidget {
   /// test — n'a pas a proposer un geste qui ne ferait rien. C'est le point
   /// d'entree qui sait ou l'on ecrit, pas cet ecran.
   final Future<List<String>> Function(Adventure adventure)? onSave;
+
+  /// Verse l'aventure dans le dossier du contenu du depot git, et rend les
+  /// chemins ecrits — ou `null` si l'auteur renonce a designer le dossier.
+  /// Refuse par `IntegrationRefused`, en nommant chaque raison.
+  ///
+  /// Nul la ou l'on ne peut pas designer de dossier (hors de Chrome) : le
+  /// bouton ne parait pas.
+  final Future<List<String>?> Function(Adventure adventure)? onIntegrate;
 
   /// Les images du depot, transmises aux editeurs.
   final PictureCatalog? pictures;
@@ -341,6 +351,91 @@ class _OutlinePageState extends State<OutlinePage> {
     }
   }
 
+  /// Verse l'aventure de l'ecran dans le depot git, pour qu'elle soit jouable
+  /// a la compilation suivante.
+  ///
+  /// Seule une aventure jouable s'integre : le jeu refuserait les autres. On
+  /// dit d'abord ce qui va se passer — le dossier a designer, et ce qui
+  /// restera a faire (commit, compilation) —, puis ce qui a ete ecrit, ou
+  /// chaque raison du refus.
+  Future<void> _integrate() async {
+    final onIntegrate = widget.onIntegrate;
+    if (onIntegrate == null) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    if (ContentReadiness.of(_adventure.validate()) !=
+        ContentReadiness.playable) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Seule une aventure jouable s\'intègre au dépôt.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Intégrer au dépôt'),
+        content: Text(
+          'Désignez le dossier « assets/content » de votre copie du dépôt. '
+          '« ${_adventure.title} » y sera écrite avec ses listes et ses mots ; '
+          'ses images doivent déjà être dans « pictures ».\n\n'
+          'Il restera à faire le commit, puis à recompiler le jeu.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Choisir le dossier'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    String title;
+    String message;
+    try {
+      final written = await onIntegrate(_adventure);
+      // Refermer le selecteur est un geste normal : rien a dire.
+      if (written == null) return;
+      title = 'Aventure intégrée';
+      message = '${written.length} fichier(s) écrit(s) :\n'
+          '${written.map((path) => '• $path').join('\n')}\n\n'
+          'Reste à faire le commit, puis à recompiler le jeu.';
+    } on IntegrationRefused catch (refusal) {
+      title = 'Intégration refusée';
+      message = 'Rien n\'a été écrit.\n\n'
+          '${refusal.reasons.map((reason) => '• $reason').join('\n')}';
+    } catch (error) {
+      // Un refus du navigateur, un dossier en lecture seule : le taire
+      // laisserait croire l'aventure versee.
+      title = 'Échec de l\'intégration';
+      message = '$error';
+    }
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(child: Text(message)),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Demande quoi faire du travail non ecrit, au moment de sortir.
   ///
   /// Renoncer reste possible — c'est un geste legitime — mais il doit etre
@@ -427,6 +522,11 @@ class _OutlinePageState extends State<OutlinePage> {
           onPressed: () => Navigator.of(context).maybePop(_adventure),
         ),
         actions: <Widget>[
+          if (widget.onIntegrate != null)
+            TextButton(
+              onPressed: _integrate,
+              child: const Text('Intégrer au dépôt'),
+            ),
           if (widget.onSave != null)
             TextButton(
               onPressed: _saving ? null : _save,

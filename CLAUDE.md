@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.38.0+57** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.39.0+58** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -57,8 +57,8 @@ première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 **Cinq dépendances tierces** — `path_provider` (équipe Flutter), `web`
 (équipe Dart), `firebase_core`, `firebase_storage` et `firebase_auth`. Elles
 ne servent qu'à l'outil d'auteur : savoir où écrire, rendre les fichiers par
-le téléchargement d'un navigateur, et déposer le contenu sur le dépôt
-distant. `image_picker` a été retiré en 0.37.0 : les images se choisissent
+le téléchargement d'un navigateur, écrire dans le dossier du dépôt désigné
+dans Chrome, et déposer le contenu sur le dépôt distant. `image_picker` a été retiré en 0.37.0 : les images se choisissent
 dans le dépôt, plus dans l'appareil.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
@@ -759,6 +759,22 @@ aucune n'est vidée par les mots communs — une famille vide s'ouvrirait
 d'elle-même, sans rien trier. L'aventure entière ne se joue que **jouable**,
 et `PreloadedAdventureRepository` refuse, comme le jeu, ce que le jeu
 refuserait.
+
+**Intégrer au dépôt** (0.39.0) — publier, c'est verser l'aventure dans
+`assets/content/` de la copie du dépôt. Depuis Chrome ou Edge, l'auteur
+désigne ce dossier (`BrowserContentFolder`, par l'accès aux fichiers du
+navigateur), et `ContentIntegrator` y écrit avec le même `ContentSaver` que
+l'enregistrement, **le dossier du dépôt servant de base** : ses listes et ses
+lexiques sont ceux que l'aventure complète, ou corrige là où ils vivent. Seul
+ce qui change est écrit. **Rien ne s'écrit si un contrôle échoue** : le
+dossier doit porter `index.json` — désigner `assets/` par mégarde écrirait là
+où le jeu ne cherche pas —, l'aventure doit être jouable, et chaque image
+citée (`Adventure.picturePaths`) doit être dans `pictures/`. Un dépôt à moitié
+modifié serait pire qu'un refus. Il reste à faire le commit, puis à recompiler.
+
+`ContentStore` (domaine) nomme ce qui se lit **et** s'écrit : le dossier du
+dépôt, le dépôt distant. Le bouton ne paraît que si `canPickContentFolder()` —
+ni Firefox ni Safari n'ouvrent un dossier du poste.
 
 Un marqueur « en test » dans le jeu a été écarté : il aurait fallu verser les
 brouillons dans le dépôt pour les voir sur le téléphone, et chaque retouche

@@ -3,8 +3,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
-import 'package:grisbie/domain/repositories/content_sink.dart';
-import 'package:grisbie/domain/repositories/content_source.dart';
+import 'package:grisbie/domain/repositories/content_store.dart';
 
 /// Le contenu depose sur un stockage distant, lu et ecrit comme un dossier.
 ///
@@ -17,7 +16,7 @@ import 'package:grisbie/domain/repositories/content_source.dart';
 /// **Le jeu livre n'en approche jamais** : personne ne lui passe ce depot, et
 /// `author_only_test.dart` interdit que quoi que ce soit hors de ce dossier
 /// importe Firebase.
-class RemoteContentStore implements ContentSource, ContentSink {
+class RemoteContentStore implements ContentStore {
   const RemoteContentStore({required this.storage, this.root = 'content'});
 
   final FirebaseStorage storage;

@@ -44,6 +44,27 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.39.0+58 — 23 septembre 2026 — Intégrer au dépôt
+
+**Publier, c'est verser dans le dépôt.** Depuis Chrome ou Edge, « Intégrer au
+dépôt » demande de désigner le dossier `assets/content/` de la copie du dépôt,
+et y écrit l'aventure de l'écran avec ses listes et ses mots.
+
+- `ContentIntegrator` : le même `ContentSaver` que l'enregistrement, le
+  **dossier du dépôt servant de base** — ses listes et lexiques sont
+  complétés là où ils vivent. Seul ce qui change est écrit.
+- **Rien ne s'écrit si un contrôle échoue** : `index.json` présent (le bon
+  dossier), aventure jouable, chaque image citée dans `pictures/`
+  (`Adventure.picturePaths`). Chaque raison est nommée.
+- `BrowserContentFolder` : l'accès aux fichiers du navigateur, par import
+  conditionnel comme le téléchargement. `ContentStore` (domaine) nomme ce qui
+  se lit et s'écrit.
+- Le bouton ne paraît qu'où l'on peut désigner un dossier : ni Firefox ni
+  Safari.
+
+**Non éprouvé** : compilé pour le web, jamais ouvert dans un navigateur.
+532 tests au vert.
+
 ### 0.38.0+57 — 23 septembre 2026 — Essayer sur l'appareil
 
 **Le besoin de l'auteur** : créer sur l'ordinateur, vérifier sur le téléphone

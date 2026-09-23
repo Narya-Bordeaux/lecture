@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.38.0+57
+version: 0.39.0+58
 
 environment:
   sdk: ^3.12.2
@@ -45,9 +45,10 @@ dependencies:
   # `author_only_test.dart` le verifie plutot que de le promettre.
   path_provider: ^2.1.6
 
-  # Publiee par l'equipe Dart. Elle ne sert qu'a un fichier, compile pour le
-  # seul web : rendre les fichiers ecrits par le telechargement du navigateur,
-  # faute de disque. Aucun greffon, aucun code natif.
+  # Publiee par l'equipe Dart. Elle ne sert qu'a l'outil, compile pour le
+  # seul web : rendre les fichiers par le telechargement du navigateur, et
+  # ecrire dans le dossier du depot que l'auteur designe dans Chrome. Aucun
+  # greffon, aucun code natif.
   web: ^1.1.1
   firebase_core: ^4.15.0
   firebase_storage: ^13.6.0

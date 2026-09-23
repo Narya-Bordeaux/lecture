@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/infrastructure/content/content_integrator.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
@@ -18,6 +19,7 @@ Future<void> pumpOutline(
   WidgetTester tester,
   Adventure adventure, {
   Future<List<String>> Function(Adventure adventure)? onSave,
+  Future<List<String>?> Function(Adventure adventure)? onIntegrate,
 }) async {
   // Un `ListView` ne construit que les cartes visibles : sur la fenetre de
   // test par defaut, les lieux du bas n'existeraient pas dans l'arbre et les
@@ -28,7 +30,13 @@ Future<void> pumpOutline(
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    MaterialApp(home: OutlinePage(adventure: adventure, onSave: onSave)),
+    MaterialApp(
+      home: OutlinePage(
+        adventure: adventure,
+        onSave: onSave,
+        onIntegrate: onIntegrate,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -918,6 +926,98 @@ void main() {
       );
 
       expect(find.text('Jouer l\'aventure'), findsNothing);
+    });
+  });
+
+  group('Intégrer au dépôt', () {
+    // Verser l'aventure dans `assets/content/` de la copie du dépôt, pour
+    // qu'elle soit jouable à la compilation suivante. L'écran ne sait pas
+    // où : c'est le point d'entrée qui le sait, et le rappel est nul là où
+    // l'on ne peut pas désigner de dossier.
+
+    testWidgets('sans moyen d\'intégrer, le bouton ne paraît pas', (
+      tester,
+    ) async {
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Intégrer au dépôt'), findsNothing);
+    });
+
+    testWidgets('confirmer verse l\'aventure de l\'écran, et le dit', (
+      tester,
+    ) async {
+      Adventure? integrated;
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async {
+          integrated = adventure;
+          return <String>['adventures/grisbie_plage.json', 'index.json'];
+        },
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      // D'abord ce qui va se passer, et ce qui restera à faire.
+      expect(find.textContaining('assets/content'), findsWidgets);
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(integrated, same(realAdventure));
+      expect(find.textContaining('adventures/grisbie_plage.json'),
+          findsOneWidget);
+      expect(find.textContaining('commit'), findsOneWidget);
+    });
+
+    testWidgets('un refus se dit, raison par raison', (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async => throw const IntegrationRefused(
+          <String>['L\'image « pictures/x.jpg » n\'est pas dans le dépôt.'],
+        ),
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('pictures/x.jpg'), findsOneWidget);
+    });
+
+    testWidgets('renoncer au choix du dossier ne dit rien', (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async => null,
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('commit'), findsNothing);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('une aventure inachevée ne s\'intègre pas', (tester) async {
+      var called = false;
+      await pumpOutline(
+        tester,
+        AdventureBuilder.createAdventure(title: 'Essai', startName: 'Départ'),
+        onIntegrate: (adventure) async {
+          called = true;
+          return const <String>[];
+        },
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+
+      expect(called, isFalse);
+      expect(find.textContaining('jouable'), findsWidgets);
     });
   });
 }

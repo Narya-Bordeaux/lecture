@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.38.0+57** — 23 septembre 2026
+**Version : 0.39.0+58** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.39.0+58 — Intégrer au dépôt
+- Depuis Chrome ou Edge, l'aventure se verse dans `assets/content/` du dépôt,
+  après trois contrôles : le bon dossier, une aventure jouable, des images
+  présentes. Rien ne s'écrit sinon.
+- **Le parcours de l'auteur est complet** : écrire sur l'ordinateur, essayer
+  sur le téléphone, intégrer, commit, compiler. **À éprouver** de bout en
+  bout.
+- 532 tests au vert.
+
 ### 0.38.0+57 — Essayer sur l'appareil
 - **« Essayer ce lieu »** et **« Jouer l'aventure »** montent le vrai jeu sur
   l'aventure de l'écran : écrire sur l'ordinateur, vérifier au doigt sur le
@@ -123,14 +132,6 @@ un travail d'auteur, pas de code.
 - **Prochain sujet** : « Intégrer au dépôt » — le JSON, les listes et les
   lexiques ; et l'aventure que le jeu lance.
 - 509 tests au vert.
-
-### 0.36.0+55 — Le bandeau au-dessus de la scène
-- **Option A, choisie par l'auteur** : l'illustration occupe ce que le
-  bandeau laisse ; un énoncé, même long, ne peut plus recouvrir une zone.
-- Le calage pose ses poignées dans la scène du jeu, par le même calcul.
-- Les images de l'auteur sont dans `assets/content/pictures/`. **En
-  discussion** : l'outil les désigne par leur nom de fichier.
-- 511 tests au vert.
 
 ## Décisions prises
 

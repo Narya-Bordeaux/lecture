@@ -24,6 +24,7 @@ class AuthorHomePage extends StatefulWidget {
     required this.openRepository,
     this.pictures,
     this.onSave,
+    this.onIntegrate,
     this.account,
     super.key,
   });
@@ -48,6 +49,9 @@ class AuthorHomePage extends StatefulWidget {
 
   /// Ce qui écrit une aventure. Nul, l'écran du parcours ne le propose pas.
   final Future<List<String>> Function(Adventure adventure)? onSave;
+
+  /// Ce qui verse une aventure dans le depot git. Nul hors de Chrome.
+  final Future<List<String>?> Function(Adventure adventure)? onIntegrate;
 
   /// Le compte de l'auteur sur le dépôt distant.
   ///
@@ -128,6 +132,7 @@ class _AuthorHomePageState extends State<AuthorHomePage> {
           pictures: widget.pictures,
           contentSource: _repository.source,
           onSave: widget.onSave,
+          onIntegrate: widget.onIntegrate,
           library: library,
         ),
       ),

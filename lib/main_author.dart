@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
+import 'package:grisbie/infrastructure/content/browser_content_folder.dart';
 import 'package:grisbie/infrastructure/content/browser_content_sink.dart';
+import 'package:grisbie/infrastructure/content/content_integrator.dart';
 import 'package:grisbie/infrastructure/content/content_repository.dart';
 import 'package:grisbie/infrastructure/content/content_saver.dart';
 import 'package:grisbie/infrastructure/content/content_writer.dart';
@@ -137,6 +139,17 @@ Future<List<String>> saveAdventure(
   ).save(adventure);
 }
 
+/// Verse une aventure dans le dossier du contenu du depot git, designe par
+/// l'auteur. Rend les chemins ecrits, ou `null` s'il renonce a le designer.
+///
+/// Le dossier choisi est la base : ses listes et ses lexiques sont ceux que
+/// l'aventure complete. Rien ne s'ecrit si un controle echoue.
+Future<List<String>?> integrateAdventure(Adventure adventure) async {
+  final folder = await pickContentFolder();
+  if (folder == null) return null;
+  return ContentIntegrator(folder: folder).integrate(adventure);
+}
+
 class AuthorToolsApp extends StatelessWidget {
   const AuthorToolsApp({this.remote, this.deviceDirectory, super.key});
 
@@ -174,6 +187,9 @@ class AuthorToolsApp extends StatelessWidget {
           remote: remote,
           deviceDirectory: deviceDirectory,
         ),
+        // Verser dans le depot git : seulement la ou l'on peut designer un
+        // dossier du poste, c'est-a-dire Chrome ou Edge.
+        onIntegrate: canPickContentFolder() ? integrateAdventure : null,
       ),
     );
   }

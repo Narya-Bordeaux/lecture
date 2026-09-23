@@ -11,11 +11,9 @@ n'existe plus que dans `versions.md`.
 - [ ] **La page de récit**, type de page à part (titre, illustration, texte,
       une seule suite, ou marquée fin) : page de garde, transition, fin. Le
       type se choisit à la création de la page.
-- [ ] **« Intégrer au dépôt »** : verser l'aventure écrite dans l'outil —
-      JSON, listes, lexiques — dans `assets/content/`, pour qu'elle soit
-      jouable à la compilation suivante. Les images y sont déjà. **Retenu** :
-      depuis Chrome, en écrivant dans le dossier du dépôt désigné par
-      l'auteur.
+- [ ] **Éprouver « Intégrer au dépôt » dans Chrome** : désigner
+      `assets/content/`, verser, vérifier le diff git, compiler le jeu et
+      jouer l'aventure. Rien n'en a été ouvert : aucun navigateur ici.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 

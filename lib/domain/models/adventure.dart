@@ -58,6 +58,16 @@ class Adventure {
   /// La page de garde, montree une fois avant le premier lieu.
   final AdventureOpening? opening;
 
+  /// Toutes les illustrations que l'aventure cite : page de garde et lieux,
+  /// sans doublon.
+  ///
+  /// Ce que le depot doit contenir pour que le jeu les montre : une image
+  /// citee mais absente donnerait un fond uni, sans rien pour le dire.
+  Set<String> get picturePaths => <String>{
+        ?opening?.imageAsset,
+        for (final stage in stages.values) ?stage.backgroundAsset,
+      };
+
   Stage get startStage {
     final stage = stages[startStageId];
     if (stage == null) {
