@@ -11,9 +11,11 @@ n'existe plus que dans `versions.md`.
 - [ ] **La page de récit**, type de page à part (titre, illustration, texte,
       une seule suite, ou marquée fin) : page de garde, transition, fin. Le
       type se choisit à la création de la page.
-- [ ] **Éprouver « Intégrer au dépôt » dans Chrome** : désigner
-      `assets/content/`, verser, vérifier le diff git, compiler le jeu et
-      jouer l'aventure. Rien n'en a été ouvert : aucun navigateur ici.
+- [ ] **Images illisibles dans l'outil, connecté au dépôt** (vu par
+      l'auteur dans Chrome, le 24 septembre) : les vignettes et l'aperçu
+      échouent alors que le jeu montre les images. Non reproduit : dans
+      Chromium, en mode local, debug comme release, tout s'affiche. La raison
+      s'affiche désormais dans l'outil — la relever.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 

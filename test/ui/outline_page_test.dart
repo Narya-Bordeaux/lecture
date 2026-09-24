@@ -140,25 +140,26 @@ void main() {
       // Les lieux d'arrivee sont bien la, avec leur nom.
       expect(find.text('La gare'), findsWidgets);
       expect(find.text('Le garage'), findsWidgets);
-      expect(find.text('La rue'), findsWidgets);
+      expect(find.text('Le chemin'), findsWidgets);
     });
 
     testWidgets('une fin l\'annonce, et ne propose rien de plus',
         (tester) async {
       await pumpOutline(tester, realAdventure);
 
-      // « La rue », « Le garage » et « La plage » sont des fins. Elles gardent
-      // leur carte — il y aura une image et un texte a y poser — mais rien
-      // n'en repart, et l'ecran ne doit pas laisser croire le contraire.
+      // « La plage » et « La plage sauvage » sont des fins. Elles gardent
+      // leur carte, avec leur image et leur texte, mais rien n'en repart, et
+      // l'ecran ne doit pas laisser croire le contraire.
       expect(
         find.text('Fin de l\'aventure : du texte, pas de jeu.'),
-        findsNWidgets(3),
+        findsNWidgets(2),
       );
       expect(find.text('Que fait l\'enfant ici ?'), findsNothing);
 
-      // Les deux lieux a plusieurs listes le proposent. La boutique, tri
-      // unique, a deja sa seule sortie : rien a y ajouter.
-      expect(find.text('Ajouter'), findsNWidgets(2));
+      // Les trois lieux a plusieurs listes le proposent — la maison, la gare,
+      // le chemin. Les tris uniques ont deja leur seule sortie : rien a y
+      // ajouter.
+      expect(find.text('Ajouter'), findsNWidgets(3));
     });
 
     testWidgets('une aventure jouable ne montre aucune alerte', (tester) async {
@@ -750,8 +751,10 @@ void main() {
       await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
 
+      // Le dernier « Ajouter » est celui du chemin : on peut revenir a la
+      // maison, pas rejoindre le lieu d'ou l'on part.
       expect(find.text('Rejoindre « Devant la maison »'), findsWidgets);
-      expect(find.text('Rejoindre « La gare »'), findsNothing);
+      expect(find.text('Rejoindre « Le chemin »'), findsNothing);
     });
 
     testWidgets('choisir une fin existante remplit le nom du trajet',

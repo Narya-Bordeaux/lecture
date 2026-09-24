@@ -94,6 +94,17 @@ class ContentPictureImage extends ImageProvider<ContentPictureImage> {
   String toString() => 'ContentPictureImage("$path")';
 }
 
+/// La raison d'un echec de lecture, lisible par l'auteur.
+///
+/// « Image introuvable » seul laissait chercher a l'aveugle : un refus du
+/// depot, une coupure, un fichier absent ou illisible se ressemblaient tous.
+/// L'outil d'auteur montre donc la raison reelle — tronquee, une pile d'appels
+/// n'apprend rien de plus.
+String describeImageError(Object error) {
+  final text = '$error'.trim();
+  return text.length <= 240 ? text : '${text.substring(0, 240)}…';
+}
+
 /// Affiche une illustration du contenu, d'ou qu'elle vienne.
 ///
 /// Remplace `Image.asset`, qui ne sait lire que le bundle.

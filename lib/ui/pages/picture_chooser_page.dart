@@ -80,13 +80,34 @@ class _PictureTile extends StatelessWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              // Le bundle, et lui seul : c'est ce que le jeu montrera.
-              child: ContentImage(
-                path: path,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => const ColoredBox(
-                  color: Color(0xFFE0E0E0),
-                  child: Center(child: Icon(Icons.broken_image_outlined)),
+              // Le bundle, et lui seul : c'est ce que le jeu montrera. La
+              // vignette remplit sa case, quelles que soient les proportions.
+              child: SizedBox.expand(
+                child: ContentImage(
+                  path: path,
+                  fit: BoxFit.cover,
+                  // La raison s'ecrit dans la vignette : une icone seule laissait
+                  // chercher a l'aveugle pourquoi l'image ne venait pas.
+                  errorBuilder: (context, error, stack) => ColoredBox(
+                    color: const Color(0xFFE0E0E0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Icon(Icons.broken_image_outlined),
+                          const SizedBox(height: 6),
+                          Text(
+                            describeImageError(error),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -213,10 +213,10 @@ void main() {
       final adventure = await loadRealAdventure();
       final shop = adventure.findStage('boutique')!;
 
-      // Le classeur de rebut ne mene nulle part : le remplir n'ouvre rien.
-      final keep = shop.findFamily('a_laisser')!;
-      expect(keep.leadsSomewhere, isFalse);
-      expect(shop.findFamily('a_manger')!.leadsSomewhere, isTrue);
+      // Le reste ne mene nulle part : le remplir n'ouvre rien.
+      expect(shop.isSingleSort, isTrue);
+      expect(shop.findFamily('le_reste')!.leadsSomewhere, isFalse);
+      expect(shop.findFamily('villes_de_france')!.leadsSomewhere, isTrue);
     });
   });
 

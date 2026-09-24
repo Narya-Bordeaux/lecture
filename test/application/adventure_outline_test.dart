@@ -282,9 +282,9 @@ void main() {
       final outline = AdventureOutline.of(await loadRealAdventure());
       final start = outline.blocks.first;
 
-      // « maison » n'a pas de recit d'arrivee : la page de garde le dit deja,
-      // et deux ecrans de suite feraient attendre l'enfant pour rien.
-      expect(start.hasNarrative, isFalse);
+      // « maison » porte son enonce : la page de garde raconte, l'enonce
+      // pose la question du premier tri (0.35.0).
+      expect(start.hasNarrative, isTrue);
     });
 
     test('un lieu sans recit de depart laisse la case vide', () {
@@ -316,7 +316,7 @@ void main() {
         <String>[
           'En bus -> La gare',
           'En voiture -> Le garage',
-          'À pied -> La rue',
+          'À pied -> Le chemin',
         ],
       );
     });

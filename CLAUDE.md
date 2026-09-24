@@ -19,10 +19,12 @@ inventé qui a l'air plausible est **pire que pas de vocabulaire du tout** — i
 passe les contrôles, s'installe dans le dépôt et se fait oublier, jusqu'au jour
 où un enfant le lit. Quand du contenu manque pour éprouver quelque chose,
 fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
-arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
-inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
+arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée avait été
+inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. Il
+a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
+intégrée au dépôt.
 
-**Version actuelle : 0.42.0+61** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.42.1+62** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -366,10 +368,13 @@ en 0.42.0) — la zone « le reste » comprise, qui tire ses sept mots dans
 l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
 sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
 en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
-exigeait douze. Le contenu livré porte donc `"drawCount": 2` à la gare et `6` à
-la boutique, ce qu'il jouait déjà : ses listes sont trop courtes pour sept, et
-les compléter serait inventer du vocabulaire. `goal` reste le nombre de mots
-qui suffisent à ouvrir la destination.
+exigeait douze. `goal` reste le nombre de mots qui suffisent à ouvrir la
+destination.
+
+**Les tests lisent la partie tirée** — une liste plus longue que la partie
+garde des mots en réserve que l'enfant ne verra pas. Un test qui classe « les
+mots de la famille » les prend donc dans `engine.stage`, jamais dans le lieu
+d'origine : sinon il classe des mots que le moteur n'a pas tirés.
 
 **Une zone annonce ce que la partie demande** — « 0 / 7 », et non la
 longueur de la liste. `StagePage` prend le nom et la place de chaque zone au
@@ -508,6 +513,12 @@ ne l'aurait pas vue ; sur Android, le nom d'origine n'était même pas connu.
 servent tous deux : chemin saisissable, bouton « Choisir une image », aperçu,
 et **alerte quand l'image citée n'est pas dans le dépôt** — une image rangée
 autrefois sur le dépôt distant, par exemple, que l'enfant ne verrait jamais.
+
+**Une image qui ne se lit pas dit pourquoi** (0.42.1) — l'aperçu et les
+vignettes du sélecteur affichent la raison réelle (`describeImageError`).
+« Image introuvable » seul laissait chercher à l'aveugle : l'auteur a vu ses
+images échouer dans l'outil, alors que le jeu les montrait, sans rien pour dire
+d'où venait l'écart.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir

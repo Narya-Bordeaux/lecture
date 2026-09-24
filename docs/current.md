@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.42.0+61** — 23 septembre 2026
+**Version : 0.42.1+62** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,12 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.42.1+62 — L'aventure de l'auteur, et des images qui disent pourquoi
+- **Le contenu livré est l'aventure de l'auteur**, intégrée depuis l'outil.
+- Images illisibles dans l'outil connecté : non reproduit en local ; la
+  raison d'un échec s'affiche désormais. **À relever** chez l'auteur.
+- 548 tests au vert.
+
 ### 0.42.0+61 — Sept mots par zone
 - Sans réglage, chaque zone tire sept mots, « le reste » compris ; une liste
   plus courte est à finir.
@@ -116,14 +122,6 @@ un travail d'auteur, pas de code.
 - Les fins affichent enfin leur illustration : page de garde et fin partagent
   `NarrationPage` — titre facultatif, image, texte.
 - 543 tests au vert.
-
-### 0.40.0+59 — Listes triées, saisie enchaînée, compte juste
-- Un mot peut figurer dans le nom de sa famille : règle retirée.
-- Les listes se rangent par ordre alphabétique ; le curseur reste dans le
-  champ de saisie.
-- **Défaut corrigé, dans le jeu aussi** : une zone annonce les mots tirés
-  (« 0 / 7 »), plus la longueur de la liste.
-- 539 tests au vert.
 
 ## Décisions prises
 

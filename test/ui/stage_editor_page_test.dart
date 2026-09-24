@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
 
@@ -19,6 +22,7 @@ Future<Stage?> pumpEditor(
   WidgetTester tester,
   Stage stage, {
   PictureCatalog? pictures,
+  ContentSource? contentSource,
 }) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1;
@@ -35,6 +39,7 @@ Future<Stage?> pumpEditor(
                 builder: (_) => StageEditorPage(
                   stage: stage,
                   pictures: pictures,
+                  contentSource: contentSource,
                 ),
               ),
             );
@@ -69,13 +74,11 @@ void main() {
   group('Ce que l\'ecran montre', () {
     testWidgets('les deux recits du lieu, tels qu\'ils sont ecrits',
         (tester) async {
-      await pumpEditor(tester, realAdventure.findStage('gare')!);
+      final station = realAdventure.findStage('gare')!;
+      await pumpEditor(tester, station);
 
       expect(find.text('La gare'), findsWidgets);
-      expect(
-        find.text('Le bus a amené Grisbie à la gare. Il y a des choses à voir'),
-        findsOneWidget,
-      );
+      expect(find.text(station.narrative.onArrival!), findsOneWidget);
       // Un lieu ne raconte pas son depart : le champ n'existe plus.
       expect(find.text('En repartant'), findsNothing);
     });
@@ -173,6 +176,20 @@ void main() {
       );
 
       expect(find.textContaining('pas dans le dépôt'), findsOneWidget);
+    });
+
+    testWidgets('une image qui ne se lit pas dit pourquoi', (tester) async {
+      // « Image introuvable » seul laissait chercher a l'aveugle : un refus
+      // du depot, une coupure, un fichier absent se ressemblaient tous. La
+      // raison reelle s'affiche sous l'apercu.
+      await pumpEditor(
+        tester,
+        realAdventure.startStage,
+        contentSource: _FailingSource('le dépôt a refusé la lecture'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('le dépôt a refusé la lecture'), findsOneWidget);
     });
 
     testWidgets('une image du depot ne signale rien', (tester) async {
@@ -293,4 +310,17 @@ class FakePictureCatalog implements PictureCatalog {
 
   @override
   Future<List<String>> listPictures() async => pictures;
+}
+
+/// Une source dont chaque lecture echoue, avec la raison donnee.
+class _FailingSource implements ContentSource {
+  _FailingSource(this.reason);
+
+  final String reason;
+
+  @override
+  Future<String> readFile(String path) async => throw StateError(reason);
+
+  @override
+  Future<Uint8List> readBytes(String path) async => throw StateError(reason);
 }

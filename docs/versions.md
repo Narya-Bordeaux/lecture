@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.42.1+62 — 24 septembre 2026 — L'aventure de l'auteur, et des images qui disent pourquoi
+
+**L'aventure de l'auteur est le contenu livré.** Écrite dans l'outil et
+versée par « Intégrer au dépôt » — premier usage réel de l'intégration, qui a
+fonctionné. Elle remplace l'aventure inventée. Les tests qui décrivaient
+l'ancien contenu (« La rue », l'ancien texte de la gare, le nombre de
+fichiers) décrivent désormais celui-ci. Deux tests classaient les mots des
+listes entières au lieu de la partie tirée : ils lisent `engine.stage`.
+
+**Vu par l'auteur** : dans l'outil connecté, les vignettes et l'aperçu
+n'affichaient pas les images, alors que le jeu les montrait. **Non
+reproduit** : le jeu puis l'outil ont été ouverts dans Chromium, compilés pour
+le web en release puis en debug, en mode local — images, sélecteur et aperçu
+s'affichent. Il reste la connexion au dépôt, qu'on ne peut pas monter ici.
+En attendant, **la raison d'un échec s'affiche** (`describeImageError`) dans
+l'aperçu et dans chaque vignette, au lieu d'une icône muette ; et les
+vignettes remplissent leur case.
+
+548 tests au vert.
+
 ### 0.42.0+61 — 24 septembre 2026 — Sept mots par zone
 
 **Vu par l'auteur, dans le jeu** : les zones de « Devant la maison » et de

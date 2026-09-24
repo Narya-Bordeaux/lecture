@@ -122,8 +122,8 @@ class _PictureFieldState extends State<PictureField> {
               path: path,
               source: widget.contentSource,
               fit: BoxFit.fitWidth,
-              errorBuilder: (context, error, stack) => const _Warning(
-                'Image introuvable — le jeu affichera un fond uni.',
+              errorBuilder: (context, error, stack) => _Warning(
+                'Image illisible — ${describeImageError(error)}',
               ),
             ),
           ),
