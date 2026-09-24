@@ -16,8 +16,6 @@ class Narrative {
   const Narrative({this.onArrival});
 
   factory Narrative.fromJson(Object? json) {
-    // Tolere l'ancienne forme, ou le recit etait une simple chaine.
-    if (json is String) return Narrative(onArrival: json);
     if (json is Map<String, dynamic>) {
       return Narrative(onArrival: json['onArrival'] as String?);
     }

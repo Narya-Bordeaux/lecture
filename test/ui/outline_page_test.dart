@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/infrastructure/content/content_integrator.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
+import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
 
@@ -16,6 +19,7 @@ Future<void> pumpOutline(
   WidgetTester tester,
   Adventure adventure, {
   Future<List<String>> Function(Adventure adventure)? onSave,
+  Future<List<String>?> Function(Adventure adventure)? onIntegrate,
 }) async {
   // Un `ListView` ne construit que les cartes visibles : sur la fenetre de
   // test par defaut, les lieux du bas n'existeraient pas dans l'arbre et les
@@ -26,7 +30,13 @@ Future<void> pumpOutline(
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    MaterialApp(home: OutlinePage(adventure: adventure, onSave: onSave)),
+    MaterialApp(
+      home: OutlinePage(
+        adventure: adventure,
+        onSave: onSave,
+        onIntegrate: onIntegrate,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -130,25 +140,26 @@ void main() {
       // Les lieux d'arrivee sont bien la, avec leur nom.
       expect(find.text('La gare'), findsWidgets);
       expect(find.text('Le garage'), findsWidgets);
-      expect(find.text('La rue'), findsWidgets);
+      expect(find.text('Le chemin'), findsWidgets);
     });
 
     testWidgets('une fin l\'annonce, et ne propose rien de plus',
         (tester) async {
       await pumpOutline(tester, realAdventure);
 
-      // « La rue », « Le garage » et « La plage » sont des fins. Elles gardent
-      // leur carte — il y aura une image et un texte a y poser — mais rien
-      // n'en repart, et l'ecran ne doit pas laisser croire le contraire.
+      // « La plage » et « La plage sauvage » sont des fins. Elles gardent
+      // leur carte, avec leur image et leur texte, mais rien n'en repart, et
+      // l'ecran ne doit pas laisser croire le contraire.
       expect(
         find.text('Fin de l\'aventure : du texte, pas de jeu.'),
-        findsNWidgets(3),
+        findsNWidgets(2),
       );
       expect(find.text('Que fait l\'enfant ici ?'), findsNothing);
 
-      // Les deux lieux a plusieurs listes le proposent. La boutique, tri
-      // unique, a deja sa seule sortie : rien a y ajouter.
-      expect(find.text('Ajouter'), findsNWidgets(2));
+      // Les trois lieux a plusieurs listes le proposent — la maison, la gare,
+      // le chemin. Les tris uniques ont deja leur seule sortie : rien a y
+      // ajouter.
+      expect(find.text('Ajouter'), findsNWidgets(3));
     });
 
     testWidgets('une aventure jouable ne montre aucune alerte', (tester) async {
@@ -386,7 +397,7 @@ void main() {
       // Tout sauf les mots : ceux-la appartiennent au trajet.
       expect(find.text('Le lieu'), findsOneWidget);
       expect(find.text('L\'illustration'), findsOneWidget);
-      expect(find.text('Le récit'), findsOneWidget);
+      expect(find.text('L\'énoncé'), findsOneWidget);
     });
 
     testWidgets('le lieu renommé revient sur sa carte', (tester) async {
@@ -740,8 +751,10 @@ void main() {
       await tester.tap(find.text('Un nouveau lieu'));
       await tester.pumpAndSettle();
 
+      // Le dernier « Ajouter » est celui du chemin : on peut revenir a la
+      // maison, pas rejoindre le lieu d'ou l'on part.
       expect(find.text('Rejoindre « Devant la maison »'), findsWidgets);
-      expect(find.text('Rejoindre « La gare »'), findsNothing);
+      expect(find.text('Rejoindre « Le chemin »'), findsNothing);
     });
 
     testWidgets('choisir une fin existante remplit le nom du trajet',
@@ -868,6 +881,146 @@ void main() {
       // Un trajet, et son arrivee en carte : la page blanche se remplit.
       expect(find.text('En bus'), findsNWidgets(2));
       expect(find.text('B1'), findsNWidgets(2));
+    });
+  });
+
+  group('Essayer sur l\'appareil', () {
+    // Ce qui a ete regle sur l'ordinateur doit se verifier au doigt, sur
+    // l'ecran reel. L'essai monte le vrai jeu, pas une imitation.
+
+    testWidgets('un lieu jouable propose de l\'essayer', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Essayer ce lieu').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(StagePage.wordTrayKey), findsOneWidget);
+    });
+
+    testWidgets('une fin ne propose pas d\'essai', (tester) async {
+      final endingOnly = AdventureBuilder.createAdventure(
+        title: 'Essai',
+        startName: 'Départ',
+      );
+      await pumpOutline(
+        tester,
+        AdventureBuilder(endingOnly).defineAsEnding('depart'),
+      );
+
+      expect(find.text('Essayer ce lieu'), findsNothing);
+    });
+
+    testWidgets('une aventure jouable se joue en entier', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Jouer l\'aventure'));
+      await tester.pumpAndSettle();
+
+      // La page de garde d'abord, comme dans le jeu.
+      expect(find.text(UiStringsFr.startAdventure), findsOneWidget);
+    });
+
+    testWidgets('une aventure inachevee ne se joue pas en entier', (
+      tester,
+    ) async {
+      await pumpOutline(
+        tester,
+        AdventureBuilder.createAdventure(title: 'Essai', startName: 'Départ'),
+      );
+
+      expect(find.text('Jouer l\'aventure'), findsNothing);
+    });
+  });
+
+  group('Intégrer au dépôt', () {
+    // Verser l'aventure dans `assets/content/` de la copie du dépôt, pour
+    // qu'elle soit jouable à la compilation suivante. L'écran ne sait pas
+    // où : c'est le point d'entrée qui le sait, et le rappel est nul là où
+    // l'on ne peut pas désigner de dossier.
+
+    testWidgets('sans moyen d\'intégrer, le bouton ne paraît pas', (
+      tester,
+    ) async {
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Intégrer au dépôt'), findsNothing);
+    });
+
+    testWidgets('confirmer verse l\'aventure de l\'écran, et le dit', (
+      tester,
+    ) async {
+      Adventure? integrated;
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async {
+          integrated = adventure;
+          return <String>['adventures/grisbie_plage.json', 'index.json'];
+        },
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      // D'abord ce qui va se passer, et ce qui restera à faire.
+      expect(find.textContaining('assets/content'), findsWidgets);
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(integrated, same(realAdventure));
+      expect(find.textContaining('adventures/grisbie_plage.json'),
+          findsOneWidget);
+      expect(find.textContaining('commit'), findsOneWidget);
+    });
+
+    testWidgets('un refus se dit, raison par raison', (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async => throw const IntegrationRefused(
+          <String>['L\'image « pictures/x.jpg » n\'est pas dans le dépôt.'],
+        ),
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('pictures/x.jpg'), findsOneWidget);
+    });
+
+    testWidgets('renoncer au choix du dossier ne dit rien', (tester) async {
+      await pumpOutline(
+        tester,
+        realAdventure,
+        onIntegrate: (adventure) async => null,
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choisir le dossier'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('commit'), findsNothing);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('une aventure inachevée ne s\'intègre pas', (tester) async {
+      var called = false;
+      await pumpOutline(
+        tester,
+        AdventureBuilder.createAdventure(title: 'Essai', startName: 'Départ'),
+        onIntegrate: (adventure) async {
+          called = true;
+          return const <String>[];
+        },
+      );
+
+      await tester.tap(find.text('Intégrer au dépôt'));
+      await tester.pumpAndSettle();
+
+      expect(called, isFalse);
+      expect(find.textContaining('jouable'), findsWidgets);
     });
   });
 }

@@ -182,12 +182,6 @@ void main() {
           StageNature.undefined);
     });
 
-    test('aucun personnage n\'est invente', () {
-      // Le personnage est un ornement, pas la mecanique : l'outil ne doit pas
-      // en fabriquer un dont l'auteur n'a pas voulu.
-      expect(built.findStage('boutique')!.isEncounter, isFalse);
-    });
-
     test('il n\'accepte aucune sortie de plus', () {
       // Une seconde sortie en ferait un tri ordinaire affuble d'une liste de
       // rebut : ce n'est plus la meme mecanique, et l'outil le refuse.

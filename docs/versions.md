@@ -44,6 +44,206 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.42.1+62 — 24 septembre 2026 — L'aventure de l'auteur, et des images qui disent pourquoi
+
+**L'aventure de l'auteur est le contenu livré.** Écrite dans l'outil et
+versée par « Intégrer au dépôt » — premier usage réel de l'intégration, qui a
+fonctionné. Elle remplace l'aventure inventée. Les tests qui décrivaient
+l'ancien contenu (« La rue », l'ancien texte de la gare, le nombre de
+fichiers) décrivent désormais celui-ci. Deux tests classaient les mots des
+listes entières au lieu de la partie tirée : ils lisent `engine.stage`.
+
+**Vu par l'auteur** : dans l'outil connecté, les vignettes et l'aperçu
+n'affichaient pas les images, alors que le jeu les montrait. **Non
+reproduit** : le jeu puis l'outil ont été ouverts dans Chromium, compilés pour
+le web en release puis en debug, en mode local — images, sélecteur et aperçu
+s'affichent. Il reste la connexion au dépôt, qu'on ne peut pas monter ici.
+En attendant, **la raison d'un échec s'affiche** (`describeImageError`) dans
+l'aperçu et dans chaque vignette, au lieu d'une icône muette ; et les
+vignettes remplissent leur case.
+
+548 tests au vert.
+
+### 0.42.0+61 — 24 septembre 2026 — Sept mots par zone
+
+**Vu par l'auteur, dans le jeu** : les zones de « Devant la maison » et de
+« La gare » annonçaient la longueur de leur liste. Le compteur disait vrai :
+sans `drawCount`, la liste jouait entière.
+
+- **Décision de l'auteur** : sans réglage, chaque zone tire **sept** mots
+  (`Stage.defaultDrawCount`). La zone « le reste » aussi, dans l'ensemble de
+  ses listes cochées — sept en tout, pas sept par liste.
+- **Option A** : une liste de moins de sept mots est à finir, et rend
+  l'aventure injouable tant qu'on n'a pas écrit les mots manquants.
+- **Contenu livré** : la gare (listes de 2) et la boutique (listes de 6)
+  reçoivent le `drawCount` qu'elles jouaient déjà. Sans cela le jeu ne
+  s'ouvrait plus, et compléter leurs listes aurait été inventer du
+  vocabulaire.
+- Les données fabriquées des tests reçoivent de même un réglage explicite ;
+  trois tests qui décrivaient l'ancienne règle la décrivent désormais.
+
+547 tests au vert.
+
+### 0.41.0+60 — 24 septembre 2026 — Un seul écran de lecture
+
+**Défaut vu par l'auteur** : les images posées sur les fins ne paraissaient
+pas. L'écran de fin n'en affichait aucune — il n'a jamais lu l'illustration.
+
+- **`NarrationPage`** : titre facultatif en haut, illustration à ses
+  proportions sur toute la largeur, texte dessous, bouton toujours visible.
+  La page de garde et la fin s'en servent toutes deux, au lieu de deux mises
+  en page qui divergeaient.
+- La fin prend le nom du lieu en titre ; dans l'éditeur, son texte s'appelle
+  « Le récit de fin ».
+- Premier pas vers la page de récit générale (garde, transition, fin),
+  toujours au TODO.
+
+543 tests au vert.
+
+### 0.40.0+59 — 24 septembre 2026 — Listes triées, saisie enchaînée, compte juste
+
+- **Règle retirée par l'auteur** : un mot peut apparaître dans le nom de sa
+  famille (« bus » dans « En bus »). `validate()` ne le signale plus.
+- **Ordre alphabétique** : `Word.compareAlphabetically`, accents et
+  majuscules ignorés ; `WordListBuilder.addWord` insère à sa place,
+  `WordListPage` affiche trié. Le repliement des accents passe dans le
+  domaine (`foldAccents`), partagé avec les identifiants.
+- **Saisie enchaînée** : le curseur revient dans le champ après chaque mot,
+  par Entrée comme par le bouton.
+- **Défaut vu par l'auteur, dans le jeu comme à l'essai** : une zone annonçait
+  la longueur de la liste (« 0 / 12 ») au lieu des mots tirés (« 0 / 7 »), et
+  s'ouvrait au septième. `StagePage` prend désormais le compte à la partie
+  tirée (`FamilyDropZone.requiredCount`), la place restant celle de l'écran
+  pour le calage.
+
+539 tests au vert.
+
+### 0.39.0+58 — 23 septembre 2026 — Intégrer au dépôt
+
+**Publier, c'est verser dans le dépôt.** Depuis Chrome ou Edge, « Intégrer au
+dépôt » demande de désigner le dossier `assets/content/` de la copie du dépôt,
+et y écrit l'aventure de l'écran avec ses listes et ses mots.
+
+- `ContentIntegrator` : le même `ContentSaver` que l'enregistrement, le
+  **dossier du dépôt servant de base** — ses listes et lexiques sont
+  complétés là où ils vivent. Seul ce qui change est écrit.
+- **Rien ne s'écrit si un contrôle échoue** : `index.json` présent (le bon
+  dossier), aventure jouable, chaque image citée dans `pictures/`
+  (`Adventure.picturePaths`). Chaque raison est nommée.
+- `BrowserContentFolder` : l'accès aux fichiers du navigateur, par import
+  conditionnel comme le téléchargement. `ContentStore` (domaine) nomme ce qui
+  se lit et s'écrit.
+- Le bouton ne paraît qu'où l'on peut désigner un dossier : ni Firefox ni
+  Safari.
+
+**Non éprouvé** : compilé pour le web, jamais ouvert dans un navigateur.
+532 tests au vert.
+
+### 0.38.0+57 — 23 septembre 2026 — Essayer sur l'appareil
+
+**Le besoin de l'auteur** : créer sur l'ordinateur, vérifier sur le téléphone
+avant de publier — seul moyen de savoir si un réglage rend proprement sur un
+petit écran.
+
+- **« Essayer ce lieu »**, sur la carte : le vrai écran de jeu, sur le lieu
+  seul, jusqu'au premier départ. Offert quand `Stage.canBeTriedAlone` : des
+  familles, dont aucune n'est vidée par les mots communs.
+- **« Jouer l'aventure »**, en tête du parcours, quand elle est jouable : le
+  vrai déroulé du jeu, page de garde comprise.
+- Les deux jouent l'aventure **de l'écran**, enregistrée ou non.
+  `PreloadedAdventureRepository` passe des tests à `lib/`, et refuse
+  désormais une aventure injouable, comme le jeu.
+
+**Écarté** : un marqueur « en test » dans le jeu. Il aurait fallu verser les
+brouillons dans le dépôt pour les voir, et recompiler à chaque retouche. Une
+aventure est publiée quand elle est dans le dépôt.
+
+Au TODO, décidés pour plus tard : l'écran de choix des aventures, l'aperçu
+multi-formats. 521 tests au vert.
+
+### 0.37.0+56 — 23 septembre 2026 — Les images se choisissent dans le dépôt
+
+**Décision de l'auteur** : il verse ses images dans `assets/content/pictures/`
+sous le nom qu'il veut, et l'outil les propose. L'outil est compilé à partir
+du dépôt, comme le jeu : une image choisie là existe forcément dans le jeu.
+
+- **« Choisir une image »** ouvre `PictureChooserPage` : les images du bundle,
+  en vignettes, avec leur nom. `PictureCatalog` (domaine) et
+  `BundledPictureCatalog` (manifeste du bundle) les listent.
+- **`PictureField`**, un seul champ d'image pour le lieu et la page de garde,
+  qui en avaient chacun une copie. Il signale une image citée qui n'est pas
+  dans le dépôt : le jeu ne l'afficherait pas.
+- **Retirés** : la photothèque de l'appareil (`PicturePicker`,
+  `DevicePicturePicker`, `StoredPictureLibrary`, `PictureLibrary`), la copie
+  renommée `gare_<horodatage>.jpg`, la mention « image de travail », et la
+  dépendance `image_picker`. Sur Android le nom d'origine n'était de toute façon
+  pas connu.
+
+Le catalogue lit le vrai bundle en test, noms accentués compris ; aucun
+navigateur ne l'a encore fait. 509 tests au vert.
+
+### 0.36.0+55 — 23 septembre 2026 — Le bandeau au-dessus de la scène
+
+**Décision de l'auteur (option A)** : le bandeau des mots est posé au-dessus
+de l'illustration, qui occupe ce qu'il laisse. Superposé, il recouvrait la
+zone du bus dès qu'un énoncé de deux phrases s'affichait sur un petit
+téléphone (22 px sur un 360×640) : le doigt de l'enfant y était arrêté sans
+message. Le recouvrement est désormais impossible, quelle que soit la longueur
+du texte ; l'image rapetisse d'autant.
+
+**Le calage suit.** Ses poignées étaient placées par un calcul sur l'écran
+entier, qui ne savait rien du bandeau : elles auraient été décalées de sa
+hauteur. `StagePage.sceneOverlayBuilder` les pose dans la scène même, avec le
+rectangle qu'elle a calculé, et `StagePage.interactive` rend l'aperçu inerte.
+
+Trois tests : la scène commence sous le bandeau, même sous un énoncé très
+long ; chaque poignée recouvre exactement sa zone de jeu ; l'étape réelle,
+munie de l'énoncé que l'auteur a écrit pour la maison, ne recouvre rien sur
+trois formats. **Les images de l'auteur** sont arrivées dans
+`assets/content/pictures/`. 511 tests au vert.
+
+### 0.35.0+54 — 23 septembre 2026 — L'énoncé sur la scène
+
+**Vu par l'auteur** : le texte d'arrivée saisi dans l'outil ne paraissait pas
+sur la page de jeu. Il s'affichait sur un écran de récit intercalé, avant la
+scène — or c'est lui qui donne son sens au tri : il pose la question que les
+mots tranchent.
+
+- **L'énoncé se lit en haut de la scène**, dans le cartouche des mots, et y
+  reste quand ils sont tous classés. `StoryMomentPage` est retiré : un lieu de
+  jeu s'ouvre directement sur sa scène.
+- **La consigne générique est retirée** (« Pose les mots au bon endroit »).
+- L'éditeur de lieu appelle le champ « L'énoncé ». Le calage, qui monte la
+  même page, montre l'énoncé réel : l'auteur voit la place qu'il prend.
+- La règle « pas d'`onArrival` au lieu de départ quand il y a une page de
+  garde » tombe : la page de garde raconte, l'énoncé demande.
+
+**Les trois tolérances héritées sont retirées** (règle du §1 de CLAUDE.md) :
+le champ `syllables` n'est plus nettoyé à l'enregistrement, un récit écrit en
+simple chaîne n'est plus lu, et une image ne se lit plus que par la source de
+contenu — ni `assets/…`, ni adresse `http:` ou `blob:`.
+
+**Défaut mesuré, non corrigé** : sur un 360×640, l'énoncé de deux phrases que
+l'auteur a écrit pour la maison fait recouvrir la zone du bus par le bandeau
+(22 px). Solution à choisir, voir `TODO.md`. 509 tests au vert.
+
+### 0.34.2+53 — 23 septembre 2026 — Plus de personnage
+
+**Décision de l'auteur** : le personnage était de la dette. Il mêlait deux
+choses — quelqu'un qui intervient dans l'histoire, et la mécanique du tri
+unique qu'il avait servi à poser. La mécanique vit dans la structure depuis
+0.31.0 ; ce qui restait n'était que de la narration.
+
+Retirés : `Character`, `Encounter`, `Stage.encounter` / `isEncounter`,
+`ContentIndex.charactersFile`, la lecture de `characters.json` par
+`ContentRepository` et sa recopie par `ContentSaver`, l'icône de la carte du
+parcours, et la réplique qui remplaçait la consigne sur la scène. Le contenu
+livré perd `characters.json` et la réplique de la marchande.
+
+**Aucune compatibilité** : le jeu n'est pas en ligne. La règle est désormais
+écrite au §1 de CLAUDE.md, et les tolérances écrites avant elle sont listées
+dans `TODO.md`. 508 tests au vert.
+
 ### 0.34.1+52 — 23 septembre 2026 — Un lieu rouvert se redéfinit sur place
 
 **Vu par l'auteur, à l'écran** : une fin rouverte depuis sa structure

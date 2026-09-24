@@ -19,15 +19,25 @@ inventé qui a l'air plausible est **pire que pas de vocabulaire du tout** — i
 passe les contrôles, s'installe dans le dépôt et se fait oublier, jusqu'au jour
 où un enfant le lit. Quand du contenu manque pour éprouver quelque chose,
 fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
-arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
-inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
+arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée avait été
+inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. Il
+a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
+intégrée au dépôt.
 
-**Version actuelle : 0.34.1+52** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.42.1+62** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
 réelle. Le chantier en cours l'étend à la création d'une journée entière, voir
 `docs/current.md`.
+
+**Le jeu n'est pas en ligne, et aucune compatibilité ne se construit.** Aucune
+version n'a été publiée, aucun joueur n'a de progression ni de contenu à
+préserver. Quand le modèle ou le format change, on change le contenu du dépôt
+avec lui — jamais de lecture tolérante d'une forme ancienne, de conversion
+automatique, ni de champ gardé « pour ne pas casser ». Ce code-là se paie
+toujours, et ici il ne protège personne. Les tolérances écrites avant cette
+règle ont été retirées en 0.35.0.
 
 **Plateformes visées** : Web, Android, Windows. iOS et macOS ne sont pas visés — le
 dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régénérer.
@@ -46,21 +56,19 @@ sous l'icône, « Les Aventures de Grisbie » sur la fiche Play Store, et
 première publication**. Le package Dart est `grisbie`. Ne renommer aucun de ces
 éléments sans reprendre le document.
 
-**Six dépendances tierces** — `image_picker` et `path_provider` (équipe
-Flutter), `web` (équipe Dart), `firebase_core`, `firebase_storage` et
-`firebase_auth`. Elles ne servent qu'à l'outil d'auteur : choisir
-l'illustration d'un lieu dans l'appareil, savoir où écrire, rendre les fichiers
-par le téléchargement d'un navigateur, et déposer le contenu sur le dépôt
-distant.
+**Cinq dépendances tierces** — `path_provider` (équipe Flutter), `web`
+(équipe Dart), `firebase_core`, `firebase_storage` et `firebase_auth`. Elles
+ne servent qu'à l'outil d'auteur : savoir où écrire, rendre les fichiers par
+le téléchargement d'un navigateur, écrire dans le dossier du dépôt désigné
+dans Chrome, et déposer le contenu sur le dépôt distant. `image_picker` a été retiré en 0.37.0 : les images se choisissent
+dans le dépôt, plus dans l'appareil.
 Le `pubspec.yaml` étant partagé, **elles sont embarquées dans le jeu**, qui ne
 les appelle jamais. Ce n'est pas une promesse, c'est vérifié :
 `test/infrastructure/author_only_test.dart` exige que les greffons ne soient
-importés que par l'infrastructure dédiée, que `DevicePicturePicker` et
-`AuthorRemote` ne se construisent que dans `main_author.dart`, que **rien
-n'initialise Firebase** hors de `author_remote.dart`, et que `main.dart` ne
-mène à aucun écran d'auteur. `image_picker` a été préféré à un sélecteur de fichiers
-général : sur Android 13 et au-delà il passe par le Photo Picker du système,
-qui **ne demande aucune permission**.
+importés que par l'infrastructure dédiée, qu'aucun code n'ouvre plus la
+photothèque de l'appareil, qu'`AuthorRemote` ne se construise que dans
+`main_author.dart`, que **rien n'initialise Firebase** hors de
+`author_remote.dart`, et que `main.dart` ne mène à aucun écran d'auteur.
 
 **Pas de serveur** : aucune donnée ne quitte l'appareil. La progression est stockée
 localement. Le public étant mineur, toute proposition d'ajout d'un backend, d'un
@@ -204,9 +212,9 @@ Ils vivent dans `assets/content/` en JSON et sont chargés par `lib/infrastructu
 quatre sortes de fichiers, champs, contrôles automatiques. Le lire avant de
 toucher au contenu, et le mettre à jour si le format change.
 
-Cinq fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
+Quatre fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.json`
 définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par thème,
-`characters.json` porte les personnages, et `adventures/*.json` assemble le tout
+et `adventures/*.json` assemble le tout
 par références. **`pictures/` s'y ajoute** : une illustration est du contenu, et
 tout chemin d'image s'écrit relatif à `assets/content/` — `pictures/gare.jpg`,
 jamais `assets/pictures/gare.jpg`. Un mot n'est défini qu'une fois ; le
@@ -222,7 +230,7 @@ du milieu. Une famille **cite** une liste (`"list": "bus"`), elle ne porte pas s
 mots.
 
 **Tout le contenu est en français, identifiants compris** — ids d'étapes, de
-familles, de personnages. Le jeu n'a pas vocation à être traduit, et une clé
+familles, de listes. Le jeu n'a pas vocation à être traduit, et une clé
 technique anglaise n'ajoutait qu'un détour : il fallait savoir qu'« arrêt »
 s'appelait `bus_stop` pour l'employer. Seuls les noms de champs JSON restent en
 anglais, puisqu'ils portent directement les champs Dart.
@@ -305,13 +313,19 @@ termine l'étape.
 **Un mot n'est que son orthographe** — `Word` n'a qu'un champ, `text`. Il
 portait son découpage en syllabes, qui ne servait qu'à l'aide affichée après
 une erreur ; l'aide retirée (0.33.0), la donnée est partie avec elle : une
-donnée que rien n'utilise finit fausse sans que personne ne le voie. Un
-contenu écrit avant se lit toujours — `syllables` y est ignoré —, et
-`ContentSaver` le retire des lexiques qu'il réécrit.
+donnée que rien n'utilise finit fausse sans que personne ne le voie.
 
-**Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
-bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
-le détecte et un test le vérifie.
+**Un mot peut apparaître dans le nom de sa famille** (« bus » dans « En
+bus ») — la règle qui l'interdisait a été **retirée par l'auteur** en 0.40.0 :
+le mot se devine, et ce n'est pas grave. `validate()` ne le signale plus.
+
+**Une liste est rangée par ordre alphabétique** — `Word.compareAlphabetically`,
+l'ordre d'un lecteur français : les accents et les majuscules ne déplacent pas
+un mot (« école » avec les « e »). `WordListBuilder.addWord` insère le mot à
+sa place, si bien que le fichier se trie à mesure qu'on l'écrit, et
+`WordListPage` affiche la liste triée quel que soit l'ordre du fichier. Le
+repliement des accents (`foldAccents`, `lib/domain/text/`) est le même que
+celui des identifiants : une seule table.
 
 **Décor et zones** — l'illustration d'une étape (`backgroundAsset`) et l'endroit de
 chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
@@ -327,7 +341,12 @@ recopier a longtemps été la seule façon d'enregistrer ; « Garder » rend
 désormais l'étape calée, arrondie au centième, à l'éditeur de lieu, et
 « Enregistrer » l'écrit avec le reste. L'aperçu lit le décor **par la source
 de travail** (`StagePage.contentSource`) : sans quoi il cherchait dans le bundle
-une image prise avec l'outil, et l'auteur calait sur un fond vide. Le jeu livré n'en
+une image prise avec l'outil, et l'auteur calait sur un fond vide. **Les
+poignées se posent dans la scène du jeu**, par `StagePage.sceneOverlayBuilder`,
+qui leur passe le rectangle de l'illustration tel que la scène l'a calculé :
+le bandeau grandit avec l'énoncé et repousse l'image, et un second calcul sur
+l'écran entier décalait les poignées d'autant. L'aperçu est rendu inerte par
+`StagePage.interactive`, les poignées seules reçoivent les gestes. Le jeu livré n'en
 contient aucune trace : pas de bouton caché, pas de geste secret. La géométrie
 vit dans `AreaEditor` (`lib/application/`, Dart pur) ; la page ne fait que
 traduire des gestes en fractions.
@@ -344,9 +363,26 @@ de la même taille d'une famille à l'autre.
 d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à la
 maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
 `Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
-Nul des deux côtés, la liste joue entière : c'est le cas du contenu livré, dont
-le comportement n'a donc pas changé. `goal` reste le nombre de mots qui suffisent
-à ouvrir la destination.
+Nul des deux côtés, **sept** (`Stage.defaultDrawCount`, décision de l'auteur
+en 0.42.0) — la zone « le reste » comprise, qui tire ses sept mots dans
+l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
+sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
+en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
+exigeait douze. `goal` reste le nombre de mots qui suffisent à ouvrir la
+destination.
+
+**Les tests lisent la partie tirée** — une liste plus longue que la partie
+garde des mots en réserve que l'enfant ne verra pas. Un test qui classe « les
+mots de la famille » les prend donc dans `engine.stage`, jamais dans le lieu
+d'origine : sinon il classe des mots que le moteur n'a pas tirés.
+
+**Une zone annonce ce que la partie demande** — « 0 / 7 », et non la
+longueur de la liste. `StagePage` prend le nom et la place de chaque zone au
+lieu de l'écran, mais le **compte au lieu tiré par le moteur**
+(`FamilyDropZone.requiredCount`). Elle prenait tout au lieu de l'écran, et une
+liste de douze s'annonçait « 0 / 12 » pour s'ouvrir au septième mot : invisible
+tant que les listes jouaient entières sans réglage. La place, elle, doit
+rester celle de l'écran : le calage déplace les zones sans relancer la partie.
 
 **Le tirage a lieu dans le moteur, pas dans l'interface** — `StageEngine`
 construit l'étape jouée par `stage.drawnWith(random)`, avec le `Random` injecté.
@@ -402,10 +438,12 @@ s'il change, et le fichier propre **garde ce qu'il avait** : il était
 auparavant réécrit avec les seules nouveautés, si bien qu'un second
 enregistrement effaçait les listes du premier.
 
-**Le personnage est un ornement** — un `character` et sa réplique se posent sur
-n'importe quel lieu, et ne définissent aucune mécanique. Un tri unique peut se
-passer de personnage ; un lieu ordinaire peut en porter un. L'outil d'auteur n'en
-invente jamais.
+**Il n'y a plus de personnage** (0.34.2) — `Character`, `characters.json` et
+la réplique qu'un lieu lui prêtait ont été retirés. Le modèle mêlait deux
+choses : quelqu'un qui intervient dans l'histoire, et la mécanique du tri
+unique, qu'il avait longtemps servi à poser. La mécanique vit désormais dans la
+structure ; ce qui restait n'est que de la narration, et c'est au récit de le
+porter.
 
 **Pas de champ « type d'étape »** — la nature d'un lieu se lit dans sa structure :
 une famille sans destination fait un tri unique, aucune famille fait une fin
@@ -438,8 +476,8 @@ le moteur et ferait diverger les deux.
 `contentImageProvider` (dans `lib/ui/widgets/content_image.dart`) rend un
 `ContentPictureImage`, qui lit les octets par `ContentSource.readBytes`. Le
 bundle pour le jeu, un dossier de l'appareil ou le dépôt distant pour l'outil.
-Les quatre endroits qui affichent une image — scène de jeu, calage, page de
-garde, moment de récit — passent par là. Deux règles séparées finiraient par
+Les endroits qui affichent une image — scène de jeu, calage, écran de
+lecture — passent par là. Deux règles séparées finiraient par
 diverger, et l'auteur calerait ses zones sur une image que le jeu ne montre pas.
 
 C'est un `ImageProvider` à part entière et non un `FutureBuilder` : c'est ce
@@ -447,10 +485,9 @@ qui le fait entrer dans le cache d'images de Flutter, qui indexe par égalité d
 fournisseur. La **source fait partie de son identité** — se connecter au dépôt
 doit bien redonner une autre image.
 
-Deux préfixes restent traités à part, et seulement pour ne pas casser un
-contenu écrit avant la bascule : `assets/` désigne le bundle directement, une
-adresse (`http:`, `https:`, `blob:`) se lit telle quelle. Rien n'en produit
-plus.
+**Aucun autre chemin n'est lu** : ni `assets/…`, ni adresse `http:` ou
+`blob:`. Les deux formes étaient tolérées pour un contenu écrit avant la
+bascule, et ont été retirées en 0.35.0 (§1).
 
 **Ce que cela a remplacé** — l'image vivait à part : un chemin de fichier sur
 l'appareil, une adresse `blob:` dans un navigateur, et deux fichiers choisis
@@ -460,31 +497,28 @@ elle disparaissait avant d'être affichée, le système révoquant l'adresse. Un
 `ContentSink.writeBytes` et un `ContentSource.readBytes` ont supprimé les deux
 problèmes et une branche de plateforme.
 
-**Choisir une image, et l'écrire dans le contenu** — deux interfaces de
-domaine, et c'est la séparation qui rend le tout éprouvable.
-`PicturePicker` ouvre la photothèque et rend des **octets** ;
-`StoredPictureLibrary` les écrit dans l'arbre de contenu par un `ContentSink`
-et rend le chemin `pictures/…`. `DevicePicturePicker` implémente le premier
-avec `image_picker`, qui sert aussi bien sur un appareil que dans un navigateur
-(`image_picker_for_web`).
+**Une image se choisit dans le dépôt** (0.37.0) — l'auteur verse ses fichiers
+dans `assets/content/pictures/`, sous le nom qu'il veut, et l'outil les
+propose : `PictureCatalog` (domaine) les liste, `BundledPictureCatalog` les lit
+dans le manifeste du bundle, `PictureChooserPage` les montre en vignettes avec
+leur nom. L'outil est compilé à partir du dépôt, comme le jeu : **une image
+choisie là existe forcément dans le jeu**. Rien n'est copié ni renommé.
 
-**Des octets, jamais le chemin rendu par le greffon** : sur un appareil c'est un
-fichier de cache qu'Android peut purger, et dans un navigateur une adresse
-`blob:` que le système révoque aussitôt — c'était la cause de l'aperçu vide sur
-le web. Il n'y a plus de chemin à lire, donc plus rien à révoquer.
+Ce que cela a remplacé : une photothèque qui copiait la photo de l'appareil
+sous un nom fabriqué (`gare_1790155902917.jpg`) dans le dossier de travail.
+L'image vivait alors sur le dépôt distant, jamais dans le dépôt git, et le jeu
+ne l'aurait pas vue ; sur Android, le nom d'origine n'était même pas connu.
 
-**Le nom porte un horodatage**, sans lequel une seconde photo pour le même lieu
-écrirait au même chemin : le cache d'images de Flutter, qui indexe par chemin,
-continuerait d'afficher l'ancienne et le geste paraîtrait sans effet.
+**`PictureField` est le seul champ d'image** — le lieu et la page de garde s'en
+servent tous deux : chemin saisissable, bouton « Choisir une image », aperçu,
+et **alerte quand l'image citée n'est pas dans le dépôt** — une image rangée
+autrefois sur le dépôt distant, par exemple, que l'enfant ne verrait jamais.
 
-**La photothèque est nulle quand il n'y a nulle part de durable où écrire** —
-un navigateur non connecté au dépôt, dont le seul puits est le téléchargement.
-Le bouton ne paraît alors pas et le champ reste saisissable au clavier ; c'est
-plus honnête que de proposer un geste dont l'effet disparaît aussitôt.
-
-Une image ainsi prise est **une image de travail** : l'éditeur le dit sous le
-champ. Le jeu ne la verra qu'une fois le contenu rapatrié dans
-`assets/content/` et recompilé.
+**Une image qui ne se lit pas dit pourquoi** (0.42.1) — l'aperçu et les
+vignettes du sélecteur affichent la raison réelle (`describeImageError`).
+« Image introuvable » seul laissait chercher à l'aveugle : l'auteur a vu ses
+images échouer dans l'outil, alors que le jeu les montrait, sans rien pour dire
+d'où venait l'écart.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir
@@ -506,16 +540,32 @@ demandé, classe ses mots, puis clique un trajet : c'est le **lieu suivant** qui
 raconte, avec son propre texte. Un `onCompletion` a existé et disait la même
 chose deux fois — le contenu livré faisait annoncer l'arrivée à la plage par le
 lieu qu'on quittait, avant que la plage ne la raconte à son tour. La narration
-appartient à celui qui accueille. Une étape se joue donc en **deux temps**,
-récit puis jeu.
+appartient à celui qui accueille.
+
+**Ce texte est l'énoncé du jeu, et se lit sur la scène** — en haut, dans le
+même cartouche que les mots (`StagePage`), et il y reste quand tous les mots
+sont classés. Il situe l'enfant et pose la question que le tri tranche : « Y
+ira-t-elle à pied, en bus ou en voiture ? ». Il s'affichait sur un écran de
+récit intercalé avant la scène (`StoryMomentPage`, retiré en 0.35.0) ; lu
+avant de jouer, sur un écran quitté, il perdait ce rôle. **Aucune consigne
+générique** ne l'accompagne — « Pose les mots au bon endroit » a été retirée
+par l'auteur, l'énoncé disant déjà ce qu'il faut faire.
+
+**Un seul écran de lecture** (0.41.0) — `NarrationPage` : un titre
+facultatif en haut, l'illustration sur toute la largeur, à ses proportions —
+elle peut être horizontale —, le texte dessous, et un bouton toujours visible.
+La page de garde et la fin s'en servent toutes deux. La fin avait son propre
+écran, **sans image** : l'auteur en posait, elles ne paraissaient jamais.
 
 **Page de garde** — `Adventure.opening` porte un titre, une illustration et un
-texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Quand
-elle existe, le lieu de départ n'a pas de `onArrival` : deux écrans de texte
-d'affilée dont le second redit le premier font attendre l'enfant pour rien. Sa mise
-en page diffère des moments de récit : le titre annonce, l'image occupe la
-largeur à ses proportions — elle peut être horizontale —, le texte se lit
-dessous. C'est un seuil, pas une transition.
+texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`, sur
+l'écran de lecture ; le titre de l'aventure sert quand l'ouverture n'en donne
+pas). Le lieu de départ garde son énoncé : la page de garde raconte, l'énoncé
+demande. C'est un seuil, pas une transition.
+
+**Une fin** se lit sur le même écran : le nom du lieu en titre, son
+illustration, son récit, et « Recommencer ». L'éditeur de lieu appelle son
+texte « Le récit de fin », et non « L'énoncé » : il n'y a rien à trier.
 
 **Ce que `main.dart` demande doit exister** — l'identifiant d'aventure du
 lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
@@ -547,16 +597,14 @@ des mots inconnus. Le contrôle qui compte est que **le dossier écrit se
 recharge**, et c'est le dernier test de `content_saver_test.dart`.
 
 Deux modes, et ce n'est pas un réglage de confort. `includeUnchanged` recopie
-ce que l'outil ne touche pas — lexiques, personnages, **autres aventures** —
+ce que l'outil ne touche pas — lexiques, listes, **autres aventures** —
 pour que le dossier se suffise : c'est ce qu'il faut sur un appareil, qui n'a
 rien d'autre. À faux, seul ce qui vient d'être écrit est rendu, ce qui convient
 quand la destination possède déjà le reste — un dépôt, ou le dossier de
 téléchargement d'un navigateur.
 
-**L'accueil reçoit aussi une fabrique de photothèque** — même raison que pour
-le dépôt : se connecter change l'endroit où l'image sera rangée, et une
-photothèque construite une fois pour toutes écrirait encore sur l'appareil
-après la connexion.
+**L'accueil reçoit le catalogue d'images tel quel**, pas une fabrique : il
+vient du bundle, que se connecter ne change pas.
 
 **Le point d'entrée seul sait où l'on écrit** — `main_author.dart` construit le
 puits : le dépôt distant quand l'auteur y est connecté (`RemoteContentStore`),
@@ -627,7 +675,7 @@ et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
 
 **Cliquer le titre ouvre ce que le lieu porte** — `StageEditorPage` : le nom,
-l'illustration, les zones de dépôt et les deux moments de récit. **Les listes
+l'illustration, les zones de dépôt et l'énoncé. **Les listes
 de mots n'y sont pas** : elles appartiennent à un *trajet*, pas à un lieu, et
 une même liste sert à plusieurs endroits — les mettre là laisserait croire
 qu'on les modifie pour ce lieu seul. Le calage (`AreaEditorPage`) s'ouvre
@@ -636,8 +684,8 @@ l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
 
 **Toucher un trajet ouvre sa liste** — `WordListPage`. Un trajet sans liste
 propose d'en créer une ou d'en réutiliser une ; ensuite, on tape des mots, un
-seul champ, Entrée pour enchaîner. L'alerte « un mot apparaît dans le nom de
-sa famille » s'y affiche, là où on l'a tapé. Le reste d'un tri unique se
+seul champ, et **le curseur y revient** après chaque ajout, par Entrée comme
+par le bouton : on enchaîne sans reprendre la souris. Le reste d'un tri unique se
 compose en **cochant** des listes, celle du thème exclue. Une liste citée
 ailleurs le dit en tête (« sert aussi à… ») : la modifier la modifie partout.
 La page dit « Garder » comme les autres éditeurs.
@@ -738,9 +786,43 @@ déjà défini : redéfinir jetterait ses listes. `AddTripsPage` ne fait plus qu
 nommer les sorties — plusieurs, ou le seul thème d'un tri unique
 (`allowsOneTripOnly`), sans nombre à choisir.
 
-**Sept mots par liste** — `AdventureBuilder.defaultDrawCount`, posé sur le
-lieu quand il reçoit ses premières listes. Un lieu déjà écrit garde ce qu'il
-demandait, contenu livré compris.
+**Sept mots par zone** — `AdventureBuilder.defaultDrawCount`, qui n'est que
+`Stage.defaultDrawCount`, est encore posé sur le lieu quand il reçoit ses
+premières listes : le réglage se lit ainsi dans le fichier. Un lieu déjà écrit
+garde ce qu'il demandait.
+
+**Essayer sur l'appareil** (0.38.0) — ce qui se règle sur l'ordinateur doit se
+vérifier au doigt, sur l'écran réel du téléphone. L'outil y joue donc le **vrai
+jeu**, et non une imitation : « Essayer ce lieu », sur la carte, monte
+`StagePage` sur le lieu seul et revient au parcours au premier départ ;
+« Jouer l'aventure », en tête d'écran, monte `AdventurePage` sur l'aventure
+entière. Les deux jouent **ce qui est à l'écran**, enregistré ou non.
+`Stage.canBeTriedAlone` dit si un lieu se joue seul : des familles, dont
+aucune n'est vidée par les mots communs — une famille vide s'ouvrirait
+d'elle-même, sans rien trier. L'aventure entière ne se joue que **jouable**,
+et `PreloadedAdventureRepository` refuse, comme le jeu, ce que le jeu
+refuserait.
+
+**Intégrer au dépôt** (0.39.0) — publier, c'est verser l'aventure dans
+`assets/content/` de la copie du dépôt. Depuis Chrome ou Edge, l'auteur
+désigne ce dossier (`BrowserContentFolder`, par l'accès aux fichiers du
+navigateur), et `ContentIntegrator` y écrit avec le même `ContentSaver` que
+l'enregistrement, **le dossier du dépôt servant de base** : ses listes et ses
+lexiques sont ceux que l'aventure complète, ou corrige là où ils vivent. Seul
+ce qui change est écrit. **Rien ne s'écrit si un contrôle échoue** : le
+dossier doit porter `index.json` — désigner `assets/` par mégarde écrirait là
+où le jeu ne cherche pas —, l'aventure doit être jouable, et chaque image
+citée (`Adventure.picturePaths`) doit être dans `pictures/`. Un dépôt à moitié
+modifié serait pire qu'un refus. Il reste à faire le commit, puis à recompiler.
+
+`ContentStore` (domaine) nomme ce qui se lit **et** s'écrit : le dossier du
+dépôt, le dépôt distant. Le bouton ne paraît que si `canPickContentFolder()` —
+ni Firefox ni Safari n'ouvrent un dossier du poste.
+
+Un marqueur « en test » dans le jeu a été écarté : il aurait fallu verser les
+brouillons dans le dépôt pour les voir sur le téléphone, et chaque retouche
+aurait demandé commit, compilation et réinstallation. **Une aventure est
+publiée quand elle est dans le dépôt**, et le jeu ne voit que ce qui l'est.
 
 **Où en est l'aventure** — `ContentReadiness`, déduite des anomalies et de
 rien d'autre : *jouable* (aucune), *pas complète* (des manques), *contient
@@ -763,7 +845,8 @@ tourne sans fin. Charger le contenu dans `setUpAll`, jamais dans le corps d'un
 `testWidgets`, et passer `PreloadedAdventureRepository` à la page.
 
 **L'illustration n'est jamais recadrée** — elle est montrée en entier et calée
-en bas, la bande libre du haut étant comblée par `Stage.backgroundColor`. Un
+en bas, dans la place que le bandeau laisse, la bande libre étant comblée par
+`Stage.backgroundColor`. Un
 recadrage « cover » ferait sortir de l'écran un quart de l'image sur un
 téléphone allongé, et les zones ancrées au décor sortiraient avec lui.
 `computeSceneRect` est une fonction pure, éprouvée par
@@ -771,12 +854,18 @@ téléphone allongé, et les zones ancrées au décor sortiraient avec lui.
 l'image tient, garde ses proportions, et que chaque zone reste à l'écran et
 assez grande pour un doigt.
 
-**Piège de mise en page, vérifié par les tests** — le bandeau des mots occupe le
-haut de l'écran, or les zones sont ancrées au décor et la première commence vers
-29 % de la hauteur. Un bandeau trop haut la recouvre et intercepte le doigt : le
-mot n'atteint jamais sa cible, sans le moindre message. `test/ui/real_content_layout_test.dart`
-monte l'étape réelle sur trois formats d'écran et échoue si cela se reproduit.
-Tout changement de taille dans le bandeau doit être revalidé là.
+**Le bandeau est posé au-dessus de la scène, jamais dessus** (0.36.0, option
+A choisie par l'auteur). Il était superposé à l'illustration, or les zones
+sont ancrées au décor et la première commence vers 29 % de la hauteur : un
+bandeau trop haut la recouvrait et interceptait le doigt, sans le moindre
+message. L'énoncé l'a rendu inévitable — deux phrases sur un 360×640
+recouvraient la zone du bus de 22 px. L'illustration occupe désormais ce que
+le bandeau laisse : le recouvrement est impossible quelle que soit la
+longueur du texte, et l'image rapetisse d'autant sur un petit écran.
+`test/ui/real_content_layout_test.dart` monte l'étape réelle, munie de
+l'énoncé que l'auteur a écrit pour elle, sur trois formats d'écran, et
+`stage_page_test.dart` pose une zone tout en haut de l'image sous un énoncé
+très long.
 
 ## 8. Documentation
 

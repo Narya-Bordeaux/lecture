@@ -8,15 +8,12 @@ import '../support/memory_content.dart';
 Map<String, String> buildFiles({
   String? lexiconWords,
   String? familyWords,
-  String? characters,
-  String? encounter,
 }) {
   return <String, String>{
     'index.json': '''
 {
   "lexicons": ["lexicon/test.json"],
   "lists": ["lists/test.json"],
-  "characters": "characters.json",
   "adventures": [
     { "id": "test", "title": "Essai", "file": "adventures/test.json" }
   ]
@@ -24,16 +21,14 @@ Map<String, String> buildFiles({
     'lexicon/test.json': '''
 { "domain": "test", "words": [
   ${lexiconWords ?? '''
-  { "text": "un", "syllables": ["un"] },
-  { "text": "deux", "syllables": ["deux"] }'''}
+  { "text": "un" },
+  { "text": "deux" }'''}
 ] }''',
     'lists/test.json': '''
 { "domain": "test", "lists": [
   { "id": "liste_une", "name": "La liste",
     "words": [${familyWords ?? '"un", "deux"'}] }
 ] }''',
-    'characters.json': characters ??
-        '{ "characters": [ { "id": "guide", "name": "Le guide" } ] }',
     'adventures/test.json': '''
 {
   "id": "test",
@@ -44,7 +39,7 @@ Map<String, String> buildFiles({
       "id": "start",
       "location": "Depart",
       "narrative": { "onArrival": "Bonjour." },
-      ${encounter ?? ''}
+      "drawCount": 2,
       "families": [
         { "id": "one", "label": "Famille", "list": "liste_une",
           "destination": "end" }
@@ -117,9 +112,9 @@ void main() {
       // contredisent : rien ne dirait lequel des deux decoupages s'applique.
       final files = buildFiles(
         lexiconWords: '''
-        { "text": "un", "syllables": ["un"] },
-        { "text": "un", "syllables": ["u", "n"] },
-        { "text": "deux", "syllables": ["deux"] }''',
+        { "text": "un" },
+        { "text": "un" },
+        { "text": "deux" }''',
       );
 
       expect(
@@ -133,23 +128,6 @@ void main() {
         ),
       );
     });
-
-    test('un personnage inconnu est signale par son identifiant', () async {
-      final files = buildFiles(
-        encounter: '"character": { "id": "absent", "line": "Bonjour !" },',
-      );
-
-      expect(
-        () => buildRepository(files).loadAdventure('test'),
-        throwsA(
-          isA<FormatException>().having(
-            (error) => error.message,
-            'message',
-            contains('absent'),
-          ),
-        ),
-      );
-    });
   });
 
   group('Structure d\'une etape', () {
@@ -159,27 +137,6 @@ void main() {
       );
 
       expect(adventure.startStage.narrative.onArrival, 'Bonjour.');
-    });
-
-    test('un personnage fait de l\'etape une rencontre', () async {
-      final files = buildFiles(
-        encounter: '"character": { "id": "guide", "line": "Suis-moi !" },',
-      );
-
-      final adventure = await buildRepository(files).loadAdventure('test');
-      final stage = adventure.startStage;
-
-      expect(stage.isEncounter, isTrue);
-      expect(stage.encounter!.character.name, 'Le guide');
-      expect(stage.encounter!.line, 'Suis-moi !');
-    });
-
-    test('sans personnage, l\'etape est un simple classement', () async {
-      final adventure = await buildRepository(buildFiles()).loadAdventure(
-        'test',
-      );
-
-      expect(adventure.startStage.isEncounter, isFalse);
     });
 
     test('les mots de l\'etape sont ceux de ses familles', () async {
@@ -202,14 +159,14 @@ void main() {
         '"startStageId": "start",',
         '"startStageId": "start",'
         '"opening": { "title": "Le grand depart", '
-        '"image": "assets/pictures/cover.jpg", "text": "Il etait une fois." },',
+        '"image": "pictures/cover.jpg", "text": "Il etait une fois." },',
       );
 
       final adventure = await buildRepository(files).loadAdventure('test');
 
       expect(adventure.opening, isNotNull);
       expect(adventure.opening!.titleOr(adventure.title), 'Le grand depart');
-      expect(adventure.opening!.imageAsset, 'assets/pictures/cover.jpg');
+      expect(adventure.opening!.imageAsset, 'pictures/cover.jpg');
       expect(adventure.opening!.text, 'Il etait une fois.');
     });
 
@@ -252,17 +209,14 @@ void main() {
       expect(opening.text, isNotEmpty);
     });
 
-    test('la rencontre de la boutique pose son enigme', () async {
+    test('la boutique est un tri unique', () async {
       final adventure = await loadRealAdventure();
       final shop = adventure.findStage('boutique')!;
 
-      expect(shop.isEncounter, isTrue);
-      expect(shop.encounter!.character.name, 'La marchande de journaux');
-
-      // Le classeur de rebut ne mene nulle part : le remplir n'ouvre rien.
-      final keep = shop.findFamily('a_laisser')!;
-      expect(keep.leadsSomewhere, isFalse);
-      expect(shop.findFamily('a_manger')!.leadsSomewhere, isTrue);
+      // Le reste ne mene nulle part : le remplir n'ouvre rien.
+      expect(shop.isSingleSort, isTrue);
+      expect(shop.findFamily('le_reste')!.leadsSomewhere, isFalse);
+      expect(shop.findFamily('villes_de_france')!.leadsSomewhere, isTrue);
     });
   });
 

@@ -201,9 +201,12 @@ void main() {
       // ecrites. C'est la panne que ce test interdit.
       final written = await writeLists();
 
+      // Chaque liste citee, une par une : le reste d'un tri unique en cite
+      // plusieurs, que `family.list` reunit sous un identifiant compose.
       final cited = <String>{
         for (final stage in adventure.stages.values)
-          for (final family in stage.families) family.list.id,
+          for (final family in stage.families)
+            for (final list in family.lists) list.id,
       };
       expect(written.keys, containsAll(cited));
     });

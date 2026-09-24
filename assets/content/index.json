@@ -2,18 +2,18 @@
   "lexicons": [
     "lexicon/transport.json",
     "lexicon/nourriture.json",
-    "lexicon/lieux.json"
+    "lexicon/lieux.json",
+    "lexicon/grisbie_plage.json"
   ],
   "lists": [
     "lists/transport.json",
-    "lists/quotidien.json"
+    "lists/quotidien.json",
+    "lists/grisbie_plage.json"
   ],
-  "characters": "characters.json",
   "adventures": [
     {
       "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
-      "cover": "pictures/Grisbie_plage.jpg",
       "file": "adventures/grisbie_plage.json"
     }
   ]

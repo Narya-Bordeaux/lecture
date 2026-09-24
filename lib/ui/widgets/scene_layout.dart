@@ -24,8 +24,8 @@ class SceneChild {
 /// mesurer une fois et demie la largeur de l'ecran : un quart sortirait de
 /// chaque cote, emportant avec lui les zones qui y sont ancrees.
 ///
-/// Le calage en bas garde le personnage et le chemin visibles, et libere en
-/// haut une bande que le bandeau des mots occupe deja.
+/// Le calage en bas garde le chemin visible. La surface donnee est deja celle
+/// que le bandeau des mots laisse : il est pose au-dessus, jamais dessus.
 /// [bottomInset] est la hauteur reservee en bas de l'ecran par le systeme —
 /// barre de navigation, geste de retour. L'illustration se cale au-dessus,
 /// sinon le bas du decor, ou se trouve le personnage, passe sous les boutons.
@@ -86,10 +86,20 @@ class SceneLayout extends StatelessWidget {
     this.contentSource,
     this.backgroundColor = const Color(0xFF9CC5E3),
     this.bottomInset = 0,
+    this.overlayBuilder,
     super.key,
   });
 
   final List<SceneChild> children;
+
+  /// Un calque pose par-dessus la scene, qui recoit le rectangle de
+  /// l'illustration dans son propre repere.
+  ///
+  /// C'est ce qui permet a l'outil de calage de poser ses poignees
+  /// exactement sur les zones du jeu, sans refaire le calcul de son cote :
+  /// deux calculs finiraient par diverger, et l'auteur calerait a cote de la
+  /// zone que l'enfant touchera.
+  final Widget Function(Rect imageRect)? overlayBuilder;
   final String? backgroundAsset;
 
   /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle.
@@ -147,6 +157,8 @@ class SceneLayout extends StatelessWidget {
                       height: item.area.height * imageRect.height,
                       child: item.child,
                     ),
+                  if (overlayBuilder != null)
+                    Positioned.fill(child: overlayBuilder!(imageRect)),
                 ],
               ),
             );

@@ -1,5 +1,4 @@
 import 'package:grisbie/domain/models/adventure_opening.dart';
-import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_list.dart';
@@ -18,21 +17,19 @@ class Adventure {
     this.opening,
   });
 
-  /// Construit l'aventure en resolvant listes et personnages.
+  /// Construit l'aventure en resolvant ses listes.
   ///
   /// Une aventure ne contient que des references : elle cite des listes, qui
   /// citent des mots. Rien n'y est defini deux fois.
   factory Adventure.fromJson(
     Map<String, dynamic> json, {
     required WordListCatalog lists,
-    required Map<String, Character> characters,
   }) {
     final stages = <String, Stage>{};
     for (final item in json['stages'] as List<dynamic>) {
       final stage = Stage.fromJson(
         item as Map<String, dynamic>,
         lists: lists,
-        characters: characters,
       );
       stages[stage.id] = stage;
     }
@@ -60,6 +57,16 @@ class Adventure {
 
   /// La page de garde, montree une fois avant le premier lieu.
   final AdventureOpening? opening;
+
+  /// Toutes les illustrations que l'aventure cite : page de garde et lieux,
+  /// sans doublon.
+  ///
+  /// Ce que le depot doit contenir pour que le jeu les montre : une image
+  /// citee mais absente donnerait un fond uni, sans rien pour le dire.
+  Set<String> get picturePaths => <String>{
+        ?opening?.imageAsset,
+        for (final stage in stages.values) ?stage.backgroundAsset,
+      };
 
   Stage get startStage {
     final stage = stages[startStageId];

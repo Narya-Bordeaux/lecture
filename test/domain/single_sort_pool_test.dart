@@ -193,12 +193,13 @@ void main() {
       expect(supply.isEnough, isFalse);
     });
 
-    test('sans nombre demande, toute offre non vide suffit', () {
+    test('sans nombre demande, sept mots sont exiges', () {
+      // Sept par zone (0.42.0), le theme comme le reste.
       final boutique = shop();
       final supply = boutique.supplyOf(themeOf(boutique));
 
-      expect(supply.required, isNull);
-      expect(supply.isEnough, isTrue);
+      expect(supply.required, 7);
+      expect(supply.isEnough, supply.available >= 7);
     });
   });
 }

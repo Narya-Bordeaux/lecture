@@ -22,13 +22,13 @@ void main() {
   group('La nature d\'un lieu', () {
     test('un lieu sans famille ni fin est a definir', () {
       expect(
-        stage(id: 'gare', families: const <WordFamily>[]).nature,
+        stage(drawCount: 1, id: 'gare', families: const <WordFamily>[]).nature,
         StageNature.undefined,
       );
     });
 
     test('des familles qui menent toutes ailleurs : plusieurs listes', () {
-      final gare = stage(id: 'gare', families: <WordFamily>[
+      final gare = stage(drawCount: 1, id: 'gare', families: <WordFamily>[
         family(id: 'train', label: 'Le train', destination: 'plage'),
         family(id: 'bus', label: 'Le bus', destination: 'marche'),
       ]);
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('une famille sans destination fait un tri unique', () {
-      final boutique = stage(id: 'boutique', families: <WordFamily>[
+      final boutique = stage(drawCount: 1, id: 'boutique', families: <WordFamily>[
         family(id: 'a_manger', label: 'Ce qui se mange', destination: 'plage'),
         family(id: 'autre', label: 'Autre chose'),
       ]);
@@ -65,7 +65,7 @@ void main() {
 
     test('sans anomalie, elle est jouable', () {
       final adventure = adventureOf(
-        stage(id: 'maison', families: <WordFamily>[
+        stage(drawCount: 1, id: 'maison', families: <WordFamily>[
           family(
             id: 'en_bus',
             label: 'En bus',
@@ -82,20 +82,21 @@ void main() {
     test('avec des manques seulement, elle n\'est pas complete', () {
       // Un lieu cree, pas encore defini : du travail qui reste, pas une faute.
       final adventure = adventureOf(
-        stage(id: 'maison', families: const <WordFamily>[]),
+        stage(drawCount: 1, id: 'maison', families: const <WordFamily>[]),
       );
 
       expect(adventure.readiness, ContentReadiness.incomplete);
     });
 
     test('une seule faute suffit a la dire fausse', () {
-      // « bus » dans « En bus » se classerait en comparant les lettres.
+      // Une fin qui porte des familles : les mots classes ouvriraient un
+      // chemin depuis une fin.
       final adventure = adventureOf(
-        stage(id: 'maison', families: <WordFamily>[
+        stage(drawCount: 1, id: 'maison', ending: true, families: <WordFamily>[
           family(
             id: 'en_bus',
             label: 'En bus',
-            words: <Word>[word('bus')],
+            words: <Word>[word('ticket')],
             destination: 'plage',
           ),
         ]),
@@ -122,7 +123,7 @@ void main() {
 
   group('Une famille sans zone sur un lieu illustre', () {
     Stage illustratedStation({RelativeArea? trainArea}) {
-      return stage(id: 'gare', families: <WordFamily>[
+      return stage(drawCount: 1, id: 'gare', families: <WordFamily>[
         family(
           id: 'train',
           label: 'Le train',
@@ -154,7 +155,7 @@ void main() {
       // Les zones se calent sur l'image : sans elle, il n'y a rien a caler
       // encore. C'est aussi ce qui laisse jouable le contenu livre, dont la
       // gare et la boutique attendent leur decor.
-      final bare = stage(id: 'gare', families: <WordFamily>[
+      final bare = stage(drawCount: 1, id: 'gare', families: <WordFamily>[
         family(
           id: 'train',
           label: 'Le train',

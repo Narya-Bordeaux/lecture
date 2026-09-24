@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
-import 'package:grisbie/domain/repositories/picture_library.dart';
-import 'package:grisbie/ui/widgets/content_image.dart';
+import 'package:grisbie/domain/repositories/picture_catalog.dart';
+import 'package:grisbie/ui/widgets/picture_field.dart';
 
 /// Ce que l'editeur de page de garde rend.
 ///
@@ -19,8 +19,7 @@ class OpeningEdit {
 /// Le seuil de l'aventure : un titre, une illustration, un texte.
 ///
 /// Ce n'est pas un lieu — il n'y a rien a classer — mais la page qui ouvre la
-/// journee. Sa mise en page differe de celle des moments de recit : le titre
-/// annonce, l'image occupe la largeur a ses proportions (elle peut etre
+/// journee. Le titre annonce, l'image occupe la largeur a ses proportions (elle peut etre
 /// horizontale), le texte se lit dessous.
 ///
 /// Rend un [OpeningEdit], ou `null` si l'auteur renonce.
@@ -39,8 +38,8 @@ class AdventureOpeningEditorPage extends StatefulWidget {
   /// La page de garde actuelle, nulle tant qu'il n'y en a pas.
   final AdventureOpening? opening;
 
-  /// De quoi choisir une illustration dans l'appareil, si la plateforme sait.
-  final PictureLibrary? pictures;
+  /// Les images du depot, parmi lesquelles choisir l'illustration.
+  final PictureCatalog? pictures;
 
   /// D'ou lire le contenu, illustrations comprises.
   ///
@@ -87,16 +86,6 @@ class _AdventureOpeningEditorPageState
       _title.text.trim().isNotEmpty ||
       _text.text.trim().isNotEmpty ||
       _imagePath.isNotEmpty;
-
-  Future<void> _pickPicture() async {
-    final pictures = widget.pictures;
-    if (pictures == null) return;
-
-    final path = await pictures.pickPicture(baseName: 'page_de_garde');
-    if (path == null || !mounted) return;
-
-    setState(() => _image.text = path);
-  }
 
   void _save() {
     Navigator.of(context).pop(
@@ -147,43 +136,14 @@ class _AdventureOpeningEditorPageState
             ),
           ),
           const SizedBox(height: 20),
-          TextField(
-            key: const Key('openingImage'),
+          PictureField(
+            fieldKey: const Key('openingImage'),
             controller: _image,
-            decoration: const InputDecoration(
-              labelText: 'Chemin de l\'image',
-              hintText: 'pictures/…',
-              helperText: 'Montrée en entier : elle peut être horizontale.',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (_) => setState(() {}),
+            catalog: widget.pictures,
+            contentSource: widget.contentSource,
+            helperText: 'Montrée en entier : elle peut être horizontale.',
+            onChanged: () => setState(() {}),
           ),
-          if (widget.pictures != null) ...<Widget>[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                onPressed: _pickPicture,
-                icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('Choisir une image'),
-              ),
-            ),
-          ],
-          if (_imagePath.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: ContentImage(
-                path: _imagePath,
-                source: widget.contentSource,
-                fit: BoxFit.fitWidth,
-                errorBuilder: (context, error, stack) => Text(
-                  'Image introuvable.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ),
-          ],
           const SizedBox(height: 20),
           TextField(
             key: const Key('openingText'),
@@ -193,7 +153,7 @@ class _AdventureOpeningEditorPageState
             textCapitalization: TextCapitalization.sentences,
             decoration: const InputDecoration(
               labelText: 'Le texte d\'ouverture',
-              helperText: 'Plus long qu\'un moment de récit : c\'est un seuil.',
+              helperText: 'Plus long qu\'un énoncé : c\'est un seuil.',
               border: OutlineInputBorder(),
             ),
           ),

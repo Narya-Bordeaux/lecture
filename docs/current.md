@@ -1,11 +1,11 @@
 # État courant
 
-**Version : 0.34.1+52** — 23 septembre 2026
+**Version : 0.42.1+62** — 23 septembre 2026
 
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
-`Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
+`maison.jpg` : six mots en haut, trois zones translucides posées sur le
 bus, la voiture et le sentier, glisser-déposer et bouton de départ. **Aucune
 aide à la lecture** depuis 0.33.0 : un mot mal placé est refusé, et c'est tout.
 Chaque famille puise dans une liste pleine de sept mots, et un mot bien classé
@@ -15,8 +15,8 @@ de travail 0.8.
 Le contenu vit désormais dans plusieurs fichiers reliés par un sommaire, décrits
 par `docs/Format_fichier_aventure.md`. Les mots y sont regroupés en **listes
 thématiques réutilisables**, qu'une famille cite au lieu de les porter. La boutique de la gare est un **tri
-unique** : l'enfant y trie entre une liste et tout le reste, et une marchande y
-pose la question — l'ornement, pas la mécanique.
+unique** : l'enfant y trie entre une liste et tout le reste. Il n'y a plus
+de personnage (0.34.2).
 
 **Un outil d'auteur existe**, sur un second point d'entrée `lib/main_author.dart`.
 Il cale les zones de dépôt au doigt sur l'étape réelle, et les enregistre avec
@@ -106,36 +106,22 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
-### 0.34.1+52 — Un lieu rouvert se redéfinit sur place
-- **Défaut vu par l'auteur** : après « Rouvrir ce lieu », l'écran de
-  structure ne disait que « Choisissez sur la carte » — une impasse.
-- Il offre désormais les trois réponses de la carte — plusieurs listes, tri
-  unique, fin — ainsi qu'« Ajouter des trajets » et « Ajouter la sortie ».
-- 512 tests au vert.
+### 0.42.1+62 — L'aventure de l'auteur, et des images qui disent pourquoi
+- **Le contenu livré est l'aventure de l'auteur**, intégrée depuis l'outil.
+- Images illisibles dans l'outil connecté : non reproduit en local ; la
+  raison d'un échec s'affiche désormais. **À relever** chez l'auteur.
+- 548 tests au vert.
 
-### 0.34.0+51 — Revenir sur un choix de circuit
-- **La ligne « Plusieurs listes / Tri unique / Fin » d'une carte ouvre la
-  structure du lieu** : changer de nature, renommer, rediriger ou retirer
-  un trajet. Une fin créée par erreur se rouvre enfin.
-- **Rien ne disparaît en passant** : un lieu que plus rien n'atteint reste,
-  et sa carte offre « Supprimer ce lieu ».
-- **Tout lieu déjà écrit peut être rejoint**, pas seulement les fins.
-- **Une boucle est signalée, à vérifier**, sans rien bloquer : nouvelle
-  sévérité `warning`, qui laisse l'aventure jouable.
-- 509 tests au vert.
+### 0.42.0+61 — Sept mots par zone
+- Sans réglage, chaque zone tire sept mots, « le reste » compris ; une liste
+  plus courte est à finir.
+- Le contenu livré garde son comportement (gare : 2, boutique : 6).
+- 547 tests au vert.
 
-### 0.33.0+50 — Plus d'aide, plus de découpage
-- **Le jeu ne propose plus aucune aide** : un mot mal placé est refusé,
-  l'étiquette tremble et revient, rien ne s'affiche dessous.
-- **Le découpage syllabique quitte le contenu** (option A, choisie par
-  l'auteur) : `Word` n'est plus que son orthographe. `Hint`, `HintPolicy` et
-  le compteur d'erreurs disparaissent.
-- **L'écran de liste n'a plus qu'un champ** : on tape le mot, Entrée pour
-  enchaîner. L'alerte « mot dans le nom du trajet » s'y voit désormais.
-- Les lexiques livrés sont nettoyés ; un contenu ancien se lit toujours, et
-  l'enregistrement retire le champ des lexiques qu'il réécrit.
-- Spécification en version 0.9.
-- 473 tests au vert.
+### 0.41.0+60 — Un seul écran de lecture
+- Les fins affichent enfin leur illustration : page de garde et fin partagent
+  `NarrationPage` — titre facultatif, image, texte.
+- 543 tests au vert.
 
 ## Décisions prises
 
@@ -144,11 +130,10 @@ un travail d'auteur, pas de code.
 - **Le web sert d'abord l'outil d'auteur** : écrire sur un poste, illustrer sur
   le téléphone. Le jeu compile aussi pour le web, mais ce n'est pas ce qui a
   motivé la cible.
-- **Deux dépendances tierces, pour l'outil d'auteur seulement** :
-  `image_picker` et `path_provider`, de l'équipe Flutter. Embarquées dans le
-  jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui, et un test
-  l'exige. `image_picker` passe par le Photo Picker d'Android 13+, qui ne
-  demande aucune permission.
+- **Les dépendances tierces servent l'outil d'auteur seulement**. Embarquées
+  dans le jeu faute d'un `pubspec.yaml` par saveur, jamais appelées par lui,
+  et un test l'exige. `image_picker` a été retiré en 0.37.0 : les images se
+  choisissent dans le dépôt.
 - **Pas de serveur dans le jeu** : la progression reste sur l'appareil. Le public
   étant mineur, aucune donnée personnelle ne sort de la machine.
 - **Firebase ne s'initialise jamais tout seul** : des `FirebaseOptions`
@@ -203,8 +188,8 @@ un travail d'auteur, pas de code.
 - **Un lieu raconte son arrivée, jamais son départ** : la narration appartient
   à celui qui accueille. Un récit de départ a existé, et disait la même chose
   deux fois.
-- **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, les
-  personnages, les aventures. Un mot n'est défini qu'une fois.
+- **Contenu en plusieurs fichiers** : un sommaire, des lexiques par domaine, des
+  listes, les aventures. Un mot n'est défini qu'une fois.
 - **Leurres écrits à la main** : jamais ramassés automatiquement, sous peine de
   sortir un mot appartenant vraiment au thème et de refuser une bonne réponse.
 - **La nature d'un lieu se dit sur sa carte** : plusieurs listes, tri unique,

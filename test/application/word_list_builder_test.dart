@@ -110,6 +110,21 @@ void main() {
       expect(familyOf(after, 'maison', 'en_bus').wordTexts, <String>{'volant'});
     });
 
+    test('le mot prend sa place dans l\'ordre alphabetique', () {
+      // La liste se relit, a l'ecran comme dans le fichier, dans l'ordre ou
+      // on la chercherait : les accents ne deplacent pas un mot.
+      var after = builder.addWord('maison_en_bus', text: 'volant');
+      for (final text in <String>['arrêt', 'école', 'car']) {
+        after = WordListBuilder(after, library: _library)
+            .addWord('maison_en_bus', text: text);
+      }
+
+      expect(
+        familyOf(after, 'maison', 'en_bus').words.map((word) => word.text),
+        <String>['arrêt', 'car', 'école', 'volant'],
+      );
+    });
+
     test('les espaces autour du mot ne comptent pas', () {
       final after = builder.addWord('maison_en_bus', text: '  arrêt ');
 

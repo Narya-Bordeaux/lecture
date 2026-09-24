@@ -43,8 +43,8 @@ List<ContentIssue> loopsIn(Adventure adventure) {
 void main() {
   test('un parcours sans retour n\'est pas signale', () {
     final adventure = adventureOf(<Stage>[
-      stage(id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
-      stage(id: 'gare', families: <WordFamily>[trip('train', 'plage')]),
+      stage(drawCount: 1, id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
+      stage(drawCount: 1, id: 'gare', families: <WordFamily>[trip('train', 'plage')]),
       ending(id: 'plage'),
     ]);
 
@@ -53,7 +53,7 @@ void main() {
 
   test('deux chemins vers la meme fin ne sont pas une boucle', () {
     final adventure = adventureOf(<Stage>[
-      stage(id: 'maison', families: <WordFamily>[
+      stage(drawCount: 1, id: 'maison', families: <WordFamily>[
         trip('bus', 'plage'),
         trip('pied', 'plage'),
       ]),
@@ -65,8 +65,8 @@ void main() {
 
   test('un trajet qui ramene en arriere est signale, a verifier', () {
     final adventure = adventureOf(<Stage>[
-      stage(id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
-      stage(id: 'gare', families: <WordFamily>[
+      stage(drawCount: 1, id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
+      stage(drawCount: 1, id: 'gare', families: <WordFamily>[
         trip('retour', 'maison'),
         trip('train', 'plage'),
       ]),
@@ -84,7 +84,7 @@ void main() {
 
   test('un lieu qui mene a lui-meme est signale', () {
     final adventure = adventureOf(<Stage>[
-      stage(id: 'maison', families: <WordFamily>[
+      stage(drawCount: 1, id: 'maison', families: <WordFamily>[
         trip('encore', 'maison'),
         trip('bus', 'plage'),
       ]),
@@ -96,8 +96,8 @@ void main() {
 
   test('a verifier ne retire pas la mention « jouable »', () {
     final adventure = adventureOf(<Stage>[
-      stage(id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
-      stage(id: 'gare', families: <WordFamily>[
+      stage(drawCount: 1, id: 'maison', families: <WordFamily>[trip('bus', 'gare')]),
+      stage(drawCount: 1, id: 'gare', families: <WordFamily>[
         trip('retour', 'maison'),
         trip('train', 'plage'),
       ]),

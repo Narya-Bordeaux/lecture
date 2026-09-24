@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
+import 'package:grisbie/domain/models/stage.dart';
+import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/ui/pages/adventure_opening_page.dart';
 import 'package:grisbie/ui/pages/adventure_page.dart';
+import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
+import '../support/stage_builders.dart' as build;
 
 /// Monte la page de garde seule, sans illustration : l'image n'est pas dans le
 /// bundle de test, et c'est la mise en page qui est eprouvee ici.
@@ -46,7 +52,10 @@ void main() {
       );
 
       expect(find.text('Grisbie part à la plage'), findsOneWidget);
-      expect(find.text('Ce matin, Grisbie a mis son sac à dos.'), findsOneWidget);
+      expect(
+        find.text('Ce matin, Grisbie a mis son sac à dos.'),
+        findsOneWidget,
+      );
       expect(find.text(UiStringsFr.startAdventure), findsOneWidget);
     });
 
@@ -94,8 +103,8 @@ void main() {
       expect(button, findsOneWidget);
 
       final rect = tester.getRect(button);
-      final screenHeight = tester.view.physicalSize.height /
-          tester.view.devicePixelRatio;
+      final screenHeight =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
       expect(rect.bottom, lessThanOrEqualTo(screenHeight));
     });
 
@@ -145,20 +154,63 @@ void main() {
       await tester.tap(find.text(UiStringsFr.startAdventure));
       await tester.pumpAndSettle();
 
-      // Puis le jeu, directement : le premier lieu n'a pas de recit
-      // d'arrivee, celui-ci repeterait la page de garde.
+      // Puis le jeu, directement.
       expect(find.text('Grisbie part à la plage'), findsNothing);
-      expect(find.text(UiStringsFr.continueStory), findsNothing);
       expect(find.text('En bus'), findsOneWidget);
     });
+  });
 
-    testWidgets('le premier lieu ne repete pas la page de garde', (
-      tester,
-    ) async {
-      // Deux ecrans de texte d'affilee avant de jouer, dont le second redit le
-      // premier : l'enfant attend sans rien apprendre. Le recit d'arrivee est
-      // donc laisse vide sur le lieu de depart.
-      expect(adventure.startStage.narrative.onArrival, isNull);
+  group('Arrivee dans un lieu de jeu', () {
+    testWidgets('le jeu s\'ouvre aussitot, l\'enonce en haut', (tester) async {
+      // Aucun ecran de recit ne s'intercale : l'enonce se lit sur la scene,
+      // pendant qu'on trie. Le lire sur un ecran quitte avant de jouer lui
+      // otait son role, qui est de donner son sens au tri.
+      tester.view.physicalSize = const Size(1080, 2340);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final adventure = Adventure(
+        id: 'essai',
+        title: 'Essai',
+        startStageId: 'maison',
+        stages: <String, Stage>{
+          'maison': build.stage(
+            id: 'maison',
+            arrivalText: 'Par où partir ?',
+            drawCount: 1,
+            families: <WordFamily>[
+              build.family(
+                id: 'en_bus',
+                label: 'En bus',
+                words: <Word>[build.word('ticket')],
+                destination: 'fin',
+                area: const RelativeArea(
+                  left: 0.1,
+                  top: 0.5,
+                  width: 0.4,
+                  height: 0.2,
+                ),
+              ),
+            ],
+          ),
+          'fin': build.ending(id: 'fin'),
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AdventurePage(
+            repository: PreloadedAdventureRepository(adventure),
+            adventureId: adventure.id,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(StagePage.wordTrayKey), findsOneWidget);
+      expect(find.text('Par où partir ?'), findsOneWidget);
+      expect(find.text('ticket'), findsOneWidget);
     });
   });
 }

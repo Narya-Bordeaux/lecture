@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:grisbie/domain/models/character.dart';
 import 'package:grisbie/domain/models/content_issue.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/word.dart';
@@ -33,7 +32,7 @@ enum StageNature {
 /// qu'elles ouvrent.
 ///
 /// La nature de l'etape se lit dans sa structure, sans avoir a la declarer :
-/// une etape avec un [encounter] est une rencontre, une etape sans famille est
+/// une famille sans destination fait un tri unique, une etape sans famille est
 /// une arrivee. Declarer le type en plus serait une information en double, qui
 /// finirait par contredire le contenu.
 class Stage {
@@ -47,7 +46,6 @@ class Stage {
     this.narrative = Narrative.none,
     this.backgroundAsset,
     this.backgroundColor,
-    this.encounter,
     this.visibleWordCount = 6,
     this.isEnding = false,
     this.drawCount,
@@ -62,14 +60,11 @@ class Stage {
     return 0xFF000000 | parsed;
   }
 
-  /// Construit l'etape en resolvant mots et personnages.
+  /// Construit l'etape en resolvant ses listes de mots.
   factory Stage.fromJson(
     Map<String, dynamic> json, {
     required WordListCatalog lists,
-    required Map<String, Character> characters,
   }) {
-    final encounter = json['character'] as Map<String, dynamic>?;
-
     return Stage(
       id: json['id'] as String,
       locationName: json['location'] as String,
@@ -79,15 +74,6 @@ class Stage {
       visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       isEnding: json['ending'] as bool? ?? false,
       drawCount: json['drawCount'] as int?,
-      encounter: encounter == null
-          ? null
-          : Encounter(
-              character: _resolveCharacter(
-                encounter['id'] as String,
-                characters,
-              ),
-              line: encounter['line'] as String,
-            ),
       families: List<WordFamily>.unmodifiable(
         (json['families'] as List<dynamic>? ?? <dynamic>[])
             .map((item) => WordFamily.fromJson(
@@ -96,17 +82,6 @@ class Stage {
                 )),
       ),
     );
-  }
-
-  static Character _resolveCharacter(
-    String id,
-    Map<String, Character> characters,
-  ) {
-    final character = characters[id];
-    if (character == null) {
-      throw FormatException('Personnage inconnu : "$id"');
-    }
-    return character;
   }
 
   final String id;
@@ -126,9 +101,6 @@ class Stage {
   /// allonge, il reste de la place au-dessus. Une couleur prise dans le ciel de
   /// l'image rend la jointure invisible.
   final int? backgroundColor;
-
-  /// Le personnage rencontre ici, s'il y en a un.
-  final Encounter? encounter;
 
   final List<WordFamily> families;
 
@@ -177,12 +149,6 @@ class Stage {
   /// peuvent donc pas diverger en silence.
   final bool isEnding;
 
-  /// Vrai si l'etape met en scene un personnage.
-  ///
-  /// C'est un ornement, pas une mecanique : un personnage peut se poser sur
-  /// n'importe quel lieu, et un tri unique peut se passer de lui.
-  bool get isEncounter => encounter != null;
-
   /// Vrai si l'etape fait trier entre **une liste et son complement**.
   ///
   /// Autre mecanique de lecture que le tri entre plusieurs familles : au lieu
@@ -221,11 +187,22 @@ class Stage {
     return null;
   }
 
+  /// Combien de mots chaque zone tire, sans reglage : sept (decision de
+  /// l'auteur, 0.42.0).
+  ///
+  /// La zone « le reste » aussi : elle tire sept mots dans l'ensemble de ses
+  /// listes cochees, et non sept par liste. Une liste de moins de sept mots
+  /// est **a finir** — [validate] le signale, et la zone n'est pas jouee
+  /// entiere en silence.
+  static const int defaultDrawCount = 7;
+
   /// Combien de mots cette famille met en jeu ici.
   ///
-  /// La famille l'emporte sur le defaut du lieu ; nul des deux cotes, la liste
-  /// joue entiere.
-  int? drawCountFor(WordFamily family) => family.drawCount ?? drawCount;
+  /// La famille l'emporte sur le reglage du lieu, qui l'emporte sur
+  /// [defaultDrawCount]. Sans reglage, la liste jouait entiere : une zone de
+  /// douze mots s'annoncait « 0 / 12 » et en exigeait douze.
+  int drawCountFor(WordFamily family) =>
+      family.drawCount ?? drawCount ?? defaultDrawCount;
 
   /// Les mots que cette famille partage avec les autres listes du lieu.
   ///
@@ -266,6 +243,16 @@ class Stage {
       required: drawCountFor(family),
     );
   }
+
+  /// Vrai si le lieu peut se jouer seul, pour que l'auteur l'essaie.
+  ///
+  /// Il faut des familles, et que chacune garde au moins un mot une fois les
+  /// mots communs retires. Une famille vide s'ouvrirait d'elle-meme, sans que
+  /// rien ait ete trie : l'essai mentirait sur ce que l'enfant vivra. Une fin,
+  /// ou un lieu a definir, n'a rien a trier.
+  bool get canBeTriedAlone =>
+      families.isNotEmpty &&
+      families.every((family) => supplyOf(family).available > 0);
 
   /// Ce qu'il reste a cette famille une fois les mots communs retires.
   ///
@@ -331,19 +318,6 @@ class Stage {
 
       issues.addAll(_validateSupplyOf(family));
 
-      for (final word in family.words) {
-        // Un mot dont le texte se retrouve dans le nom de sa famille se classe
-        // en comparant les lettres, sans comprendre le sens.
-        if (family.label.toLowerCase().contains(word.text.toLowerCase())) {
-          issues.add(ContentIssue.wrong(
-            'Le mot "${word.text}" apparait dans le nom de sa famille '
-            '"${family.label}" : il se classerait sans etre compris.',
-            stageId: id,
-            familyId: family.id,
-            wordText: word.text,
-          ));
-        }
-      }
     }
 
     // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac. Fatal
@@ -491,7 +465,6 @@ class Stage {
     List<WordFamily>? families,
     String? backgroundAsset,
     int? backgroundColor,
-    Encounter? encounter,
     int? visibleWordCount,
     bool? isEnding,
     int? drawCount,
@@ -508,7 +481,6 @@ class Stage {
           ? null
           : backgroundAsset ?? this.backgroundAsset,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      encounter: encounter ?? this.encounter,
       visibleWordCount: visibleWordCount ?? this.visibleWordCount,
       isEnding: isEnding ?? this.isEnding,
       drawCount: drawCount ?? this.drawCount,
@@ -524,7 +496,6 @@ class Stage {
       if (backgroundColor != null)
         'backgroundColor':
             '#${(backgroundColor! & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
-      if (encounter != null) 'character': encounter!.toJson(),
       // Ecrit seulement quand il vaut quelque chose : une etape ordinaire n'a
       // pas a porter « ending: false ».
       if (isEnding) 'ending': true,

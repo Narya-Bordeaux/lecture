@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 
-/// D'ou vient une illustration : du contenu, ou d'une adresse.
+/// D'ou vient une illustration : toujours du contenu.
 ///
 /// **Une illustration est du contenu**, au meme titre qu'un fichier
 /// d'aventure. Son chemin est donc relatif au dossier du contenu —
@@ -19,31 +19,14 @@ import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 /// elle n'arrivait jamais sur le poste ; choisie dans un onglet, elle
 /// disparaissait avant d'etre affichee, le systeme revoquant l'adresse.
 ///
-/// Deux prefixes restent traites a part. `assets/` designe le bundle
-/// directement, ce que le contenu livre ecrivait avant la 0.28.0. Une adresse
-/// — `http://`, `https://`, `blob:` — se lit telle quelle ; rien n'en produit
-/// plus, mais un contenu ecrit avant la bascule peut en porter, et mieux vaut
-/// l'afficher que le refuser.
-///
-/// **Une seule fonction tranche**, pour les quatre endroits qui affichent une
-/// image : la scene de jeu, le calage des zones, la page de garde et les
-/// moments de recit. Deux regles separees finiraient par diverger, et l'auteur
+/// **Une seule fonction tranche**, pour les trois endroits qui affichent une
+/// image : la scene de jeu, le calage des zones et la page de garde. Deux regles separees finiraient par diverger, et l'auteur
 /// calerait ses zones sur une image que le jeu ne montre pas.
 ImageProvider contentImageProvider(String path, {ContentSource? source}) {
-  if (path.startsWith('assets/')) return AssetImage(path);
-  if (_isAddress(path)) return NetworkImage(path);
-
   return ContentPictureImage(
     path,
     source: source ?? const AssetContentSource(),
   );
-}
-
-/// Vrai si le chemin designe quelque chose qu'on va chercher sur le reseau.
-bool _isAddress(String path) {
-  return path.startsWith('http://') ||
-      path.startsWith('https://') ||
-      path.startsWith('blob:');
 }
 
 /// Une image lue par la source de contenu, comme n'importe quel fichier.
@@ -109,6 +92,17 @@ class ContentPictureImage extends ImageProvider<ContentPictureImage> {
 
   @override
   String toString() => 'ContentPictureImage("$path")';
+}
+
+/// La raison d'un echec de lecture, lisible par l'auteur.
+///
+/// « Image introuvable » seul laissait chercher a l'aveugle : un refus du
+/// depot, une coupure, un fichier absent ou illisible se ressemblaient tous.
+/// L'outil d'auteur montre donc la raison reelle — tronquee, une pile d'appels
+/// n'apprend rien de plus.
+String describeImageError(Object error) {
+  final text = '$error'.trim();
+  return text.length <= 240 ? text : '${text.substring(0, 240)}…';
 }
 
 /// Affiche une illustration du contenu, d'ou qu'elle vienne.

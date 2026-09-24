@@ -5,26 +5,43 @@
       "id": "bus",
       "name": "Le bus",
       "words": [
-        "arrêt",
-        "ticket",
-        "horaire",
         "abri",
+        "arrêt",
+        "coffre",
+        "départ",
+        "guichet",
+        "horaire",
         "ligne",
+        "moteur",
+        "phare",
+        "pneu",
+        "roue",
+        "route",
+        "siège",
         "terminus",
-        "guichet"
+        "ticket",
+        "volant"
       ]
     },
     {
       "id": "voiture",
       "name": "La voiture",
       "words": [
-        "volant",
-        "essence",
+        "ceinture",
+        "clé",
         "coffre",
+        "essence",
         "garage",
         "klaxon",
+        "moteur",
+        "phare",
+        "pneu",
         "radio",
-        "clé"
+        "roue",
+        "route",
+        "siège",
+        "voiture",
+        "volant"
       ]
     },
     {
@@ -32,20 +49,30 @@
       "name": "La marche à pied",
       "words": [
         "chaussure",
-        "sentier",
+        "chemin",
+        "jambe",
         "marche",
         "pas",
-        "jambe",
-        "talon",
-        "promenade"
+        "pied",
+        "promenade",
+        "sentier",
+        "talon"
       ]
     },
     {
       "id": "train",
       "name": "Le train",
       "words": [
+        "billet",
+        "contrôleur",
+        "guichet",
+        "locomotive",
         "quai",
-        "billet"
+        "rail",
+        "siège",
+        "train",
+        "voiture",
+        "wagon"
       ]
     }
   ]

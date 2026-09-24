@@ -282,9 +282,9 @@ void main() {
       final outline = AdventureOutline.of(await loadRealAdventure());
       final start = outline.blocks.first;
 
-      // « maison » n'a pas de recit d'arrivee : la page de garde le dit deja,
-      // et deux ecrans de suite feraient attendre l'enfant pour rien.
-      expect(start.hasNarrative, isFalse);
+      // « maison » porte son enonce : la page de garde raconte, l'enonce
+      // pose la question du premier tri (0.35.0).
+      expect(start.hasNarrative, isTrue);
     });
 
     test('un lieu sans recit de depart laisse la case vide', () {
@@ -316,7 +316,7 @@ void main() {
         <String>[
           'En bus -> La gare',
           'En voiture -> Le garage',
-          'À pied -> La rue',
+          'À pied -> Le chemin',
         ],
       );
     });
@@ -405,6 +405,18 @@ void main() {
       final car = outline.blocks.first.trips.last;
       expect(car.supply!.available, 1);
       expect(car.supply!.isEnough, isFalse);
+    });
+  });
+
+  group('Essayer un lieu', () {
+    test('la carte dit si le lieu se joue seul', () async {
+      final adventure = await loadRealAdventure();
+      final outline = AdventureOutline.of(adventure);
+      OutlineBlock blockOf(String id) =>
+          outline.blocks.firstWhere((block) => block.stageId == id);
+
+      expect(blockOf('maison').canBeTried, isTrue);
+      expect(blockOf('plage').canBeTried, isFalse);
     });
   });
 }

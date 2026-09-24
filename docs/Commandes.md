@@ -140,8 +140,8 @@ fichiers lui-même : `firebasestorage.googleapis.com` **redirige** vers
 `storage.googleapis.com`. Après une redirection d'origine croisée, le
 navigateur exige l'autorisation sur la *nouvelle* adresse, avec une origine qui
 n'est plus celle de départ. La politique restreinte ne correspond donc plus, et
-seuls les fichiers non redirigés passent — d'où un `index.json` lisible et un
-`characters.json` refusé, symptôme déroutant s'il en est.
+seuls les fichiers non redirigés passent — d'où un `index.json` lisible et le fichier
+suivant refusé, symptôme déroutant s'il en est.
 
 **Ce que `*` n'ouvre pas** : aucun accès. Le CORS dit seulement à quelles pages
 le navigateur autorise la lecture d'une réponse ; il faut déjà posséder

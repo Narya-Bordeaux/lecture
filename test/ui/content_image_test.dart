@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/infrastructure/content/asset_content_source.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
@@ -52,31 +51,9 @@ void main() {
       expect(provider.source, isA<AssetContentSource>());
     });
 
-    test('un chemin d\'asset vient du bundle, tel quel', () {
-      // Ce que le contenu livré écrivait avant la bascule. Le refuser
-      // casserait un contenu encore valide.
-      expect(
-        contentImageProvider('assets/pictures/Grisbie_plage.jpg'),
-        isA<AssetImage>(),
-      );
-    });
-
-    test('une adresse reste une adresse', () {
-      // Rien n'en produit plus, mais un contenu écrit avant la bascule peut en
-      // porter : mieux vaut l'afficher que le refuser.
-      expect(
-        contentImageProvider('https://exemple.test/gare.jpg'),
-        isA<NetworkImage>(),
-      );
-    });
-
     test('deux appels sur le même chemin donnent le même fournisseur', () {
       // Sans cela le cache d'images rechargerait le fichier à chaque rendu, et
       // l'aperçu clignoterait à chaque geste de calage.
-      expect(
-        contentImageProvider('assets/pictures/a.jpg'),
-        contentImageProvider('assets/pictures/a.jpg'),
-      );
       expect(
         contentImageProvider('pictures/a.jpg'),
         contentImageProvider('pictures/a.jpg'),

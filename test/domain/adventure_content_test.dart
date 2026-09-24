@@ -8,6 +8,14 @@ import 'package:grisbie/domain/models/word.dart';
 
 import '../support/disk_content.dart';
 
+/// Classe tous les mots tires d'une famille, jusqu'a ouvrir son chemin.
+void completeFamily(StageEngine engine, String familyId) {
+  final family = engine.stage.findFamily(familyId)!;
+  for (final wordText in family.wordTexts.take(family.requiredCount)) {
+    engine.placeWord(wordText: wordText, familyId: familyId);
+  }
+}
+
 void main() {
   group('Contenu de l\'aventure « Grisbie va à la plage »', () {
     late Adventure adventure;
@@ -52,9 +60,11 @@ void main() {
 
       expect(start.visibleWordCount, 6);
       expect(engine.visibleWords.whereType<Word>(), hasLength(6));
+      // La reserve se compte sur la partie tiree — sept mots par zone —, et
+      // non sur les listes entieres.
       expect(
         engine.state.remainingInSupply,
-        start.words.length - start.visibleWordCount,
+        engine.stage.words.length - start.visibleWordCount,
       );
     });
 
@@ -83,23 +93,6 @@ void main() {
           reason: 'La famille "${family.id}" n\'a pas de zone posee',
         );
         expect(family.area!.overflows, isFalse);
-      }
-    });
-
-    test('aucun mot ne se devine par le nom de sa famille', () {
-      // Verifie explicitement le piege pedagogique : « bus » dans « En bus »
-      // se classerait en comparant les lettres, sans comprendre le sens.
-      for (final stage in adventure.stages.values) {
-        for (final family in stage.families) {
-          for (final wordText in family.wordTexts) {
-            final word = stage.findWord(wordText)!;
-            expect(
-              family.label.toLowerCase().contains(word.text.toLowerCase()),
-              isFalse,
-              reason: '"${word.text}" apparait dans "${family.label}"',
-            );
-          }
-        }
       }
     });
 
@@ -132,14 +125,11 @@ void main() {
     test('classer puis partir mene de la maison a la mer', () async {
       final adventure = await loadRealAdventure();
 
-      // Premiere etape : classer assez de mots « bus » pour ouvrir la gare.
+      // Premiere etape : classer les mots « bus » tires pour ouvrir la gare.
+      // Les mots viennent de la partie tiree : une liste plus longue que la
+      // partie en garde en reserve que l'enfant ne verra pas.
       final home = StageEngine(stage: adventure.startStage, random: Random(1));
-      final busFamily = adventure.startStage.families.firstWhere(
-        (family) => family.id == 'en_bus',
-      );
-      for (final wordText in busFamily.wordTexts.take(busFamily.requiredCount)) {
-        home.placeWord(wordText: wordText, familyId: 'en_bus');
-      }
+      completeFamily(home, 'en_bus');
 
       expect(home.state.availableDestinations, hasLength(1));
       home.departTo('gare');
@@ -149,8 +139,7 @@ void main() {
         stage: adventure.findStage(home.state.departedTo!)!,
         random: Random(1),
       );
-      station.placeWord(wordText: 'quai', familyId: 'prendre_le_train');
-      station.placeWord(wordText: 'billet', familyId: 'prendre_le_train');
+      completeFamily(station, 'prendre_le_train');
       station.departTo('plage');
 
       final beach = adventure.findStage(station.state.departedTo!)!;
@@ -164,12 +153,7 @@ void main() {
 
       // L'enfant ouvre deux chemins avant de se decider.
       for (final familyId in <String>['a_pied', 'en_bus']) {
-        final family = adventure.startStage.families.firstWhere(
-          (family) => family.id == familyId,
-        );
-        for (final wordText in family.wordTexts.take(family.requiredCount)) {
-          home.placeWord(wordText: wordText, familyId: familyId);
-        }
+        completeFamily(home, familyId);
       }
 
       expect(home.state.availableDestinations, hasLength(2));

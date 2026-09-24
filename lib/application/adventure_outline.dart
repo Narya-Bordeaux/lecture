@@ -74,8 +74,8 @@ class AdventureOutline {
           letter: letters[stageId]!,
           locationName: stage.locationName,
           hasNarrative: stage.narrative.onArrival != null,
-          isEncounter: stage.isEncounter,
           nature: stage.nature,
+          canBeTried: stage.canBeTriedAlone,
           trips: List<OutlineTrip>.unmodifiable(
             stage.families
                 .map((family) => _tripOf(stage, family, letters, adventure)),
@@ -163,8 +163,8 @@ class OutlineBlock {
     required this.letter,
     required this.locationName,
     required this.hasNarrative,
-    required this.isEncounter,
     required this.nature,
+    required this.canBeTried,
     required this.trips,
   });
 
@@ -180,12 +180,12 @@ class OutlineBlock {
   /// Un lieu ne raconte pas son depart — c'est celui d'apres qui raconte.
   final bool hasNarrative;
 
-  /// Vrai si un personnage attend ici. C'est un ornement, pas une mecanique.
-  final bool isEncounter;
-
   /// Ce que l'enfant fait ici — ou `undefined`, tant que l'auteur ne l'a pas
   /// dit. C'est ce qui decide de ce que la carte propose.
   final StageNature nature;
+
+  /// Vrai si le lieu se joue seul : la carte propose alors de l'essayer.
+  final bool canBeTried;
 
   /// Vrai si l'enfant y trie entre une liste et son complement.
   ///

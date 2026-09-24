@@ -3,6 +3,32 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
+## Pages de récit, images et dépôt — en discussion avec l'auteur
+
+- [ ] **Éprouver le choix d'une image dans Chrome et sur le téléphone** —
+      les noms portent des espaces et des accents (`Grisbie forêt.jpg`) :
+      les tests les lisent, aucun navigateur ne l'a encore fait.
+- [ ] **La page de récit**, type de page à part (titre, illustration, texte,
+      une seule suite, ou marquée fin) : page de garde, transition, fin. Le
+      type se choisit à la création de la page.
+- [ ] **Images illisibles dans l'outil, connecté au dépôt** (vu par
+      l'auteur dans Chrome, le 24 septembre) : les vignettes et l'aperçu
+      échouent alors que le jeu montre les images. Non reproduit : dans
+      Chromium, en mode local, debug comme release, tout s'affiche. La raison
+      s'affiche désormais dans l'outil — la relever.
+- [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
+      entière, après un enregistrement fait depuis l'ordinateur.
+
+## Plus tard — décidé, pas encore le moment
+
+- [ ] **Un écran de choix des aventures dans le jeu.** Le jeu lance toujours
+      `GrisbieApp.defaultAdventureId` ; dès que le dépôt en portera
+      plusieurs, l'enfant devra choisir.
+- [ ] **Un aperçu multi-formats dans l'outil** : la scène dans deux ou trois
+      cadres de téléphone (360×640, 390×844, tablette) sur l'ordinateur,
+      pour attraper sans téléphone un énoncé trop long ou une zone trop
+      petite. Ne remplace pas l'essai au doigt.
+
 ## Outil de création d'une journée
 
 Le chantier en cours, décrit dans `current.md`. Les étapes 1 et 2 sont faites.
@@ -106,8 +132,6 @@ construisant :
       les documents de l'application ; dans un navigateur il descend en
       fichiers séparés au nom aplati. Les deux se reposent à la main dans
       `assets/content/`. C'est ce qu'un dépôt distant remplacera.
-- [ ] Saisir les **récits** d'arrivée et de départ d'un lieu, et la réplique
-      d'un personnage — l'écran ne les demande pas encore.
 - [ ] **Éprouver l'écran de structure** sur le téléphone et dans Chrome :
       changer la nature d'un lieu, rediriger un trajet, supprimer un lieu
       détaché. Rien n'en a été ouvert.
@@ -243,5 +267,3 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
       ans.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
-- [ ] Portraits des personnages : `portrait` existe dans le format mais aucun
-      dessin n'est fourni ; seul le nom s'affiche.

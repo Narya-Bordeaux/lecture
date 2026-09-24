@@ -75,9 +75,9 @@ void main() {
   group('L\'illustration s\'enleve aussi', () {
     test('copyWith la remplace', () {
       final illustrated = stage(id: 'maison', families: const <WordFamily>[])
-          .copyWith(backgroundAsset: 'assets/pictures/a.jpg');
+          .copyWith(backgroundAsset: 'pictures/a.jpg');
 
-      expect(illustrated.backgroundAsset, 'assets/pictures/a.jpg');
+      expect(illustrated.backgroundAsset, 'pictures/a.jpg');
     });
 
     test('et sait la retirer, ce que « ?? » ne ferait jamais', () {
@@ -85,7 +85,7 @@ void main() {
       // geste explicite, retirer une illustration serait sans effet, et
       // l'auteur croirait l'avoir fait.
       final cleared = stage(id: 'maison', families: const <WordFamily>[])
-          .copyWith(backgroundAsset: 'assets/pictures/a.jpg')
+          .copyWith(backgroundAsset: 'pictures/a.jpg')
           .copyWith(clearBackgroundAsset: true);
 
       expect(cleared.backgroundAsset, isNull);

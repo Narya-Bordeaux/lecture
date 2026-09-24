@@ -11,8 +11,8 @@ import 'package:grisbie/ui/widgets/scene_layout.dart';
 import 'package:grisbie/ui/widgets/shake.dart';
 import 'package:grisbie/ui/widgets/word_label.dart';
 
-/// L'ecran d'une etape : le decor, les mots a classer, les zones de depot et
-/// les departs possibles.
+/// L'ecran d'une etape : l'enonce, le decor, les mots a classer, les zones de
+/// depot et les departs possibles.
 ///
 /// Cette page n'applique aucune regle. Elle transmet les gestes au
 /// [StageEngine] et affiche l'etat qu'il renvoie. Toute tentation d'y decider
@@ -23,10 +23,21 @@ class StagePage extends StatefulWidget {
     required this.onDeparture,
     this.random,
     this.contentSource,
+    this.interactive = true,
+    this.sceneOverlayBuilder,
     super.key,
   });
 
   final Stage stage;
+
+  /// Faux pour un apercu : la page s'affiche telle que l'enfant la verra, mais
+  /// aucun geste n'y est transmis. C'est le cas de l'outil de calage.
+  final bool interactive;
+
+  /// Un calque pose sur l'illustration, dans son repere — voir
+  /// [SceneLayout.overlayBuilder]. Il recoit les gestes meme quand la page
+  /// n'est pas [interactive] : ce sont les poignees de l'outil de calage.
+  final Widget Function(Rect imageRect)? sceneOverlayBuilder;
 
   /// D'ou lire le contenu, illustrations comprises. Nulle, le bundle : c'est
   /// le cas du jeu. L'outil de calage y passe la source de travail, sans quoi
@@ -70,10 +81,7 @@ class _StagePageState extends State<StagePage> {
   }
 
   void _createEngine() {
-    _engine = StageEngine(
-      stage: widget.stage,
-      random: widget.random,
-    );
+    _engine = StageEngine(stage: widget.stage, random: widget.random);
     _shakeKeys
       ..clear()
       ..addEntries(
@@ -109,89 +117,125 @@ class _StagePageState extends State<StagePage> {
   Widget build(BuildContext context) {
     final destinations = _engine.state.availableDestinations;
 
+    final backgroundColor = widget.stage.backgroundColor == null
+        ? const Color(0xFF4AB8FD)
+        : Color(widget.stage.backgroundColor!);
+
+    // **L'illustration occupe ce que le bandeau laisse** (option A, choisie
+    // par l'auteur). Posee sous le bandeau, une zone ancree haut dans l'image
+    // passait dessous des que l'enonce s'allongeait, et le doigt y etait
+    // arrete sans rien pour le dire. Ici le recouvrement est impossible, quelle
+    // que soit la longueur du texte ; l'image rapetisse d'autant sur un petit
+    // ecran.
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          SceneLayout(
-            backgroundAsset: widget.stage.backgroundAsset,
-            contentSource: widget.contentSource,
-            backgroundColor: widget.stage.backgroundColor == null
-                ? const Color(0xFF4AB8FD)
-                : Color(widget.stage.backgroundColor!),
-            // Le bas du decor porte le personnage : le caler au-dessus de la
-            // barre de navigation evite qu'il passe sous les boutons.
-            bottomInset: MediaQuery.paddingOf(context).bottom,
-            children: <SceneChild>[
-              for (final family in widget.stage.families)
-                if (family.area != null)
-                  SceneChild(
-                    area: family.area!,
-                    child: FamilyDropZone(
-                      family: family,
-                      placedWords: _wordsPlacedIn(family.id),
-                      isOpen: _engine.state.completedFamilyIds.contains(
-                        family.id,
-                      ),
-                      onWordDropped: (wordText) => _handleDrop(
-                        wordText: wordText,
-                        familyId: family.id,
-                      ),
-                    ),
+          Column(
+            children: <Widget>[
+              SafeArea(
+                bottom: false,
+                child: IgnorePointer(
+                  ignoring: !widget.interactive,
+                  child: _WordTray(
+                    statement: widget.stage.narrative.onArrival,
+                    slots: _visibleSlots,
+                    shakeKeys: _shakeKeys,
                   ),
+                ),
+              ),
+              Expanded(
+                child: SceneLayout(
+                  backgroundAsset: widget.stage.backgroundAsset,
+                  contentSource: widget.contentSource,
+                  backgroundColor: backgroundColor,
+                  // Le bas du decor porte le chemin : le caler au-dessus de la
+                  // barre de navigation evite qu'il passe sous les boutons.
+                  bottomInset: MediaQuery.paddingOf(context).bottom,
+                  overlayBuilder: widget.sceneOverlayBuilder,
+                  children: <SceneChild>[
+                    for (final family in widget.stage.families)
+                      if (family.area != null)
+                        SceneChild(
+                          area: family.area!,
+                          child: IgnorePointer(
+                            ignoring: !widget.interactive,
+                            child: FamilyDropZone(
+                              // Le nom et la zone viennent du lieu de l'ecran
+                              // — le calage les deplace sans relancer la
+                              // partie ; le compte vient de la partie tiree.
+                              family: family,
+                              requiredCount: _engine.stage
+                                      .findFamily(family.id)
+                                      ?.requiredCount ??
+                                  family.requiredCount,
+                              placedWords: _wordsPlacedIn(family.id),
+                              isOpen: _engine.state.completedFamilyIds.contains(
+                                family.id,
+                              ),
+                              onWordDropped: (wordText) => _handleDrop(
+                                wordText: wordText,
+                                familyId: family.id,
+                              ),
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
             ],
           ),
-          SafeArea(
-            child: Column(
-              children: <Widget>[
-                _WordTray(
-                  slots: _visibleSlots,
-                  shakeKeys: _shakeKeys,
-                  // Quand un personnage pose la question, sa replique tient
-                  // lieu de consigne : elle dit ce qu'il faut faire, et mieux
-                  // qu'une invitation generique.
-                  invitation: widget.stage.encounter?.line,
+          if (destinations.isNotEmpty && widget.interactive)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                child: _DepartureBar(
+                  destinations: destinations,
+                  onDepart: widget.onDeparture,
                 ),
-                const Spacer(),
-                if (destinations.isNotEmpty)
-                  _DepartureBar(
-                    destinations: destinations,
-                    onDepart: widget.onDeparture,
-                  ),
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-/// La grille des mots proposes, en haut de l'ecran.
+/// L'enonce et la grille des mots proposes, en haut de l'ecran.
+///
+/// **L'enonce donne son sens au tri** : il situe l'enfant et pose la question
+/// que les mots vont trancher. Il se lit donc pendant qu'on trie, dans le meme
+/// cartouche que les mots, et reste quand ils sont tous classes. Aucune
+/// consigne generique ne l'accompagne : l'auteur l'a retiree, l'enonce disant
+/// deja ce qu'il faut faire.
 ///
 /// Chaque case correspond a un emplacement du moteur, et garde sa position :
 /// un mot classe est remplace sur place par un mot de la reserve, les autres
 /// ne bougent pas.
 class _WordTray extends StatelessWidget {
   const _WordTray({
+    required this.statement,
     required this.slots,
     required this.shakeKeys,
-    this.invitation,
   });
 
   /// Trois colonnes : avec six emplacements, deux lignes pleines.
   static const int _columns = 3;
 
+  /// Le texte d'arrivee du lieu, ou `null` s'il n'en a pas.
+  final String? statement;
+
   final List<Word?> slots;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
 
-  /// La consigne affichee au-dessus des mots. Par defaut une invitation
-  /// generique, remplacee par la replique du personnage lors d'une rencontre.
-  final String? invitation;
-
   @override
   Widget build(BuildContext context) {
-    if (slots.every((word) => word == null)) return const SizedBox.shrink();
+    final hasWords = slots.any((word) => word != null);
+    if (!hasWords && statement == null) return const SizedBox.shrink();
 
     // La hauteur de ce bandeau est contrainte : les zones de depot sont
     // ancrees au decor, et la premiere — le bus — commence vers 29 % de la
@@ -209,40 +253,45 @@ class _WordTray extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(
-            invitation ?? UiStringsFr.dragInvitation,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF4A4A4A),
-            ),
-          ),
-          const SizedBox(height: 6),
-          for (final row in _rows(slots))
+          if (statement != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  for (final word in row)
-                    Expanded(
-                      child: Center(
-                        // Un emplacement vide garde sa place : la grille ne se
-                        // reorganise pas sous les doigts de l'enfant.
-                        child: word == null
-                            ? const SizedBox.shrink()
-                            : Shake(
-                                key: shakeKeys[word.text],
-                                child: DraggableWordLabel(word: word),
-                              ),
-                      ),
-                    ),
-                  for (var i = row.length; i < _columns; i++)
-                    const Expanded(child: SizedBox.shrink()),
-                ],
+              padding: EdgeInsets.fromLTRB(4, 0, 4, hasWords ? 8 : 0),
+              child: Text(
+                statement!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1B1B1B),
+                ),
               ),
             ),
+          if (hasWords)
+            for (final row in _rows(slots))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    for (final word in row)
+                      Expanded(
+                        child: Center(
+                          // Un emplacement vide garde sa place : la grille ne se
+                          // reorganise pas sous les doigts de l'enfant.
+                          child: word == null
+                              ? const SizedBox.shrink()
+                              : Shake(
+                                  key: shakeKeys[word.text],
+                                  child: DraggableWordLabel(word: word),
+                                ),
+                        ),
+                      ),
+                    for (var i = row.length; i < _columns; i++)
+                      const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
+              ),
         ],
       ),
     );

@@ -29,37 +29,28 @@ void main() {
 
   test('les greffons ne sont importes que par l\'infrastructure dediee', () {
     final importers = sources.entries
-        .where((entry) =>
-            entry.value.contains("package:image_picker/") ||
-            entry.value.contains("package:path_provider/"))
+        .where((entry) => entry.value.contains("package:path_provider/"))
         .map((entry) => entry.key)
         .toList()
       ..sort();
 
     // Ni le domaine, ni le moteur, ni l'interface, ni le point d'entree :
-    // choisir une image et savoir ou ecrire sont des affaires de plateforme.
-    // Tout le reste passe par `PictureLibrary` et `ContentSink`.
+    // savoir ou ecrire est une affaire de plateforme. Tout le reste passe par
+    // `ContentSink`.
     expect(
       importers,
-      <String>[
-        'lib/infrastructure/content/device_content_folder.dart',
-        'lib/infrastructure/pictures/device_picture_picker.dart',
-      ],
+      <String>['lib/infrastructure/content/device_content_folder.dart'],
     );
   });
 
-  test('un seul fichier ouvre la photothegue, et c\'est l\'outil', () {
-    final builders = sources.entries
-        .where((entry) => entry.value.contains('DevicePicturePicker('))
-        .map((entry) => entry.key)
-        .where((path) =>
-            path != 'lib/infrastructure/pictures/device_picture_picker.dart')
-        .toList()
-      ..sort();
+  test('plus rien n\'ouvre la photothegue de l\'appareil', () {
+    // Les images se choisissent dans le depot (0.37.0) : aucun code n'a plus
+    // a lire les photos d'un appareil, dans l'outil comme dans le jeu.
+    final importers = sources.entries
+        .where((entry) => entry.value.contains('package:image_picker/'))
+        .map((entry) => entry.key);
 
-    // Le jeu n'a aucun chemin vers la photothegue de l'appareil : personne ne
-    // la lui passe, et il ne sait pas la fabriquer.
-    expect(builders, <String>['lib/main_author.dart']);
+    expect(importers, isEmpty);
   });
 
   test('Firebase n\'est importe que par l\'infrastructure distante', () {

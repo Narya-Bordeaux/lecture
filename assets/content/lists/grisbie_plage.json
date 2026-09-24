@@ -1,0 +1,71 @@
+{
+  "lists": [
+    {
+      "id": "villes_de_france",
+      "name": "Villes de France",
+      "words": [
+        "Bordeaux",
+        "Paris",
+        "Toulouse",
+        "Strasbourg",
+        "Lyon",
+        "Marseille",
+        "Rennes",
+        "Lille",
+        "Reims",
+        "Montpellier",
+        "Nantes",
+        "Ajacio",
+        "Bastia"
+      ]
+    },
+    {
+      "id": "a_velo",
+      "name": "A vélo",
+      "words": [
+        "byciclette",
+        "frein",
+        "garde-boue",
+        "guidon",
+        "pneu",
+        "promenade",
+        "roue",
+        "selle",
+        "VTT"
+      ]
+    },
+    {
+      "id": "musique",
+      "name": "musique",
+      "words": [
+        "classique",
+        "pop",
+        "rock 'n' roll",
+        "rap",
+        "K-pop",
+        "reggae",
+        "gothique",
+        "salsa",
+        "flamenco",
+        "blues",
+        "jazz",
+        "disco"
+      ]
+    },
+    {
+      "id": "animaux_de_la_foret",
+      "name": "animaux de la forêt",
+      "words": [
+        "belette",
+        "cerf",
+        "chouette",
+        "écureuil",
+        "élan",
+        "hérisson",
+        "hibou",
+        "renard",
+        "sanglier"
+      ]
+    }
+  ]
+}
