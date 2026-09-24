@@ -230,7 +230,7 @@
           "id": "genres_de_musique",
           "label": "Les genres de musique",
           "list": "musique",
-          "destination": "plage",
+          "destination": "plage_sauvage",
           "area": {
             "left": 0.04,
             "top": 0.59,
