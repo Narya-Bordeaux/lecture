@@ -187,11 +187,22 @@ class Stage {
     return null;
   }
 
+  /// Combien de mots chaque zone tire, sans reglage : sept (decision de
+  /// l'auteur, 0.42.0).
+  ///
+  /// La zone « le reste » aussi : elle tire sept mots dans l'ensemble de ses
+  /// listes cochees, et non sept par liste. Une liste de moins de sept mots
+  /// est **a finir** — [validate] le signale, et la zone n'est pas jouee
+  /// entiere en silence.
+  static const int defaultDrawCount = 7;
+
   /// Combien de mots cette famille met en jeu ici.
   ///
-  /// La famille l'emporte sur le defaut du lieu ; nul des deux cotes, la liste
-  /// joue entiere.
-  int? drawCountFor(WordFamily family) => family.drawCount ?? drawCount;
+  /// La famille l'emporte sur le reglage du lieu, qui l'emporte sur
+  /// [defaultDrawCount]. Sans reglage, la liste jouait entiere : une zone de
+  /// douze mots s'annoncait « 0 / 12 » et en exigeait douze.
+  int drawCountFor(WordFamily family) =>
+      family.drawCount ?? drawCount ?? defaultDrawCount;
 
   /// Les mots que cette famille partage avec les autres listes du lieu.
   ///

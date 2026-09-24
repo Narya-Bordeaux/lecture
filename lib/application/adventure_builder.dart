@@ -83,11 +83,10 @@ class AdventureBuilder {
 
   /// Combien de mots chaque liste met en jeu, dans un lieu que l'outil ecrit.
   ///
-  /// Pose sur le lieu (`Stage.drawCount`) des qu'il recoit ses listes. Une
-  /// liste peut en compter bien davantage : c'est ce qui fait qu'une journee
-  /// rejouee ne redonne pas les memes mots. C'est aussi le seuil que la carte
-  /// du lieu compare a ce qui reste une fois les mots communs retires.
-  static const int defaultDrawCount = 7;
+  /// Le defaut du domaine ([Stage.defaultDrawCount]), et une seule constante :
+  /// l'outil le pose encore sur le lieu (`Stage.drawCount`) des qu'il recoit
+  /// ses listes, ce qui rend le reglage visible dans le fichier.
+  static const int defaultDrawCount = Stage.defaultDrawCount;
 
   /// Les articles qu'on retire en tete d'un nom pour en tirer l'identifiant.
   ///

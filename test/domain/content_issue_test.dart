@@ -34,7 +34,7 @@ Adventure adventureWith(
   String start = 'depart',
 }) {
   return adventureOf(
-    <Stage>[stage(id: 'depart', families: families)],
+    <Stage>[stage(drawCount: 1, id: 'depart', families: families)],
     start: start,
   );
 }
@@ -218,6 +218,7 @@ void main() {
     test('une etape qu\'aucun chemin n\'atteint', () {
       final adventure = adventureOf(<Stage>[
         stage(
+          drawCount: 1,
           id: 'depart',
           families: <WordFamily>[
             family(
@@ -229,6 +230,7 @@ void main() {
           ],
         ),
         stage(
+          drawCount: 1,
           id: 'orpheline',
           families: <WordFamily>[
             family(
@@ -262,6 +264,7 @@ void main() {
     test('une fin declaree et sans famille ne pose aucun probleme', () {
       final adventure = adventureOf(<Stage>[
         stage(
+          drawCount: 1,
           id: 'depart',
           families: <WordFamily>[
             family(
@@ -281,6 +284,7 @@ void main() {
     test('un lieu cree et pas encore ecrit est signale incomplet', () {
       final adventure = adventureOf(<Stage>[
         stage(
+          drawCount: 1,
           id: 'depart',
           families: <WordFamily>[
             family(
@@ -292,7 +296,7 @@ void main() {
           ],
         ),
         // Ni famille, ni marqueur de fin : l'auteur l'a pose et abandonne.
-        stage(id: 'marche', families: const <WordFamily>[]),
+        stage(drawCount: 1, id: 'marche', families: const <WordFamily>[]),
       ]);
 
       expect(issuesOf(adventure, IssueSeverity.wrong), isEmpty);
@@ -337,6 +341,7 @@ void main() {
 
     test('une liste du reste fait du lieu un tri unique', () {
       final sorting = stage(
+        drawCount: 1,
         id: 'boutique',
         families: <WordFamily>[
           family(
@@ -356,6 +361,7 @@ void main() {
 
     test('un tri entre plusieurs familles n\'en est pas un', () {
       final ordinary = stage(
+        drawCount: 1,
         id: 'depart',
         families: <WordFamily>[
           family(
@@ -373,6 +379,7 @@ void main() {
     test('un tri unique qui aurait deux sorties se contredit', () {
       final adventure = adventureOf(<Stage>[
         stage(
+          drawCount: 1,
           id: 'depart',
           families: <WordFamily>[
             family(
@@ -404,6 +411,7 @@ void main() {
     test('la boutique du contenu livre en est un, et reste valide', () {
       // Elle a « ce qui se mange » d'un cote, « laisse-le » de l'autre.
       final sorting = stage(
+        drawCount: 1,
         id: 'boutique',
         families: <WordFamily>[
           family(
@@ -427,7 +435,7 @@ void main() {
   group('Ce que l\'outil doit pouvoir dire', () {
     test('une aventure jouable ne presente aucune anomalie', () {
       final adventure = adventureOf(<Stage>[
-        stage(id: 'depart', families: <WordFamily>[
+        stage(drawCount: 1, id: 'depart', families: <WordFamily>[
           family(
             id: 'en_bus',
             label: 'En autocar',

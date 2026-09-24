@@ -215,7 +215,7 @@ pose la question du premier tri.
 | `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
 | `narrative.onArrival` | non | L'**énoncé** : affiché en haut de la scène, au-dessus des mots |
 | `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
-| `drawCount` | non | Combien de mots **chaque famille** tire de sa liste (toute la liste par défaut) |
+| `drawCount` | non | Combien de mots **chaque famille** tire de sa liste — **7 par défaut**, la liste du reste comprise, qui les tire dans toutes ses listes cochées. Une liste plus courte est à finir |
 | `families` | oui | Les catégories à remplir |
 
 **Un lieu raconte son arrivée, jamais son départ.** L'enfant y entre, lit ce qui

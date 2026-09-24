@@ -178,6 +178,7 @@ void main() {
           'maison': build.stage(
             id: 'maison',
             arrivalText: 'Par où partir ?',
+            drawCount: 1,
             families: <WordFamily>[
               build.family(
                 id: 'en_bus',

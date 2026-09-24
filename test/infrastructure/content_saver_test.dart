@@ -50,6 +50,7 @@ MemoryContentFolder shippedFolder() {
     {
       "id": "gare",
       "location": "La gare",
+      "drawCount": 2,
       "families": [
         { "id": "le_train", "label": "Prendre le train", "list": "train",
           "destination": "sable" }

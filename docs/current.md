@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.41.0+60** — 23 septembre 2026
+**Version : 0.42.0+61** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,12 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.42.0+61 — Sept mots par zone
+- Sans réglage, chaque zone tire sept mots, « le reste » compris ; une liste
+  plus courte est à finir.
+- Le contenu livré garde son comportement (gare : 2, boutique : 6).
+- 547 tests au vert.
+
 ### 0.41.0+60 — Un seul écran de lecture
 - Les fins affichent enfin leur illustration : page de garde et fin partagent
   `NarrationPage` — titre facultatif, image, texte.
@@ -118,15 +124,6 @@ un travail d'auteur, pas de code.
 - **Défaut corrigé, dans le jeu aussi** : une zone annonce les mots tirés
   (« 0 / 7 »), plus la longueur de la liste.
 - 539 tests au vert.
-
-### 0.39.0+58 — Intégrer au dépôt
-- Depuis Chrome ou Edge, l'aventure se verse dans `assets/content/` du dépôt,
-  après trois contrôles : le bon dossier, une aventure jouable, des images
-  présentes. Rien ne s'écrit sinon.
-- **Le parcours de l'auteur est complet** : écrire sur l'ordinateur, essayer
-  sur le téléphone, intégrer, commit, compiler. **À éprouver** de bout en
-  bout.
-- 532 tests au vert.
 
 ## Décisions prises
 

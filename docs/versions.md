@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.42.0+61 — 24 septembre 2026 — Sept mots par zone
+
+**Vu par l'auteur, dans le jeu** : les zones de « Devant la maison » et de
+« La gare » annonçaient la longueur de leur liste. Le compteur disait vrai :
+sans `drawCount`, la liste jouait entière.
+
+- **Décision de l'auteur** : sans réglage, chaque zone tire **sept** mots
+  (`Stage.defaultDrawCount`). La zone « le reste » aussi, dans l'ensemble de
+  ses listes cochées — sept en tout, pas sept par liste.
+- **Option A** : une liste de moins de sept mots est à finir, et rend
+  l'aventure injouable tant qu'on n'a pas écrit les mots manquants.
+- **Contenu livré** : la gare (listes de 2) et la boutique (listes de 6)
+  reçoivent le `drawCount` qu'elles jouaient déjà. Sans cela le jeu ne
+  s'ouvrait plus, et compléter leurs listes aurait été inventer du
+  vocabulaire.
+- Les données fabriquées des tests reçoivent de même un réglage explicite ;
+  trois tests qui décrivaient l'ancienne règle la décrivent désormais.
+
+547 tests au vert.
+
 ### 0.41.0+60 — 24 septembre 2026 — Un seul écran de lecture
 
 **Défaut vu par l'auteur** : les images posées sur les fins ne paraissaient

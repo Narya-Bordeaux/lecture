@@ -60,6 +60,7 @@
         "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir"
       },
       "visibleWordCount": 4,
+      "drawCount": 2,
       "families": [
         {
           "id": "prendre_le_train",
@@ -82,6 +83,7 @@
         "onArrival": "Grisbie pousse la porte de la boutique."
       },
       "visibleWordCount": 6,
+      "drawCount": 6,
       "families": [
         {
           "id": "a_manger",

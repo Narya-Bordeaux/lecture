@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.41.0+60** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.42.0+61** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -361,16 +361,22 @@ de la même taille d'une famille à l'autre.
 d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à la
 maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
 `Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
-Nul des deux côtés, la liste joue entière : c'est le cas du contenu livré, dont
-le comportement n'a donc pas changé. `goal` reste le nombre de mots qui suffisent
-à ouvrir la destination.
+Nul des deux côtés, **sept** (`Stage.defaultDrawCount`, décision de l'auteur
+en 0.42.0) — la zone « le reste » comprise, qui tire ses sept mots dans
+l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
+sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
+en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
+exigeait douze. Le contenu livré porte donc `"drawCount": 2` à la gare et `6` à
+la boutique, ce qu'il jouait déjà : ses listes sont trop courtes pour sept, et
+les compléter serait inventer du vocabulaire. `goal` reste le nombre de mots
+qui suffisent à ouvrir la destination.
 
 **Une zone annonce ce que la partie demande** — « 0 / 7 », et non la
 longueur de la liste. `StagePage` prend le nom et la place de chaque zone au
 lieu de l'écran, mais le **compte au lieu tiré par le moteur**
 (`FamilyDropZone.requiredCount`). Elle prenait tout au lieu de l'écran, et une
 liste de douze s'annonçait « 0 / 12 » pour s'ouvrir au septième mot : invisible
-tant que le contenu livré jouait ses listes entières. La place, elle, doit
+tant que les listes jouaient entières sans réglage. La place, elle, doit
 rester celle de l'écran : le calage déplace les zones sans relancer la partie.
 
 **Le tirage a lieu dans le moteur, pas dans l'interface** — `StageEngine`
@@ -769,9 +775,10 @@ déjà défini : redéfinir jetterait ses listes. `AddTripsPage` ne fait plus qu
 nommer les sorties — plusieurs, ou le seul thème d'un tri unique
 (`allowsOneTripOnly`), sans nombre à choisir.
 
-**Sept mots par liste** — `AdventureBuilder.defaultDrawCount`, posé sur le
-lieu quand il reçoit ses premières listes. Un lieu déjà écrit garde ce qu'il
-demandait, contenu livré compris.
+**Sept mots par zone** — `AdventureBuilder.defaultDrawCount`, qui n'est que
+`Stage.defaultDrawCount`, est encore posé sur le lieu quand il reçoit ses
+premières listes : le réglage se lit ainsi dans le fichier. Un lieu déjà écrit
+garde ce qu'il demandait.
 
 **Essayer sur l'appareil** (0.38.0) — ce qui se règle sur l'ordinateur doit se
 vérifier au doigt, sur l'écran réel du téléphone. L'outil y joue donc le **vrai

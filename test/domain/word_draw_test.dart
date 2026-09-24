@@ -117,10 +117,10 @@ void main() {
       expect(drawnIn(wideStage(stageDraw: 4), 'en_bus', 1), hasLength(4));
     });
 
-    test('sans nombre demande, toute la liste reste en jeu', () {
-      // Le comportement d'avant la reserve tirée : rien ne change pour un
-      // contenu qui ne demande rien.
-      expect(drawnIn(wideStage(), 'en_bus', 1), hasLength(12));
+    test('sans nombre demande, sept mots sont tires', () {
+      // Decision de l'auteur (0.42.0) : sept par zone. La liste jouait
+      // entiere, et une zone de douze mots en exigeait douze.
+      expect(drawnIn(wideStage(), 'en_bus', 1), hasLength(7));
     });
 
     test('la famille l\'emporte sur le defaut du lieu', () {
@@ -222,8 +222,8 @@ void main() {
       expect(emptied.message, contains('en_bus'));
     });
 
-    test('sans nombre demande, rien n\'est exige', () {
-      // L'auteur n'a rien promis : il joue avec ce qui reste.
+    test('sans nombre demande, sept mots sont exiges', () {
+      // Une liste trop courte pour les sept mots par zone est a finir.
       final issues = stage(
         id: 'maison',
         families: <WordFamily>[
@@ -242,7 +242,10 @@ void main() {
         ],
       ).validate();
 
-      expect(issues, isEmpty);
+      expect(
+        issues.where((issue) => issue.severity == IssueSeverity.incomplete),
+        hasLength(2),
+      );
     });
   });
 }
