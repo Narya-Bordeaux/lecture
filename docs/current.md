@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.42.1+62** — 23 septembre 2026
+**Version : 0.43.0+63** — 24 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,13 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.43.0+63 — La roue des aventures, moteur seul
+- Premier pas de l'accueil du jeu : `AdventureWheel` (quelle aventure à
+  quelle place, boucle au-delà de quatre, calage au lâcher) et `WheelArc`
+  (place et inclinaison d'une vignette autour du logo). Aucun écran encore.
+- Le logo `assets/accueil Grisbie.png` est déclaré : la suite était rouge.
+- 572 tests au vert.
+
 ### 0.42.1+62 — L'aventure de l'auteur, et des images qui disent pourquoi
 - **Le contenu livré est l'aventure de l'auteur**, intégrée depuis l'outil.
 - Images illisibles dans l'outil connecté : non reproduit en local ; la
@@ -117,11 +124,6 @@ un travail d'auteur, pas de code.
   plus courte est à finir.
 - Le contenu livré garde son comportement (gare : 2, boutique : 6).
 - 547 tests au vert.
-
-### 0.41.0+60 — Un seul écran de lecture
-- Les fins affichent enfin leur illustration : page de garde et fin partagent
-  `NarrationPage` — titre facultatif, image, texte.
-- 543 tests au vert.
 
 ## Décisions prises
 

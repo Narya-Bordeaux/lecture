@@ -44,6 +44,29 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.43.0+63 — 24 septembre 2026 — La roue des aventures, moteur seul
+
+**Premier pas de l'accueil du jeu**, d'après le croquis de l'auteur : le
+titre en arche, le logo au centre, et quatre vignettes suspendues sous lui
+comme les rayons d'une roue dont le logo serait le moyeu. Le logo ne tourne
+pas ; les vignettes, si.
+
+Cette livraison ne pose que le moteur, en Dart pur :
+
+- `AdventureWheel` dit quelle aventure occupe quelle place. Quatre places ;
+  à quatre aventures ou moins la roue ne tourne pas et les centre sur l'arc,
+  au-delà elle **boucle**. Une place de plus de chaque côté porte celle qui
+  entre et celle qui sort, avec sa visibilité. Aucune aventure n'occupe deux
+  places à la fois, même à cinq pour quatre places. Au lâcher, `settled`
+  cale la roue sur un cran, poussée plus loin par un geste lancé.
+- `WheelArc` pose une vignette sur le cercle et l'incline, le haut tourné
+  vers le moyeu : droite en bas, penchée en remontant.
+
+**Le logo est déclaré dans `pubspec.yaml`** — poussé sans déclaration, il
+faisait échouer `declared_assets_test.dart`.
+
+572 tests au vert.
+
 ### 0.42.1+62 — 24 septembre 2026 — L'aventure de l'auteur, et des images qui disent pourquoi
 
 **L'aventure de l'auteur est le contenu livré.** Écrite dans l'outil et
