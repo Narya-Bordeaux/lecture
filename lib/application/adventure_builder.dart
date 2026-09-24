@@ -1,4 +1,5 @@
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/text/french_text.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/models/word_list.dart';
@@ -96,29 +97,14 @@ class AdventureBuilder {
     'le', 'la', 'les', 'l', 'un', 'une', 'des', 'du', 'au', 'aux',
   ];
 
-  /// Les accents, retires un a un.
-  ///
-  /// L'identifiant finira dans un nom de fichier — l'illustration d'un lieu
-  /// s'appelle d'apres lui. Un accent ou une apostrophe y est un vrai ennui.
-  /// Le resultat reste un mot francais lisible : `arret`, `marche`, `foret`.
-  static const Map<String, String> _accents = <String, String>{
-    'à': 'a', 'â': 'a', 'ä': 'a',
-    'ç': 'c',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-    'î': 'i', 'ï': 'i',
-    'ô': 'o', 'ö': 'o',
-    'ù': 'u', 'û': 'u', 'ü': 'u',
-    'ÿ': 'y',
-  };
-
   /// L'identifiant tire d'un nom affiche.
   ///
   /// Ne garantit pas l'unicite : c'est [addTrips] qui suffixe un homonyme.
   static String slugify(String name) {
-    var text = name.toLowerCase();
-    for (final entry in _accents.entries) {
-      text = text.replaceAll(entry.key, entry.value);
-    }
+    // L'identifiant finira dans un nom de fichier — l'illustration d'un lieu
+    // s'appelle d'apres lui. Un accent ou une apostrophe y est un vrai ennui ;
+    // le resultat reste un mot francais lisible : `arret`, `marche`, `foret`.
+    final text = foldAccents(name.toLowerCase());
 
     final words = text
         .split(RegExp(r"[^a-z0-9]+"))

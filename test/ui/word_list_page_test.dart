@@ -216,16 +216,61 @@ void main() {
       expect(find.text('volant'), findsOneWidget);
     });
 
-    testWidgets('un mot dans le nom du trajet est signale ici', (tester) async {
-      // « bus » dans « En bus » se classerait en comparant les lettres : c'est
-      // la ou on l'a tape qu'il faut le voir.
+    testWidgets('un mot dans le nom du trajet est accepte sans alerte', (
+      tester,
+    ) async {
+      // Regle retiree par l'auteur (0.40.0) : ce n'est pas grave.
       await pumpList(tester);
       await createList(tester);
       await typeWord(tester, 'bus');
       await tester.tap(find.byKey(const Key('word-add')));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('apparait dans le nom de sa famille'), findsOneWidget);
+      expect(find.textContaining('nom de sa famille'), findsNothing);
+      expect(find.text('bus'), findsOneWidget);
+    });
+
+    testWidgets('les mots se lisent dans l\'ordre alphabetique', (
+      tester,
+    ) async {
+      await pumpList(tester);
+      await createList(tester);
+      for (final text in <String>['volant', 'école', 'arrêt']) {
+        await typeWord(tester, text);
+        await tester.tap(find.byKey(const Key('word-add')));
+        await tester.pumpAndSettle();
+      }
+
+      final tops = <String, double>{
+        for (final text in <String>['arrêt', 'école', 'volant'])
+          text: tester.getTopLeft(find.text(text)).dy,
+      };
+      expect(tops['arrêt']!, lessThan(tops['école']!));
+      expect(tops['école']!, lessThan(tops['volant']!));
+    });
+
+    testWidgets('apres le bouton, le champ garde la main', (tester) async {
+      // On enchaine les mots sans reprendre la souris : le curseur revient
+      // dans le champ.
+      await pumpList(tester);
+      await createList(tester);
+      await typeWord(tester, 'volant');
+      await tester.tap(find.byKey(const Key('word-add')));
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(find.byKey(const Key('word-text')));
+      expect(field.focusNode!.hasFocus, isTrue);
+    });
+
+    testWidgets('apres Entree, le champ garde la main', (tester) async {
+      await pumpList(tester);
+      await createList(tester);
+      await typeWord(tester, 'volant');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(find.byKey(const Key('word-text')));
+      expect(field.focusNode!.hasFocus, isTrue);
     });
 
     testWidgets('le decompte dit s\'il y a de quoi jouer', (tester) async {

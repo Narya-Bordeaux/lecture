@@ -242,7 +242,7 @@ void main() {
       final written = await saveInto(shipped, changed);
       final train = entriesOf(written, 'lists/transport.json', 'lists', 'id')['train']!;
 
-      expect(train['words'], <String>['quai', 'billet', 'wagon']);
+      expect(train['words'], <String>['billet', 'quai', 'wagon']);
       expect(written.files.containsKey('lists/plage.json'), isFalse);
       // Le reste du fichier ne bouge pas.
       final json = jsonDecode(written.files['lists/transport.json']!) as Map<String, dynamic>;
@@ -310,7 +310,7 @@ void main() {
       await saver.save(second);
 
       final list = entriesOf(folder, 'lists/grisbie_au_marche.json', 'lists', 'id')['ce_qui_roule']!;
-      expect(list['words'], <String>['volant', 'quai']);
+      expect(list['words'], <String>['quai', 'volant']);
     });
 
     test('une liste neuve n\'efface pas celles ecrites la premiere fois', () async {

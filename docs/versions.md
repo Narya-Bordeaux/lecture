@@ -44,6 +44,24 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.40.0+59 — 24 septembre 2026 — Listes triées, saisie enchaînée, compte juste
+
+- **Règle retirée par l'auteur** : un mot peut apparaître dans le nom de sa
+  famille (« bus » dans « En bus »). `validate()` ne le signale plus.
+- **Ordre alphabétique** : `Word.compareAlphabetically`, accents et
+  majuscules ignorés ; `WordListBuilder.addWord` insère à sa place,
+  `WordListPage` affiche trié. Le repliement des accents passe dans le
+  domaine (`foldAccents`), partagé avec les identifiants.
+- **Saisie enchaînée** : le curseur revient dans le champ après chaque mot,
+  par Entrée comme par le bouton.
+- **Défaut vu par l'auteur, dans le jeu comme à l'essai** : une zone annonçait
+  la longueur de la liste (« 0 / 12 ») au lieu des mots tirés (« 0 / 7 »), et
+  s'ouvrait au septième. `StagePage` prend désormais le compte à la partie
+  tirée (`FamilyDropZone.requiredCount`), la place restant celle de l'écran
+  pour le calage.
+
+539 tests au vert.
+
 ### 0.39.0+58 — 23 septembre 2026 — Intégrer au dépôt
 
 **Publier, c'est verser dans le dépôt.** Depuis Chrome ou Edge, « Intégrer au

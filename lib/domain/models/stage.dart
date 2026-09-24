@@ -307,19 +307,6 @@ class Stage {
 
       issues.addAll(_validateSupplyOf(family));
 
-      for (final word in family.words) {
-        // Un mot dont le texte se retrouve dans le nom de sa famille se classe
-        // en comparant les lettres, sans comprendre le sens.
-        if (family.label.toLowerCase().contains(word.text.toLowerCase())) {
-          issues.add(ContentIssue.wrong(
-            'Le mot "${word.text}" apparait dans le nom de sa famille '
-            '"${family.label}" : il se classerait sans etre compris.',
-            stageId: id,
-            familyId: family.id,
-            wordText: word.text,
-          ));
-        }
-      }
     }
 
     // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac. Fatal

@@ -47,6 +47,9 @@ class _WordListPageState extends State<WordListPage> {
 
   final TextEditingController _wordText = TextEditingController();
 
+  /// Le champ du mot, rendu a l'auteur apres chaque ajout.
+  final FocusNode _wordFocus = FocusNode();
+
   WordListBuilder get _builder =>
       WordListBuilder(_adventure, library: widget.library);
 
@@ -57,6 +60,7 @@ class _WordListPageState extends State<WordListPage> {
   @override
   void dispose() {
     _wordText.dispose();
+    _wordFocus.dispose();
     super.dispose();
   }
 
@@ -247,7 +251,10 @@ class _WordListPageState extends State<WordListPage> {
       if (list.isEmpty)
         const Text('Aucun mot pour l\'instant.')
       else
-        for (final word in list.words)
+        // Dans l'ordre alphabetique, quel que soit celui du fichier : une
+        // liste se relit dans l'ordre ou l'on y chercherait un mot.
+        for (final word in <Word>[...list.words]
+          ..sort(Word.compareAlphabetically))
           _WordTile(
             word: word,
             isShared: shared.contains(word.text),
@@ -257,8 +264,7 @@ class _WordListPageState extends State<WordListPage> {
     ];
   }
 
-  /// Les anomalies de cette famille — dont le mot qui apparait dans le nom
-  /// du trajet, qu'il faut voir la ou on l'a tape.
+  /// Les anomalies de cette famille, a voir la ou l'on ecrit ses mots.
   List<ContentIssue> _issuesOf(WordFamily family) {
     return _adventure
         .validate()
@@ -280,6 +286,7 @@ class _WordListPageState extends State<WordListPage> {
           child: TextField(
             key: const Key('word-text'),
             controller: _wordText,
+            focusNode: _wordFocus,
             decoration: const InputDecoration(
               labelText: 'Un mot',
               border: OutlineInputBorder(),
@@ -290,6 +297,9 @@ class _WordListPageState extends State<WordListPage> {
             onSubmitted: (_) {
               if (_canAddWord) _addWord(list);
             },
+            // Sans ce rappel, Entree rendrait la main au reste de l'ecran,
+            // meme sur un champ vide.
+            onEditingComplete: () {},
           ),
         ),
         const SizedBox(width: 8),
@@ -312,8 +322,11 @@ class _WordListPageState extends State<WordListPage> {
     );
     if (!added) return;
 
-    // On enchaine les mots : le champ se vide pour le suivant.
+    // On enchaine les mots : le champ se vide pour le suivant, et le curseur
+    // y revient — apres le bouton comme apres Entree, sans reprendre la
+    // souris.
     _wordText.clear();
+    _wordFocus.requestFocus();
     setState(() {});
   }
 

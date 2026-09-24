@@ -18,6 +18,7 @@ import 'package:grisbie/ui/widgets/word_label.dart';
 class FamilyDropZone extends StatelessWidget {
   const FamilyDropZone({
     required this.family,
+    required this.requiredCount,
     required this.placedWords,
     required this.isOpen,
     required this.onWordDropped,
@@ -36,6 +37,12 @@ class FamilyDropZone extends StatelessWidget {
 
   final WordFamily family;
 
+  /// Combien de mots ouvrent le chemin, **dans la partie jouee** : ceux que
+  /// le moteur a tires, et non toute la liste. Une liste de douze dont la
+  /// partie tire sept s'annonce « 0 / 7 » — « 0 / 12 » promettrait des mots
+  /// que l'enfant ne verra jamais.
+  final int requiredCount;
+
   /// Les mots deja ranges ici, dans l'ordre ou ils ont ete poses.
   final List<Word> placedWords;
 
@@ -48,7 +55,7 @@ class FamilyDropZone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = family.requiredCount;
+    final total = requiredCount;
     final placed = placedWords.length > total ? total : placedWords.length;
 
     return Stack(
@@ -89,7 +96,7 @@ class FamilyDropZone extends StatelessWidget {
           label: UiStringsFr.familySemantics(
             family.label,
             placedWords.length,
-            family.requiredCount,
+            requiredCount,
           ),
           child: AnimatedContainer(
             key: frameKeyFor(family.id),

@@ -105,7 +105,9 @@ void main() {
       expect(wrong.map((issue) => issue.familyId), <String?>['a_pied']);
     });
 
-    test('un mot qui apparait dans le nom de sa famille', () {
+    test('un mot present dans le nom de sa famille n\'est plus signale', () {
+      // Regle retiree par l'auteur (0.40.0) : « bus » dans « En bus » se
+      // devine, mais ce n'est pas grave.
       final adventure = adventureWith(<WordFamily>[
         family(
           id: 'en_bus',
@@ -115,10 +117,10 @@ void main() {
         ),
       ]);
 
-      // Il se classerait en comparant les lettres, sans etre compris.
-      final wrong = issuesOf(adventure, IssueSeverity.wrong);
-      expect(wrong, hasLength(1));
-      expect(wrong.single.familyId, 'en_bus');
+      expect(
+        adventure.validate().where((issue) => issue.wordText == 'bus'),
+        isEmpty,
+      );
     });
 
     test('deux zones de depot qui se chevauchent', () {

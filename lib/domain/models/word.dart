@@ -1,3 +1,5 @@
+import 'package:grisbie/domain/text/french_text.dart';
+
 /// Un mot a lire et a classer.
 ///
 /// Le mot est sa propre clef : le jeu est francophone et n'a pas vocation a
@@ -22,6 +24,17 @@ class Word {
 
   /// Le mot tel que l'enfant le lit, et la clef qui le designe partout.
   final String text;
+
+  /// L'ordre alphabetique d'un lecteur francais : les accents et les
+  /// majuscules ne deplacent pas un mot (« école » se range avec les « e »).
+  ///
+  /// Deux mots qui se replient pareil (« pêche », « pèche ») se departagent
+  /// par leur orthographe exacte : l'ordre ne depend jamais de leur arrivee.
+  static int compareAlphabetically(Word a, Word b) {
+    final folded = foldAccents(a.text.toLowerCase())
+        .compareTo(foldAccents(b.text.toLowerCase()));
+    return folded != 0 ? folded : a.text.compareTo(b.text);
+  }
 
   Map<String, dynamic> toJson() => <String, dynamic>{'text': text};
 

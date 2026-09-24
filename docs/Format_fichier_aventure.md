@@ -419,8 +419,6 @@ Sont détectés :
   plus assez de mots pour le `drawCount` demandé ;
 - une famille dont la liste est **entièrement absorbée** par ses voisines : les
   deux listes disent alors la même chose ;
-- **un mot qui apparaît dans le nom de sa famille** (« bus » dans « En bus ») :
-  l'enfant le classerait en comparant les lettres, sans comprendre le sens ;
 - un lieu dont aucune famille ne mène ailleurs, donc sans issue ;
 - une zone qui déborde de l'illustration, ou qui en chevauche une autre ;
 - sur un lieu illustré, une famille **sans zone** : ses mots ne pourraient se
@@ -449,8 +447,7 @@ Le jeu refuse les fautes et les manques : une aventure qui en présente un
 seul est injouable, et rien ne sert de la lancer. Mais chaque anomalie porte aussi sa
 nature, pour l'outil d'auteur, qui doit pouvoir ouvrir un travail en cours.
 
-**Faux** — ne s'arrangera pas en continuant d'écrire : un mot présent dans le
-nom de sa famille, une liste entièrement absorbée par ses voisines, une zone qui
+**Faux** — ne s'arrangera pas en continuant d'écrire : une liste entièrement absorbée par ses voisines, une zone qui
 déborde ou qui en chevauche une autre, un lieu de départ introuvable.
 
 **Incomplet** — état normal d'un lieu qu'on vient de créer : une famille sans

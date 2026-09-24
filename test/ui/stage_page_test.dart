@@ -97,6 +97,35 @@ Future<void> dragWordOnto(
 }
 
 void main() {
+  testWidgets('une zone compte les mots tires, pas toute la liste', (
+    tester,
+  ) async {
+    // Une liste plus longue que la partie : le moteur tire [drawCount] mots
+    // et ouvre le chemin au dernier. La zone doit annoncer ce nombre-la —
+    // « 0 / 4 » promettrait deux mots que l'enfant ne verra jamais.
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final stage = buildTestStage();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StagePage(
+          stage: stage.copyWith(
+            drawCount: 1,
+          ),
+          onDeparture: (_) {},
+          random: Random(7),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(UiStringsFr.familyProgress(0, 1)), findsNWidgets(2));
+    expect(find.text(UiStringsFr.familyProgress(0, 2)), findsNothing);
+  });
+
   group('L\'enonce', () {
     // Le texte d'arrivee d'un lieu de jeu est ce qui donne son sens au tri :
     // il pose la question que les mots tranchent. Il se lit donc pendant

@@ -148,9 +148,15 @@ class WordListBuilder {
       throw StateError('"$wanted" est deja dans la liste "${list.name}".');
     }
 
+    // Le mot prend sa place dans l'ordre alphabetique : la liste se relit
+    // ainsi, a l'ecran comme dans son fichier, dans l'ordre ou on la
+    // chercherait.
     return _replaceList(
       list.copyWith(
-        words: List<Word>.unmodifiable(<Word>[...list.words, Word(text: wanted)]),
+        words: List<Word>.unmodifiable(
+          <Word>[...list.words, Word(text: wanted)]
+            ..sort(Word.compareAlphabetically),
+        ),
       ),
     );
   }

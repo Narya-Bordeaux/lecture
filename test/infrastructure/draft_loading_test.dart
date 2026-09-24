@@ -92,13 +92,13 @@ void main() {
     test('un brouillon fautif s\'ouvre aussi, sans quoi on ne pourrait pas '
         'le corriger', () async {
       final files = buildDraftFiles();
-      // Le mot « un » se retrouve dans le nom de sa famille : c'est une faute,
+      // Un lieu qui se declare fin mais porte des familles : c'est une faute,
       // pas un manque. Elle ne doit pas empecher d'ouvrir le fichier.
       files['lists/test.json'] =
           '{ "domain": "test", "lists": [ { "id": "vide", "name": "Vide", '
           '"words": ["un"] } ] }';
       files['adventures/b.json'] = files['adventures/b.json']!
-          .replaceAll('"label": "En autocar"', '"label": "Chiffre un"');
+          .replaceAll('"location": "Depart",', '"location": "Depart", "ending": true,');
 
       final draft = await ContentRepository(
         source: MemoryContentFolder(files),

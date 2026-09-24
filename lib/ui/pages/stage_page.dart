@@ -162,7 +162,14 @@ class _StagePageState extends State<StagePage> {
                           child: IgnorePointer(
                             ignoring: !widget.interactive,
                             child: FamilyDropZone(
+                              // Le nom et la zone viennent du lieu de l'ecran
+                              // — le calage les deplace sans relancer la
+                              // partie ; le compte vient de la partie tiree.
                               family: family,
+                              requiredCount: _engine.stage
+                                      .findFamily(family.id)
+                                      ?.requiredCount ??
+                                  family.requiredCount,
                               placedWords: _wordsPlacedIn(family.id),
                               isOpen: _engine.state.completedFamilyIds.contains(
                                 family.id,

@@ -86,23 +86,6 @@ void main() {
       }
     });
 
-    test('aucun mot ne se devine par le nom de sa famille', () {
-      // Verifie explicitement le piege pedagogique : « bus » dans « En bus »
-      // se classerait en comparant les lettres, sans comprendre le sens.
-      for (final stage in adventure.stages.values) {
-        for (final family in stage.families) {
-          for (final wordText in family.wordTexts) {
-            final word = stage.findWord(wordText)!;
-            expect(
-              family.label.toLowerCase().contains(word.text.toLowerCase()),
-              isFalse,
-              reason: '"${word.text}" apparait dans "${family.label}"',
-            );
-          }
-        }
-      }
-    });
-
     test('la gare ouvre a son tour deux directions', () {
       final station = adventure.findStage('gare');
 

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.39.0+58** — 23 septembre 2026
+**Version : 0.40.0+59** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,14 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.40.0+59 — Listes triées, saisie enchaînée, compte juste
+- Un mot peut figurer dans le nom de sa famille : règle retirée.
+- Les listes se rangent par ordre alphabétique ; le curseur reste dans le
+  champ de saisie.
+- **Défaut corrigé, dans le jeu aussi** : une zone annonce les mots tirés
+  (« 0 / 7 »), plus la longueur de la liste.
+- 539 tests au vert.
+
 ### 0.39.0+58 — Intégrer au dépôt
 - Depuis Chrome ou Edge, l'aventure se verse dans `assets/content/` du dépôt,
   après trois contrôles : le bon dossier, une aventure jouable, des images
@@ -123,15 +131,6 @@ un travail d'auteur, pas de code.
   le dépôt.
 - **Prochain** : « Intégrer au dépôt », depuis Chrome.
 - 521 tests au vert.
-
-### 0.37.0+56 — Les images se choisissent dans le dépôt
-- L'auteur verse ses images dans `assets/content/pictures/` ; « Choisir une
-  image » les montre en vignettes, par leur nom. Une image absente du dépôt
-  est signalée.
-- La photothèque de l'appareil et `image_picker` sont retirés.
-- **Prochain sujet** : « Intégrer au dépôt » — le JSON, les listes et les
-  lexiques ; et l'aventure que le jeu lance.
-- 509 tests au vert.
 
 ## Décisions prises
 

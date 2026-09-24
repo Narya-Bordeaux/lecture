@@ -89,13 +89,14 @@ void main() {
     });
 
     test('une seule faute suffit a la dire fausse', () {
-      // « bus » dans « En bus » se classerait en comparant les lettres.
+      // Une fin qui porte des familles : les mots classes ouvriraient un
+      // chemin depuis une fin.
       final adventure = adventureOf(
-        stage(id: 'maison', families: <WordFamily>[
+        stage(id: 'maison', ending: true, families: <WordFamily>[
           family(
             id: 'en_bus',
             label: 'En bus',
-            words: <Word>[word('bus')],
+            words: <Word>[word('ticket')],
             destination: 'plage',
           ),
         ]),

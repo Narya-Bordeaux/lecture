@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.39.0+58** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.40.0+59** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -313,9 +313,17 @@ portait son découpage en syllabes, qui ne servait qu'à l'aide affichée après
 une erreur ; l'aide retirée (0.33.0), la donnée est partie avec elle : une
 donnée que rien n'utilise finit fausse sans que personne ne le voie.
 
-**Un mot ne doit jamais apparaître dans le nom de sa famille** (« bus » dans « En
-bus ») : il se classerait en comparant les lettres, sans être compris. `validate()`
-le détecte et un test le vérifie.
+**Un mot peut apparaître dans le nom de sa famille** (« bus » dans « En
+bus ») — la règle qui l'interdisait a été **retirée par l'auteur** en 0.40.0 :
+le mot se devine, et ce n'est pas grave. `validate()` ne le signale plus.
+
+**Une liste est rangée par ordre alphabétique** — `Word.compareAlphabetically`,
+l'ordre d'un lecteur français : les accents et les majuscules ne déplacent pas
+un mot (« école » avec les « e »). `WordListBuilder.addWord` insère le mot à
+sa place, si bien que le fichier se trie à mesure qu'on l'écrit, et
+`WordListPage` affiche la liste triée quel que soit l'ordre du fichier. Le
+repliement des accents (`foldAccents`, `lib/domain/text/`) est le même que
+celui des identifiants : une seule table.
 
 **Décor et zones** — l'illustration d'une étape (`backgroundAsset`) et l'endroit de
 chaque zone de dépôt (`WordFamily.area`) sont aussi du contenu. Les zones sont
@@ -356,6 +364,14 @@ maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
 Nul des deux côtés, la liste joue entière : c'est le cas du contenu livré, dont
 le comportement n'a donc pas changé. `goal` reste le nombre de mots qui suffisent
 à ouvrir la destination.
+
+**Une zone annonce ce que la partie demande** — « 0 / 7 », et non la
+longueur de la liste. `StagePage` prend le nom et la place de chaque zone au
+lieu de l'écran, mais le **compte au lieu tiré par le moteur**
+(`FamilyDropZone.requiredCount`). Elle prenait tout au lieu de l'écran, et une
+liste de douze s'annonçait « 0 / 12 » pour s'ouvrir au septième mot : invisible
+tant que le contenu livré jouait ses listes entières. La place, elle, doit
+rester celle de l'écran : le calage déplace les zones sans relancer la partie.
 
 **Le tirage a lieu dans le moteur, pas dans l'interface** — `StageEngine`
 construit l'étape jouée par `stage.drawnWith(random)`, avec le `Random` injecté.
@@ -642,8 +658,8 @@ l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
 
 **Toucher un trajet ouvre sa liste** — `WordListPage`. Un trajet sans liste
 propose d'en créer une ou d'en réutiliser une ; ensuite, on tape des mots, un
-seul champ, Entrée pour enchaîner. L'alerte « un mot apparaît dans le nom de
-sa famille » s'y affiche, là où on l'a tapé. Le reste d'un tri unique se
+seul champ, et **le curseur y revient** après chaque ajout, par Entrée comme
+par le bouton : on enchaîne sans reprendre la souris. Le reste d'un tri unique se
 compose en **cochant** des listes, celle du thème exclue. Une liste citée
 ailleurs le dit en tête (« sert aussi à… ») : la modifier la modifie partout.
 La page dit « Garder » comme les autres éditeurs.
