@@ -44,6 +44,22 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.41.0+60 — 24 septembre 2026 — Un seul écran de lecture
+
+**Défaut vu par l'auteur** : les images posées sur les fins ne paraissaient
+pas. L'écran de fin n'en affichait aucune — il n'a jamais lu l'illustration.
+
+- **`NarrationPage`** : titre facultatif en haut, illustration à ses
+  proportions sur toute la largeur, texte dessous, bouton toujours visible.
+  La page de garde et la fin s'en servent toutes deux, au lieu de deux mises
+  en page qui divergeaient.
+- La fin prend le nom du lieu en titre ; dans l'éditeur, son texte s'appelle
+  « Le récit de fin ».
+- Premier pas vers la page de récit générale (garde, transition, fin),
+  toujours au TODO.
+
+543 tests au vert.
+
 ### 0.40.0+59 — 24 septembre 2026 — Listes triées, saisie enchaînée, compte juste
 
 - **Règle retirée par l'auteur** : un mot peut apparaître dans le nom de sa

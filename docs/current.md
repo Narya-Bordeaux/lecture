@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.40.0+59** — 23 septembre 2026
+**Version : 0.41.0+60** — 23 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,11 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.41.0+60 — Un seul écran de lecture
+- Les fins affichent enfin leur illustration : page de garde et fin partagent
+  `NarrationPage` — titre facultatif, image, texte.
+- 543 tests au vert.
+
 ### 0.40.0+59 — Listes triées, saisie enchaînée, compte juste
 - Un mot peut figurer dans le nom de sa famille : règle retirée.
 - Les listes se rangent par ordre alphabétique ; le curseur reste dans le
@@ -122,15 +127,6 @@ un travail d'auteur, pas de code.
   sur le téléphone, intégrer, commit, compiler. **À éprouver** de bout en
   bout.
 - 532 tests au vert.
-
-### 0.38.0+57 — Essayer sur l'appareil
-- **« Essayer ce lieu »** et **« Jouer l'aventure »** montent le vrai jeu sur
-  l'aventure de l'écran : écrire sur l'ordinateur, vérifier au doigt sur le
-  téléphone.
-- Pas de marqueur « en test » : une aventure est publiée quand elle est dans
-  le dépôt.
-- **Prochain** : « Intégrer au dépôt », depuis Chrome.
-- 521 tests au vert.
 
 ## Décisions prises
 

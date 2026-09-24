@@ -4,6 +4,7 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/adventure_repository.dart';
 import 'package:grisbie/ui/pages/adventure_opening_page.dart';
+import 'package:grisbie/ui/pages/narration_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
@@ -111,7 +112,8 @@ class _AdventurePageState extends State<AdventurePage> {
   }
 }
 
-/// L'arrivee : le recit du lieu, et de quoi repartir.
+/// La fin : le nom du lieu, son illustration, son recit, et de quoi
+/// recommencer — sur l'ecran de lecture, comme la page de garde.
 class _TerminalStageView extends StatelessWidget {
   const _TerminalStageView({required this.stage, required this.onRestart});
 
@@ -120,55 +122,12 @@ class _TerminalStageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFDF6E8),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  stage.locationName,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1B1B1B),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  stage.narrative.onArrival ?? UiStringsFr.adventureEnd,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    height: 1.4,
-                    color: Color(0xFF3B3B3B),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                FilledButton(
-                  onPressed: onRestart,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 14,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  child: const Text(UiStringsFr.startOver),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return NarrationPage(
+      title: stage.locationName,
+      imagePath: stage.backgroundAsset,
+      text: stage.narrative.onArrival ?? UiStringsFr.adventureEnd,
+      actionLabel: UiStringsFr.startOver,
+      onAction: onRestart,
     );
   }
 }

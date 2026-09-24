@@ -192,7 +192,12 @@ class _StageEditorPageState extends State<StageEditorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('L\'énoncé', style: Theme.of(context).textTheme.titleSmall),
+        // Une fin n'a rien a trier : son texte n'est pas un enonce, mais le
+        // recit qui clot la journee, sous son image.
+        Text(
+          widget.stage.isEnding ? 'Le récit de fin' : 'L\'énoncé',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: 8),
         TextField(
           key: const Key('onArrival'),
@@ -200,11 +205,13 @@ class _StageEditorPageState extends State<StageEditorPage> {
           maxLines: 6,
           minLines: 3,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'En arrivant',
-            helperText: 'En haut de la scène, au-dessus des mots : ce qui '
-                'donne son sens au tri.',
-            border: OutlineInputBorder(),
+            helperText: widget.stage.isEnding
+                ? 'Sous l\'image, sur l\'écran de fin.'
+                : 'En haut de la scène, au-dessus des mots : ce qui '
+                    'donne son sens au tri.',
+            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 8),

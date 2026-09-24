@@ -22,7 +22,7 @@ fabriquer des données **dans les tests**, jamais dans `assets/content/`. C'est
 arrivé : tout ce qui suit « Devant la maison » dans l'aventure livrée a été
 inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil.
 
-**Version actuelle : 0.40.0+59** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.41.0+60** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -465,8 +465,8 @@ le moteur et ferait diverger les deux.
 `contentImageProvider` (dans `lib/ui/widgets/content_image.dart`) rend un
 `ContentPictureImage`, qui lit les octets par `ContentSource.readBytes`. Le
 bundle pour le jeu, un dossier de l'appareil ou le dépôt distant pour l'outil.
-Les trois endroits qui affichent une image — scène de jeu, calage, page de
-garde — passent par là. Deux règles séparées finiraient par
+Les endroits qui affichent une image — scène de jeu, calage, écran de
+lecture — passent par là. Deux règles séparées finiraient par
 diverger, et l'auteur calerait ses zones sur une image que le jeu ne montre pas.
 
 C'est un `ImageProvider` à part entière et non un `FutureBuilder` : c'est ce
@@ -534,12 +534,21 @@ avant de jouer, sur un écran quitté, il perdait ce rôle. **Aucune consigne
 générique** ne l'accompagne — « Pose les mots au bon endroit » a été retirée
 par l'auteur, l'énoncé disant déjà ce qu'il faut faire.
 
+**Un seul écran de lecture** (0.41.0) — `NarrationPage` : un titre
+facultatif en haut, l'illustration sur toute la largeur, à ses proportions —
+elle peut être horizontale —, le texte dessous, et un bouton toujours visible.
+La page de garde et la fin s'en servent toutes deux. La fin avait son propre
+écran, **sans image** : l'auteur en posait, elles ne paraissaient jamais.
+
 **Page de garde** — `Adventure.opening` porte un titre, une illustration et un
-texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`). Le
-lieu de départ garde son énoncé : la page de garde raconte, l'énoncé demande.
-C'est le seul écran de lecture du jeu : le titre annonce, l'image occupe la
-largeur à ses proportions — elle peut être horizontale —, le texte se lit
-dessous. C'est un seuil, pas une transition.
+texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`, sur
+l'écran de lecture ; le titre de l'aventure sert quand l'ouverture n'en donne
+pas). Le lieu de départ garde son énoncé : la page de garde raconte, l'énoncé
+demande. C'est un seuil, pas une transition.
+
+**Une fin** se lit sur le même écran : le nom du lieu en titre, son
+illustration, son récit, et « Recommencer ». L'éditeur de lieu appelle son
+texte « Le récit de fin », et non « L'énoncé » : il n'y a rien à trier.
 
 **Ce que `main.dart` demande doit exister** — l'identifiant d'aventure du
 lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
