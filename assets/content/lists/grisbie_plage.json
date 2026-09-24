@@ -23,13 +23,14 @@
       "id": "a_velo",
       "name": "A vélo",
       "words": [
+        "byciclette",
+        "frein",
+        "garde-boue",
         "guidon",
         "pneu",
-        "selle",
+        "promenade",
         "roue",
-        "frein",
-        "byciclette",
-        "garde-boue",
+        "selle",
         "VTT"
       ]
     },
@@ -55,13 +56,15 @@
       "id": "animaux_de_la_foret",
       "name": "animaux de la forêt",
       "words": [
-        "écureuil",
-        "hibou",
-        "élan",
+        "belette",
         "cerf",
         "chouette",
+        "écureuil",
+        "élan",
+        "hérisson",
+        "hibou",
         "renard",
-        "belette"
+        "sanglier"
       ]
     }
   ]

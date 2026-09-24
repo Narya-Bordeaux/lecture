@@ -5,15 +5,15 @@
       "id": "achats_gare",
       "name": "la boutique",
       "words": [
+        "biscuit",
+        "boisson",
+        "bonbon",
+        "eau",
         "gâteau",
         "journal",
-        "bonbon",
-        "boisson",
         "livre",
-        "vendeur",
-        "caisse",
-        "biscuit",
-        "client"
+        "magazine",
+        "mouchoir"
       ]
     },
     {
