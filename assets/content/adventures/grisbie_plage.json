@@ -11,7 +11,7 @@
     {
       "id": "maison",
       "location": "Devant la maison",
-      "background": "pictures/Grisbie_plage2.jpg",
+      "background": "pictures/maison.jpg",
       "backgroundColor": "#4ab8fd",
       "visibleWordCount": 6,
       "families": [

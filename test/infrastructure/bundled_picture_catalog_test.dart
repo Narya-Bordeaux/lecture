@@ -38,7 +38,7 @@ void main() {
   test('le bundle propose les images versees par l\'auteur', () async {
     final pictures = await const BundledPictureCatalog().listPictures();
 
-    expect(pictures, contains('pictures/Grisbie gare.jpg'));
-    expect(pictures, contains('pictures/Grisbie_plage2.jpg'));
+    expect(pictures, contains('pictures/gare.jpg'));
+    expect(pictures, contains('pictures/maison.jpg'));
   });
 }

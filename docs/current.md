@@ -5,7 +5,7 @@
 ## Où en est le projet
 
 **Le niveau test est jouable.** L'étape de départ s'affiche sur l'illustration
-`Grisbie_plage2.jpg` : six mots en haut, trois zones translucides posées sur le
+`maison.jpg` : six mots en haut, trois zones translucides posées sur le
 bus, la voiture et le sentier, glisser-déposer et bouton de départ. **Aucune
 aide à la lecture** depuis 0.33.0 : un mot mal placé est refusé, et c'est tout.
 Chaque famille puise dans une liste pleine de sept mots, et un mot bien classé
