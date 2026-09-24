@@ -88,7 +88,7 @@ flutter:
     - assets/content/adventures/
     - assets/content/pictures/
     # Le logo de l'accueil : un element du jeu, pas du contenu d'aventure.
-    - assets/accueil Grisbie.png
+    - assets/accueil.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
