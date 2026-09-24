@@ -3,10 +3,17 @@
   "lists": [
     {
       "id": "achats_gare",
-      "name": "Ce qu'on achète à la gare",
+      "name": "la boutique",
       "words": [
         "gâteau",
-        "journal"
+        "journal",
+        "bonbon",
+        "boisson",
+        "livre",
+        "vendeur",
+        "caisse",
+        "biscuit",
+        "client"
       ]
     },
     {

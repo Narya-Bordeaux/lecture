@@ -5,12 +5,15 @@
   "opening": {
     "title": "Grisbie part à la plage",
     "image": "pictures/Grisbie_plage.jpg",
-    "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Elle veut aller voir la mer !\n\nMais la plage est loin. Comment va-t-elle y aller ? Aide-le à choisir son chemin."
+    "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Elle veut aller voir la mer !"
   },
   "stages": [
     {
       "id": "maison",
       "location": "Devant la maison",
+      "narrative": {
+        "onArrival": "Grisbie veut partir à la plage. Y ira-t-elle à pied, en bus ou en voiture?"
+      },
       "background": "pictures/maison.jpg",
       "backgroundColor": "#4ab8fd",
       "visibleWordCount": 6,
@@ -45,8 +48,8 @@
           "list": "marche",
           "destination": "rue",
           "area": {
-            "left": 0.66,
-            "top": 0.42,
+            "left": 0.68,
+            "top": 0.44,
             "width": 0.3,
             "height": 0.18
           }
@@ -57,22 +60,34 @@
       "id": "gare",
       "location": "La gare",
       "narrative": {
-        "onArrival": "Le bus a amené Grisbie à la gare. Il y a des choses à voir"
+        "onArrival": "Le bus a amené Grisbie à la gare. Peut-elle aller acheter quelque chose ou doit elle prendre le train?"
       },
+      "background": "pictures/gare.jpg",
       "visibleWordCount": 4,
-      "drawCount": 2,
       "families": [
         {
           "id": "prendre_le_train",
           "label": "Prendre le train",
           "list": "train",
-          "destination": "plage"
+          "destination": "plage",
+          "area": {
+            "left": 0.58,
+            "top": 0.49,
+            "width": 0.38,
+            "height": 0.16
+          }
         },
         {
           "id": "acheter",
           "label": "Acheter quelque chose",
           "list": "achats_gare",
-          "destination": "boutique"
+          "destination": "boutique",
+          "area": {
+            "left": 0.04,
+            "top": 0.29,
+            "width": 0.38,
+            "height": 0.16
+          }
         }
       ]
     },
@@ -80,50 +95,215 @@
       "id": "boutique",
       "location": "La boutique de la gare",
       "narrative": {
-        "onArrival": "Grisbie pousse la porte de la boutique."
+        "onArrival": "Grisbie est entrée dans la boutique. Mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
       },
+      "background": "pictures/horaire.jpg",
       "visibleWordCount": 6,
-      "drawCount": 6,
+      "drawCount": 7,
       "families": [
         {
-          "id": "a_manger",
-          "label": "Ce qui se mange",
-          "list": "nourriture",
-          "destination": "plage"
+          "id": "villes_de_france",
+          "label": "Villes de France",
+          "list": "villes_de_france",
+          "destination": "plage",
+          "area": {
+            "left": 0.08,
+            "top": 0.22,
+            "width": 0.38,
+            "height": 0.16
+          }
         },
         {
-          "id": "a_laisser",
-          "label": "Laisse-le",
-          "list": "objets_divers"
+          "id": "le_reste",
+          "label": "Le reste",
+          "lists": [
+            "nourriture",
+            "objets_divers",
+            "voiture"
+          ],
+          "area": {
+            "left": 0.18,
+            "top": 0.63,
+            "width": 0.38,
+            "height": 0.16
+          }
         }
       ]
     },
     {
       "id": "rue",
-      "location": "La rue",
+      "location": "Le chemin",
       "narrative": {
-        "onArrival": "Grisbie marche sur le trottoir. La plage est encore loin..."
+        "onArrival": "Grisbie va aller à une plage proche. A pieds ou à vélo?"
       },
-      "families": [],
-      "ending": true
+      "background": "pictures/carrefour.jpg",
+      "visibleWordCount": 6,
+      "drawCount": 7,
+      "families": [
+        {
+          "id": "a_velo",
+          "label": "A vélo",
+          "list": "a_velo",
+          "destination": "a_velo",
+          "area": {
+            "left": 0.07,
+            "top": 0.31,
+            "width": 0.38,
+            "height": 0.16
+          }
+        },
+        {
+          "id": "a_pieds",
+          "label": "A pieds",
+          "list": "marche",
+          "destination": "a_pieds",
+          "area": {
+            "left": 0.56,
+            "top": 0.49,
+            "width": 0.38,
+            "height": 0.16
+          }
+        }
+      ]
     },
     {
       "id": "garage",
       "location": "Le garage",
       "narrative": {
-        "onArrival": "La voiture est au garage. Elle ne partira pas aujourd'hui."
+        "onArrival": "Un petit arrêt au garage. La radio est à fond !"
       },
-      "families": [],
-      "ending": true
+      "background": "pictures/garage.jpg",
+      "visibleWordCount": 6,
+      "drawCount": 7,
+      "families": [
+        {
+          "id": "types_de_musique",
+          "label": "Les types de musique",
+          "list": "musique",
+          "destination": "plage",
+          "area": {
+            "left": 0.29,
+            "top": 0.65,
+            "width": 0.38,
+            "height": 0.16
+          }
+        },
+        {
+          "id": "le_reste",
+          "label": "Le reste",
+          "lists": [
+            "objets_divers",
+            "marche",
+            "achats_gare"
+          ],
+          "area": {
+            "left": 0.54,
+            "top": 0.19,
+            "width": 0.38,
+            "height": 0.16
+          }
+        }
+      ]
     },
     {
       "id": "plage",
       "location": "La plage",
       "narrative": {
-        "onArrival": "Grisbie court sur le sable : la mer est là !"
+        "onArrival": "Grisbie est arrivée à la plage : la mer est là !"
       },
-      "families": [],
-      "ending": true
+      "background": "pictures/plage.jpg",
+      "ending": true,
+      "visibleWordCount": 6,
+      "families": []
+    },
+    {
+      "id": "a_velo",
+      "location": "A vélo",
+      "narrative": {
+        "onArrival": "Grisbie a crevé! heureusement une gentille personne va lui réparer sa roue. Pendant ce temps, elle n'arrête pas de parler de musique. Quelles genres de musique connais-tu?"
+      },
+      "background": "pictures/vélo.jpg",
+      "visibleWordCount": 6,
+      "drawCount": 7,
+      "families": [
+        {
+          "id": "genres_de_musique",
+          "label": "Les genres de musique",
+          "list": "musique",
+          "destination": "plage",
+          "area": {
+            "left": 0.04,
+            "top": 0.59,
+            "width": 0.38,
+            "height": 0.16
+          }
+        },
+        {
+          "id": "le_reste",
+          "label": "Le reste",
+          "lists": [
+            "objets_divers",
+            "nourriture",
+            "villes_de_france"
+          ],
+          "area": {
+            "left": 0.55,
+            "top": 0.61,
+            "width": 0.38,
+            "height": 0.16
+          }
+        }
+      ]
+    },
+    {
+      "id": "a_pieds",
+      "location": "La forêt",
+      "narrative": {
+        "onArrival": "Grisbie marche prudemment pour pouvoir observer les animaux de la forêt!"
+      },
+      "background": "pictures/foret.jpg",
+      "visibleWordCount": 6,
+      "drawCount": 7,
+      "families": [
+        {
+          "id": "animaux_de_la_foret",
+          "label": "animaux de la forêt",
+          "list": "animaux_de_la_foret",
+          "destination": "plage_sauvage",
+          "area": {
+            "left": 0.03,
+            "top": 0.64,
+            "width": 0.38,
+            "height": 0.16
+          }
+        },
+        {
+          "id": "le_reste",
+          "label": "Le reste",
+          "lists": [
+            "train",
+            "bus",
+            "voiture"
+          ],
+          "area": {
+            "left": 0.57,
+            "top": 0.62,
+            "width": 0.38,
+            "height": 0.16
+          }
+        }
+      ]
+    },
+    {
+      "id": "plage_sauvage",
+      "location": "La plage sauvage",
+      "narrative": {
+        "onArrival": "Grisbie est arrivée sur une magnifique plage sauvage !"
+      },
+      "background": "pictures/plage_sauvage.jpg",
+      "ending": true,
+      "visibleWordCount": 6,
+      "families": []
     }
   ]
 }
