@@ -44,6 +44,32 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.47.0+67 — 25 septembre 2026 — Le geste de l'enfant
+
+L'auteur voit régulièrement des enfants lâcher un mot hors de la boîte et
+croire qu'ils se sont trompés. **La cause probable n'était pas le doigt qui
+bouge** : l'étiquette suit le doigt en se tenant au-dessus de lui, et
+Flutter cherchait la zone *sous le doigt*. Un mot vu dans la boîte, près du
+bord bas, repartait donc — le doigt, lui, était déjà sorti.
+
+- **Le mot compte là où on le voit** : `Draggable.feedbackOffset` vise le
+  centre de l'étiquette, mesurée après mise en page (la taille du texte
+  peut être grossie par les réglages du téléphone). Contre-épreuve faite :
+  sans cette ligne, les deux tests du cas échouent.
+- **Survol franc** : la boîte passe au blanc presque opaque (0,9), bordure
+  épaisse, légèrement grossie. Le retour arrive avant le lâcher, quand
+  l'enfant peut encore corriger son geste.
+- **Lâcher dans le vide ≠ erreur** : le mot revient en glissant à sa case,
+  sans trembler, et les boîtes clignotent deux fois (`Blink`). Un mot refusé
+  tremble toujours, et ne fait rien clignoter.
+- **Le reflet** (`Shine`) : la dernière boîte rangée, une bande dorée passe
+  sur chaque mot dans l'ordre de lecture, qui grossit un instant — un peu
+  moins d'une seconde en tout. Une seule fois par arrivée.
+- La **marge invisible** autour des boîtes, proposée, est écartée pour
+  l'instant par l'auteur : à décider après l'essai au doigt.
+- Les tests d'écran visent désormais avec le mot, comme l'enfant
+  (`dragWordTo`). 8 tests nouveaux ; 696 au vert. Vu en capture Chromium.
+
 ### 0.46.0+66 — 25 septembre 2026 — La mise en place d'un lieu
 
 **Un lieu se découvre avant de se jouer**, selon la demande de l'auteur :

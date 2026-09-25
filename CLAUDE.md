@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.46.0+66** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.47.0+67** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -596,7 +596,25 @@ la scène reçoit le toucher, l'intitulé débordant du cadre.
 l'auteur) : l'illustration ne bouge pas quand il paraît. L'aperçu du calage
 (`interactive: false`) saute la mise en place. Les tests d'écran qui portent
 sur le jeu la traversent par `completeStageIntroduction`
-(`test/support/`).
+(`test/support/`). La dernière boîte rangée, **un reflet doré parcourt les
+mots** dans l'ordre de lecture (`Shine`) : les mots sont libres. Il ne revient
+pas quand un mot de la réserve en remplace un autre.
+
+**Le mot compte là où on le voit, pas sous le doigt** (0.47.0). L'étiquette
+suit le doigt en se tenant au-dessus de lui, et Flutter cherchait la zone sous
+le doigt : l'enfant voyait son mot dans la boîte, près du bord bas, lâchait,
+et le mot repartait — il croyait s'être trompé. `Draggable.feedbackOffset`
+vise désormais le centre de l'étiquette (`DraggableWordLabel`). Les tests
+visent de même, avec le mot (`dragWordTo`, `test/support/word_drag.dart`).
+
+**Trois retours, trois messages** — survolée, la boîte devient presque
+blanche (`FamilyDropZone.hoveredOpacity`, 0,9) et grossit un peu : l'enfant
+sait **avant de lâcher** qu'il est dedans. Refusé, le mot tremble et revient :
+« tu t'es trompé ». Lâché hors des boîtes, il **glisse** jusqu'à sa case sans
+trembler, et les boîtes clignotent deux fois (`Blink`) : « vise une boîte ».
+Mêler ces deux derniers messages ferait croire à une erreur qui n'en est pas
+une. Une marge invisible autour des boîtes a été **écartée pour l'instant**
+par l'auteur : on verra à l'essai si elle manque.
 
 **Un seul écran de lecture** (0.41.0) — `NarrationPage` : un titre
 facultatif en haut, l'illustration sur toute la largeur, à ses proportions —

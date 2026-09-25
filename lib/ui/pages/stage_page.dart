@@ -9,10 +9,12 @@ import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/blink.dart';
 import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/widgets/family_intro_card.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
 import 'package:grisbie/ui/widgets/shake.dart';
+import 'package:grisbie/ui/widgets/shine.dart';
 import 'package:grisbie/ui/widgets/statement_popup.dart';
 import 'package:grisbie/ui/widgets/word_label.dart';
 
@@ -78,6 +80,17 @@ class _StagePageState extends State<StagePage> {
   final Map<String, GlobalKey<ShakeState>> _shakeKeys =
       <String, GlobalKey<ShakeState>>{};
 
+  /// Une cle de reflet par mot, pour le parcours lumineux de l'ouverture.
+  final Map<String, GlobalKey<ShineState>> _shineKeys =
+      <String, GlobalKey<ShineState>>{};
+
+  /// Une cle de clignotement par famille, pour montrer ou viser.
+  final Map<String, GlobalKey<BlinkState>> _blinkKeys =
+      <String, GlobalKey<BlinkState>>{};
+
+  /// L'ecart entre deux etiquettes dans le parcours du reflet.
+  static const Duration _shineStagger = Duration(milliseconds: 90);
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +123,20 @@ class _StagePageState extends State<StagePage> {
           (word) => MapEntry(word.text, GlobalKey<ShakeState>()),
         ),
       );
+    _shineKeys
+      ..clear()
+      ..addEntries(
+        widget.stage.words.map(
+          (word) => MapEntry(word.text, GlobalKey<ShineState>()),
+        ),
+      );
+    _blinkKeys
+      ..clear()
+      ..addEntries(
+        widget.stage.families.map(
+          (family) => MapEntry(family.id, GlobalKey<BlinkState>()),
+        ),
+      );
   }
 
   /// Chaque lieu repart de sa mise en place — rejouer une journee comprise.
@@ -128,7 +155,33 @@ class _StagePageState extends State<StagePage> {
 
   void _advanceIntroduction() {
     if (!mounted) return;
+    final wasLocked = !_introduction.canMoveWords;
     setState(() => _introduction = _introduction.advance());
+    // Les mots viennent d'etre liberes : un reflet les parcourt.
+    if (wasLocked && _introduction.canMoveWords) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _shineWords());
+    }
+  }
+
+  /// Le reflet passe sur les mots l'un apres l'autre, dans l'ordre de
+  /// lecture : de gauche a droite, puis la ligne suivante — l'ordre des
+  /// emplacements du moteur.
+  void _shineWords() {
+    if (!mounted) return;
+    final words = _visibleSlots.whereType<Word>().toList(growable: false);
+    for (var index = 0; index < words.length; index++) {
+      _shineKeys[words[index].text]?.currentState?.play(
+        delay: _shineStagger * index,
+      );
+    }
+  }
+
+  /// Un mot lache hors de toute boite : les boites clignotent, pour dire ou
+  /// viser. Ce n'est pas une erreur, et rien ne le presente comme telle.
+  void _showWhereToDrop() {
+    for (final key in _blinkKeys.values) {
+      key.currentState?.blink();
+    }
   }
 
   void _handleDrop({required String wordText, required String familyId}) {
@@ -153,8 +206,9 @@ class _StagePageState extends State<StagePage> {
   /// de calage quand il y en a.
   Widget _buildSceneOverlay(Rect imageRect) {
     final presentedId = _introduction.presentedFamilyId;
-    final presented =
-        presentedId == null ? null : widget.stage.findFamily(presentedId);
+    final presented = presentedId == null
+        ? null
+        : widget.stage.findFamily(presentedId);
     final area = presented?.area;
 
     return Stack(
@@ -218,8 +272,7 @@ class _StagePageState extends State<StagePage> {
               SafeArea(
                 bottom: false,
                 child: IgnorePointer(
-                  ignoring:
-                      !widget.interactive || !_introduction.canMoveWords,
+                  ignoring: !widget.interactive || !_introduction.canMoveWords,
                   child: AnimatedOpacity(
                     opacity: _introduction.isTrayVisible ? 1 : 0,
                     duration: const Duration(milliseconds: 350),
@@ -227,6 +280,8 @@ class _StagePageState extends State<StagePage> {
                       statement: widget.stage.narrative.onArrival,
                       slots: _visibleSlots,
                       shakeKeys: _shakeKeys,
+                      shineKeys: _shineKeys,
+                      onDroppedOutside: _showWhereToDrop,
                     ),
                   ),
                 ),
@@ -248,19 +303,21 @@ class _StagePageState extends State<StagePage> {
                           area: family.area!,
                           child: IgnorePointer(
                             ignoring: !widget.interactive,
-                            child: FamilyDropZone(
-                              // Le nom et la zone viennent du lieu de l'ecran
-                              // — le calage les deplace sans relancer la
-                              // partie ; le compte vient de la partie tiree.
-                              family: family,
-                              requiredCount: _requiredCountOf(family),
-                              placedWords: _wordsPlacedIn(family.id),
-                              isOpen: _engine.state.completedFamilyIds.contains(
-                                family.id,
-                              ),
-                              onWordDropped: (wordText) => _handleDrop(
-                                wordText: wordText,
-                                familyId: family.id,
+                            child: Blink(
+                              key: _blinkKeys[family.id],
+                              child: FamilyDropZone(
+                                // Le nom et la zone viennent du lieu de l'ecran
+                                // — le calage les deplace sans relancer la
+                                // partie ; le compte vient de la partie tiree.
+                                family: family,
+                                requiredCount: _requiredCountOf(family),
+                                placedWords: _wordsPlacedIn(family.id),
+                                isOpen: _engine.state.completedFamilyIds
+                                    .contains(family.id),
+                                onWordDropped: (wordText) => _handleDrop(
+                                  wordText: wordText,
+                                  familyId: family.id,
+                                ),
                               ),
                             ),
                           ),
@@ -312,6 +369,8 @@ class _WordTray extends StatelessWidget {
     required this.statement,
     required this.slots,
     required this.shakeKeys,
+    required this.shineKeys,
+    required this.onDroppedOutside,
   });
 
   /// Trois colonnes : avec six emplacements, deux lignes pleines.
@@ -322,6 +381,8 @@ class _WordTray extends StatelessWidget {
 
   final List<Word?> slots;
   final Map<String, GlobalKey<ShakeState>> shakeKeys;
+  final Map<String, GlobalKey<ShineState>> shineKeys;
+  final VoidCallback onDroppedOutside;
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +435,13 @@ class _WordTray extends StatelessWidget {
                               ? const SizedBox.shrink()
                               : Shake(
                                   key: shakeKeys[word.text],
-                                  child: DraggableWordLabel(word: word),
+                                  child: Shine(
+                                    key: shineKeys[word.text],
+                                    child: DraggableWordLabel(
+                                      word: word,
+                                      onDroppedOutside: onDroppedOutside,
+                                    ),
+                                  ),
                                 ),
                         ),
                       ),

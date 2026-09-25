@@ -12,6 +12,7 @@ import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/stage_builders.dart' as build;
 import '../support/stage_introduction_driver.dart';
+import '../support/word_drag.dart';
 
 /// Etape sans illustration : les tests portent sur le comportement, pas sur le
 /// decor, et une image absente du bundle de test ferait echouer le rendu.
@@ -76,27 +77,6 @@ Future<List<String>> pumpStagePage(
   return departures;
 }
 
-/// Fait glisser l'etiquette [word] jusqu'au centre du cadre [familyId].
-///
-/// On vise le cadre et non l'intitule : celui-ci est pose au-dessus de la zone,
-/// et n'est donc plus un point de depot valide.
-Future<void> dragWordOnto(
-  WidgetTester tester, {
-  required String word,
-  required String familyId,
-}) async {
-  final wordFinder = find.text(word).first;
-  final zoneFinder = find.byKey(FamilyDropZone.frameKeyFor(familyId));
-
-  final gesture = await tester.startGesture(tester.getCenter(wordFinder));
-  // Un premier deplacement declenche la prise en main, avant de viser.
-  await gesture.moveBy(const Offset(0, 40));
-  await tester.pump();
-  await gesture.moveTo(tester.getCenter(zoneFinder));
-  await tester.pump();
-  await gesture.up();
-  await tester.pumpAndSettle();
-}
 
 void main() {
   testWidgets('une zone compte les mots tires, pas toute la liste', (

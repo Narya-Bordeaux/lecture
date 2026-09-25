@@ -24,6 +24,16 @@ n'existe plus que dans `versions.md`.
       seulement en capture. À juger : la durée du décor seul, la boîte
       agrandie (translucide comme la zone) sur un décor chargé, la vitesse
       de l'envol, et si toucher n'importe où pour ranger la boîte convient.
+- [ ] **Éprouver le geste au doigt, avec des enfants** (0.47.0) : le mot
+      qui compte là où on le voit suffit-il, ou faut-il la **marge
+      invisible** autour des boîtes (proposée, écartée pour l'instant) ? Si
+      oui : la plus proche l'emporte quand deux marges se chevauchent, et le
+      calcul va dans le moteur. À juger aussi : le blanc à 90 % au survol,
+      le clignotement, le reflet.
+- [ ] **L'icône et l'écran de chargement** d'après `assets/accueil.jpg` :
+      propositions faites (icône adaptative recadrée sur Grisbie, écran de
+      chargement sur le bleu de l'accueil), en attente des choix de
+      l'auteur.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 

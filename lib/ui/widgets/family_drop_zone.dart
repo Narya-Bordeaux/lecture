@@ -25,6 +25,13 @@ class FamilyDropZone extends StatelessWidget {
     super.key,
   });
 
+  /// L'opacite du blanc quand un mot survole le cadre.
+  ///
+  /// Presque opaque, a dessein : l'enfant doit savoir **avant de lacher**
+  /// que son mot est dans la boite. Le decor disparait sous le blanc, mais le
+  /// temps d'un survol seulement.
+  static const double hoveredOpacity = 0.9;
+
   /// De combien l'intitule peut deborder de chaque cote de son cadre.
   static const double _labelOverflow = 90;
 
@@ -92,49 +99,51 @@ class FamilyDropZone extends StatelessWidget {
       builder: (context, candidates, rejected) {
         final isHovered = candidates.isNotEmpty;
 
-        return Semantics(
-          label: UiStringsFr.familySemantics(
-            family.label,
-            placedWords.length,
-            requiredCount,
-          ),
-          child: AnimatedContainer(
-            key: frameKeyFor(family.id),
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(
-                alpha: isHovered ? 0.42 : (isOpen ? 0.34 : 0.24),
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isOpen
-                    ? const Color(0xFF2E7D32)
-                    : (isHovered
-                        ? const Color(0xFF1B1B1B)
-                        : const Color(0xB31B1B1B)),
-                width: isOpen || isHovered ? 3 : 2,
-              ),
+        return AnimatedScale(
+          scale: isHovered ? 1.05 : 1,
+          duration: const Duration(milliseconds: 120),
+          child: Semantics(
+            label: UiStringsFr.familySemantics(
+              family.label,
+              placedWords.length,
+              requiredCount,
             ),
-            child: placedWords.isEmpty
-                ? const SizedBox.expand()
-                : Center(
-                    child: SingleChildScrollView(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: placedWords
-                            .map(
-                              (word) => WordLabelSurface(
-                                word: word,
-                                compact: true,
-                              ),
-                            )
-                            .toList(),
+            child: AnimatedContainer(
+              key: frameKeyFor(family.id),
+              duration: const Duration(milliseconds: 120),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(
+                  alpha: isHovered ? hoveredOpacity : (isOpen ? 0.34 : 0.24),
+                ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isOpen
+                      ? const Color(0xFF2E7D32)
+                      : (isHovered
+                            ? const Color(0xFF1B1B1B)
+                            : const Color(0xB31B1B1B)),
+                  width: isHovered ? 4 : (isOpen ? 3 : 2),
+                ),
+              ),
+              child: placedWords.isEmpty
+                  ? const SizedBox.expand()
+                  : Center(
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: placedWords
+                              .map(
+                                (word) =>
+                                    WordLabelSurface(word: word, compact: true),
+                              )
+                              .toList(),
+                        ),
                       ),
                     ),
-                  ),
+            ),
           ),
         );
       },

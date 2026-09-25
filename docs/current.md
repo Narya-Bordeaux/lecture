@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.46.0+66** — 25 septembre 2026
+**Version : 0.47.0+67** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,16 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.47.0+67 — Le geste de l'enfant
+- **Le mot compte là où on le voit**, et non sous le doigt : c'était la
+  cause probable des lâchers « hors zone » qui passaient pour des erreurs.
+- Survolée, la boîte devient presque blanche et grossit un peu.
+- Lâché hors des boîtes, le mot revient en glissant, sans trembler, et les
+  boîtes clignotent. Refusé, il tremble toujours.
+- La dernière boîte rangée, un reflet doré parcourt les mots.
+- Pas de marge invisible autour des boîtes : à décider après l'essai.
+- **Vu en capture**, pas encore au doigt. 696 tests au vert.
+
 ### 0.46.0+66 — La mise en place d'un lieu
 - En arrivant dans un lieu : le décor seul un quart de seconde, l'énoncé au
   centre (fermé par sa flèche seulement), puis le cartouche, et chaque boîte
@@ -124,15 +134,6 @@ un travail d'auteur, pas de code.
 - Toucher une vignette ouvre l'aventure ; sa fin ramène à l'accueil.
 - **Vu en capture** (Chromium sans écran), pas encore au doigt.
 - 662 tests au vert.
-
-### 0.44.0+64 — La vignette d'une aventure
-- Chaque aventure a sa vignette, obligatoire, au format 3:2 en largeur ;
-  l'outil la choisit sur une carte en tête du parcours et prévient d'un
-  format qui serait recadré.
-- L'enregistrement ne l'efface plus du sommaire.
-- « Grisbie va à la plage » : `pictures/Grisbie_plage.jpg`, choix de l'auteur.
-- La roue passe à trois places.
-- 599 tests au vert.
 
 ## Décisions prises
 

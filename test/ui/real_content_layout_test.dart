@@ -7,11 +7,11 @@ import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
-import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
 import '../support/stage_introduction_driver.dart';
+import '../support/word_drag.dart';
 
 /// Ces tests montent l'interface avec le contenu reellement livre, aux
 /// coordonnees reelles de ses zones.
@@ -76,25 +76,6 @@ StageEngine buildWitnessEngine() {
   );
 }
 
-/// On vise le cadre et non l'intitule : celui-ci est pose au-dessus de la zone,
-/// et n'est donc plus un point de depot valide.
-Future<void> dragWordOnto(
-  WidgetTester tester, {
-  required String word,
-  required String familyId,
-}) async {
-  final gesture = await tester.startGesture(
-    tester.getCenter(find.text(word).first),
-  );
-  await gesture.moveBy(const Offset(0, 40));
-  await tester.pump();
-  await gesture.moveTo(
-    tester.getCenter(find.byKey(FamilyDropZone.frameKeyFor(familyId))),
-  );
-  await tester.pump();
-  await gesture.up();
-  await tester.pumpAndSettle();
-}
 
 void main() {
   // Le contenu est charge une fois : il traverse le fichier pere, les lexiques

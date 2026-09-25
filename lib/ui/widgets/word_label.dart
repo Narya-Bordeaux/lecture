@@ -73,36 +73,175 @@ class WordLabelSurface extends StatelessWidget {
 }
 
 /// Une etiquette que l'enfant peut saisir et deplacer.
-class DraggableWordLabel extends StatelessWidget {
+///
+/// **Le mot compte la ou on le voit, pas sous le doigt.** L'etiquette suit
+/// le doigt en se tenant au-dessus de lui — a cet age, la main cache
+/// volontiers ce qu'elle deplace. Flutter cherchait pourtant la zone sous le
+/// doigt : l'enfant voyait son mot dans la boite, pres du bord bas, lachait,
+/// et le mot repartait, son doigt etant deja sorti. Il croyait s'etre trompe.
+/// [Draggable.feedbackOffset] deplace le point vise au centre de l'etiquette.
+///
+/// **Lache hors des boites, le mot revient en glissant**, sans trembler : le
+/// tremblement dit « tu t'es trompe », et ce n'est pas le cas.
+/// [onDroppedOutside] permet a la page de montrer ou viser.
+class DraggableWordLabel extends StatefulWidget {
   const DraggableWordLabel({
     required this.word,
+    this.onDroppedOutside,
     super.key,
   });
 
+  /// L'ecart entre le bas de l'etiquette et le doigt, pendant le geste.
+  static const double fingerGap = 12;
+
+  /// La duree du retour d'un mot lache hors des boites.
+  static const Duration returnDuration = Duration(milliseconds: 320);
+
+  /// Ou se trouve le centre de l'etiquette par rapport au doigt : c'est ce
+  /// point-la qui doit etre dans la boite.
+  static Offset seenPointFromFinger(Size labelSize) =>
+      Offset(0, -(labelSize.height / 2 + fingerGap));
+
   final Word word;
+
+  /// Appele quand le mot est lache hors de toute boite.
+  final VoidCallback? onDroppedOutside;
+
+  @override
+  State<DraggableWordLabel> createState() => _DraggableWordLabelState();
+}
+
+class _DraggableWordLabelState extends State<DraggableWordLabel> {
+  /// Une estimation avant la premiere mesure : la hauteur d'une etiquette a
+  /// la taille de texte ordinaire.
+  Size _labelSize = const Size(80, 41);
+
+  /// Le mot qui revient a sa case, pose au-dessus de tout le reste.
+  OverlayEntry? _returning;
+
+  @override
+  void dispose() {
+    _returning?.remove();
+    super.dispose();
+  }
+
+  /// Retient la taille reelle de l'etiquette, apres sa mise en page : la
+  /// taille du texte peut etre grossie par les reglages du telephone.
+  void _measure() {
+    if (!mounted) return;
+    final size = (context.findRenderObject() as RenderBox?)?.size;
+    if (size != null && size != _labelSize) {
+      setState(() => _labelSize = size);
+    }
+  }
+
+  void _returnToSlot(Offset releasedAt) {
+    final overlay = Overlay.of(context);
+    final overlayBox = overlay.context.findRenderObject() as RenderBox;
+    final ownBox = context.findRenderObject() as RenderBox;
+    final from = overlayBox.globalToLocal(releasedAt);
+    final to = overlayBox.globalToLocal(ownBox.localToGlobal(Offset.zero));
+
+    _returning?.remove();
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => _ReturningLabel(
+        word: widget.word,
+        from: from,
+        to: to,
+        onArrived: () {
+          entry.remove();
+          if (identical(_returning, entry)) _returning = null;
+          if (mounted) setState(() {});
+        },
+      ),
+    );
+    setState(() => _returning = entry);
+    overlay.insert(entry);
+    widget.onDroppedOutside?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final surface = WordLabelSurface(word: word);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+    final surface = WordLabelSurface(word: widget.word);
 
     return Semantics(
-      label: UiStringsFr.wordSemantics(word.text),
+      label: UiStringsFr.wordSemantics(widget.word.text),
       button: true,
       child: Draggable<String>(
-        data: word.text,
-        // Le mot suit le doigt legerement au-dessus : a cet age la main cache
-        // volontiers ce qu'elle deplace.
+        data: widget.word.text,
         dragAnchorStrategy: (draggable, context, position) {
           final renderBox = context.findRenderObject() as RenderBox?;
           final size = renderBox?.size ?? Size.zero;
-          return Offset(size.width / 2, size.height + 12);
+          return Offset(
+            size.width / 2,
+            size.height + DraggableWordLabel.fingerGap,
+          );
         },
+        feedbackOffset: DraggableWordLabel.seenPointFromFinger(_labelSize),
         feedback: Material(
           color: Colors.transparent,
-          child: WordLabelSurface(word: word, elevated: true),
+          child: WordLabelSurface(word: widget.word, elevated: true),
         ),
         childWhenDragging: Opacity(opacity: 0.25, child: surface),
-        child: surface,
+        onDraggableCanceled: (velocity, offset) => _returnToSlot(offset),
+        // Pendant le retour, la case reste vide : le mot n'est pas encore
+        // arrive.
+        child: Opacity(opacity: _returning == null ? 1 : 0, child: surface),
+      ),
+    );
+  }
+}
+
+/// Le mot qui glisse de l'endroit ou il a ete lache jusqu'a sa case.
+class _ReturningLabel extends StatefulWidget {
+  const _ReturningLabel({
+    required this.word,
+    required this.from,
+    required this.to,
+    required this.onArrived,
+  });
+
+  final Word word;
+  final Offset from;
+  final Offset to;
+  final VoidCallback onArrived;
+
+  @override
+  State<_ReturningLabel> createState() => _ReturningLabelState();
+}
+
+class _ReturningLabelState extends State<_ReturningLabel>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: DraggableWordLabel.returnDuration,
+  )..forward().whenComplete(widget.onArrived);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final position = Offset.lerp(
+          widget.from,
+          widget.to,
+          Curves.easeOutCubic.transform(_controller.value),
+        )!;
+        return Positioned(left: position.dx, top: position.dy, child: child!);
+      },
+      child: IgnorePointer(
+        child: Material(
+          color: Colors.transparent,
+          child: WordLabelSurface(word: widget.word, elevated: true),
+        ),
       ),
     );
   }
