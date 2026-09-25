@@ -173,7 +173,7 @@ class StageEngine {
   void _fillInitialSlots() {
     state._supply.addAll(List<Word>.of(_stage.words)..shuffle(_random));
 
-    final slotCount = _stage.visibleWordCount.clamp(1, _stage.words.length);
+    final slotCount = Stage.visibleWordCount.clamp(1, _stage.words.length);
     for (var slot = 0; slot < slotCount; slot++) {
       _slots.add(state._supply.isEmpty ? null : state._supply.removeAt(0));
     }

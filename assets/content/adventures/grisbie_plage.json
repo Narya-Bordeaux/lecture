@@ -17,7 +17,6 @@
       },
       "background": "pictures/maison.jpg",
       "backgroundColor": "#4ab8fd",
-      "visibleWordCount": 6,
       "families": [
         {
           "id": "en_bus",
@@ -70,7 +69,6 @@
         "onArrival": "Le bus a amené Grisbie à la gare. Va-t-elle acheter quelque chose ou prendre le train?"
       },
       "background": "pictures/gare.jpg",
-      "visibleWordCount": 6,
       "families": [
         {
           "id": "prendre_le_train",
@@ -109,8 +107,6 @@
         "onArrival": "Grisbie est passée par la boutique mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
       },
       "background": "pictures/horaire.jpg",
-      "visibleWordCount": 6,
-      "drawCount": 7,
       "families": [
         {
           "id": "villes_de_france",
@@ -150,8 +146,6 @@
         "onArrival": "Grisbie prends le sentier de la plage, mais elle hésite à partir à pieds ou à vélo?"
       },
       "background": "pictures/carrefour.jpg",
-      "visibleWordCount": 6,
-      "drawCount": 7,
       "families": [
         {
           "id": "a_velo",
@@ -190,8 +184,6 @@
         "onArrival": "Un petit arrêt au garage. Grisbie discute de musique avec le mécanicien !"
       },
       "background": "pictures/garage.jpg",
-      "visibleWordCount": 6,
-      "drawCount": 7,
       "families": [
         {
           "id": "types_de_musique",
@@ -232,7 +224,6 @@
       },
       "background": "pictures/plage.jpg",
       "ending": true,
-      "visibleWordCount": 6,
       "families": []
     },
     {
@@ -242,8 +233,6 @@
         "onArrival": "Grisbie a crevé! heureusement une gentille personne va lui réparer sa roue. Pendant ce temps, elle n'arrête pas de parler de musique. Quelles genres de musique connais-tu?"
       },
       "background": "pictures/vélo.jpg",
-      "visibleWordCount": 6,
-      "drawCount": 7,
       "families": [
         {
           "id": "genres_de_musique",
@@ -283,8 +272,6 @@
         "onArrival": "Grisbie marche prudemment pour pouvoir observer les animaux de la forêt!"
       },
       "background": "pictures/foret.jpg",
-      "visibleWordCount": 6,
-      "drawCount": 7,
       "families": [
         {
           "id": "animaux_de_la_foret",
@@ -325,7 +312,6 @@
       },
       "background": "pictures/plage_sauvage.jpg",
       "ending": true,
-      "visibleWordCount": 6,
       "families": []
     }
   ]

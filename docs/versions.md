@@ -44,6 +44,25 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.51.0+73 — 25 septembre 2026 — Cinq mots par boîte, six à l'écran partout
+
+Deux décisions de l'auteur, sur deux nombres qu'aucun écran ne montrait.
+
+- **Le nombre d'étiquettes à l'écran devient une constante**,
+  `Stage.visibleWordCount` = 6 : le champ `visibleWordCount` quitte le
+  modèle et les fichiers. C'est lui qui laissait la gare à 4 mots (0.50.1).
+- **Chaque boîte tire cinq mots au lieu de sept** (`Stage.defaultDrawCount`),
+  « autre chose » comprise : « 7, c'est beaucoup pour un enfant ».
+- **Ce nombre n'est plus écrit dans les fichiers.** L'outil le posait sur
+  chaque lieu à ses premières listes (0.42.0), si bien que cinq lieux sur
+  huit portaient `"drawCount": 7` : changer le défaut les aurait laissés à
+  sept, en silence. Les 7 sont retirés du contenu livré,
+  `AdventureBuilder.defaultDrawCount` disparaît, et le défaut du domaine
+  joue partout. Les champs `drawCount` restent possibles dans le format ;
+  le document dit de ne pas les écrire d'ordinaire.
+- Tests : les attentes à sept passent à cinq ; le test de la réserve de
+  mots, qui reposait sur quatre cases, en compte six. 737 au vert.
+
 ### 0.50.1+72 — 25 septembre 2026 — La gare montre six mots
 
 - **L'auteur a écrit les 22 textes de trajet** (commit `4324613`), et revu

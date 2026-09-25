@@ -81,13 +81,6 @@ class AdventureBuilder {
 
   final Adventure adventure;
 
-  /// Combien de mots chaque liste met en jeu, dans un lieu que l'outil ecrit.
-  ///
-  /// Le defaut du domaine ([Stage.defaultDrawCount]), et une seule constante :
-  /// l'outil le pose encore sur le lieu (`Stage.drawCount`) des qu'il recoit
-  /// ses listes, ce qui rend le reglage visible dans le fichier.
-  static const int defaultDrawCount = Stage.defaultDrawCount;
-
   /// Les articles qu'on retire en tete d'un nom pour en tirer l'identifiant.
   ///
   /// « La gare » donne `gare`, « Le garage » donne `garage` : exactement les
@@ -147,16 +140,9 @@ class AdventureBuilder {
     // marqueur et la structure se contrediraient, et `validate()` le refuserait
     // — a juste titre, puisque les mots classes ouvriraient un chemin depuis
     // une fin.
-    //
-    // Le nombre de mots n'est pose que sur un lieu qui recoit ses premieres
-    // listes : un lieu deja ecrit garde ce qu'il demandait, contenu livre
-    // compris.
     stages[fromStageId] = source.copyWith(
       families: List<WordFamily>.unmodifiable(families),
       isEnding: false,
-      drawCount: source.families.isEmpty
-          ? source.drawCount ?? defaultDrawCount
-          : null,
     );
 
     return _withStages(stages);
@@ -179,7 +165,6 @@ class AdventureBuilder {
         // partagent jamais leur reste.
         _restFamily(<WordFamily>[theme]),
       ]),
-      drawCount: source.drawCount ?? defaultDrawCount,
     );
 
     return _withStages(stages);
@@ -265,7 +250,6 @@ class AdventureBuilder {
           theme,
           _restFamily(<WordFamily>[theme]),
         ]),
-        drawCount: source.drawCount ?? defaultDrawCount,
       ));
   }
 

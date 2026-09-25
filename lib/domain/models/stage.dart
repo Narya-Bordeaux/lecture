@@ -46,7 +46,6 @@ class Stage {
     this.narrative = Narrative.none,
     this.backgroundAsset,
     this.backgroundColor,
-    this.visibleWordCount = 6,
     this.isEnding = false,
     this.drawCount,
   });
@@ -71,7 +70,6 @@ class Stage {
       narrative: Narrative.fromJson(json['narrative']),
       backgroundAsset: json['background'] as String?,
       backgroundColor: parseColor(json['backgroundColor']),
-      visibleWordCount: json['visibleWordCount'] as int? ?? 6,
       isEnding: json['ending'] as bool? ?? false,
       drawCount: json['drawCount'] as int?,
       families: List<WordFamily>.unmodifiable(
@@ -104,15 +102,20 @@ class Stage {
 
   final List<WordFamily> families;
 
-  /// Combien de mots sont proposes en meme temps.
+  /// Combien de mots sont proposes en meme temps, **dans tout lieu** : six.
   ///
   /// Les autres attendent en reserve : un mot bien classe libere son
   /// emplacement, qu'un mot de la reserve vient reprendre.
   ///
+  /// **Une constante du jeu, et non un reglage du lieu** (decision de
+  /// l'auteur, 0.51.0) : c'etait un champ du fichier, qu'aucun ecran ne
+  /// montrait. La gare en portait 4, herite du contenu invente, et l'auteur
+  /// ne pouvait ni le voir ni le changer.
+  ///
   /// A ne pas confondre avec [drawCount] : celui-ci dit combien de mots
   /// **chaque famille** met en jeu, celui-la combien d'etiquettes tiennent a
   /// l'ecran, toutes familles confondues.
-  final int visibleWordCount;
+  static const int visibleWordCount = 6;
 
   /// Combien de mots chaque famille tire de sa liste, sauf mention contraire.
   ///
@@ -187,14 +190,19 @@ class Stage {
     return null;
   }
 
-  /// Combien de mots chaque zone tire, sans reglage : sept (decision de
-  /// l'auteur, 0.42.0).
+  /// Combien de mots chaque zone tire, sans reglage : **cinq** (decision de
+  /// l'auteur, 0.51.0 ; sept depuis 0.42.0, « c'est beaucoup pour un
+  /// enfant »).
   ///
-  /// La zone « le reste » aussi : elle tire sept mots dans l'ensemble de ses
-  /// listes cochees, et non sept par liste. Une liste de moins de sept mots
-  /// est **a finir** — [validate] le signale, et la zone n'est pas jouee
+  /// La zone « autre chose » aussi : elle tire cinq mots dans l'ensemble de
+  /// ses listes cochees, et non cinq par liste. Une liste de moins de cinq
+  /// mots est **a finir** — [validate] le signale, et la zone n'est pas jouee
   /// entiere en silence.
-  static const int defaultDrawCount = 7;
+  ///
+  /// L'outil n'ecrit plus ce nombre dans le fichier : fige sur chaque lieu,
+  /// il ne suivait pas un changement du defaut, et aucun ecran ne le
+  /// montrait.
+  static const int defaultDrawCount = 5;
 
   /// Combien de mots cette famille met en jeu ici.
   ///
@@ -490,7 +498,6 @@ class Stage {
     List<WordFamily>? families,
     String? backgroundAsset,
     int? backgroundColor,
-    int? visibleWordCount,
     bool? isEnding,
     int? drawCount,
     bool clearBackgroundAsset = false,
@@ -506,7 +513,6 @@ class Stage {
           ? null
           : backgroundAsset ?? this.backgroundAsset,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      visibleWordCount: visibleWordCount ?? this.visibleWordCount,
       isEnding: isEnding ?? this.isEnding,
       drawCount: drawCount ?? this.drawCount,
     );
@@ -524,7 +530,6 @@ class Stage {
       // Ecrit seulement quand il vaut quelque chose : une etape ordinaire n'a
       // pas a porter « ending: false ».
       if (isEnding) 'ending': true,
-      'visibleWordCount': visibleWordCount,
       if (drawCount != null) 'drawCount': drawCount,
       'families': families.map((family) => family.toJson()).toList(),
     };

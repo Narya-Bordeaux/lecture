@@ -117,10 +117,10 @@ void main() {
       expect(drawnIn(wideStage(stageDraw: 4), 'en_bus', 1), hasLength(4));
     });
 
-    test('sans nombre demande, sept mots sont tires', () {
-      // Decision de l'auteur (0.42.0) : sept par zone. La liste jouait
-      // entiere, et une zone de douze mots en exigeait douze.
-      expect(drawnIn(wideStage(), 'en_bus', 1), hasLength(7));
+    test('sans nombre demande, cinq mots sont tires', () {
+      // Decision de l'auteur : cinq par zone (0.51.0, sept depuis 0.42.0).
+      // La liste jouait entiere, et une zone de douze mots en exigeait douze.
+      expect(drawnIn(wideStage(), 'en_bus', 1), hasLength(5));
     });
 
     test('la famille l\'emporte sur le defaut du lieu', () {
@@ -222,8 +222,8 @@ void main() {
       expect(emptied.message, contains('en_bus'));
     });
 
-    test('sans nombre demande, sept mots sont exiges', () {
-      // Une liste trop courte pour les sept mots par zone est a finir.
+    test('sans nombre demande, cinq mots sont exiges', () {
+      // Une liste trop courte pour les cinq mots par zone est a finir.
       final issues = stage(
         id: 'maison',
         families: <WordFamily>[

@@ -948,9 +948,9 @@ void main() {
       await tester.tap(find.text('Garder'));
       await tester.pumpAndSettle();
 
-      // La liste existe, vide : sept mots demandes, aucun ecrit.
+      // La liste existe, vide : cinq mots demandes, aucun ecrit.
       expect(find.text('pas de liste'), findsNothing);
-      expect(find.text('0/7'), findsOneWidget);
+      expect(find.text('0/5'), findsOneWidget);
     });
 
     testWidgets('le contenu livre montre ce que chaque liste offre',

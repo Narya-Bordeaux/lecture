@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/stage_engine.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 
 import '../support/disk_content.dart';
@@ -58,13 +59,13 @@ void main() {
       final start = adventure.startStage;
       final engine = StageEngine(stage: start, random: Random(1));
 
-      expect(start.visibleWordCount, 6);
+      expect(Stage.visibleWordCount, 6);
       expect(engine.visibleWords.whereType<Word>(), hasLength(6));
-      // La reserve se compte sur la partie tiree — sept mots par zone —, et
+      // La reserve se compte sur la partie tiree — cinq mots par zone —, et
       // non sur les listes entieres.
       expect(
         engine.state.remainingInSupply,
-        engine.stage.words.length - start.visibleWordCount,
+        engine.stage.words.length - Stage.visibleWordCount,
       );
     });
 

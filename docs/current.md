@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.50.1+72** — 25 septembre 2026
+**Version : 0.51.0+73** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,13 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.51.0+73 — Cinq mots par boîte, six à l'écran partout
+- Chaque boîte tire **5 mots** au lieu de 7 (décision de l'auteur).
+- **6 étiquettes à l'écran, partout** : une constante du jeu, plus un
+  réglage du lieu.
+- Ni l'outil ni le contenu livré n'écrivent plus ces nombres : figés dans
+  le fichier, ils ignoraient en silence un changement du jeu.
+
 ### 0.50.1+72 — La gare montre six mots
 - L'auteur a écrit les 22 textes de trajet et revu des noms de boîtes : le
   jeu rouvre l'aventure, **737 tests au vert**.
@@ -122,15 +129,6 @@ un travail d'auteur, pas de code.
   texte écrit là où l'enfant le lira. Renommer un trajet se fait là.
 - L'aventure livrée n'avait pas encore ces textes : l'auteur les a écrits
   (voir 0.50.1).
-
-### 0.49.0+70 — « Bravo ! »
-- Une boîte pleine ouvre « Bravo ! », avec Grisbie le pouce levé en coin,
-  et un texte : celui de l'auteur, ou un texte composé qui dit la boîte
-  rangée, où mène le chemin, et s'il en reste d'autres. Un toucher ferme.
-- « Autre chose » n'annonce rien.
-- L'éditeur de lieu montre le texte pré-écrit, un champ par trajet ; gardé
-  tel quel, il n'est pas enregistré et suit les noms.
-- Vu en capture dans Chromium. 731 tests au vert.
 
 ## Décisions prises
 

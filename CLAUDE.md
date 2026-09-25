@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.50.1+72** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.51.0+73** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -377,14 +377,20 @@ puisque le choix se réduit pour les mots suivants. Les listes n'ont pas à êtr
 de la même taille d'une famille à l'autre.
 
 **Trois nombres à ne pas confondre.** `Stage.visibleWordCount` est le nombre
-d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à la
-maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
-`Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
-Nul des deux côtés, **sept** (`Stage.defaultDrawCount`, décision de l'auteur
-en 0.42.0) — la zone « autre chose » comprise, qui tire ses sept mots dans
-l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
-sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
-en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
+d'étiquettes **à l'écran** en même temps, toutes familles confondues : **6,
+une constante du jeu** (0.51.0) — c'était un champ du fichier qu'aucun écran
+ne montrait, et la gare en portait 4, hérité du contenu inventé. `drawCount`
+est le nombre de mots que **chaque famille** met en jeu — `Stage.drawCount`
+donne le défaut du lieu, `WordFamily.drawCount` le remplace. Nul des deux
+côtés, **cinq** (`Stage.defaultDrawCount`, décision de l'auteur en 0.51.0 ;
+sept depuis 0.42.0, « c'est beaucoup pour un enfant ») — la zone « autre
+chose » comprise, qui tire ses cinq mots dans l'ensemble de ses listes
+cochées, et non cinq par liste. Une liste de moins de cinq mots est **à
+finir** (option A de l'auteur) : elle n'est pas jouée entière en silence.
+**Ni l'outil ni le contenu livré n'écrivent ce nombre** : l'outil le posait
+sur chaque lieu créé, et un 7 figé sur cinq lieux sur huit aurait ignoré en
+silence le passage à cinq. Les champs restent pour qui en a vraiment besoin ;
+aucun écran ne les montre. Sans réglage, la liste jouait entière, et une zone de douze mots en
 exigeait douze. `goal` reste le nombre de mots qui suffisent à ouvrir la
 destination.
 
@@ -393,7 +399,7 @@ garde des mots en réserve que l'enfant ne verra pas. Un test qui classe « les
 mots de la famille » les prend donc dans `engine.stage`, jamais dans le lieu
 d'origine : sinon il classe des mots que le moteur n'a pas tirés.
 
-**Une zone annonce ce que la partie demande** — « 0 / 7 », et non la
+**Une zone annonce ce que la partie demande** — « 0 / 5 », et non la
 longueur de la liste. `StagePage` prend le nom et la place de chaque zone au
 lieu de l'écran, mais le **compte au lieu tiré par le moteur**
 (`FamilyDropZone.requiredCount`). Elle prenait tout au lieu de l'écran, et une
@@ -836,7 +842,7 @@ compose en **cochant** des listes, celle du thème exclue. Une liste citée
 ailleurs le dit en tête (« sert aussi à… ») : la modifier la modifie partout.
 La page dit « Garder » comme les autres éditeurs.
 
-**Chaque trajet dit s'il a de quoi jouer** — sur la carte, `7/7` ou `3/7`, ou
+**Chaque trajet dit s'il a de quoi jouer** — sur la carte, `5/5` ou `3/5`, ou
 « pas de liste ». C'est `Stage.supplyOf`, exposé par `OutlineTrip.supply` et
 affiché par `SupplySummary`, en court sur la carte et en long sur l'écran de
 liste. L'accueil charge la bibliothèque (`ContentRepository.loadLibrary`) avant
@@ -934,10 +940,10 @@ déjà défini : redéfinir jetterait ses listes. `AddTripsPage` ne fait plus qu
 nommer les sorties — plusieurs, ou le seul thème d'un tri unique
 (`allowsOneTripOnly`), sans nombre à choisir.
 
-**Sept mots par zone** — `AdventureBuilder.defaultDrawCount`, qui n'est que
-`Stage.defaultDrawCount`, est encore posé sur le lieu quand il reçoit ses
-premières listes : le réglage se lit ainsi dans le fichier. Un lieu déjà écrit
-garde ce qu'il demandait.
+**Cinq mots par zone, écrits nulle part** (0.51.0) — l'outil posait autrefois
+le défaut sur le lieu à ses premières listes (`AdventureBuilder.defaultDrawCount`,
+retiré), « pour que le réglage se lise dans le fichier ». Figé ainsi, il ne
+suivait pas un changement du jeu : c'est le défaut du domaine qui joue.
 
 **Essayer sur l'appareil** (0.38.0) — ce qui se règle sur l'ordinateur doit se
 vérifier au doigt, sur l'écran réel du téléphone. L'outil y joue donc le **vrai

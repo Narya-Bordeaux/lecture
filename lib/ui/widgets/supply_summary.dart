@@ -13,7 +13,7 @@ class SupplySummary extends StatelessWidget {
 
   final FamilySupply supply;
 
-  /// Vrai sur la carte du lieu, ou la place manque : « 7/7 ».
+  /// Vrai sur la carte du lieu, ou la place manque : « 5/5 ».
   final bool compact;
 
   @override

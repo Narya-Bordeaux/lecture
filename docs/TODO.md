@@ -3,14 +3,6 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
-## À trancher avec l'auteur
-
-- [ ] **Le nombre de mots à l'écran** (`visibleWordCount`, 6) est un réglage
-      par lieu qu'aucun écran ne montre : la gare en portait 4, hérité du
-      contenu inventé, et l'auteur ne pouvait ni le voir ni le changer
-      (0.50.1). Le montrer dans l'apparence du lieu, ou en faire une
-      constante du jeu ?
-
 ## Pages de récit, images et dépôt — en discussion avec l'auteur
 
 - [ ] **Éprouver le choix d'une image dans Chrome et sur le téléphone** —

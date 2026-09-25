@@ -46,7 +46,7 @@ class FamilyDropZone extends StatelessWidget {
 
   /// Combien de mots ouvrent le chemin, **dans la partie jouee** : ceux que
   /// le moteur a tires, et non toute la liste. Une liste de douze dont la
-  /// partie tire sept s'annonce « 0 / 7 » — « 0 / 12 » promettrait des mots
+  /// partie tire cinq s'annonce « 0 / 5 » — « 0 / 12 » promettrait des mots
   /// que l'enfant ne verra jamais.
   final int requiredCount;
 

@@ -10,19 +10,21 @@ import '../support/stage_builders.dart' as build;
 
 /// Etape dotee d'un reservoir : plus de mots que d'emplacements visibles.
 ///
-/// Deux familles de six mots, quatre emplacements affiches. Un mot bien classe
-/// libere son emplacement, qu'un mot du reservoir vient reprendre.
+/// Deux familles de dix mots, tous tires, pour six emplacements affiches
+/// (`Stage.visibleWordCount`). Un mot bien classe libere son emplacement,
+/// qu'un mot du reservoir vient reprendre.
 Stage buildSupplyStage({int? goal}) {
   return build.stage(
     id: 'maison',
     location: 'Devant la maison',
-    visibleWordCount: 4,
+    // Toute la liste en jeu : le reservoir se compte sans tirage.
+    drawCount: 10,
     families: <WordFamily>[
       build.family(
         id: 'by_bus',
         label: 'En bus',
         words: <Word>[
-          for (var i = 1; i <= 6; i++) build.word('bus$i'),
+          for (var i = 1; i <= 10; i++) build.word('bus$i'),
         ],
         destination: 'gare',
         goal: goal,
@@ -31,7 +33,7 @@ Stage buildSupplyStage({int? goal}) {
         id: 'a_pied',
         label: 'A pied',
         words: <Word>[
-          for (var i = 1; i <= 6; i++) build.word('foot$i'),
+          for (var i = 1; i <= 10; i++) build.word('foot$i'),
         ],
         destination: 'rue',
         goal: goal,
@@ -59,21 +61,21 @@ void main() {
     test('l\'etape n\'affiche que le nombre d\'emplacements prevu', () {
       final engine = buildEngine();
 
-      expect(engine.visibleWords, hasLength(4));
-      expect(engine.visibleWords.whereType<Word>(), hasLength(4));
+      expect(engine.visibleWords, hasLength(6));
+      expect(engine.visibleWords.whereType<Word>(), hasLength(6));
     });
 
     test('les mots visibles sont tous differents', () {
       final engine = buildEngine();
 
       final ids = engine.visibleWords.whereType<Word>().map((w) => w.text);
-      expect(ids.toSet(), hasLength(4));
+      expect(ids.toSet(), hasLength(6));
     });
 
     test('le reservoir contient les mots non encore montres', () {
       final engine = buildEngine();
 
-      expect(engine.state.remainingInSupply, 8);
+      expect(engine.state.remainingInSupply, 14);
     });
 
     test('l\'ordre est reproductible a graine egale', () {
@@ -89,13 +91,13 @@ void main() {
       final engine = buildEngine();
       final placedId = placeFirstVisibleWord(engine);
 
-      expect(engine.visibleWords, hasLength(4));
-      expect(engine.visibleWords.whereType<Word>(), hasLength(4));
+      expect(engine.visibleWords, hasLength(6));
+      expect(engine.visibleWords.whereType<Word>(), hasLength(6));
       expect(
         engine.visibleWords.whereType<Word>().map((w) => w.text),
         isNot(contains(placedId)),
       );
-      expect(engine.state.remainingInSupply, 7);
+      expect(engine.state.remainingInSupply, 13);
     });
 
     test('le mot arrive a la place laissee libre', () {
@@ -139,14 +141,14 @@ void main() {
       engine.placeWord(wordText: word.text, familyId: wrongFamily.id);
 
       expect(engine.visibleWords.map((word) => word?.text).toList(), before);
-      expect(engine.state.remainingInSupply, 8);
+      expect(engine.state.remainingInSupply, 14);
     });
 
     test('le reservoir epuise, les emplacements se vident', () {
       final engine = buildEngine();
 
-      // Les douze mots sont classes un a un.
-      for (var turn = 0; turn < 12; turn++) {
+      // Les vingt mots sont classes un a un.
+      for (var turn = 0; turn < 20; turn++) {
         placeFirstVisibleWord(engine);
       }
 
@@ -159,14 +161,14 @@ void main() {
     test('par defaut, il faut classer toute la liste', () {
       final engine = buildEngine();
 
-      expect(engine.stage.families.first.requiredCount, 6);
+      expect(engine.stage.families.first.requiredCount, 10);
     });
 
     test('un objectif plus court ouvre la destination plus tot', () {
       final engine = buildEngine(goal: 2);
       expect(engine.stage.families.first.requiredCount, 2);
 
-      // Deux mots bus suffisent, sans attendre les quatre autres.
+      // Deux mots bus suffisent, sans attendre les huit autres.
       engine.placeWord(wordText: 'bus1', familyId: 'by_bus');
       expect(engine.state.availableDestinations, isEmpty);
       engine.placeWord(wordText: 'bus2', familyId: 'by_bus');

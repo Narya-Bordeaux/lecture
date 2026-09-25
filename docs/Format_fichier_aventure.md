@@ -136,7 +136,7 @@ C'est pourquoi les listes ne vivent pas *dans* les aventures.
 
 **Une liste est plus grande que la partie.** À l'entrée d'un lieu, le jeu n'en
 tire que quelques mots (`drawCount`, §4). Écrire vingt mots pour une partie qui
-en montre sept n'est pas du gâchis : c'est ce qui fait que **rejouer la même
+en montre cinq n'est pas du gâchis : c'est ce qui fait que **rejouer la même
 journée ne redonne pas les mêmes mots**.
 
 > **Un même mot peut appartenir à plusieurs listes**, et c'est justement ce que
@@ -224,8 +224,6 @@ pose la question du premier tri.
   "narrative": {
     "onArrival": "La voiture a soif ! Grisbie s'arrête faire le plein."
   },
-  "visibleWordCount": 6,
-  "drawCount": 7,
   "families": [ … ]
 }
 ```
@@ -237,8 +235,7 @@ pose la question du premier tri.
 | `background` | non | L'illustration de fond |
 | `backgroundColor` | non | La couleur qui comble au-dessus de l'illustration, en `#RRGGBB` |
 | `narrative.onArrival` | non | L'**énoncé** : affiché en haut de la scène, au-dessus des mots |
-| `visibleWordCount` | non | Combien de mots sont proposés **à la fois** sur le bandeau (6 par défaut) |
-| `drawCount` | non | Combien de mots **chaque famille** tire de sa liste — **7 par défaut**, la liste du reste comprise, qui les tire dans toutes ses listes cochées. Une liste plus courte est à finir |
+| `drawCount` | non | Combien de mots **chaque famille** tire de sa liste, si autre chose que **5**, le nombre du jeu — la liste du reste comprise, qui les tire dans toutes ses listes cochées. Une liste plus courte est à finir. **À ne pas écrire d'ordinaire** : un nombre écrit ici ne suit pas un changement du jeu |
 | `families` | oui | Les catégories à remplir |
 
 **Un lieu raconte son arrivée, jamais son départ.** L'enfant y entre, lit ce qui
@@ -256,10 +253,11 @@ l'illustration : plus il est long, plus l'image rapetisse pour lui laisser la
 place, et avec elle les zones de dépôt. Aucune zone ne peut être recouverte,
 mais une zone trop petite se touche mal. Le calage montre l'énoncé réel.
 
-Ne pas confondre les deux nombres. `drawCount` dit combien de mots entrent en
-jeu **par famille** — trois familles à 7 font 21 mots pour le lieu.
-`visibleWordCount` dit combien d'étiquettes tiennent **à l'écran** en même
-temps ; les autres attendent en réserve, et un mot bien classé libère sa place.
+Ne pas confondre les deux nombres. Le nombre de mots tirés dit combien entrent
+en jeu **par famille** — trois familles à 5 font 15 mots pour le lieu. Le
+nombre d'étiquettes **à l'écran** en même temps est **6, partout** : ce n'est
+pas un réglage du lieu, et le fichier n'en porte plus. Les autres mots
+attendent en réserve, et un mot bien classé libère sa place.
 
 **Il n'y a pas de champ indiquant le type du lieu.** La structure le dit : un
 lieu dont une famille n'a pas de `destination` fait un **tri unique** (§5), un
@@ -276,7 +274,6 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
   "id": "le_plein",
   "label": "Le plein",
   "list": "station_service",
-  "drawCount": 7,
   "destination": "route_de_la_cote",
   "area": { "left": 0.05, "top": 0.35, "width": 0.3, "height": 0.16 }
 }
@@ -395,10 +392,10 @@ famille sans destination suffit à le dire.
   "location": "Le port",
   "families": [
     { "id": "pour_le_pecheur", "label": "Pour le pêcheur",
-      "list": "la_mer", "drawCount": 7,
+      "list": "la_mer",
       "destination": "plage", "area": { … } },
     { "id": "a_garder", "label": "Garde-le",
-      "lists": ["objets_divers", "outils"], "drawCount": 7,
+      "lists": ["objets_divers", "outils"],
       "area": { … } }
   ]
 }

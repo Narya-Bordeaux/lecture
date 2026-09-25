@@ -10,8 +10,8 @@ import 'package:grisbie/domain/models/word_list.dart';
 import '../support/stage_builders.dart';
 
 /// **Sept mots par zone** (0.42.0), decision de l'auteur : sans reglage, chaque
-/// zone tire sept mots — la zone « le reste » comprise, qui les puise dans
-/// l'ensemble de ses listes cochees, et non sept par liste.
+/// zone tire cinq mots — la zone « autre chose » comprise, qui les puise dans
+/// l'ensemble de ses listes cochees, et non cinq par liste.
 ///
 /// Sans reglage, la liste jouait entiere : une zone de douze mots s'annoncait
 /// « 0 / 12 » et en exigeait douze.
@@ -20,7 +20,7 @@ List<Word> wordsNamed(String prefix, int count) =>
     List<Word>.generate(count, (index) => word('$prefix$index'));
 
 void main() {
-  test('sans reglage, une zone tire sept mots', () {
+  test('sans reglage, une zone tire cinq mots', () {
     final stage = build(
       families: <WordFamily>[
         family(
@@ -32,15 +32,15 @@ void main() {
       ],
     );
 
-    expect(Stage.defaultDrawCount, 7);
-    expect(stage.drawCountFor(stage.families.single), 7);
+    expect(Stage.defaultDrawCount, 5);
+    expect(stage.drawCountFor(stage.families.single), 5);
     expect(
       stage.drawnWith(Random(1)).families.single.requiredCount,
-      7,
+      5,
     );
   });
 
-  test('la zone « le reste » tire sept mots dans l\'ensemble de ses listes',
+  test('la zone « autre chose » tire cinq mots dans l\'ensemble de ses listes',
       () {
     final theme = family(
       id: 'theme',
@@ -59,11 +59,11 @@ void main() {
     final stage = build(families: <WordFamily>[theme, rest]);
 
     final drawn = stage.drawnWith(Random(3)).findFamily('reste')!;
-    // Sept en tout, et non sept par liste : dix mots disponibles, sept tires.
-    expect(drawn.requiredCount, 7);
+    // Cinq en tout, et non cinq par liste : dix mots disponibles, cinq tires.
+    expect(drawn.requiredCount, 5);
   });
 
-  test('une liste de moins de sept mots est a finir', () {
+  test('une liste de moins de cinq mots est a finir', () {
     // Option A, choisie par l'auteur : une zone courte n'est pas jouee
     // entiere en silence, elle demande qu'on ecrive les mots manquants.
     final stage = build(

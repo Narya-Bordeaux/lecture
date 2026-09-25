@@ -66,7 +66,6 @@ Stage stage({
   required List<WordFamily> families,
   String location = 'Un lieu',
   String? arrivalText,
-  int visibleWordCount = 6,
   bool ending = false,
   int? drawCount,
 }) {
@@ -75,7 +74,6 @@ Stage stage({
     locationName: location,
     narrative: Narrative(onArrival: arrivalText),
     families: families,
-    visibleWordCount: visibleWordCount,
     isEnding: ending,
     drawCount: drawCount,
   );

@@ -207,12 +207,13 @@ void main() {
       );
     });
 
-    test('il demande sept mots par liste', () {
-      expect(
-        built.findStage('boutique')!.drawCount,
-        AdventureBuilder.defaultDrawCount,
-      );
-      expect(AdventureBuilder.defaultDrawCount, 7);
+    test('le nombre de mots n\'est pas ecrit sur le lieu : le defaut joue', () {
+      // Fige dans le fichier, il ne suivait pas un changement du defaut —
+      // c'est ce qui a fait passer la decision « cinq » inapercue sur cinq
+      // lieux sur huit.
+      final shop = built.findStage('boutique')!;
+      expect(shop.drawCount, isNull);
+      expect(shop.drawCountFor(shop.families.first), Stage.defaultDrawCount);
     });
   });
 
@@ -230,11 +231,13 @@ void main() {
       expect(built.findStage('kiosque')!.nature, StageNature.undefined);
     });
 
-    test('un lieu qui devient a plusieurs listes demande sept mots', () {
+    test('un lieu qui devient a plusieurs listes prend le defaut du jeu', () {
+      // Rien n'est ecrit sur le lieu : fige dans le fichier, le nombre ne
+      // suivrait pas un changement du defaut (0.51.0).
       final built = AdventureBuilder(emptyAdventureAt('gare'))
           .addTrips('gare', const <NewTrip>[NewTrip(name: 'Le quai')]);
 
-      expect(built.findStage('gare')!.drawCount, 7);
+      expect(built.findStage('gare')!.drawCount, isNull);
     });
 
     test('un lieu deja ecrit garde ce qu\'il demandait', () {
