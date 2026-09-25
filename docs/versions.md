@@ -44,6 +44,45 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.50.0+71 — 25 septembre 2026 — Les textes d'un lieu, en diapositives
+
+**La narration se restructure autour du trajet**, d'après l'exemple de
+l'auteur : sur la boîte le thème (« En voiture »), boîte pleine un texte
+(« Tu as trouvé tous les mots « en voiture ». Tu peux prendre la voiture. »),
+sur le bouton une action (« Prendre la voiture »), puis le lieu atteint
+raconte son arrivée (« Un petit arrêt au garage, la radio est à fond… »).
+**Le lieu d'arrivée n'est jamais nommé avant d'y être.**
+
+- `WordFamily.departureLabel` (`"departureLabel"`), nouveau. Avec
+  `completionText`, **obligatoire** sur tout trajet qui mène quelque part :
+  `validate()` rend le trajet *à finir* (`ContentIssue.isMissingText`).
+  Décision de l'auteur, prise en sachant que le jeu livré ne s'ouvrirait
+  plus jusqu'à ce qu'il les écrive.
+- **Rien n'est pré-écrit** : le texte composé de 0.49.0, le texte proposé
+  dans l'éditeur et sa mécanique (non enregistré tant qu'inchangé) sont
+  retirés, `Adventure.locationNames` avec eux. `CompletionMessage` rend le
+  texte de l'auteur. Dans un lieu inachevé que l'outil fait essayer,
+  « Bravo ! » paraît seul et le bouton reprend « Partir … ».
+- **La carte d'un lieu** : ligne 1 l'apparence — `StageAppearancePage`, ex
+  `StageEditorPage` réduit à l'image et aux cadres ; ligne 2 la nature,
+  « Textes » (« Textes · 2 à écrire » tant qu'il en manque) et « Ajouter ».
+  Les textes manquants ne s'y listent plus un par un.
+- **`StageTextsPage`** : les textes du lieu en diapositives, dans l'ordre où
+  l'enfant les vit — l'énoncé dans la fenêtre d'arrivée, les noms des boîtes
+  posés sur l'illustration à la place de leur cadre, le « Bravo ! » et le
+  bouton de chaque trajet ; une seule diapositive pour une fin. Case vide en
+  jaune. Un lieu à la fois (décision de l'auteur).
+- **Renommer un trajet quitte l'écran de structure** : le nom d'une boîte
+  s'écrit sur son cadre, dans les textes.
+- Tests : les tests de l'outil chargent l'aventure livrée en brouillon
+  (`loadRealDraft`), comme l'outil ; ceux qui ont besoin d'une aventure
+  jouable y posent des textes **de test** (`withTestTripTexts`), jamais
+  versés dans le contenu. Le constructeur de familles des tests pose ces
+  deux textes par défaut (`withTexts`).
+- **État : 56 tests en échec**, tous pour la même raison — l'aventure livrée
+  n'a pas encore ses 22 textes de trajet, et le jeu la refuse. Vérifié
+  fichier par fichier. Vu en capture dans Chromium (outil d'auteur).
+
 ### 0.49.0+70 — 25 septembre 2026 — « Bravo ! »
 
 **Une boîte pleine dit « Bravo ! »**, selon l'option C retenue par l'auteur :

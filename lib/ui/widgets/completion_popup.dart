@@ -116,9 +116,10 @@ class CompletionPopup extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            message.body,
+          if (message.body case final body?) ...<Widget>[
+            const SizedBox(height: 12),
+            Text(
+              body,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 20,
@@ -127,6 +128,7 @@ class CompletionPopup extends StatelessWidget {
               color: Color(0xFF1B1B1B),
             ),
           ),
+          ],
         ],
       ),
     );

@@ -283,6 +283,31 @@ class Stage {
     );
   }
 
+  /// Les deux textes qu'un trajet doit porter : le « Bravo ! » et l'action
+  /// de depart. **Obligatoires, et jamais pre-ecrits** (decision de
+  /// l'auteur) : il manque de la narration, le trajet est a finir.
+  ///
+  /// La liste du reste d'un tri unique n'ouvre aucun chemin : elle n'annonce
+  /// rien, et n'a pas de bouton.
+  List<ContentIssue> _validateTextsOf(WordFamily family) {
+    return <ContentIssue>[
+      if (family.lacksCompletionText)
+        ContentIssue.incomplete(
+          'Le texte du « Bravo ! » de « ${family.label} » est à écrire.',
+          stageId: id,
+          familyId: family.id,
+          isMissingText: true,
+        ),
+      if (family.lacksDepartureLabel)
+        ContentIssue.incomplete(
+          'Le bouton de départ de « ${family.label} » est à écrire.',
+          stageId: id,
+          familyId: family.id,
+          isMissingText: true,
+        ),
+    ];
+  }
+
   /// Les incoherences de contenu, classees et situees.
   ///
   /// Le contenu pedagogique est destine a etre ecrit a la main, et a terme par
@@ -317,7 +342,7 @@ class Stage {
       }
 
       issues.addAll(_validateSupplyOf(family));
-
+      issues.addAll(_validateTextsOf(family));
     }
 
     // Une etape dont aucune famille ne mene ailleurs est un cul-de-sac. Fatal

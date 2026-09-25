@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/adventure_builder.dart';
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/infrastructure/content/content_integrator.dart';
 import 'package:grisbie/ui/pages/outline_page.dart';
+import 'package:grisbie/ui/pages/stage_texts_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
@@ -67,7 +69,7 @@ void main() {
   late Adventure realAdventure;
 
   setUpAll(() async {
-    realAdventure = await loadRealAdventure();
+    realAdventure = withTestTripTexts(await loadRealDraft());
   });
 
   group('Ce que l\'ecran montre', () {
@@ -344,9 +346,12 @@ void main() {
 
       // On renomme un lieu, puis on enregistre : c'est tout l'interet du
       // geste, et l'ecran travaille en memoire.
-      await tester.tap(find.text('Devant la maison'));
+      await tester.tap(find.text('Textes').first);
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'Sur le perron');
+      await tester.enterText(
+        find.byKey(StageTextsPage.locationNameKey),
+        'Sur le perron',
+      );
       await tester.tap(find.text('Garder'));
       await tester.pumpAndSettle();
 
@@ -388,24 +393,68 @@ void main() {
   });
 
   group('Ouvrir un lieu', () {
-    testWidgets('cliquer le titre ouvre ce que le lieu porte', (tester) async {
+    testWidgets('la premiere ligne ouvre l\'apparence, et rien d\'autre', (
+      tester,
+    ) async {
       await pumpOutline(tester, realAdventure);
 
       await tester.tap(find.text('Devant la maison'));
       await tester.pumpAndSettle();
 
-      // Tout sauf les mots : ceux-la appartiennent au trajet.
-      expect(find.text('Le lieu'), findsOneWidget);
+      expect(find.text('L\'apparence · Devant la maison'), findsOneWidget);
       expect(find.text('L\'illustration'), findsOneWidget);
-      expect(find.text('L\'énoncé'), findsOneWidget);
+      // Les textes ont leur propre ecran.
+      expect(find.byKey(StageTextsPage.onArrivalKey), findsNothing);
+    });
+
+    testWidgets('le bouton « Apparence » y mene aussi', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Apparence').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('L\'apparence · Devant la maison'), findsOneWidget);
+    });
+
+    testWidgets('« Textes » ouvre les diapositives du lieu', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Textes').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 · En arrivant'), findsOneWidget);
+      expect(find.text('2 · Les boîtes'), findsOneWidget);
+    });
+
+    testWidgets('la carte dit combien de textes restent a ecrire', (
+      tester,
+    ) async {
+      final maison = realAdventure.startStage;
+      await pumpOutline(
+        tester,
+        realAdventure.withStage(maison.copyWith(
+          families: <WordFamily>[
+            maison.families.first.copyWith(
+              clearCompletionText: true,
+              clearDepartureLabel: true,
+            ),
+            ...maison.families.skip(1),
+          ],
+        )),
+      );
+
+      expect(find.text('Textes · 2 à écrire'), findsOneWidget);
     });
 
     testWidgets('le lieu renommé revient sur sa carte', (tester) async {
       await pumpOutline(tester, realAdventure);
 
-      await tester.tap(find.text('Devant la maison'));
+      await tester.tap(find.text('Textes').first);
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).first, 'Sur le perron');
+      await tester.enterText(
+        find.byKey(StageTextsPage.locationNameKey),
+        'Sur le perron',
+      );
       await tester.tap(find.text('Garder'));
       await tester.pumpAndSettle();
 

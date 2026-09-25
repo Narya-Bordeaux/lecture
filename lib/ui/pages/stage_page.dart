@@ -38,13 +38,8 @@ class StagePage extends StatefulWidget {
     this.contentSource,
     this.interactive = true,
     this.sceneOverlayBuilder,
-    this.destinationNames = const <String, String>{},
     super.key,
   });
-
-  /// Le nom de chaque lieu, par son identifiant : le « Bravo ! » d'une boite
-  /// complete dit ou mene son chemin. Vide, il parle du chemin sans le nommer.
-  final Map<String, String> destinationNames;
 
   final Stage stage;
 
@@ -221,8 +216,6 @@ class _StagePageState extends State<StagePage> {
     final message = CompletionMessage.forFamily(
       stage: _engine.stage,
       familyId: familyId,
-      completedFamilyIds: _engine.state.completedFamilyIds.toSet(),
-      destinationNames: widget.destinationNames,
     );
     if (message == null) return;
 
@@ -557,10 +550,14 @@ class _DepartureBar extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    // L'action que l'auteur a ecrite, « Prendre la voiture ».
+                    // Elle manque seulement dans un lieu inacheve que l'outil
+                    // fait essayer ; le jeu refuse ces lieux.
                     child: Text(
-                      UiStringsFr.departTo(
-                        destination.familyLabel.toLowerCase(),
-                      ),
+                      destination.departureLabel ??
+                          UiStringsFr.departTo(
+                            destination.familyLabel.toLowerCase(),
+                          ),
                     ),
                   ),
                 )

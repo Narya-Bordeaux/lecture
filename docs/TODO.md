@@ -3,6 +3,16 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
+## Urgent — le jeu n'ouvre plus l'aventure livrée
+
+- [ ] **Écrire les 22 textes de trajet de « Grisbie va à la plage »**
+      (0.50.0) : pour chacun des 11 trajets, le texte du « Bravo ! » et
+      l'action du bouton de départ. Ils sont obligatoires ; tant qu'il en
+      manque, le jeu refuse l'aventure, et 56 tests qui la chargent comme
+      jouable échouent — à raison. Travail d'auteur : dans l'outil (bouton
+      « Textes » de chaque lieu), ou transmis tels quels pour être versés
+      dans le fichier.
+
 ## Pages de récit, images et dépôt — en discussion avec l'auteur
 
 - [ ] **Éprouver le choix d'une image dans Chrome et sur le téléphone** —
@@ -31,8 +41,10 @@ n'existe plus que dans `versions.md`.
       calcul va dans le moteur. À juger aussi : le blanc à 90 % au survol,
       le clignotement, le reflet.
 - [ ] **Éprouver le « Bravo ! » au doigt** (0.49.0) : la pause avant qu'il
-      paraisse (0,45 s), la taille de Grisbie en coin, la longueur du texte
-      proposé pour un lecteur de six ans.
+      paraisse (0,45 s), la taille de Grisbie en coin.
+- [ ] **Éprouver l'écran des textes** (0.50.0) dans Chrome et sur le
+      téléphone : les noms des boîtes posés sur l'image, sur un petit écran
+      notamment.
 - [ ] **Voir l'icône et l'écran de chargement sur le téléphone** (0.48.0) :
       les deux saveurs, sur un Android 12 ou plus et si possible un plus
       ancien. Rien n'a pu être construit ici. Au passage : le manifeste web

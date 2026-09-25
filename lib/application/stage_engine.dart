@@ -10,9 +10,14 @@ class AvailableDestination {
     required this.familyId,
     required this.familyLabel,
     required this.stageId,
+    this.departureLabel,
   });
 
   final String familyId;
+
+  /// L'action ecrite sur le bouton, « Prendre la voiture ». Nulle dans un
+  /// lieu inacheve que l'outil fait essayer : le jeu refuse ces lieux.
+  final String? departureLabel;
   final String familyLabel;
   final String stageId;
 
@@ -99,6 +104,7 @@ class StageState {
             familyId: family.id,
             familyLabel: family.label,
             stageId: family.destinationStageId!,
+            departureLabel: family.departureLabel,
           ),
         )
         .toList(growable: false);

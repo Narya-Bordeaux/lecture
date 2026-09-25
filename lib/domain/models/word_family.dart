@@ -30,6 +30,7 @@ class WordFamily {
     this.goal,
     this.drawCount,
     this.completionText,
+    this.departureLabel,
   })  : assert(
           (list == null) != (lists == null),
           'Une famille cite une liste, ou plusieurs — pas les deux.',
@@ -62,6 +63,7 @@ class WordFamily {
       goal: json['goal'] as int?,
       drawCount: json['drawCount'] as int?,
       completionText: json['completionText'] as String?,
+      departureLabel: json['departureLabel'] as String?,
     );
   }
 
@@ -119,12 +121,23 @@ class WordFamily {
   final int? drawCount;
 
   /// Ce que l'enfant lit sous « Bravo ! » quand il a range tous les mots de
-  /// cette boite, si l'auteur l'a ecrit.
+  /// cette boite : « Tu as trouvé tous les mots « en voiture ». Tu peux
+  /// prendre la voiture. »
   ///
-  /// Nul, le jeu compose un texte de lui-meme (`CompletionMessage`), qui suit
-  /// les noms du trajet et du lieu atteint, et ne propose un autre chemin que
-  /// s'il en reste. Il n'est donc ecrit ici que si l'auteur l'a change.
+  /// **Obligatoire sur un trajet qui mene quelque part**, et jamais pre-ecrit
+  /// (decision de l'auteur) : c'est de la narration. Nul, `validate()` dit le
+  /// trajet a finir. La liste du reste d'un tri unique n'en a pas : elle
+  /// n'ouvre aucun chemin, et rien ne s'annonce.
   final String? completionText;
+
+  /// L'action ecrite sur le bouton de depart, a l'infinitif : « Prendre la
+  /// voiture », « Quitter le garage ».
+  ///
+  /// **Obligatoire sur un trajet qui mene quelque part.** Le bouton disait
+  /// « Partir » suivi du nom de la boite : juste pour « En voiture », absurde
+  /// pour un theme (« Partir les types de musique »), et il ne doit pas
+  /// nommer le lieu d'arrivee, que l'enfant decouvre en y entrant.
+  final String? departureLabel;
 
   /// Les mots de la liste citee.
   ///
@@ -134,6 +147,20 @@ class WordFamily {
 
   /// Vrai si completer cette famille ouvre un chemin.
   bool get leadsSomewhere => destinationStageId != null;
+
+  /// Combien des deux textes obligatoires d'un trajet restent a ecrire : le
+  /// « Bravo ! » et l'action de depart. Toujours zero pour la liste du reste,
+  /// qui n'annonce rien et n'a pas de bouton.
+  ///
+  /// Un texte blanc compte comme absent : l'enfant ne lirait rien.
+  int get missingTextCount =>
+      (lacksCompletionText ? 1 : 0) + (lacksDepartureLabel ? 1 : 0);
+
+  bool get lacksCompletionText => leadsSomewhere && _isBlank(completionText);
+
+  bool get lacksDepartureLabel => leadsSomewhere && _isBlank(departureLabel);
+
+  static bool _isBlank(String? text) => text == null || text.trim().isEmpty;
 
   Set<String> get wordTexts => list.wordTexts;
 
@@ -160,6 +187,8 @@ class WordFamily {
     int? drawCount,
     String? completionText,
     bool clearCompletionText = false,
+    String? departureLabel,
+    bool clearDepartureLabel = false,
   }) {
     return WordFamily(
       id: id ?? this.id,
@@ -169,11 +198,13 @@ class WordFamily {
       area: area ?? this.area,
       goal: goal ?? this.goal,
       drawCount: drawCount ?? this.drawCount,
-      // `??` ne sait pas effacer : revenir au texte propose passe par
-      // [clearCompletionText].
+      // `??` ne sait pas effacer : vider un texte passe par les drapeaux.
       completionText: clearCompletionText
           ? null
           : completionText ?? this.completionText,
+      departureLabel: clearDepartureLabel
+          ? null
+          : departureLabel ?? this.departureLabel,
     );
   }
 
@@ -190,6 +221,7 @@ class WordFamily {
       if (goal != null) 'goal': goal,
       if (drawCount != null) 'drawCount': drawCount,
       if (completionText != null) 'completionText': completionText,
+      if (departureLabel != null) 'departureLabel': departureLabel,
     };
   }
 

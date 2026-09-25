@@ -6,16 +6,12 @@ import 'package:grisbie/domain/models/adventure.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_catalog.dart';
-import 'package:grisbie/ui/pages/stage_editor_page.dart';
+import 'package:grisbie/ui/pages/stage_appearance_page.dart';
 
 import '../support/disk_content.dart';
 
-/// Tout ce qu'un lieu porte, sauf ses mots.
-///
-/// L'ecran du parcours dit **ou** l'on va ; celui-ci dit **ce qu'il y a** :
-/// le nom, l'illustration, les zones de depot et les deux moments de recit.
-/// Les listes de mots sont un autre sujet, et un autre ecran — on les ouvre
-/// depuis le trajet, pas depuis le lieu.
+/// L'apparence d'un lieu : son illustration et la place de ses cadres, rien
+/// d'autre. Les textes ont leur propre ecran (`stage_texts_page_test.dart`).
 
 /// Monte l'editeur et rend ce qu'il renvoie a la fermeture.
 Future<Stage?> pumpEditor(
@@ -36,7 +32,7 @@ Future<Stage?> pumpEditor(
           onPressed: () async {
             result = await Navigator.of(context).push<Stage>(
               MaterialPageRoute<Stage>(
-                builder: (_) => StageEditorPage(
+                builder: (_) => StageAppearancePage(
                   stage: stage,
                   pictures: pictures,
                   contentSource: contentSource,
@@ -68,21 +64,10 @@ void main() {
   late Adventure realAdventure;
 
   setUpAll(() async {
-    realAdventure = await loadRealAdventure();
+    realAdventure = await loadRealDraft();
   });
 
   group('Ce que l\'ecran montre', () {
-    testWidgets('les deux recits du lieu, tels qu\'ils sont ecrits',
-        (tester) async {
-      final station = realAdventure.findStage('gare')!;
-      await pumpEditor(tester, station);
-
-      expect(find.text('La gare'), findsWidgets);
-      expect(find.text(station.narrative.onArrival!), findsOneWidget);
-      // Un lieu ne raconte pas son depart : le champ n'existe plus.
-      expect(find.text('En repartant'), findsNothing);
-    });
-
     testWidgets('le chemin de l\'illustration, modifiable', (tester) async {
       await pumpEditor(tester, realAdventure.startStage);
 
@@ -205,37 +190,6 @@ void main() {
   });
 
   group('Ce que l\'ecran rend', () {
-    testWidgets('le lieu renomme garde son identifiant', (tester) async {
-      Stage? edited;
-      await _withEditor(tester, realAdventure.findStage('gare')!,
-          (result) => edited = result, (tester) async {
-        await tester.enterText(
-          find.byType(TextField).first,
-          'La grande gare',
-        );
-        await save(tester);
-      });
-
-      // L'identifiant nait du nom puis s'en detache : le renommer casserait
-      // toutes les destinations qui le citent.
-      expect(edited!.locationName, 'La grande gare');
-      expect(edited!.id, 'gare');
-    });
-
-    testWidgets('le recit saisi revient sur l\'etape', (tester) async {
-      Stage? edited;
-      await _withEditor(tester, realAdventure.findStage('gare')!,
-          (result) => edited = result, (tester) async {
-        await tester.enterText(
-          find.byKey(const Key('onArrival')),
-          'Le train siffle.',
-        );
-        await save(tester);
-      });
-
-      expect(edited!.narrative.onArrival, 'Le train siffle.');
-    });
-
     testWidgets('vider le chemin retire l\'illustration', (tester) async {
       Stage? edited;
       await _withEditor(tester, realAdventure.startStage,
@@ -256,7 +210,7 @@ void main() {
         edited = result;
         closed = true;
       }, (tester) async {
-        await tester.enterText(find.byType(TextField).first, 'Perdu');
+        await tester.enterText(find.byKey(const Key('background')), 'Perdu');
         await tester.tap(find.byTooltip('Fermer sans garder'));
         await tester.pumpAndSettle();
       });
@@ -286,7 +240,7 @@ Future<void> _withEditor(
             collect(
               await Navigator.of(context).push<Stage>(
                 MaterialPageRoute<Stage>(
-                  builder: (_) => StageEditorPage(stage: stage),
+                  builder: (_) => StageAppearancePage(stage: stage),
                 ),
               ),
             );

@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.49.0+70** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.50.0+71** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -634,16 +634,21 @@ débordant du coin (`assets/grisbie_bravo.webp`, élément du jeu), et un texte
 dessous. Un toucher n'importe où la ferme ; le départ attend dans la barre du
 bas. **« Autre chose » n'annonce rien** : elle n'ouvre aucun chemin.
 
-Le texte est **celui de l'auteur, ou composé** (`CompletionMessage`,
-`lib/application/`) : « Tu as rangé tous les mots « En bus ». Tu peux partir
-vers la gare, ou ouvrir un autre chemin. » La fin ne propose un autre chemin
-que s'il en reste, et seul l'article du lieu prend une minuscule (« Paris »
-reste « Paris »). L'éditeur de lieu montre ce texte **pré-écrit**, un champ
-par trajet, derrière un « Bravo ! » qui ne se saisit pas. **Garder le texte
-proposé ne l'écrit pas** (`WordFamily.completionText` reste nul) : figé dans
-le fichier, il mentirait au premier renommage, et sa fin ne s'adapterait
-plus. Seul un texte modifié s'enregistre ; « Revenir au texte proposé »
-l'efface.
+**Chaque trajet porte trois textes, et le lieu suivant le quatrième**
+(0.50.0) : sur la boîte, **le thème** (« En voiture ») ; boîte pleine, **le
+texte du « Bravo ! »** (`WordFamily.completionText`) ; en bas, **l'action de
+départ** à l'infinitif, sur le bouton (`WordFamily.departureLabel`,
+« Prendre la voiture ») ; puis le lieu atteint raconte l'arrivée. **Le lieu
+d'arrivée n'est jamais nommé avant d'y être** : le bouton disait « Partir »
+suivi du nom de la boîte — absurde pour un thème (« Partir les types de
+musique ») — et le texte composé de 0.49.0 annonçait « vers le garage ».
+
+**Les deux textes de trajet sont obligatoires, et rien n'est pré-écrit**
+(décisions de l'auteur) : `validate()` rend *incomplet* le trajet qui en
+manque (`ContentIssue.isMissingText`), et le jeu refuse l'aventure.
+`CompletionMessage` ne compose plus rien : il rend le texte de l'auteur, et
+« Bravo ! » seul dans un lieu inachevé que l'outil fait essayer — de même que
+le bouton y reprend « Partir … ». La liste du reste n'en demande aucun.
 
 Ce n'est pas un récit de départ, que la règle ci-dessus proscrit : le texte
 dit **ce que l'enfant vient de faire ici**, au moment où il choisit entre
@@ -797,13 +802,31 @@ trajet. La page ne décide rien — elle passe les demandes à `AdventureBuilder
 et réaffiche ce qu'il rend. Elle travaille **en mémoire** et rend l'aventure
 modifiée à l'appelant ; rien ne l'enregistre encore.
 
-**Cliquer le titre ouvre ce que le lieu porte** — `StageEditorPage` : le nom,
-l'illustration, les zones de dépôt et l'énoncé. **Les listes
-de mots n'y sont pas** : elles appartiennent à un *trajet*, pas à un lieu, et
-une même liste sert à plusieurs endroits — les mettre là laisserait croire
-qu'on les modifie pour ce lieu seul. Le calage (`AreaEditorPage`) s'ouvre
-depuis là, sur l'étape **en cours d'édition**, illustration comprise, et rend
-l'étape calée ; sans quoi l'auteur poserait ses zones sur l'image d'avant.
+**La première ligne d'une carte gère l'apparence** (0.50.0, décision de
+l'auteur) — le titre et le bouton « Apparence » ouvrent `StageAppearancePage` :
+l'illustration et la place des cadres, rien d'autre. Le calage
+(`AreaEditorPage`) s'ouvre depuis là, sur l'étape **en cours d'édition**,
+illustration comprise, et rend l'étape calée ; sans quoi l'auteur poserait
+ses zones sur l'image d'avant.
+
+**La seconde ligne gère les textes** — la nature du lieu, le bouton
+« Textes » et « Ajouter », au même endroit : ajouter un trajet, c'est d'abord
+le nommer. « Textes » ouvre `StageTextsPage` : **chaque texte s'écrit là où
+l'enfant le lira**, en diapositives dans l'ordre où il les vit — l'arrivée et
+son énoncé dans la fenêtre du centre, les noms des boîtes **posés sur
+l'illustration à la place de leur cadre**, puis pour chaque trajet le
+« Bravo ! » et son bouton. Une fin n'a qu'une diapositive : titre, image,
+récit. Le nom du lieu est en tête, hors diapositive — l'enfant ne le lit
+que sur une fin. **Aucune case n'est pré-écrite** ; une case vide est jaune.
+L'auteur passait auparavant d'un écran à l'autre pour savoir quel texte
+paraîtrait où. **Un lieu à la fois** : un déroulé de toute l'aventure se
+perdrait dans les boucles et les directions. Le bouton dit combien de textes
+obligatoires restent (« Textes · 2 à écrire »), et la carte ne les liste plus
+un par un.
+
+**Les listes de mots n'y sont pas** : elles appartiennent à un *trajet*, pas
+à un lieu, et une même liste sert à plusieurs endroits — les mettre là
+laisserait croire qu'on les modifie pour ce lieu seul.
 
 **Toucher un trajet ouvre sa liste** — `WordListPage`. Un trajet sans liste
 propose d'en créer une ou d'en réutiliser une ; ensuite, on tape des mots, un
@@ -834,12 +857,14 @@ proposer d'en repartir contredirait ce que la carte vient d'annoncer. Sa carte
 reste, elle : il y aura une illustration et un texte d'arrivée à y poser. Une
 fin créée par erreur **se rouvre depuis sa structure** (ci-dessous).
 
-**Trois gestes sur une carte, trois choses différentes** — le titre ouvre ce
-que le lieu montre (`StageEditorPage`), un trajet ouvre sa liste
+**Quatre gestes sur une carte, quatre choses différentes** — le titre ouvre
+l'apparence, « Textes » les textes, un trajet ouvre sa liste
 (`WordListPage`), et la **ligne de nature** — « Plusieurs listes », « Tri
 unique », « Fin », avec une icône de réglage — ouvre sa **structure**
-(`StageStructurePage`) : changer de nature, renommer, rediriger ou retirer un
-trajet. Aucun écran ne permettait de revenir sur un choix de circuit. Un lieu
+(`StageStructurePage`) : changer de nature, rediriger ou retirer un trajet.
+**Renommer un trajet n'y est plus** (0.50.0) : le nom d'une boîte s'écrit dans
+les textes, sur son cadre — deux endroits pour le même texte en feraient deux
+versions. Aucun écran ne permettait de revenir sur un choix de circuit. Un lieu
 à définir — une fin qu'on vient d'y rouvrir — y reçoit **les trois réponses
 de la carte** : renvoyer à la carte pour le redéfinir était une impasse.
 

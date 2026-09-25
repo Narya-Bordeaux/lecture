@@ -159,18 +159,13 @@ void main() {
   });
 
   group('Les trajets', () {
-    testWidgets('un trajet se renomme', (tester) async {
-      final outcome = await pumpStructure(tester);
+    testWidgets('un trajet ne se renomme plus ici', (tester) async {
+      // Le nom d'une boite s'ecrit dans les textes du lieu, pose sur
+      // l'illustration a sa place : deux endroits pour le meme texte en
+      // feraient deux versions.
+      await pumpStructure(tester);
 
-      await tapAndSettle(tester, find.byTooltip('Renommer « En bus »'));
-      await tester.enterText(find.byKey(const Key('rename-trip')), 'En autocar');
-      await tapAndSettle(tester, find.text('Valider'));
-      await tapAndSettle(tester, find.text('Garder'));
-
-      expect(
-        outcome.kept!.findStage('maison')!.findFamily('en_bus')!.label,
-        'En autocar',
-      );
+      expect(find.byTooltip('Renommer « En bus »'), findsNothing);
     });
 
     testWidgets('un trajet se retire, apres confirmation', (tester) async {

@@ -29,13 +29,15 @@ const RelativeArea _right = RelativeArea(
   height: 0.2,
 );
 
-Stage _house({String? busText}) {
+Stage _house({String? busText, String? departure, bool withTexts = true}) {
   final bus = build.family(
     id: 'en_bus',
     label: 'En bus',
     words: <Word>[build.word('arrêt'), build.word('ticket')],
     destination: 'gare',
     area: _left,
+    departureLabel: departure,
+    withTexts: withTexts,
   );
   return build.stage(
     id: 'maison',
@@ -85,10 +87,6 @@ Future<void> _pump(WidgetTester tester, Stage stage) async {
         stage: stage,
         onDeparture: (_) {},
         random: Random(7),
-        destinationNames: const <String, String>{
-          'gare': 'La gare',
-          'rue': 'La rue',
-        },
       ),
     ),
   );
@@ -114,11 +112,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Bravo !'), findsOneWidget);
-    expect(
-      find.text('Tu as rangé tous les mots «\u00A0En bus\u00A0». Tu peux partir vers '
-          'la gare, ou ouvrir un autre chemin.'),
-      findsOneWidget,
-    );
+    // Le texte de l'auteur, tel quel : rien n'est compose.
+    expect(find.text('Tu as trouvé tous les mots « En bus ».'), findsOneWidget);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -158,23 +153,23 @@ void main() {
     expect(find.text('Le bus arrive au coin de la rue !'), findsOneWidget);
   });
 
-  testWidgets('la derniere boite ne propose plus d\'autre chemin', (
-    tester,
-  ) async {
-    await _pump(tester, _house());
+  testWidgets('sans texte — lieu inacheve que l\'outil essaie — « Bravo ! » '
+      'seul', (tester) async {
+    await _pump(tester, _house(withTexts: false));
     await _completeBus(tester);
-    await dismissCompletion(tester);
-
-    await dragWordOnto(tester, word: 'chaussure', familyId: 'a_pied');
-    await dragWordOnto(tester, word: 'sentier', familyId: 'a_pied');
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Tu as rangé tous les mots «\u00A0À pied\u00A0». Tu peux partir vers '
-          'la rue.'),
-      findsOneWidget,
-    );
+    expect(find.text('Bravo !'), findsOneWidget);
+    expect(find.textContaining('Tu as'), findsNothing);
+  });
+
+  testWidgets('le bouton de depart porte l\'action ecrite', (tester) async {
+    await _pump(tester, _house(departure: 'Prendre le bus'));
+    await _completeBus(tester);
+    await dismissCompletion(tester);
+
+    expect(find.text('Prendre le bus'), findsOneWidget);
   });
 
   testWidgets('« autre chose » remplie ne dit rien', (tester) async {

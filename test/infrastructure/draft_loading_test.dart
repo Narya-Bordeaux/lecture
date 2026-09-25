@@ -81,8 +81,9 @@ void main() {
       final draft = await buildRepository().loadDraft('brouillon');
       final issues = draft.validate();
 
-      // Une famille sans mots, et une destination annoncee avant son lieu.
-      expect(issues, hasLength(2));
+      // Une famille sans mots, une destination annoncee avant son lieu, et
+      // les deux textes du trajet — le « Bravo ! » et l'action de depart.
+      expect(issues, hasLength(4));
       expect(
         issues.every((issue) => issue.severity == IssueSeverity.incomplete),
         isTrue,

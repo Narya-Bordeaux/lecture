@@ -73,7 +73,10 @@ class AdventureOutline {
           stageId: stageId,
           letter: letters[stageId]!,
           locationName: stage.locationName,
-          hasNarrative: stage.narrative.onArrival != null,
+          missingTextCount: stage.families.fold<int>(
+            0,
+            (count, family) => count + family.missingTextCount,
+          ),
           nature: stage.nature,
           canBeTried: stage.canBeTriedAlone,
           trips: List<OutlineTrip>.unmodifiable(
@@ -162,7 +165,7 @@ class OutlineBlock {
     required this.stageId,
     required this.letter,
     required this.locationName,
-    required this.hasNarrative,
+    this.missingTextCount = 0,
     required this.nature,
     required this.canBeTried,
     required this.trips,
@@ -175,10 +178,10 @@ class OutlineBlock {
 
   final String locationName;
 
-  /// La case du croquis : le recit d'arrivee est-il ecrit ?
-  ///
-  /// Un lieu ne raconte pas son depart — c'est celui d'apres qui raconte.
-  final bool hasNarrative;
+  /// Combien de textes obligatoires restent a ecrire ici : le « Bravo ! » et
+  /// l'action de depart de chaque trajet. La carte l'annonce sur son bouton
+  /// « Textes ».
+  final int missingTextCount;
 
   /// Ce que l'enfant fait ici — ou `undefined`, tant que l'auteur ne l'a pas
   /// dit. C'est ce qui decide de ce que la carte propose.

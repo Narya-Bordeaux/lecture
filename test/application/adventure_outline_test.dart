@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grisbie/application/adventure_outline.dart';
 import 'package:grisbie/domain/models/adventure.dart';
-import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -264,7 +263,7 @@ void main() {
 
   group('Sur l\'aventure reelle', () {
     test('le lettrage decrit le parcours livre', () async {
-      final outline = AdventureOutline.of(await loadRealAdventure());
+      final outline = AdventureOutline.of(await loadRealDraft());
 
       expect(outline.letterOf('maison'), 'A');
       // Trois directions au depart, dont la gare.
@@ -277,28 +276,36 @@ void main() {
       expect(lettered, contains('gare'));
     });
 
-    test('le texte de transition est reporte, comme la case du croquis',
-        () async {
-      final outline = AdventureOutline.of(await loadRealAdventure());
-      final start = outline.blocks.first;
-
-      // « maison » porte son enonce : la page de garde raconte, l'enonce
-      // pose la question du premier tri (0.35.0).
-      expect(start.hasNarrative, isTrue);
-    });
-
-    test('un lieu sans recit de depart laisse la case vide', () {
+    test('la carte compte les textes de trajet qui restent a ecrire', () {
+      // Deux par trajet qui mene quelque part : le « Bravo ! » et l'action
+      // de depart. La liste du reste n'en demande aucun.
       final outline = AdventureOutline.of(adventureOf(<Stage>[
         Stage(
           id: 'depart',
           locationName: 'Depart',
-          narrative: Narrative.none,
-          families: <WordFamily>[trip('en_bus', 'En bus', to: 'plage')],
+          families: <WordFamily>[
+            family(
+              id: 'en_bus',
+              label: 'En bus',
+              words: <Word>[word('ticket')],
+              destination: 'plage',
+              withTexts: false,
+            ),
+            family(
+              id: 'a_pied',
+              label: 'À pied',
+              words: <Word>[word('sentier')],
+              destination: 'plage',
+              departureLabel: 'Marcher',
+              completionText: '',
+            ),
+            family(id: 'autre', label: 'Autre chose', words: <Word>[word('x')]),
+          ],
         ),
         ending(id: 'plage'),
       ]));
 
-      expect(outline.blocks.first.hasNarrative, isFalse);
+      expect(outline.blocks.first.missingTextCount, 3);
     });
   });
 
@@ -308,7 +315,7 @@ void main() {
     // les deux bouts.
 
     test('le nom du lieu atteint accompagne le trajet', () async {
-      final outline = AdventureOutline.of(await loadRealAdventure());
+      final outline = AdventureOutline.of(await loadRealDraft());
       final start = outline.blocks.first;
 
       expect(
@@ -410,7 +417,7 @@ void main() {
 
   group('Essayer un lieu', () {
     test('la carte dit si le lieu se joue seul', () async {
-      final adventure = await loadRealAdventure();
+      final adventure = await loadRealDraft();
       final outline = AdventureOutline.of(adventure);
       OutlineBlock blockOf(String id) =>
           outline.blocks.firstWhere((block) => block.stageId == id);

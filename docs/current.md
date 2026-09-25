@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.49.0+70** — 25 septembre 2026
+**Version : 0.50.0+71** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,17 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.50.0+71 — Les textes d'un lieu, en diapositives
+- Chaque trajet porte **le thème** (boîte), **le texte du « Bravo ! »** et
+  **l'action de départ** (bouton) ; le lieu suivant raconte l'arrivée. Le
+  lieu atteint n'est plus nommé avant d'y être.
+- Les deux textes de trajet sont **obligatoires** et **jamais pré-écrits**.
+- Carte d'un lieu : ligne 1 **Apparence** (image, cadres), ligne 2 nature,
+  **Textes** et Ajouter. « Textes » ouvre les diapositives du lieu, chaque
+  texte écrit là où l'enfant le lira. Renommer un trajet se fait là.
+- **L'aventure livrée n'a pas encore ces 22 textes** : le jeu la refuse et
+  56 tests échouent, tous pour cette seule raison. Voir `TODO.md`.
+
 ### 0.49.0+70 — « Bravo ! »
 - Une boîte pleine ouvre « Bravo ! », avec Grisbie le pouce levé en coin,
   et un texte : celui de l'auteur, ou un texte composé qui dit la boîte
@@ -121,10 +132,6 @@ un travail d'auteur, pas de code.
   l'accueil ; icônes web.
 - `tool/generate_app_icons.py` les refait. **Pas encore vue sur le
   téléphone** : aucun build Android possible ici. 707 tests au vert.
-
-### 0.47.1+68 — « Autre chose »
-- La liste du reste d'un tri unique s'appelle **« Autre chose »** (au lieu
-  de « Les autres »), dans l'outil et dans l'aventure livrée.
 
 ## Décisions prises
 

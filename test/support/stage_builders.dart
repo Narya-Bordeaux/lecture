@@ -21,6 +21,12 @@ WordList wordList(String id, List<Word> words) {
 
 /// Une famille et la liste qu'elle cite.
 ///
+/// **Un trajet qui mene quelque part recoit ses deux textes obligatoires**
+/// (le « Bravo ! » et l'action de depart) : des textes de test, pour que la
+/// famille soit complete sans que chaque test ait a les ecrire.
+/// [withTexts] a faux les omet — c'est le cas des tests qui en eprouvent
+/// l'absence. L'action suit la forme de l'ancien bouton, « Partir en bus ».
+///
 /// Les mots se declarent ici plutot que dans un catalogue : un test du moteur
 /// n'a que faire du detour par les references, et reste lisible d'un seul
 /// tenant. Passer [list] permet a deux familles de citer **la meme** liste,
@@ -34,7 +40,11 @@ WordFamily family({
   RelativeArea? area,
   int? goal,
   int? drawCount,
+  String? completionText,
+  String? departureLabel,
+  bool withTexts = true,
 }) {
+  final texts = withTexts && destination != null;
   return WordFamily(
     id: id,
     label: label,
@@ -43,6 +53,10 @@ WordFamily family({
     area: area,
     goal: goal,
     drawCount: drawCount,
+    completionText: completionText ??
+        (texts ? 'Tu as trouvé tous les mots « $label ».' : null),
+    departureLabel:
+        departureLabel ?? (texts ? 'Partir ${label.toLowerCase()}' : null),
   );
 }
 

@@ -14,7 +14,8 @@ import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
 import 'package:grisbie/ui/pages/adventure_page.dart';
 import 'package:grisbie/ui/pages/cover_editor_page.dart';
-import 'package:grisbie/ui/pages/stage_editor_page.dart';
+import 'package:grisbie/ui/pages/stage_appearance_page.dart';
+import 'package:grisbie/ui/pages/stage_texts_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/pages/stage_structure_page.dart';
 import 'package:grisbie/ui/pages/word_list_page.dart';
@@ -262,7 +263,6 @@ class _OutlinePageState extends State<OutlinePage> {
       MaterialPageRoute<void>(
         builder: (trialContext) => StagePage(
           stage: stage,
-          destinationNames: _adventure.locationNames,
           contentSource: widget.contentSource,
           onDeparture: (_) => Navigator.of(trialContext).pop(),
         ),
@@ -285,19 +285,38 @@ class _OutlinePageState extends State<OutlinePage> {
     );
   }
 
-  Future<void> _editStage(OutlineBlock block) async {
+  /// Ouvre l'apparence du lieu : son illustration et ses cadres.
+  Future<void> _editAppearance(OutlineBlock block) async {
+    await _editWith(
+      block,
+      (stage) => StageAppearancePage(
+        stage: stage,
+        pictures: widget.pictures,
+        contentSource: widget.contentSource,
+      ),
+    );
+  }
+
+  /// Ouvre les textes du lieu, en diapositives.
+  Future<void> _editTexts(OutlineBlock block) async {
+    await _editWith(
+      block,
+      (stage) => StageTextsPage(
+        stage: stage,
+        contentSource: widget.contentSource,
+      ),
+    );
+  }
+
+  Future<void> _editWith(
+    OutlineBlock block,
+    Widget Function(Stage stage) editor,
+  ) async {
     final stage = _adventure.findStage(block.stageId);
     if (stage == null) return;
 
     final edited = await Navigator.of(context).push<Stage>(
-      MaterialPageRoute<Stage>(
-        builder: (_) => StageEditorPage(
-          stage: stage,
-          destinationNames: _adventure.locationNames,
-          pictures: widget.pictures,
-          contentSource: widget.contentSource,
-        ),
-      ),
+      MaterialPageRoute<Stage>(builder: (_) => editor(stage)),
     );
     if (edited == null) return;
 
@@ -567,11 +586,16 @@ class _OutlinePageState extends State<OutlinePage> {
             _BlockCard(
               block: block,
               isDetached: detached.contains(block.stageId),
-              issues: issues.where((i) => i.stageId == block.stageId).toList(),
+              // Les textes manquants se disent d'un seul compte, sur le
+              // bouton « Textes » : une ligne chacun noyait la carte.
+              issues: issues
+                  .where((i) => i.stageId == block.stageId && !i.isMissingText)
+                  .toList(),
               onAddTrips: () => _addTrips(block),
               onDefineSingleSort: () => _defineSingleSort(block),
               onDefineEnding: () => _defineEnding(block),
-              onOpen: () => _editStage(block),
+              onOpen: () => _editAppearance(block),
+              onEditTexts: () => _editTexts(block),
               onOpenTrip: (trip) => _openList(block, trip),
               onEditStructure: () => _editStructure(block),
               onRemove: () => _removeStage(block),
@@ -784,6 +808,7 @@ class _BlockCard extends StatelessWidget {
     required this.onDefineSingleSort,
     required this.onDefineEnding,
     required this.onOpen,
+    required this.onEditTexts,
     required this.onOpenTrip,
     required this.onEditStructure,
     required this.onRemove,
@@ -803,8 +828,11 @@ class _BlockCard extends StatelessWidget {
   final VoidCallback onDefineSingleSort;
   final VoidCallback onDefineEnding;
 
-  /// Ouvre ce que le lieu porte : nom, illustration, zones, recits.
+  /// Ouvre l'apparence du lieu : illustration et cadres.
   final VoidCallback onOpen;
+
+  /// Ouvre les textes du lieu, en diapositives.
+  final VoidCallback onEditTexts;
 
   /// Ouvre la liste de mots d'un trajet.
   final void Function(OutlineTrip trip) onOpenTrip;
@@ -846,12 +874,12 @@ class _BlockCard extends StatelessWidget {
                 if (block.isSingleSort)
                   const Icon(Icons.filter_alt_outlined, size: 18),
                 if (block.isEnding) const Icon(Icons.flag_outlined, size: 18),
-                // La case du croquis : le recit d'arrivee est-il ecrit ?
-                Icon(
-                  block.hasNarrative
-                      ? Icons.check_box_outlined
-                      : Icons.check_box_outline_blank,
-                  size: 18,
+                // **La premiere ligne ne gere que l'apparence** (decision de
+                // l'auteur) : l'image et la place des cadres.
+                TextButton.icon(
+                  onPressed: onOpen,
+                  icon: const Icon(Icons.image_outlined, size: 18),
+                  label: const Text('Apparence'),
                 ),
               ],
             ),
@@ -868,8 +896,9 @@ class _BlockCard extends StatelessWidget {
                   ),
                 ],
               ),
-            if (block.nature != StageNature.undefined)
-              _NatureLine(nature: block.nature, onTap: onEditStructure),
+            // **La seconde ligne gere les textes**, avec « Ajouter » au meme
+            // endroit : ajouter un trajet, c'est d'abord le nommer.
+            _buildTextsLine(context),
             const SizedBox(height: 8),
             for (final trip in block.trips) _buildTrip(context, trip),
             for (final issue in issues) _IssueLine(issue: issue),
@@ -930,34 +959,50 @@ class _BlockCard extends StatelessWidget {
         ];
 
       case StageNature.sorting:
-        return <Widget>[_actionButton('Ajouter')];
-
       case StageNature.singleSort:
-        // Un tri unique ecrit a la main peut n'avoir que sa liste du reste.
-        final hasExit = block.trips.any(
-          (trip) => trip.destinationStageId != null,
-        );
-        return hasExit
-            ? const <Widget>[]
-            : <Widget>[_actionButton('Ajouter la sortie')];
-
       case StageNature.ending:
         return const <Widget>[];
     }
   }
 
-  Widget _actionButton(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: TextButton.icon(
-          onPressed: onAddTrips,
-          icon: const Icon(Icons.add),
-          label: Text(label),
-        ),
-      ),
+  /// La nature du lieu, ses textes, et de quoi ajouter un trajet.
+  Widget _buildTextsLine(BuildContext context) {
+    final addLabel = _addLabel;
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 4,
+      children: <Widget>[
+        if (block.nature != StageNature.undefined)
+          _NatureLine(nature: block.nature, onTap: onEditStructure),
+        _TextsButton(missing: block.missingTextCount, onTap: onEditTexts),
+        if (addLabel != null)
+          TextButton.icon(
+            onPressed: onAddTrips,
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(addLabel),
+          ),
+      ],
     );
+  }
+
+  /// Ce que « Ajouter » ajoute ici, ou `null` s'il n'y a rien a ajouter.
+  ///
+  /// Une fin ne propose rien — la journee s'y arrete. Un tri unique n'a
+  /// qu'une sortie : une fois posee, il n'y a plus rien a ajouter.
+  String? get _addLabel {
+    switch (block.nature) {
+      case StageNature.sorting:
+        return 'Ajouter';
+      case StageNature.singleSort:
+        // Un tri unique ecrit a la main peut n'avoir que sa liste du reste.
+        final hasExit = block.trips.any(
+          (trip) => trip.destinationStageId != null,
+        );
+        return hasExit ? null : 'Ajouter la sortie';
+      case StageNature.undefined:
+      case StageNature.ending:
+        return null;
+    }
   }
 
   Widget _buildTrip(BuildContext context, OutlineTrip trip) {
@@ -1059,8 +1104,10 @@ class _NatureLine extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Expanded(child: _Note(text)),
+            Flexible(child: _Note(text)),
+            const SizedBox(width: 4),
             Tooltip(
               message: 'Modifier la structure du lieu',
               child: Icon(
@@ -1071,6 +1118,38 @@ class _NatureLine extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Le bouton des textes d'un lieu, qui dit combien restent a ecrire.
+///
+/// Le « Bravo ! » et l'action de depart de chaque trajet sont obligatoires :
+/// en orange tant qu'il en manque, coche une fois tout ecrit.
+class _TextsButton extends StatelessWidget {
+  const _TextsButton({required this.missing, required this.onTap});
+
+  final int missing;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final complete = missing == 0;
+    final color = complete
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFFB26A00);
+    return TextButton.icon(
+      onPressed: onTap,
+      style: TextButton.styleFrom(foregroundColor: color),
+      icon: Icon(
+        complete ? Icons.check_circle_outline : Icons.edit_note,
+        size: 18,
+      ),
+      label: Text(
+        complete
+            ? 'Textes'
+            : 'Textes · $missing à écrire',
       ),
     );
   }

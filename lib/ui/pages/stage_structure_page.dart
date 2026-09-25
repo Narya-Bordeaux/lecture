@@ -334,11 +334,6 @@ class _StageStructurePageState extends State<StageStructurePage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20),
-                  tooltip: 'Renommer « ${family.label} »',
-                  onPressed: () => _rename(family),
-                ),
-                IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
                   tooltip: 'Retirer « ${family.label} »',
                   onPressed: () => _remove(family),
@@ -400,15 +395,6 @@ class _StageStructurePageState extends State<StageStructurePage> {
     );
   }
 
-  Future<void> _rename(WordFamily family) async {
-    final label = await showDialog<String>(
-      context: context,
-      builder: (context) => _RenameDialog(initial: family.label),
-    );
-    if (label == null) return;
-    _apply((builder) => builder.renameTrip(widget.stageId, family.id, label));
-  }
-
   Future<void> _remove(WordFamily family) async {
     if (!await _confirm(
       'Retirer « ${family.label} »',
@@ -432,54 +418,6 @@ class _StageStructurePageState extends State<StageStructurePage> {
               issue.stageId == widget.stageId,
         )
         .toList(growable: false);
-  }
-}
-
-/// Le nouveau nom d'un trajet. A etat : le champ doit survivre a l'animation
-/// de fermeture de la boite.
-class _RenameDialog extends StatefulWidget {
-  const _RenameDialog({required this.initial});
-
-  final String initial;
-
-  @override
-  State<_RenameDialog> createState() => _RenameDialogState();
-}
-
-class _RenameDialogState extends State<_RenameDialog> {
-  late final TextEditingController _text =
-      TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _text.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Renommer le trajet'),
-      content: TextField(
-        key: const Key('rename-trip'),
-        controller: _text,
-        autofocus: true,
-        decoration: const InputDecoration(
-          labelText: 'Son nom',
-          helperText: 'Ce que l\'enfant lit sur la zone de dépôt.',
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_text.text),
-          child: const Text('Valider'),
-        ),
-      ],
-    );
   }
 }
 

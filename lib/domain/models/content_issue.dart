@@ -32,6 +32,7 @@ class ContentIssue {
     this.stageId,
     this.familyId,
     this.wordText,
+    this.isMissingText = false,
   });
 
   /// Ce qui reste a faire.
@@ -40,6 +41,7 @@ class ContentIssue {
     this.stageId,
     this.familyId,
     this.wordText,
+    this.isMissingText = false,
   }) : severity = IssueSeverity.incomplete;
 
   /// Ce qui est a corriger.
@@ -48,7 +50,8 @@ class ContentIssue {
     this.stageId,
     this.familyId,
     this.wordText,
-  }) : severity = IssueSeverity.wrong;
+  })  : severity = IssueSeverity.wrong,
+        isMissingText = false;
 
   /// Ce qui est a verifier, sans rien empecher.
   const ContentIssue.warning(
@@ -56,9 +59,15 @@ class ContentIssue {
     this.stageId,
     this.familyId,
     this.wordText,
-  }) : severity = IssueSeverity.warning;
+  })  : severity = IssueSeverity.warning,
+        isMissingText = false;
 
   final IssueSeverity severity;
+
+  /// Vrai pour un texte de trajet a ecrire — le « Bravo ! » ou l'action de
+  /// depart. La carte du lieu les annonce d'un seul compte sur son bouton
+  /// « Textes », plutot qu'en une ligne chacun.
+  final bool isMissingText;
 
   /// Vrai si l'anomalie empeche le jeu d'ouvrir l'aventure : un manque ou une
   /// faute, jamais un simple avertissement.
