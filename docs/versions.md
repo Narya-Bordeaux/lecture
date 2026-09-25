@@ -44,6 +44,32 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.48.0+69 — 25 septembre 2026 — L'icône de Grisbie
+
+**L'application a l'icône de Grisbie**, d'après le logo de l'accueil, et
+l'écran de chargement se fond dans l'accueil. Choix de l'auteur sur planche :
+cadrage A1 (l'image presque entière), crayon pour l'outil d'auteur, web
+compris.
+
+- **Icône adaptative** (Android 8 et plus) : le téléphone choisit la forme et
+  ne montre que le centre (72 dp sur 108). Une icône de repli, déjà
+  arrondie, sert Android 7.
+- **Outil d'auteur** : les mêmes images, marquées d'un crayon dans une
+  pastille, rangées dans `src/auteur/res`, qui a priorité sur `src/main`. La
+  pastille reste dans le cercle que toute forme conserve — un premier jet la
+  faisait déborder, corrigé avant intégration.
+- **Écran de chargement** : Android 12 et plus impose une icône rognée en
+  cercle sur une couleur — c'est l'icône, sur le bleu de l'accueil
+  (`#DCEBF7`). Avant Android 12, le logo en ovale bordé de blanc, comme sur
+  l'accueil. Le fond de la fenêtre prend le même bleu, sans éclair blanc
+  avant la première image.
+- **Web** : favicon, icônes ordinaires et « maskable », couleurs du
+  manifeste. Une seule icône, les deux points d'entrée partageant `web/`.
+- `tool/generate_app_icons.py` (Python et Pillow) produit les images ;
+  `app_icon_test.dart` vérifie tailles, présence et références. **Rien n'a
+  été construit pour Android** : le rendu reste à voir sur le téléphone.
+  707 tests au vert.
+
 ### 0.47.1+68 — 25 septembre 2026 — « Autre chose »
 
 **La liste du reste s'appelle « Autre chose »**, décision de l'auteur : « Les

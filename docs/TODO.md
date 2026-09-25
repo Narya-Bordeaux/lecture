@@ -30,10 +30,11 @@ n'existe plus que dans `versions.md`.
       oui : la plus proche l'emporte quand deux marges se chevauchent, et le
       calcul va dans le moteur. À juger aussi : le blanc à 90 % au survol,
       le clignotement, le reflet.
-- [ ] **L'icône et l'écran de chargement** d'après `assets/accueil.jpg` :
-      propositions faites (icône adaptative recadrée sur Grisbie, écran de
-      chargement sur le bleu de l'accueil), en attente des choix de
-      l'auteur.
+- [ ] **Voir l'icône et l'écran de chargement sur le téléphone** (0.48.0) :
+      les deux saveurs, sur un Android 12 ou plus et si possible un plus
+      ancien. Rien n'a pu être construit ici. Au passage : le manifeste web
+      s'appelle encore `grisbie`, en minuscules, avec la description du
+      modèle Flutter — à nommer par l'auteur.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 

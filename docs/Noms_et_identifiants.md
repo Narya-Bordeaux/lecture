@@ -205,6 +205,7 @@ remplir — et honnête. C'est la contrepartie directe de la décision « pas de
 serveur », et la raison pour laquelle `google-services.json` ne doit pas dériver
 dans la saveur du jeu.
 
-Restent également, hors politique : l'icône de l'application, encore celle du
-modèle Flutter, les captures d'écran, le visuel de la fiche, et la classification
-du contenu.
+Restent également, hors politique : les captures d'écran, le visuel de la
+fiche, et la classification du contenu. L'icône de l'application est faite
+depuis 0.48.0 : Grisbie, d'après le logo de l'accueil, et le même marqué d'un
+crayon pour l'outil d'auteur (`tool/generate_app_icons.py`).

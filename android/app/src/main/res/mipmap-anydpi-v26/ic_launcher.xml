@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icone adaptative (Android 8 et plus) : le telephone choisit la forme,
+     rond, carre arrondi ou goutte, et n'en montre que le centre.
+     Les images sont produites par tool/generate_app_icons.py ; la saveur
+     auteur les remplace par les siennes, marquees d'un crayon. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

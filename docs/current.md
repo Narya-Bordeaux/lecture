@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.47.1+68** — 25 septembre 2026
+**Version : 0.48.0+69** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,13 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.48.0+69 — L'icône de Grisbie
+- Icône adaptative d'après le logo de l'accueil (cadrage A1), marquée d'un
+  crayon pour l'outil d'auteur ; écran de chargement sur le bleu de
+  l'accueil ; icônes web.
+- `tool/generate_app_icons.py` les refait. **Pas encore vue sur le
+  téléphone** : aucun build Android possible ici. 707 tests au vert.
+
 ### 0.47.1+68 — « Autre chose »
 - La liste du reste d'un tri unique s'appelle **« Autre chose »** (au lieu
   de « Les autres »), dans l'outil et dans l'aventure livrée.
@@ -119,18 +126,6 @@ un travail d'auteur, pas de code.
 - La dernière boîte rangée, un reflet doré parcourt les mots.
 - Pas de marge invisible autour des boîtes : à décider après l'essai.
 - **Vu en capture**, pas encore au doigt. 696 tests au vert.
-
-### 0.46.0+66 — La mise en place d'un lieu
-- En arrivant dans un lieu : le décor seul un quart de seconde, l'énoncé au
-  centre (fermé par sa flèche seulement), puis le cartouche, et chaque boîte
-  présentée au centre qui va se ranger à sa place quand on la touche. Les
-  mots ne bougent qu'ensuite.
-- Ordre de création, « les autres » en dernier. Tous les lieux, à chaque
-  arrivée.
-- La liste du reste s'appelle désormais **« Les autres »**, dans l'outil et
-  dans l'aventure livrée.
-- **Vu en capture** (Chromium sans écran), pas encore au doigt.
-- 688 tests au vert.
 
 ## Décisions prises
 

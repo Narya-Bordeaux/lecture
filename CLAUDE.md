@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.47.1+68** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.48.0+69** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -93,6 +93,17 @@ marche en debug et ça casse en release. L'e-mail se comporte à l'identique sur
 le web et sur un téléphone, sans greffon de plus. L'usage est solo : un compte
 créé à la main dans la console, et la règle du bucket nomme son UID, que l'outil
 affiche une fois connecté.
+
+**L'icône est Grisbie** (0.48.0), d'après le logo de l'accueil
+(`assets/accueil.jpg`) : icône adaptative, cadrée sur l'image presque entière
+(option A1 de l'auteur), et **marquée d'un crayon pour l'outil d'auteur**,
+dont les images remplacent celles du jeu par `src/auteur/res`. L'écran de
+chargement pose l'icône sur le bleu de l'accueil (`#DCEBF7`) à partir
+d'Android 12, qui impose ce format ; avant, le logo en ovale. Le web prend
+l'icône du jeu, les deux points d'entrée partageant `web/`. Les images se
+refont par `tool/generate_app_icons.py` (Python et Pillow, pas une dépendance
+du projet) ; `test/infrastructure/app_icon_test.dart` vérifie tailles et
+références, **pas le rendu** : aucun build Android ici.
 
 **Deux saveurs Android**, `jeu` et `auteur` — la saveur auteur porte le suffixe
 `.auteur`, ce qui fait cohabiter les deux applications sur le téléphone et rend

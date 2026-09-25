@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Le bleu doux de l'accueil du jeu (GameHomePage.backgroundColor) :
+         l'ecran de chargement se fond dans l'accueil qui lui succede. -->
+    <color name="splash_background">#DCEBF7</color>
+    <!-- Fond du calque adaptatif, entierement couvert par l'image. -->
+    <color name="ic_launcher_background">#DCEBF7</color>
+</resources>

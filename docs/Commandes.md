@@ -213,6 +213,21 @@ const { chromium } = require('/opt/node22/lib/node_modules/playwright');
 Une capture montre le rendu, pas le geste : elle ne remplace pas l'essai au
 doigt.
 
+## Refaire l'icône et l'écran de chargement
+
+Après tout changement du logo `assets/accueil.jpg` :
+
+```bash
+pip install pillow
+python3 tool/generate_app_icons.py
+flutter test test/infrastructure/app_icon_test.dart
+```
+
+Le script réécrit les images Android (jeu dans `src/main/res`, outil
+d'auteur marqué d'un crayon dans `src/auteur/res`) et celles du web. Les
+fichiers XML — icône adaptative, couleurs, écrans de chargement — sont
+écrits à la main et ne bougent pas. Utilisé en 0.48.0.
+
 ## Vérifier
 
 ```bash
