@@ -979,7 +979,7 @@ class _BlockCard extends StatelessWidget {
             // La liste du reste n'ouvre aucun chemin, et c'est sa raison d'etre :
             // l'annoncer « sans issue » la ferait passer pour un defaut.
             if (trip.destinationStageId == null)
-              Text('le reste', style: Theme.of(context).textTheme.bodySmall),
+              Text('les autres', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(width: 8),
             // La question de la carte : une fois retires les mots communs, en
             // reste-t-il assez pour jouer ?

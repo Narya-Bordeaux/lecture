@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.45.0+65** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.46.0+66** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -370,7 +370,7 @@ d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à l
 maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
 `Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
 Nul des deux côtés, **sept** (`Stage.defaultDrawCount`, décision de l'auteur
-en 0.42.0) — la zone « le reste » comprise, qui tire ses sept mots dans
+en 0.42.0) — la zone « les autres » comprise, qui tire ses sept mots dans
 l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
 sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
 en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
@@ -576,6 +576,27 @@ récit intercalé avant la scène (`StoryMomentPage`, retiré en 0.35.0) ; lu
 avant de jouer, sur un écran quitté, il perdait ce rôle. **Aucune consigne
 générique** ne l'accompagne — « Pose les mots au bon endroit » a été retirée
 par l'auteur, l'énoncé disant déjà ce qu'il faut faire.
+
+**Un lieu se met en place avant de se jouer** (0.46.0) — le décor seul un
+quart de seconde, l'énoncé au centre dans une fenêtre qui **ne se ferme que
+par sa flèche** (`StatementPopup`), puis le cartouche paraît et chaque boîte
+de rangement se présente au centre, agrandie ; touchée, elle va se ranger à
+sa place (`FamilyIntroCard`), et la suivante vient. Les mots se lisent pendant
+ce temps, mais **ne bougent qu'une fois la dernière boîte rangée**. L'ordre
+est celui de création, **« les autres » toujours en dernier** ; un lieu sans
+énoncé passe droit aux boîtes. Tout se décide dans `StageIntroduction`
+(`lib/application/`, Dart pur) ; la page ne fait que montrer l'étape.
+
+**La carte est la boîte elle-même** — la même `FamilyDropZone`, posée à sa
+place puis grossie et ramenée au centre : en vol elle ne fait que retrouver
+sa taille, et rien ne distingue son arrivée de la zone qui la remplace. Toute
+la scène reçoit le toucher, l'intitulé débordant du cadre.
+
+**Le cartouche occupe sa place dès le début**, invisible (option A de
+l'auteur) : l'illustration ne bouge pas quand il paraît. L'aperçu du calage
+(`interactive: false`) saute la mise en place. Les tests d'écran qui portent
+sur le jeu la traversent par `completeStageIntroduction`
+(`test/support/`).
 
 **Un seul écran de lecture** (0.41.0) — `NarrationPage` : un titre
 facultatif en haut, l'illustration sur toute la largeur, à ses proportions —

@@ -327,10 +327,9 @@ class AdventureBuilder {
   /// La liste du reste d'un tri unique, nee sans liste.
   static WordFamily _restFamily(List<WordFamily> existing) {
     return WordFamily(
-      id: _freeFamilyId('le_reste', existing),
-      // Nom provisoire : comment nommer cette seconde liste reste une
-      // question ouverte (voir docs/TODO.md).
-      label: 'Le reste',
+      id: _freeFamilyId('les_autres', existing),
+      // Le nom que l'enfant lit sur la zone, choisi par l'auteur en 0.46.0.
+      label: 'Les autres',
       lists: const <WordList>[],
     );
   }

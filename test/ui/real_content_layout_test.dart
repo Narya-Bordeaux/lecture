@@ -11,6 +11,7 @@ import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
+import '../support/stage_introduction_driver.dart';
 
 /// Ces tests montent l'interface avec le contenu reellement livre, aux
 /// coordonnees reelles de ses zones.
@@ -60,6 +61,7 @@ Future<void> pumpRealStage(WidgetTester tester, Size screen) async {
     ),
   );
   await tester.pumpAndSettle();
+  await completeStageIntroduction(tester);
 }
 
 /// Un moteur mene en parallele, avec la meme graine que la page.

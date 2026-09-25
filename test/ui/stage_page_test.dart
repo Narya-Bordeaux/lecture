@@ -11,6 +11,7 @@ import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/stage_builders.dart' as build;
+import '../support/stage_introduction_driver.dart';
 
 /// Etape sans illustration : les tests portent sur le comportement, pas sur le
 /// decor, et une image absente du bundle de test ferait echouer le rendu.
@@ -70,6 +71,7 @@ Future<List<String>> pumpStagePage(
     ),
   );
   await tester.pumpAndSettle();
+  await completeStageIntroduction(tester);
 
   return departures;
 }
@@ -121,6 +123,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await completeStageIntroduction(tester);
 
     expect(find.text(UiStringsFr.familyProgress(0, 1)), findsNWidgets(2));
     expect(find.text(UiStringsFr.familyProgress(0, 2)), findsNothing);
@@ -206,6 +209,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await completeStageIntroduction(tester);
 
       final tray = tester.getRect(find.byKey(StagePage.wordTrayKey));
       final zone = tester.getRect(

@@ -1,18 +1,27 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:grisbie/application/stage_engine.dart';
+import 'package:grisbie/application/stage_introduction.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
+import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 import 'package:grisbie/ui/widgets/family_drop_zone.dart';
+import 'package:grisbie/ui/widgets/family_intro_card.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
 import 'package:grisbie/ui/widgets/shake.dart';
+import 'package:grisbie/ui/widgets/statement_popup.dart';
 import 'package:grisbie/ui/widgets/word_label.dart';
 
 /// L'ecran d'une etape : l'enonce, le decor, les mots a classer, les zones de
 /// depot et les departs possibles.
+///
+/// **Un lieu se met en place avant de se jouer** ([StageIntroduction]) : le
+/// decor seul, l'enonce au centre, puis le cartouche et chaque boite de
+/// rangement presentee une a une. Les mots ne bougent qu'ensuite.
 ///
 /// Cette page n'applique aucune regle. Elle transmet les gestes au
 /// [StageEngine] et affiche l'etat qu'il renvoie. Toute tentation d'y decider
@@ -31,7 +40,8 @@ class StagePage extends StatefulWidget {
   final Stage stage;
 
   /// Faux pour un apercu : la page s'affiche telle que l'enfant la verra, mais
-  /// aucun geste n'y est transmis. C'est le cas de l'outil de calage.
+  /// aucun geste n'y est transmis. C'est le cas de l'outil de calage, qui
+  /// montre la scene deja en place, sans sa mise en place.
   final bool interactive;
 
   /// Un calque pose sur l'illustration, dans son repere — voir
@@ -59,6 +69,10 @@ class StagePage extends StatefulWidget {
 
 class _StagePageState extends State<StagePage> {
   late StageEngine _engine;
+  late StageIntroduction _introduction;
+
+  /// Le quart de seconde ou le decor se montre seul.
+  Timer? _backgroundOnlyTimer;
 
   /// Une cle de secousse par mot, pour faire trembler la bonne etiquette.
   final Map<String, GlobalKey<ShakeState>> _shakeKeys =
@@ -80,8 +94,15 @@ class _StagePageState extends State<StagePage> {
     }
   }
 
+  @override
+  void dispose() {
+    _backgroundOnlyTimer?.cancel();
+    super.dispose();
+  }
+
   void _createEngine() {
     _engine = StageEngine(stage: widget.stage, random: widget.random);
+    _startIntroduction();
     _shakeKeys
       ..clear()
       ..addEntries(
@@ -89,6 +110,25 @@ class _StagePageState extends State<StagePage> {
           (word) => MapEntry(word.text, GlobalKey<ShakeState>()),
         ),
       );
+  }
+
+  /// Chaque lieu repart de sa mise en place — rejouer une journee comprise.
+  void _startIntroduction() {
+    _backgroundOnlyTimer?.cancel();
+    if (!widget.interactive) {
+      _introduction = StageIntroduction.skipped(widget.stage);
+      return;
+    }
+    _introduction = StageIntroduction.forStage(widget.stage);
+    _backgroundOnlyTimer = Timer(
+      StageIntroduction.backgroundOnlyDuration,
+      _advanceIntroduction,
+    );
+  }
+
+  void _advanceIntroduction() {
+    if (!mounted) return;
+    setState(() => _introduction = _introduction.advance());
   }
 
   void _handleDrop({required String wordText, required String familyId}) {
@@ -101,6 +141,43 @@ class _StagePageState extends State<StagePage> {
       _shakeKeys[wordText]?.currentState?.shake();
     }
     setState(() {});
+  }
+
+  /// Combien de mots la zone annonce : ceux de la partie tiree.
+  int _requiredCountOf(WordFamily family) {
+    return _engine.stage.findFamily(family.id)?.requiredCount ??
+        family.requiredCount;
+  }
+
+  /// Le calque de la scene : la boite presentee, et les poignees de l'outil
+  /// de calage quand il y en a.
+  Widget _buildSceneOverlay(Rect imageRect) {
+    final presentedId = _introduction.presentedFamilyId;
+    final presented =
+        presentedId == null ? null : widget.stage.findFamily(presentedId);
+    final area = presented?.area;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        if (presented != null && area != null)
+          FamilyIntroCard(
+            // Une carte neuve par boite : chacune fait sa propre entree.
+            key: ValueKey<String>('intro_${presented.id}'),
+            family: presented,
+            requiredCount: _requiredCountOf(presented),
+            targetRect: Rect.fromLTWH(
+              imageRect.left + area.left * imageRect.width,
+              imageRect.top + area.top * imageRect.height,
+              area.width * imageRect.width,
+              area.height * imageRect.height,
+            ),
+            onPlaced: _advanceIntroduction,
+          ),
+        if (widget.sceneOverlayBuilder != null)
+          widget.sceneOverlayBuilder!(imageRect),
+      ],
+    );
   }
 
   /// Les emplacements proposes par le moteur, vides compris.
@@ -134,14 +211,23 @@ class _StagePageState extends State<StagePage> {
         children: <Widget>[
           Column(
             children: <Widget>[
+              // **Le cartouche occupe sa place des le debut**, invisible
+              // (option A, choisie par l'auteur) : l'illustration ne bouge
+              // pas quand il parait. Les mots s'y lisent pendant la
+              // presentation des boites, mais ne bougent qu'ensuite.
               SafeArea(
                 bottom: false,
                 child: IgnorePointer(
-                  ignoring: !widget.interactive,
-                  child: _WordTray(
-                    statement: widget.stage.narrative.onArrival,
-                    slots: _visibleSlots,
-                    shakeKeys: _shakeKeys,
+                  ignoring:
+                      !widget.interactive || !_introduction.canMoveWords,
+                  child: AnimatedOpacity(
+                    opacity: _introduction.isTrayVisible ? 1 : 0,
+                    duration: const Duration(milliseconds: 350),
+                    child: _WordTray(
+                      statement: widget.stage.narrative.onArrival,
+                      slots: _visibleSlots,
+                      shakeKeys: _shakeKeys,
+                    ),
                   ),
                 ),
               ),
@@ -153,10 +239,11 @@ class _StagePageState extends State<StagePage> {
                   // Le bas du decor porte le chemin : le caler au-dessus de la
                   // barre de navigation evite qu'il passe sous les boutons.
                   bottomInset: MediaQuery.paddingOf(context).bottom,
-                  overlayBuilder: widget.sceneOverlayBuilder,
+                  overlayBuilder: _buildSceneOverlay,
                   children: <SceneChild>[
                     for (final family in widget.stage.families)
-                      if (family.area != null)
+                      if (family.area != null &&
+                          _introduction.isFamilyPlaced(family.id))
                         SceneChild(
                           area: family.area!,
                           child: IgnorePointer(
@@ -166,10 +253,7 @@ class _StagePageState extends State<StagePage> {
                               // — le calage les deplace sans relancer la
                               // partie ; le compte vient de la partie tiree.
                               family: family,
-                              requiredCount: _engine.stage
-                                      .findFamily(family.id)
-                                      ?.requiredCount ??
-                                  family.requiredCount,
+                              requiredCount: _requiredCountOf(family),
                               placedWords: _wordsPlacedIn(family.id),
                               isOpen: _engine.state.completedFamilyIds.contains(
                                 family.id,
@@ -186,6 +270,13 @@ class _StagePageState extends State<StagePage> {
               ),
             ],
           ),
+          if (_introduction.step == IntroductionStep.statement)
+            SafeArea(
+              child: StatementPopup(
+                text: widget.stage.narrative.onArrival!,
+                onClose: _advanceIntroduction,
+              ),
+            ),
           if (destinations.isNotEmpty && widget.interactive)
             Positioned(
               left: 0,

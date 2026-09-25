@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.45.0+65** — 25 septembre 2026
+**Version : 0.46.0+66** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,18 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.46.0+66 — La mise en place d'un lieu
+- En arrivant dans un lieu : le décor seul un quart de seconde, l'énoncé au
+  centre (fermé par sa flèche seulement), puis le cartouche, et chaque boîte
+  présentée au centre qui va se ranger à sa place quand on la touche. Les
+  mots ne bougent qu'ensuite.
+- Ordre de création, « les autres » en dernier. Tous les lieux, à chaque
+  arrivée.
+- La liste du reste s'appelle désormais **« Les autres »**, dans l'outil et
+  dans l'aventure livrée.
+- **Vu en capture** (Chromium sans écran), pas encore au doigt.
+- 688 tests au vert.
+
 ### 0.45.0+65 — L'accueil du jeu
 - Le jeu s'ouvre sur l'accueil du croquis : titre en arche, logo en ovale
   sur un bleu doux, roue de trois vignettes titrées, qui tourne et boucle.
@@ -121,13 +133,6 @@ un travail d'auteur, pas de code.
 - « Grisbie va à la plage » : `pictures/Grisbie_plage.jpg`, choix de l'auteur.
 - La roue passe à trois places.
 - 599 tests au vert.
-
-### 0.43.0+63 — La roue des aventures, moteur seul
-- Premier pas de l'accueil du jeu : `AdventureWheel` (quelle aventure à
-  quelle place, boucle au-delà de quatre, calage au lâcher) et `WheelArc`
-  (place et inclinaison d'une vignette autour du logo). Aucun écran encore.
-- Le logo `assets/accueil Grisbie.png` est déclaré : la suite était rouge.
-- 572 tests au vert.
 
 ## Décisions prises
 

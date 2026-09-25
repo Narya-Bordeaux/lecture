@@ -44,6 +44,39 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.46.0+66 — 25 septembre 2026 — La mise en place d'un lieu
+
+**Un lieu se découvre avant de se jouer**, selon la demande de l'auteur :
+le décor seul, un quart de seconde ; l'énoncé au centre, dans une fenêtre
+que l'enfant ferme d'une petite flèche — et d'elle seule, pour qu'un toucher
+à côté ne la ferme pas avant lecture ; puis le cartouche paraît, et chaque
+boîte de rangement se présente au centre de la scène. Touchée, elle va se
+ranger à sa place, et la suivante vient. Les mots se lisent pendant ce
+temps, mais ne bougent qu'une fois la dernière boîte rangée.
+
+- `StageIntroduction` (`lib/application/`, Dart pur) décide du déroulé :
+  les quatre temps, l'ordre des boîtes — **ordre de création, « les
+  autres » toujours en dernier** —, ce qui se saute (pas d'énoncé, pas de
+  boîte placée), et quand les mots se libèrent. Immuable, 15 tests.
+- **Option A de l'auteur : le cartouche occupe sa place dès le début**,
+  invisible, puis paraît en fondu. L'illustration ne bouge jamais ; en
+  contrepartie, le haut de l'écran montre d'abord la couleur du ciel.
+- `StatementPopup` : l'énoncé dans le style du cartouche, en plus grand.
+- `FamilyIntroCard` : **la carte est la boîte elle-même**, la même
+  `FamilyDropZone` grossie et ramenée au centre. En vol, elle ne fait que
+  retrouver sa taille et sa place : à l'arrivée, rien ne la distingue de la
+  zone qui la remplace. Toute la scène reçoit le toucher, parce que
+  l'intitulé déborde du cadre et qu'un enfant ne doit pas manquer sa cible.
+- Tous les lieux, à chaque arrivée. L'aperçu du calage la saute.
+- **« Le reste » devient « Les autres »**, décision de l'auteur : le nom que
+  l'outil donne à la liste du reste d'un tri unique, et les quatre zones de
+  l'aventure livrée. Les identifiants livrés restent `le_reste` — un
+  identifiant ne suit pas le nom ; une liste neuve naît `les_autres`.
+- Les tests d'écran qui portent sur le jeu traversent la mise en place
+  (`completeStageIntroduction`, `test/support/`) ; 11 tests d'écran
+  l'éprouvent elle-même, jusqu'à l'arrivée exacte de la carte sur la zone.
+- **Vue en capture** dans Chromium, pas encore au doigt. 688 tests au vert.
+
 ### 0.45.0+65 — 25 septembre 2026 — L'accueil du jeu
 
 **Le jeu s'ouvre sur son accueil**, d'après le croquis de l'auteur : « Les

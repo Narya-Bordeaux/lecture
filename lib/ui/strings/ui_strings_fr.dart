@@ -47,6 +47,13 @@ abstract final class UiStringsFr {
   /// Etiquette d'accessibilite d'un mot a deplacer.
   static String wordSemantics(String word) => 'Le mot $word, a deplacer';
 
+  /// La fleche qui ferme l'enonce, a l'arrivee dans un lieu.
+  static const String closeStatement = 'Continuer';
+
+  /// Etiquette d'accessibilite d'une boite presentee avant le jeu.
+  static String placeFamilySemantics(String label) =>
+      'La boîte $label, à ranger à sa place';
+
   /// Etiquette d'accessibilite d'une zone de depot.
   static String familySemantics(String label, int placed, int total) =>
       'Zone $label, $placed mot sur $total';

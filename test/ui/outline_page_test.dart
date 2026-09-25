@@ -728,7 +728,7 @@ void main() {
         find.text('Ce qui se mange → La plage', findRichText: true),
         findsOneWidget,
       );
-      expect(find.text('Le reste'), findsOneWidget);
+      expect(find.text('Les autres'), findsOneWidget);
     });
 
     testWidgets('la liste du reste n\'est pas annoncee comme un defaut',
@@ -738,7 +738,7 @@ void main() {
       // « sans issue » se lisait comme une panne, alors que cette liste est
       // la moitie du dispositif.
       expect(find.text('sans issue'), findsNothing);
-      expect(find.text('le reste'), findsOneWidget);
+      expect(find.text('les autres'), findsOneWidget);
     });
 
     testWidgets('le lieu annonce sa mecanique', (tester) async {

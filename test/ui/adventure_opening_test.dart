@@ -13,6 +13,7 @@ import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 
 import '../support/disk_content.dart';
 import '../support/stage_builders.dart' as build;
+import '../support/stage_introduction_driver.dart';
 
 /// Monte la page de garde seule, sans illustration : l'image n'est pas dans le
 /// bundle de test, et c'est la mise en page qui est eprouvee ici.
@@ -153,6 +154,7 @@ void main() {
 
       await tester.tap(find.text(UiStringsFr.startAdventure));
       await tester.pumpAndSettle();
+      await completeStageIntroduction(tester);
 
       // Puis le jeu, directement.
       expect(find.text('Grisbie part à la plage'), findsNothing);

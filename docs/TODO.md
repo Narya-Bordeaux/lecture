@@ -20,6 +20,10 @@ n'existe plus que dans `versions.md`.
       seulement en capture. À juger : la taille des vignettes (≈ 90 points de
       large sur un téléphone courant), la lecture des titres penchés, le
       vide entre le logo et la roue, le geste de rotation.
+- [ ] **Éprouver la mise en place d'un lieu au doigt** (0.46.0) : vue
+      seulement en capture. À juger : la durée du décor seul, la boîte
+      agrandie (translucide comme la zone) sur un décor chargé, la vitesse
+      de l'envol, et si toucher n'importe où pour ranger la boîte convient.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 
@@ -262,9 +266,5 @@ dépôt — voir `Noms_et_identifiants.md` pour le détail.
 - [ ] **Une liste d'objets hétéroclites, commune à tous les tris uniques.**
       `objets_divers` existe déjà pour la boutique ; l'exclusion par lieu
       permet de la partager, chaque tri unique en retranchant son thème.
-- [ ] Nommer la **liste du reste** d'un tri unique. L'outil propose
-      « Le reste » ; le contenu livré dit « Laisse-le ». Les deux sont des tris
-      par rejet, et deux gestes positifs seraient peut-être plus justes à six
-      ans.
 - [ ] Persistance locale de la progression (aucune donnée ne quitte l'appareil).
 - [ ] Orientation : le jeu est verrouillé en portrait, décidé pour le MVP.
