@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.47.0+67** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.47.1+68** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -370,7 +370,7 @@ d'étiquettes **à l'écran** en même temps, toutes familles confondues (6 à l
 maison). `drawCount` est le nombre de mots que **chaque famille** met en jeu —
 `Stage.drawCount` donne le défaut du lieu, `WordFamily.drawCount` le remplace.
 Nul des deux côtés, **sept** (`Stage.defaultDrawCount`, décision de l'auteur
-en 0.42.0) — la zone « les autres » comprise, qui tire ses sept mots dans
+en 0.42.0) — la zone « autre chose » comprise, qui tire ses sept mots dans
 l'ensemble de ses listes cochées, et non sept par liste. Une liste de moins de
 sept mots est **à finir** (option A de l'auteur) : elle n'est pas jouée entière
 en silence. Sans réglage, la liste jouait entière, et une zone de douze mots en
@@ -583,7 +583,7 @@ par sa flèche** (`StatementPopup`), puis le cartouche paraît et chaque boîte
 de rangement se présente au centre, agrandie ; touchée, elle va se ranger à
 sa place (`FamilyIntroCard`), et la suivante vient. Les mots se lisent pendant
 ce temps, mais **ne bougent qu'une fois la dernière boîte rangée**. L'ordre
-est celui de création, **« les autres » toujours en dernier** ; un lieu sans
+est celui de création, **« autre chose » toujours en dernier** ; un lieu sans
 énoncé passe droit aux boîtes. Tout se décide dans `StageIntroduction`
 (`lib/application/`, Dart pur) ; la page ne fait que montrer l'étape.
 

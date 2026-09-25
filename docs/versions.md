@@ -44,6 +44,14 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.47.1+68 — 25 septembre 2026 — « Autre chose »
+
+**La liste du reste s'appelle « Autre chose »**, décision de l'auteur : « Les
+autres », posé en 0.46.0, se lisait moins bien. Le nom que l'outil donne à une
+liste du reste neuve, sa mention sur la carte du parcours, et les quatre zones
+de l'aventure livrée. Une liste neuve naît `autre_chose` ; les identifiants
+livrés restent `le_reste`, un identifiant ne suivant pas le nom.
+
 ### 0.47.0+67 — 25 septembre 2026 — Le geste de l'enfant
 
 L'auteur voit régulièrement des enfants lâcher un mot hors de la boîte et

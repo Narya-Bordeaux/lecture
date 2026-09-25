@@ -39,7 +39,7 @@ class StageIntroduction {
   /// La mise en place complete d'un lieu, a son tout debut.
   ///
   /// Les boites se presentent **dans l'ordre de creation** — celui du
-  /// fichier —, **« les autres » toujours en dernier** : le theme d'un tri
+  /// fichier —, **« autre chose » toujours en dernier** : le theme d'un tri
   /// unique donne son sens au reste, et doit etre connu avant lui. Une boite
   /// sans place sur le decor n'est pas presentee : elle n'aurait nulle part
   /// ou aller.

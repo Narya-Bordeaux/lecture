@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.47.0+67** — 25 septembre 2026
+**Version : 0.47.1+68** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,10 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.47.1+68 — « Autre chose »
+- La liste du reste d'un tri unique s'appelle **« Autre chose »** (au lieu
+  de « Les autres »), dans l'outil et dans l'aventure livrée.
+
 ### 0.47.0+67 — Le geste de l'enfant
 - **Le mot compte là où on le voit**, et non sous le doigt : c'était la
   cause probable des lâchers « hors zone » qui passaient pour des erreurs.
@@ -127,13 +131,6 @@ un travail d'auteur, pas de code.
   dans l'aventure livrée.
 - **Vu en capture** (Chromium sans écran), pas encore au doigt.
 - 688 tests au vert.
-
-### 0.45.0+65 — L'accueil du jeu
-- Le jeu s'ouvre sur l'accueil du croquis : titre en arche, logo en ovale
-  sur un bleu doux, roue de trois vignettes titrées, qui tourne et boucle.
-- Toucher une vignette ouvre l'aventure ; sa fin ramène à l'accueil.
-- **Vu en capture** (Chromium sans écran), pas encore au doigt.
-- 662 tests au vert.
 
 ## Décisions prises
 

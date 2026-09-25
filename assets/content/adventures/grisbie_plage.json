@@ -116,7 +116,7 @@
         },
         {
           "id": "le_reste",
-          "label": "Les autres",
+          "label": "Autre chose",
           "lists": [
             "nourriture",
             "objets_divers",
@@ -191,7 +191,7 @@
         },
         {
           "id": "le_reste",
-          "label": "Les autres",
+          "label": "Autre chose",
           "lists": [
             "objets_divers",
             "marche",
@@ -241,7 +241,7 @@
         },
         {
           "id": "le_reste",
-          "label": "Les autres",
+          "label": "Autre chose",
           "lists": [
             "objets_divers",
             "nourriture",
@@ -280,7 +280,7 @@
         },
         {
           "id": "le_reste",
-          "label": "Les autres",
+          "label": "Autre chose",
           "lists": [
             "train",
             "bus",

@@ -26,8 +26,8 @@ WordFamily _trip(String id, {RelativeArea? area = _somewhere}) {
 
 WordFamily _others() {
   return build.family(
-    id: 'les_autres',
-    label: 'Les autres',
+    id: 'autre_chose',
+    label: 'Autre chose',
     words: <Word>[build.word('caillou')],
     area: _somewhere,
   );
@@ -152,14 +152,14 @@ void main() {
       );
     });
 
-    test('« les autres » viennent toujours en dernier', () {
+    test('« autre chose » vient toujours en dernier', () {
       // Le fichier peut ecrire la liste du reste avant le theme : elle se
       // presente quand meme en dernier, le theme donnant son sens au reste.
       final introduction = StageIntroduction.forStage(
         _stage(families: <WordFamily>[_others(), _trip('villes')]),
       );
 
-      expect(introduction.familyOrder, <String>['villes', 'les_autres']);
+      expect(introduction.familyOrder, <String>['villes', 'autre_chose']);
     });
 
     test('une boite sans place sur le decor n\'est pas presentee', () {
@@ -214,7 +214,7 @@ void main() {
       expect(introduction.isTrayVisible, isTrue);
       expect(introduction.canMoveWords, isTrue);
       expect(introduction.isFamilyPlaced('en_bus'), isTrue);
-      expect(introduction.isFamilyPlaced('les_autres'), isTrue);
+      expect(introduction.isFamilyPlaced('autre_chose'), isTrue);
     });
   });
 }
