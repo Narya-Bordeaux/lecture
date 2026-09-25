@@ -10,8 +10,8 @@ class WheelSlot {
   final int itemIndex;
 
   /// La place sur l'arc, en crans, comptee depuis le centre de l'arc :
-  /// negative a gauche, positive a droite. Au repos, quatre aventures
-  /// occupent -1,5, -0,5, 0,5 et 1,5.
+  /// negative a gauche, positive a droite. Au repos, trois aventures
+  /// occupent -1, 0 et 1.
   final double position;
 
   /// De 0 a 1 : entierement visible sur l'arc, ou en train d'y entrer ou
@@ -21,8 +21,8 @@ class WheelSlot {
 
 /// La roue des aventures de l'accueil : quelle aventure occupe quelle place.
 ///
-/// Quatre places sur l'arc. Au-dela de quatre aventures, la roue tourne et
-/// **boucle** : apres la derniere revient la premiere. A quatre ou moins elle
+/// Trois places sur l'arc. Au-dela de trois aventures, la roue tourne et
+/// **boucle** : apres la derniere revient la premiere. A trois ou moins elle
 /// ne tourne pas, et les aventures se centrent sur l'arc.
 ///
 /// La rotation se compte en crans, un cran faisant passer une aventure d'une
@@ -39,8 +39,12 @@ class AdventureWheel {
     double rotation = 0,
   }) : rotation = itemCount > slotCount ? rotation : 0;
 
-  /// Le nombre de vignettes posees sur l'arc, celui du croquis de l'auteur.
-  static const int defaultSlotCount = 4;
+  /// Le nombre de vignettes posees sur l'arc.
+  ///
+  /// Quatre sur le croquis de l'auteur, trois depuis que les vignettes sont
+  /// en largeur (3:2, voir `CoverFormat`) : quatre ne tenaient plus sur un
+  /// telephone sans devenir trop petites pour un doigt.
+  static const int defaultSlotCount = 3;
 
   /// Le temps pendant lequel un geste lance continue de faire tourner la
   /// roue, en secondes : il decide jusqu'ou elle file avant de se caler.

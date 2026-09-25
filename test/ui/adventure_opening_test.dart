@@ -173,6 +173,7 @@ void main() {
       final adventure = Adventure(
         id: 'essai',
         title: 'Essai',
+        coverAsset: 'pictures/vignette.jpg',
         startStageId: 'maison',
         stages: <String, Stage>{
           'maison': build.stage(

@@ -448,7 +448,7 @@ void main() {
       await pumpOutline(tester, fresh);
 
       expect(find.text('Page de garde'), findsOneWidget);
-      expect(find.textContaining('Aucune'), findsOneWidget);
+      expect(find.textContaining('Aucune. L\'aventure'), findsOneWidget);
     });
 
     testWidgets('elle s\'écrit, et apparaît aussitôt', (tester) async {
@@ -485,6 +485,70 @@ void main() {
 
       expect(find.text('Grisbie part à la plage'), findsNothing);
       expect(find.textContaining('Aucune'), findsOneWidget);
+    });
+  });
+
+  group('La vignette', () {
+    testWidgets('elle se lit en tete, au-dessus de la page de garde',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      expect(find.text('Vignette de l\'aventure'), findsOneWidget);
+      expect(find.text('pictures/Grisbie_plage.jpg'), findsOneWidget);
+      final cover = tester.getTopLeft(find.text('Vignette de l\'aventure'));
+      final opening = tester.getTopLeft(find.text('Page de garde'));
+      expect(cover.dy, lessThan(opening.dy));
+    });
+
+    testWidgets('sans vignette, l aventure n est pas complete, et la carte '
+        'le dit', (tester) async {
+      await pumpOutline(tester, realAdventure.withCover(null));
+
+      expect(find.textContaining('l\'accueil du jeu n\'aurait rien'),
+          findsOneWidget);
+      expect(find.text('Cette aventure n\'est pas complète.'), findsOneWidget);
+    });
+
+    testWidgets('elle se choisit, et l aventure redevient jouable',
+        (tester) async {
+      await pumpOutline(tester, realAdventure.withCover(null));
+
+      await tester.tap(find.text('Vignette de l\'aventure'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('coverImage')),
+        'pictures/plage.jpg',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Garder'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('pictures/plage.jpg'), findsOneWidget);
+      expect(find.text('Cette aventure est jouable.'), findsOneWidget);
+    });
+
+    testWidgets('elle se retire', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Vignette de l\'aventure'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Retirer la vignette'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('pictures/Grisbie_plage.jpg'), findsNothing);
+      expect(find.text('Cette aventure n\'est pas complète.'), findsOneWidget);
+    });
+
+    testWidgets('renoncer ne change rien', (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Vignette de l\'aventure'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('coverImage')), '');
+      await tester.tap(find.byTooltip('Fermer sans garder'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('pictures/Grisbie_plage.jpg'), findsOneWidget);
     });
   });
 
@@ -707,10 +771,12 @@ void main() {
   group('Clore la journée', () {
     testWidgets('« Une fin » clot le lieu, sans rien a remplir',
         (tester) async {
+      // La vignette posee d'avance : sans elle, l'aventure ne serait pas
+      // complete, et c'est la fin qu'on eprouve ici.
       final fresh = AdventureBuilder.createAdventure(
         title: 'Essai',
         startName: 'Le seuil',
-      );
+      ).withCover('pictures/vignette.jpg');
       await pumpOutline(tester, fresh);
 
       await tester.tap(find.text('Une fin'));

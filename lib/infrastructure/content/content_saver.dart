@@ -120,6 +120,9 @@ class ContentSaver {
       id: adventure.id,
       title: adventure.title,
       file: adventurePath,
+      // Recopiee, comme le titre : l'accueil ne lit que le sommaire. Prise a
+      // l'aventure et jamais a l'entree d'avant, qui la perdait autrefois.
+      coverAsset: adventure.coverAsset,
     ));
     if (listPaths.contains(listsPath)) {
       updated = updated.withWordListFile(listsPath);

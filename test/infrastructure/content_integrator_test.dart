@@ -71,6 +71,7 @@ void main() {
         startStageId: delivered.startStageId,
         stages: delivered.stages,
         opening: delivered.opening,
+        coverAsset: delivered.coverAsset,
       );
 
       final written = await ContentIntegrator(folder: folder).integrate(copy);

@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.43.0+63** — 24 septembre 2026
+**Version : 0.44.0+64** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.44.0+64 — La vignette d'une aventure
+- Chaque aventure a sa vignette, obligatoire, au format 3:2 en largeur ;
+  l'outil la choisit sur une carte en tête du parcours et prévient d'un
+  format qui serait recadré.
+- L'enregistrement ne l'efface plus du sommaire.
+- « Grisbie va à la plage » : `pictures/Grisbie_plage.jpg`, choix de l'auteur.
+- La roue passe à trois places.
+- 599 tests au vert.
+
 ### 0.43.0+63 — La roue des aventures, moteur seul
 - Premier pas de l'accueil du jeu : `AdventureWheel` (quelle aventure à
   quelle place, boucle au-delà de quatre, calage au lâcher) et `WheelArc`
@@ -118,12 +127,6 @@ un travail d'auteur, pas de code.
 - Images illisibles dans l'outil connecté : non reproduit en local ; la
   raison d'un échec s'affiche désormais. **À relever** chez l'auteur.
 - 548 tests au vert.
-
-### 0.42.0+61 — Sept mots par zone
-- Sans réglage, chaque zone tire sept mots, « le reste » compris ; une liste
-  plus courte est à finir.
-- Le contenu livré garde son comportement (gare : 2, boutique : 6).
-- 547 tests au vert.
 
 ## Décisions prises
 

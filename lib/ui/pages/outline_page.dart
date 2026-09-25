@@ -13,6 +13,7 @@ import 'package:grisbie/infrastructure/content/preloaded_adventure_repository.da
 import 'package:grisbie/ui/pages/add_trips_page.dart';
 import 'package:grisbie/ui/pages/adventure_opening_editor_page.dart';
 import 'package:grisbie/ui/pages/adventure_page.dart';
+import 'package:grisbie/ui/pages/cover_editor_page.dart';
 import 'package:grisbie/ui/pages/stage_editor_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/pages/stage_structure_page.dart';
@@ -318,6 +319,22 @@ class _OutlinePageState extends State<OutlinePage> {
     _change(_adventure.withOpening(edit.opening));
   }
 
+  /// Ouvre la vignette de l'aventure, qu'elle existe deja ou non.
+  Future<void> _editCover() async {
+    final edit = await Navigator.of(context).push<CoverEdit>(
+      MaterialPageRoute<CoverEdit>(
+        builder: (_) => CoverEditorPage(
+          coverAsset: _adventure.coverAsset,
+          pictures: widget.pictures,
+          contentSource: widget.contentSource,
+        ),
+      ),
+    );
+    if (edit == null) return;
+
+    _change(_adventure.withCover(edit.coverAsset));
+  }
+
   /// Ecrit l'aventure telle qu'elle est a cet instant.
   ///
   /// **C'est `_adventure` qui part, pas celle recue** : l'ecran travaille en
@@ -538,6 +555,9 @@ class _OutlinePageState extends State<OutlinePage> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: <Widget>[
           _IssueSummary(issues: issues, onPlay: _playAdventure),
+          // Ce qui represente l'aventure sur l'accueil du jeu, avant meme
+          // qu'on y entre : d'ou sa place, en tete.
+          _CoverCard(coverAsset: _adventure.coverAsset, onTap: _editCover),
           // Le seuil de la journee, avant le premier lieu — comme a l'ecran
           // du jeu. Il n'a pas de trajet : on n'en repart pas, on y entre.
           _OpeningCard(opening: _adventure.opening, onTap: _editOpening),
@@ -644,6 +664,56 @@ class _IssueSummary extends StatelessWidget {
               label: const Text('Jouer l\'aventure'),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// La vignette de l'aventure, en tete du parcours.
+///
+/// Discrete comme la carte de la page de garde, et pour la meme raison : ce
+/// n'est pas un point du parcours. Elle existe sans vignette, sans quoi il
+/// n'y aurait aucun endroit ou en poser une.
+class _CoverCard extends StatelessWidget {
+  const _CoverCard({required this.coverAsset, required this.onTap});
+
+  final String? coverAsset;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final coverAsset = this.coverAsset;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: <Widget>[
+              const Icon(Icons.photo_outlined, size: 18),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Vignette de l\'aventure',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    _Note(
+                      coverAsset ??
+                          'Aucune : l\'accueil du jeu n\'aurait rien à montrer.',
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 18),
+            ],
+          ),
+        ),
       ),
     );
   }

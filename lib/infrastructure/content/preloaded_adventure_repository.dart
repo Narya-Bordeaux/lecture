@@ -24,7 +24,12 @@ class PreloadedAdventureRepository implements AdventureRepository {
     return ContentIndex(
       lexiconFiles: const <String>[],
       adventures: <AdventureEntry>[
-        AdventureEntry(id: adventure.id, title: adventure.title, file: ''),
+        AdventureEntry(
+          id: adventure.id,
+          title: adventure.title,
+          file: '',
+          coverAsset: adventure.coverAsset,
+        ),
       ],
     );
   }

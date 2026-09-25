@@ -1,6 +1,7 @@
 {
   "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
+  "cover": "pictures/Grisbie_plage.jpg",
   "startStageId": "maison",
   "opening": {
     "title": "Grisbie part à la plage",

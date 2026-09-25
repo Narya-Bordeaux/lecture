@@ -44,6 +44,7 @@ Adventure adventureOf(List<Stage> stages, {String start = 'depart'}) {
   return Adventure(
     id: 'essai',
     title: 'Essai',
+    coverAsset: 'pictures/vignette.jpg',
     startStageId: start,
     stages: <String, Stage>{
       for (final stage in stages) stage.id: stage,

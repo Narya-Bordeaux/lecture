@@ -35,6 +35,7 @@ Map<String, String> buildDraftFiles() {
 {
   "id": "brouillon",
   "title": "Brouillon",
+  "cover": "pictures/vignette.jpg",
   "startStageId": "depart",
   "stages": [
     {

@@ -414,6 +414,7 @@ class AdventureBuilder {
       title: adventure.title,
       startStageId: adventure.startStageId,
       opening: adventure.opening,
+      coverAsset: adventure.coverAsset,
       stages: Map<String, Stage>.unmodifiable(stages),
     );
   }

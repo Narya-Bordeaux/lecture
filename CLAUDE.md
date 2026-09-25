@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.43.0+63** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.44.0+64** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -519,6 +519,27 @@ vignettes du sélecteur affichent la raison réelle (`describeImageError`).
 « Image introuvable » seul laissait chercher à l'aveugle : l'auteur a vu ses
 images échouer dans l'outil, alors que le jeu les montrait, sans rien pour dire
 d'où venait l'écart.
+
+**La vignette d'une aventure** (0.44.0) — `Adventure.coverAsset`, `"cover"`
+dans le fichier d'aventure : l'image qui la représente sur l'accueil du jeu.
+**Obligatoire** — sans elle l'aventure est *incomplète*, pour que l'accueil
+n'ait jamais de carte vide. **Format 3:2 en largeur**, celui des
+illustrations de narration (`CoverFormat`, domaine : 1536 × 1024 conseillé,
+768 × 512 au minimum) ; hors format elle n'est pas refusée mais recadrée, et
+l'outil le dit sous le champ (`PictureField.checkDimensions`). C'est le seul
+recadrage du jeu. Le sommaire en garde une copie, comme du titre, et
+`ContentSaver` la prend **à l'aventure** : il reconstruisait l'entrée sans
+elle, et chaque enregistrement l'effaçait. L'outil l'édite sur sa propre
+carte, en tête du parcours (`CoverEditorPage`) — pas sur la page de garde,
+qui est ce que l'enfant lit, pas ce qui la lui fait choisir.
+
+**La roue de l'accueil, moteur seul** — `AdventureWheel` dit quelle aventure
+occupe quelle place : trois places (quatre sur le croquis, trois depuis que
+les vignettes sont en largeur), une roue qui ne tourne pas à trois aventures
+ou moins et **boucle** au-delà, un calage au lâcher. `WheelArc` pose chaque
+vignette sur un cercle autour du logo, le haut tourné vers lui. Le logo
+(`assets/accueil.jpg`) est un élément du jeu, pas du contenu. Aucun écran ne
+s'en sert encore.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir

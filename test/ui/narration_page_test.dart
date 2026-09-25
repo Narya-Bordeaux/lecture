@@ -88,6 +88,7 @@ void main() {
       final adventure = Adventure(
         id: 'essai',
         title: 'Essai',
+        coverAsset: 'pictures/vignette.jpg',
         startStageId: 'plage',
         stages: <String, Stage>{
           // Une aventure reduite a sa fin : c'est elle qu'on eprouve.

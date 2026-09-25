@@ -29,7 +29,8 @@ MemoryContentFolder shippedFolder() {
   "lexicons": ["lexicon/transport.json"],
   "lists": ["lists/transport.json"],
   "adventures": [
-    { "id": "plage", "title": "La plage", "file": "adventures/plage.json" }
+    { "id": "plage", "title": "La plage", "cover": "pictures/plage.jpg",
+      "file": "adventures/plage.json" }
   ]
 }''',
     'lexicon/transport.json': '''
@@ -45,6 +46,7 @@ MemoryContentFolder shippedFolder() {
 {
   "id": "plage",
   "title": "La plage",
+  "cover": "pictures/plage.jpg",
   "startStageId": "gare",
   "stages": [
     {
@@ -210,6 +212,19 @@ void main() {
           .firstWhere((entry) => entry['id'] == 'plage');
 
       expect(entry['title'], 'La plage en hiver');
+    });
+
+    test('la vignette y est recopiee, et ne se perd plus', () async {
+      // L'entree etait autrefois reconstruite sans elle : chaque
+      // enregistrement effacait la vignette du sommaire, sans un mot.
+      final recovered = shippedAdventure.withCover('pictures/hiver.jpg');
+
+      final index = await indexOf(await saveInto(shipped, recovered));
+      final entry = (index['adventures'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .firstWhere((entry) => entry['id'] == 'plage');
+
+      expect(entry['cover'], 'pictures/hiver.jpg');
     });
   });
 

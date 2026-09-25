@@ -27,19 +27,19 @@ void main() {
       expect(positionsOf(wheel), <double>[0]);
     });
 
-    test('moins de quatre aventures se centrent sur l arc', () {
-      final wheel = AdventureWheel(itemCount: 3);
+    test('moins de trois aventures se centrent sur l arc', () {
+      final wheel = AdventureWheel(itemCount: 2);
 
-      expect(itemsOf(wheel), <int>[0, 1, 2]);
-      expect(positionsOf(wheel), <double>[-1, 0, 1]);
+      expect(itemsOf(wheel), <int>[0, 1]);
+      expect(positionsOf(wheel), <double>[-0.5, 0.5]);
     });
 
-    test('quatre aventures remplissent l arc sans le faire tourner', () {
-      final wheel = AdventureWheel(itemCount: 4);
+    test('trois aventures remplissent l arc sans le faire tourner', () {
+      final wheel = AdventureWheel(itemCount: 3);
 
       expect(wheel.turns, isFalse);
-      expect(itemsOf(wheel), <int>[0, 1, 2, 3]);
-      expect(positionsOf(wheel), <double>[-1.5, -0.5, 0.5, 1.5]);
+      expect(itemsOf(wheel), <int>[0, 1, 2]);
+      expect(positionsOf(wheel), <double>[-1, 0, 1]);
     });
 
     test('le geste est ignore', () {
@@ -50,53 +50,47 @@ void main() {
     });
 
     test('toutes les places sont pleinement visibles', () {
-      final wheel = AdventureWheel(itemCount: 4);
+      final wheel = AdventureWheel(itemCount: 3);
 
       expect(wheel.slots.every((slot) => slot.visibility == 1), isTrue);
     });
   });
 
   group('Une roue qui tourne', () {
-    test('au repos, quatre aventures visibles, les premieres', () {
+    test('au repos, trois aventures visibles, les premieres', () {
       final wheel = AdventureWheel(itemCount: 6);
 
       final visible = wheel.slots.where((slot) => slot.visibility == 1);
-      expect(visible.map((slot) => slot.itemIndex), <int>[0, 1, 2, 3]);
-      expect(
-        visible.map((slot) => slot.position),
-        <double>[-1.5, -0.5, 0.5, 1.5],
-      );
+      expect(visible.map((slot) => slot.itemIndex), <int>[0, 1, 2]);
+      expect(visible.map((slot) => slot.position), <double>[-1, 0, 1]);
     });
 
     test('tourner d un cran fait entrer la suivante par la droite', () {
       final wheel = AdventureWheel(itemCount: 6).turnedBy(1);
 
       final visible = wheel.slots.where((slot) => slot.visibility == 1);
-      expect(visible.map((slot) => slot.itemIndex), <int>[1, 2, 3, 4]);
+      expect(visible.map((slot) => slot.itemIndex), <int>[1, 2, 3]);
     });
 
     test('elle boucle : apres la derniere revient la premiere', () {
       final wheel = AdventureWheel(itemCount: 6).turnedBy(4);
 
       final visible = wheel.slots.where((slot) => slot.visibility == 1);
-      expect(visible.map((slot) => slot.itemIndex), <int>[4, 5, 0, 1]);
+      expect(visible.map((slot) => slot.itemIndex), <int>[4, 5, 0]);
     });
 
     test('elle boucle aussi dans l autre sens', () {
       final wheel = AdventureWheel(itemCount: 6).turnedBy(-1);
 
       final visible = wheel.slots.where((slot) => slot.visibility == 1);
-      expect(visible.map((slot) => slot.itemIndex), <int>[5, 0, 1, 2]);
+      expect(visible.map((slot) => slot.itemIndex), <int>[5, 0, 1]);
     });
 
     test('entre deux crans, les places glissent sans sauter', () {
       final wheel = AdventureWheel(itemCount: 6).turnedBy(0.25);
 
-      expect(itemsOf(wheel), <int>[0, 1, 2, 3, 4]);
-      expect(
-        positionsOf(wheel),
-        <double>[-1.75, -0.75, 0.25, 1.25, 2.25],
-      );
+      expect(itemsOf(wheel), <int>[0, 1, 2, 3]);
+      expect(positionsOf(wheel), <double>[-1.25, -0.25, 0.75, 1.75]);
     });
 
     test('celle qui sort s efface, celle qui entre apparait', () {
@@ -107,25 +101,25 @@ void main() {
 
       // L'aventure 0 sort par la gauche, deja un quart hors de l'arc.
       expect(visibility[0], closeTo(0.75, 1e-9));
-      // L'aventure 4 entre par la droite, d'un quart.
-      expect(visibility[4], closeTo(0.25, 1e-9));
+      // L'aventure 3 entre par la droite, d'un quart.
+      expect(visibility[3], closeTo(0.25, 1e-9));
       // Celles du milieu restent pleinement visibles.
       expect(visibility[1], 1);
-      expect(visibility[3], 1);
+      expect(visibility[2], 1);
     });
 
-    test('au repos, seules les quatre places de l arc existent', () {
+    test('au repos, seules les trois places de l arc existent', () {
       final wheel = AdventureWheel(itemCount: 6).turnedBy(2);
 
-      expect(itemsOf(wheel), <int>[2, 3, 4, 5]);
+      expect(itemsOf(wheel), <int>[2, 3, 4]);
     });
 
     test('une meme aventure n occupe jamais deux places', () {
-      // Cinq aventures pour quatre places : la plus serree des boucles.
+      // Quatre aventures pour trois places : la plus serree des boucles.
       // Deux places pour une meme aventure donneraient deux vignettes
       // identiques a l'ecran, et deux widgets de meme cle.
       for (var step = -40; step <= 40; step++) {
-        final shown = itemsOf(AdventureWheel(itemCount: 5).turnedBy(step / 8));
+        final shown = itemsOf(AdventureWheel(itemCount: 4).turnedBy(step / 8));
 
         expect(shown.toSet().length, shown.length, reason: 'cran $step');
       }
@@ -153,7 +147,7 @@ void main() {
     });
 
     test('une roue qui ne tourne pas reste au repos', () {
-      final wheel = AdventureWheel(itemCount: 4);
+      final wheel = AdventureWheel(itemCount: 3);
 
       expect(wheel.settled(velocity: 12).rotation, 0);
     });
@@ -166,7 +160,7 @@ void main() {
             .settled(velocity: random.nextDouble() * 10 - 5);
 
         for (final slot in wheel.slots) {
-          expect(slot.position * 2 % 1, 0, reason: 'essai $trial');
+          expect(slot.position % 1, 0, reason: 'essai $trial');
         }
       }
     });

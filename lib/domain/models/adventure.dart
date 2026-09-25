@@ -15,6 +15,7 @@ class Adventure {
     required this.startStageId,
     required this.stages,
     this.opening,
+    this.coverAsset,
   });
 
   /// Construit l'aventure en resolvant ses listes.
@@ -42,6 +43,7 @@ class Adventure {
       startStageId: json['startStageId'] as String,
       stages: Map<String, Stage>.unmodifiable(stages),
       opening: opening == null ? null : AdventureOpening.fromJson(opening),
+      coverAsset: json['cover'] as String?,
     );
   }
 
@@ -58,12 +60,21 @@ class Adventure {
   /// La page de garde, montree une fois avant le premier lieu.
   final AdventureOpening? opening;
 
-  /// Toutes les illustrations que l'aventure cite : page de garde et lieux,
-  /// sans doublon.
+  /// La vignette, qui represente l'aventure dans la roue de l'accueil.
+  ///
+  /// Une image a part, choisie pour cela, au format de `CoverFormat` — elle
+  /// peut etre celle de la page de garde, si l'auteur le decide. Obligatoire
+  /// pour jouer : l'accueil n'a jamais de carte vide. Le sommaire en garde une
+  /// copie, comme du titre, pour que l'accueil n'ait que lui a lire.
+  final String? coverAsset;
+
+  /// Toutes les illustrations que l'aventure cite : vignette, page de garde
+  /// et lieux, sans doublon.
   ///
   /// Ce que le depot doit contenir pour que le jeu les montre : une image
   /// citee mais absente donnerait un fond uni, sans rien pour le dire.
   Set<String> get picturePaths => <String>{
+        ?coverAsset,
         ?opening?.imageAsset,
         for (final stage in stages.values) ?stage.backgroundAsset,
       };
@@ -98,6 +109,7 @@ class Adventure {
       title: title,
       startStageId: startStageId,
       opening: opening,
+      coverAsset: coverAsset,
       stages: Map<String, Stage>.unmodifiable(
         Map<String, Stage>.of(stages)..[stage.id] = stage,
       ),
@@ -114,6 +126,22 @@ class Adventure {
       title: title,
       startStageId: startStageId,
       opening: opening,
+      coverAsset: coverAsset,
+      stages: stages,
+    );
+  }
+
+  /// La meme aventure, avec cette vignette — ou sans, si elle est nulle.
+  ///
+  /// A part d'un `copyWith` pour la meme raison que [withOpening] : retirer
+  /// une vignette doit etre possible.
+  Adventure withCover(String? coverAsset) {
+    return Adventure(
+      id: id,
+      title: title,
+      startStageId: startStageId,
+      opening: opening,
+      coverAsset: coverAsset,
       stages: stages,
     );
   }
@@ -153,6 +181,14 @@ class Adventure {
   /// [IssueSeverity]. Une aventure jouable n'en presente aucune.
   List<ContentIssue> validate() {
     final issues = <ContentIssue>[];
+
+    if (coverAsset == null || coverAsset!.trim().isEmpty) {
+      // Un manque et non une faute : c'est l'etat de toute aventure neuve.
+      // Mais l'accueil du jeu montrerait une carte vide.
+      issues.add(const ContentIssue.incomplete(
+        'L\'aventure n\'a pas de vignette pour l\'accueil.',
+      ));
+    }
 
     if (!stages.containsKey(startStageId)) {
       // Sans point d'entree, l'aventure ne s'ouvre pas du tout. Aucun lieu
@@ -258,6 +294,7 @@ class Adventure {
     return <String, dynamic>{
       'id': id,
       'title': title,
+      if (coverAsset != null) 'cover': coverAsset,
       'startStageId': startStageId,
       if (opening != null) 'opening': opening!.toJson(),
       'stages': stages.values.map((stage) => stage.toJson()).toList(),

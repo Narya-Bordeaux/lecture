@@ -33,6 +33,7 @@ Map<String, String> buildFiles({
 {
   "id": "test",
   "title": "Essai",
+  "cover": "pictures/vignette.jpg",
   "startStageId": "start",
   "stages": [
     {

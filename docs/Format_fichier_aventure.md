@@ -70,7 +70,7 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
 | `adventures` | oui | Les aventures jouables |
 | `id` | oui | Nom interne, sans espace ni accent |
 | `title` | oui | Le titre montré au joueur |
-| `cover` | non | Image de présentation |
+| `cover` | non | La vignette de l'accueil, **recopiée** de l'aventure par l'outil (voir §4) |
 | `file` | oui | Où trouver l'aventure |
 
 **Tout nouveau fichier — aventure, vocabulaire, listes — doit être ajouté
@@ -154,12 +154,35 @@ Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 {
   "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
+  "cover": "pictures/Grisbie_plage.jpg",
   "startStageId": "maison",
   "stages": [ … ]
 }
 ```
 
 `startStageId` désigne le lieu par lequel on commence.
+
+### La vignette — `cover`
+
+L'image qui représente l'aventure dans la roue de l'accueil du jeu. **Elle est
+obligatoire** : sans elle, l'aventure n'est pas complète, donc ni jouable ni
+intégrable.
+
+**Format : 3:2 en largeur**, celui des illustrations de narration.
+
+| | Largeur × hauteur |
+|---|---|
+| Conseillé | 1536 × 1024 |
+| Minimum | 768 × 512 — en dessous, l'image est floue sur un téléphone |
+
+Une image à un ou deux pixels près passe sans remarque. Une image à d'autres
+proportions n'est pas refusée : elle est **recadrée au centre** pour remplir la
+carte, et l'outil le dit sous le champ. C'est le seul endroit du jeu où une
+image est recadrée. Un décor en hauteur (1024 × 1536) ne convient donc pas.
+
+Elle peut être la même image que la page de garde : c'est un choix, pas une
+règle. Le sommaire en garde une copie, comme du titre, pour que l'accueil n'ait
+que lui à lire ; l'outil l'y écrit à chaque enregistrement.
 
 ### La page de garde — `opening`
 
@@ -407,6 +430,7 @@ qu'une partie qui se bloque sans raison.
 
 Sont détectés :
 
+- une aventure **sans vignette** (incomplet) ;
 - un mot cité mais absent du lexique, **nommé** ;
 - **deux entrées de même orthographe**, dans le même fichier ou entre deux
   fichiers : le mot étant sa propre clé, rien ne dirait lequel des deux fait

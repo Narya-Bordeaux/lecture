@@ -55,6 +55,7 @@ void main() {
       return Adventure(
         id: 'essai',
         title: 'Essai',
+        coverAsset: 'pictures/vignette.jpg',
         startStageId: start.id,
         stages: <String, Stage>{
           start.id: start,

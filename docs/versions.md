@@ -44,6 +44,34 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.44.0+64 — 25 septembre 2026 — La vignette d'une aventure
+
+**Chaque aventure a sa vignette**, l'image qui la représente dans la roue de
+l'accueil. Décisions de l'auteur : une image propre à l'aventure, au format
+des illustrations de narration, **obligatoire** pour jouer.
+
+- `Adventure.coverAsset`, `"cover"` dans le fichier d'aventure. Sans elle,
+  `validate()` signale un manque : l'aventure n'est pas complète. Elle fait
+  partie de `picturePaths`, donc l'intégration vérifie qu'elle est dans le
+  dépôt.
+- `CoverFormat` (domaine) : **3:2 en largeur**, 1536 × 1024 conseillé,
+  768 × 512 au minimum, 2 % de tolérance. Hors format, l'image sera recadrée
+  au centre, et l'outil le dit, dimensions à l'appui.
+- **Le défaut corrigé** : `ContentSaver` reconstruisait l'entrée du sommaire
+  sans la vignette, et chaque enregistrement l'effaçait — c'est ainsi que
+  `cover` avait disparu du sommaire livré. Elle y est désormais recopiée de
+  l'aventure, comme le titre.
+- Dans l'outil : une carte « Vignette de l'aventure » en tête du parcours,
+  qui ouvre `CoverEditorPage` — le sélecteur d'images, les alertes de format,
+  et un aperçu recadré comme dans la roue.
+- Contenu : « Grisbie va à la plage » prend `pictures/Grisbie_plage.jpg`,
+  l'illustration de sa page de garde, **choisie par l'auteur**.
+- La roue passe de quatre à trois places : quatre vignettes en largeur ne
+  tenaient plus sur un téléphone.
+
+Les aventures fabriquées dans les tests ont reçu une vignette. 599 tests au
+vert.
+
 ### 0.43.0+63 — 24 septembre 2026 — La roue des aventures, moteur seul
 
 **Premier pas de l'accueil du jeu**, d'après le croquis de l'auteur : le

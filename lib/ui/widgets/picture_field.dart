@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/ui/pages/picture_chooser_page.dart';
+import 'package:grisbie/ui/widgets/background_image_size.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
 
 /// Le champ d'une illustration : le chemin, le choix dans le depot, l'apercu.
@@ -21,6 +22,7 @@ class PictureField extends StatefulWidget {
     this.contentSource,
     this.helperText,
     this.onChanged,
+    this.checkDimensions,
     super.key,
   });
 
@@ -40,6 +42,11 @@ class PictureField extends StatefulWidget {
 
   /// Appele a chaque changement du chemin, saisi ou choisi.
   final VoidCallback? onChanged;
+
+  /// Ce qu'il faut dire d'une image de ces dimensions, en pixels : une
+  /// alerte par ligne, aucune si elle convient. Nul, les dimensions ne sont
+  /// pas regardees — c'est le cas des decors, qui ne sont jamais recadres.
+  final List<String> Function(int width, int height)? checkDimensions;
 
   @override
   State<PictureField> createState() => _PictureFieldState();
@@ -111,6 +118,22 @@ class _PictureFieldState extends State<PictureField> {
                 'Cette image n\'est pas dans le dépôt '
                 '(« assets/content/pictures/ ») : le jeu ne l\'affichera pas. '
                 'Choisissez-en une dans le dépôt.',
+              );
+            },
+          ),
+        if (path.isNotEmpty && widget.checkDimensions != null)
+          BackgroundImageSize(
+            asset: path,
+            source: widget.contentSource,
+            builder: (context, size) {
+              if (size == null) return const SizedBox.shrink();
+              final warnings = widget.checkDimensions!(
+                size.width.round(),
+                size.height.round(),
+              );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[for (final text in warnings) _Warning(text)],
               );
             },
           ),

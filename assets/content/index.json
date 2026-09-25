@@ -14,6 +14,7 @@
     {
       "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
+      "cover": "pictures/Grisbie_plage.jpg",
       "file": "adventures/grisbie_plage.json"
     }
   ]
