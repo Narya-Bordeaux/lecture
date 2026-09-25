@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.48.0+69** — 25 septembre 2026
+**Version : 0.49.0+70** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,15 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.49.0+70 — « Bravo ! »
+- Une boîte pleine ouvre « Bravo ! », avec Grisbie le pouce levé en coin,
+  et un texte : celui de l'auteur, ou un texte composé qui dit la boîte
+  rangée, où mène le chemin, et s'il en reste d'autres. Un toucher ferme.
+- « Autre chose » n'annonce rien.
+- L'éditeur de lieu montre le texte pré-écrit, un champ par trajet ; gardé
+  tel quel, il n'est pas enregistré et suit les noms.
+- Vu en capture dans Chromium. 731 tests au vert.
+
 ### 0.48.0+69 — L'icône de Grisbie
 - Icône adaptative d'après le logo de l'accueil (cadrage A1), marquée d'un
   crayon pour l'outil d'auteur ; écran de chargement sur le bleu de
@@ -116,16 +125,6 @@ un travail d'auteur, pas de code.
 ### 0.47.1+68 — « Autre chose »
 - La liste du reste d'un tri unique s'appelle **« Autre chose »** (au lieu
   de « Les autres »), dans l'outil et dans l'aventure livrée.
-
-### 0.47.0+67 — Le geste de l'enfant
-- **Le mot compte là où on le voit**, et non sous le doigt : c'était la
-  cause probable des lâchers « hors zone » qui passaient pour des erreurs.
-- Survolée, la boîte devient presque blanche et grossit un peu.
-- Lâché hors des boîtes, le mot revient en glissant, sans trembler, et les
-  boîtes clignotent. Refusé, il tremble toujours.
-- La dernière boîte rangée, un reflet doré parcourt les mots.
-- Pas de marge invisible autour des boîtes : à décider après l'essai.
-- **Vu en capture**, pas encore au doigt. 696 tests au vert.
 
 ## Décisions prises
 

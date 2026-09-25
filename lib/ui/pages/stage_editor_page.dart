@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grisbie/application/completion_message.dart';
 import 'package:grisbie/domain/models/narrative.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -27,10 +28,15 @@ class StageEditorPage extends StatefulWidget {
     required this.stage,
     this.pictures,
     this.contentSource,
+    this.destinationNames = const <String, String>{},
     super.key,
   });
 
   final Stage stage;
+
+  /// Le nom de chaque lieu, par son identifiant : le texte propose sous
+  /// « Bravo ! » dit ou mene chaque trajet.
+  final Map<String, String> destinationNames;
 
   /// Les images du depot, parmi lesquelles choisir l'illustration.
   ///
@@ -61,12 +67,55 @@ class _StageEditorPageState extends State<StageEditorPage> {
   /// Les familles, dont les zones changent au calage.
   late List<WordFamily> _families = widget.stage.families;
 
+  /// Le texte sous « Bravo ! », par trajet : pre-ecrit, modifiable.
+  ///
+  /// « Autre chose » n'en a pas : completer la liste du reste n'ouvre aucun
+  /// chemin, et le jeu n'annonce rien.
+  late final Map<String, TextEditingController> _completionTexts =
+      <String, TextEditingController>{
+    for (final family in widget.stage.families)
+      if (family.leadsSomewhere)
+        family.id: TextEditingController(
+          text: family.completionText ?? _proposedFor(family.id),
+        ),
+  };
+
+  String _proposedFor(String familyId) => CompletionMessage.proposedFor(
+        stage: widget.stage,
+        familyId: familyId,
+        destinationNames: widget.destinationNames,
+      );
+
   @override
   void dispose() {
     _name.dispose();
     _background.dispose();
     _onArrival.dispose();
+    for (final controller in _completionTexts.values) {
+      controller.dispose();
+    }
     super.dispose();
+  }
+
+  /// Les familles, chacune avec le texte de son « Bravo ! ».
+  ///
+  /// **Le texte propose, garde tel quel, ne s'ecrit pas** : il continue de
+  /// suivre les noms du trajet et du lieu atteint, et sa fin s'adapte aux
+  /// chemins qui restent. Seul un texte change par l'auteur est enregistre.
+  List<WordFamily> get _familiesWithTexts {
+    return <WordFamily>[
+      for (final family in _families)
+        if (_completionTexts[family.id] case final controller?)
+          switch (CompletionMessage.storedText(
+            controller.text,
+            proposed: _proposedFor(family.id),
+          )) {
+            null => family.copyWith(clearCompletionText: true),
+            final text => family.copyWith(completionText: text),
+          }
+        else
+          family,
+    ];
   }
 
   /// Le texte saisi, ou `null` quand le champ est vide.
@@ -90,7 +139,7 @@ class _StageEditorPageState extends State<StageEditorPage> {
       locationName: _name.text.trim().isEmpty
           ? widget.stage.locationName
           : _name.text.trim(),
-      families: _families,
+      families: _familiesWithTexts,
       narrative: Narrative(onArrival: _orNull(_onArrival)),
       backgroundAsset: _backgroundPath.isEmpty ? null : _backgroundPath,
       clearBackgroundAsset: _backgroundPath.isEmpty,
@@ -148,6 +197,10 @@ class _StageEditorPageState extends State<StageEditorPage> {
           _buildBackground(context),
           const SizedBox(height: 24),
           _buildNarrative(context),
+          if (_completionTexts.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 24),
+            _buildCompletionTexts(context),
+          ],
         ],
       ),
     );
@@ -221,6 +274,88 @@ class _StageEditorPageState extends State<StageEditorPage> {
           'Un lieu ne raconte pas son départ. L\'enfant clique un trajet, et '
           'c\'est le lieu d\'arrivée qui raconte, avec son propre texte.',
         ),
+      ],
+    );
+  }
+
+  /// Un champ par trajet, sous le « Bravo ! » que l'auteur ne change pas.
+  Widget _buildCompletionTexts(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          'Quand une boîte est pleine',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        _Note(
+          'Il dit ce que l\'enfant vient de faire ici ; le lieu d\'arrivée '
+          'racontera la suite. Le texte proposé suit les noms et ne propose '
+          'un autre chemin que s\'il en reste. Modifié, il s\'affiche tel '
+          'quel.',
+        ),
+        for (final family in widget.stage.families)
+          if (_completionTexts[family.id] case final controller?)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: _CompletionTextField(
+                familyLabel: family.label,
+                controller: controller,
+                proposed: _proposedFor(family.id),
+                // Le bouton de retour suit ce qui est saisi.
+                onChanged: () => setState(() {}),
+              ),
+            ),
+      ],
+    );
+  }
+}
+
+/// Le texte d'un trajet sous « Bravo ! », avec de quoi revenir au texte
+/// propose.
+class _CompletionTextField extends StatelessWidget {
+  const _CompletionTextField({
+    required this.familyLabel,
+    required this.controller,
+    required this.proposed,
+    required this.onChanged,
+  });
+
+  final String familyLabel;
+  final TextEditingController controller;
+  final String proposed;
+  final VoidCallback onChanged;
+
+  bool get _isProposed => controller.text.trim() == proposed.trim();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('« $familyLabel »', style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 6),
+        TextField(
+          key: Key('completion_$familyLabel'),
+          controller: controller,
+          maxLines: 4,
+          minLines: 2,
+          textCapitalization: TextCapitalization.sentences,
+          onChanged: (_) => onChanged(),
+          decoration: const InputDecoration(
+            // Le titre ne se change pas : il est montre, pas saisi.
+            prefixText: '${CompletionMessage.bravo}  ',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        if (!_isProposed)
+          TextButton.icon(
+            onPressed: () {
+              controller.text = proposed;
+              onChanged();
+            },
+            icon: const Icon(Icons.undo, size: 18),
+            label: const Text('Revenir au texte proposé'),
+          ),
       ],
     );
   }

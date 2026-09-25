@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.48.0+69** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.49.0+70** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -626,6 +626,28 @@ trembler, et les boîtes clignotent deux fois (`Blink`) : « vise une boîte ».
 Mêler ces deux derniers messages ferait croire à une erreur qui n'en est pas
 une. Une marge invisible autour des boîtes a été **écartée pour l'instant**
 par l'auteur : on verra à l'essai si elle manque.
+
+**Une boîte pleine dit « Bravo ! »** (0.49.0) — quand le dernier mot d'une
+boîte est rangé, la boîte passe au vert, puis une fenêtre s'ouvre
+(`CompletionPopup`) : « Bravo ! » en titre, **fixe**, Grisbie le pouce levé
+débordant du coin (`assets/grisbie_bravo.webp`, élément du jeu), et un texte
+dessous. Un toucher n'importe où la ferme ; le départ attend dans la barre du
+bas. **« Autre chose » n'annonce rien** : elle n'ouvre aucun chemin.
+
+Le texte est **celui de l'auteur, ou composé** (`CompletionMessage`,
+`lib/application/`) : « Tu as rangé tous les mots « En bus ». Tu peux partir
+vers la gare, ou ouvrir un autre chemin. » La fin ne propose un autre chemin
+que s'il en reste, et seul l'article du lieu prend une minuscule (« Paris »
+reste « Paris »). L'éditeur de lieu montre ce texte **pré-écrit**, un champ
+par trajet, derrière un « Bravo ! » qui ne se saisit pas. **Garder le texte
+proposé ne l'écrit pas** (`WordFamily.completionText` reste nul) : figé dans
+le fichier, il mentirait au premier renommage, et sa fin ne s'adapterait
+plus. Seul un texte modifié s'enregistre ; « Revenir au texte proposé »
+l'efface.
+
+Ce n'est pas un récit de départ, que la règle ci-dessus proscrit : le texte
+dit **ce que l'enfant vient de faire ici**, au moment où il choisit entre
+partir et continuer. Le lieu d'arrivée raconte toujours la suite.
 
 **Un seul écran de lecture** (0.41.0) — `NarrationPage` : un titre
 facultatif en haut, l'illustration sur toute la largeur, à ses proportions —

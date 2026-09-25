@@ -89,6 +89,12 @@ class Adventure {
 
   Stage? findStage(String stageId) => stages[stageId];
 
+  /// Le nom de chaque lieu, par son identifiant : ce qu'un trajet annonce de
+  /// sa destination.
+  Map<String, String> get locationNames => <String, String>{
+        for (final stage in stages.values) stage.id: stage.locationName,
+      };
+
   /// La meme aventure, ce lieu remplace.
   ///
   /// L'outil d'auteur travaille en memoire et rend l'aventure modifiee ;

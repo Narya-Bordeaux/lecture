@@ -30,6 +30,9 @@ n'existe plus que dans `versions.md`.
       oui : la plus proche l'emporte quand deux marges se chevauchent, et le
       calcul va dans le moteur. À juger aussi : le blanc à 90 % au survol,
       le clignotement, le reflet.
+- [ ] **Éprouver le « Bravo ! » au doigt** (0.49.0) : la pause avant qu'il
+      paraisse (0,45 s), la taille de Grisbie en coin, la longueur du texte
+      proposé pour un lecteur de six ans.
 - [ ] **Voir l'icône et l'écran de chargement sur le téléphone** (0.48.0) :
       les deux saveurs, sur un Android 12 ou plus et si possible un plus
       ancien. Rien n'a pu être construit ici. Au passage : le manifeste web

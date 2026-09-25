@@ -296,6 +296,7 @@ void main() {
 
     await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
     await dragWordOnto(tester, word: 'ticket', familyId: 'en_bus');
+    await dismissCompletion(tester);
     await tester.tap(find.text(UiStringsFr.departTo('en bus')));
     await tester.pumpAndSettle();
 
@@ -307,8 +308,10 @@ void main() {
 
     await dragWordOnto(tester, word: 'arrêt', familyId: 'en_bus');
     await dragWordOnto(tester, word: 'ticket', familyId: 'en_bus');
+    await dismissCompletion(tester);
     await dragWordOnto(tester, word: 'chaussure', familyId: 'a_pied');
     await dragWordOnto(tester, word: 'sentier', familyId: 'a_pied');
+    await dismissCompletion(tester);
 
     expect(find.text(UiStringsFr.departTo('en bus')), findsOneWidget);
     expect(find.text(UiStringsFr.departTo('à pied')), findsOneWidget);

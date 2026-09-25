@@ -262,6 +262,7 @@ class _OutlinePageState extends State<OutlinePage> {
       MaterialPageRoute<void>(
         builder: (trialContext) => StagePage(
           stage: stage,
+          destinationNames: _adventure.locationNames,
           contentSource: widget.contentSource,
           onDeparture: (_) => Navigator.of(trialContext).pop(),
         ),
@@ -292,6 +293,7 @@ class _OutlinePageState extends State<OutlinePage> {
       MaterialPageRoute<Stage>(
         builder: (_) => StageEditorPage(
           stage: stage,
+          destinationNames: _adventure.locationNames,
           pictures: widget.pictures,
           contentSource: widget.contentSource,
         ),

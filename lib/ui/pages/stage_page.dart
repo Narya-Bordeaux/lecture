@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:grisbie/application/completion_message.dart';
 import 'package:grisbie/application/stage_engine.dart';
 import 'package:grisbie/application/stage_introduction.dart';
 import 'package:grisbie/domain/models/stage.dart';
@@ -10,6 +11,7 @@ import 'package:grisbie/domain/models/word_family.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
 import 'package:grisbie/ui/widgets/blink.dart';
+import 'package:grisbie/ui/widgets/completion_popup.dart';
 import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/widgets/family_intro_card.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
@@ -36,8 +38,13 @@ class StagePage extends StatefulWidget {
     this.contentSource,
     this.interactive = true,
     this.sceneOverlayBuilder,
+    this.destinationNames = const <String, String>{},
     super.key,
   });
+
+  /// Le nom de chaque lieu, par son identifiant : le « Bravo ! » d'une boite
+  /// complete dit ou mene son chemin. Vide, il parle du chemin sans le nommer.
+  final Map<String, String> destinationNames;
 
   final Stage stage;
 
@@ -88,6 +95,13 @@ class _StagePageState extends State<StagePage> {
   final Map<String, GlobalKey<BlinkState>> _blinkKeys =
       <String, GlobalKey<BlinkState>>{};
 
+  /// Le « Bravo ! » affiche, s'il y en a un.
+  CompletionMessage? _completion;
+
+  /// Le temps de voir la boite passer au vert avant le « Bravo ! ».
+  Timer? _completionDelay;
+  static const Duration _completionPause = Duration(milliseconds: 450);
+
   /// L'ecart entre deux etiquettes dans le parcours du reflet.
   static const Duration _shineStagger = Duration(milliseconds: 90);
 
@@ -110,11 +124,14 @@ class _StagePageState extends State<StagePage> {
   @override
   void dispose() {
     _backgroundOnlyTimer?.cancel();
+    _completionDelay?.cancel();
     super.dispose();
   }
 
   void _createEngine() {
     _engine = StageEngine(stage: widget.stage, random: widget.random);
+    _completionDelay?.cancel();
+    _completion = null;
     _startIntroduction();
     _shakeKeys
       ..clear()
@@ -193,7 +210,26 @@ class _StagePageState extends State<StagePage> {
     if (!result.accepted) {
       _shakeKeys[wordText]?.currentState?.shake();
     }
+    final completedFamilyId = result.completedFamilyId;
+    if (completedFamilyId != null) _announceCompletion(completedFamilyId);
     setState(() {});
+  }
+
+  /// Le « Bravo ! » d'une boite complete, apres une courte pause : l'enfant
+  /// voit d'abord sa boite passer au vert.
+  void _announceCompletion(String familyId) {
+    final message = CompletionMessage.forFamily(
+      stage: _engine.stage,
+      familyId: familyId,
+      completedFamilyIds: _engine.state.completedFamilyIds.toSet(),
+      destinationNames: widget.destinationNames,
+    );
+    if (message == null) return;
+
+    _completionDelay?.cancel();
+    _completionDelay = Timer(_completionPause, () {
+      if (mounted) setState(() => _completion = message);
+    });
   }
 
   /// Combien de mots la zone annonce : ceux de la partie tiree.
@@ -345,6 +381,15 @@ class _StagePageState extends State<StagePage> {
                   destinations: destinations,
                   onDepart: widget.onDeparture,
                 ),
+              ),
+            ),
+          // Par-dessus tout, barre de depart comprise : un toucher le ferme,
+          // et le chemin attend dessous.
+          if (_completion != null)
+            Positioned.fill(
+              child: CompletionPopup(
+                message: _completion!,
+                onClose: () => setState(() => _completion = null),
               ),
             ),
         ],

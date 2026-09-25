@@ -292,6 +292,7 @@ où l'on veut. Un tri unique s'en passe, un lieu ordinaire peut en porter un.
 | `destination` | non | Le lieu qui s'ouvre quand la famille est complète |
 | `area` | non | Où poser la zone sur l'illustration |
 | `goal` | non | Combien de mots suffisent (toute la liste par défaut) |
+| `completionText` | non | Ce que l'enfant lit sous « Bravo ! » quand la boîte est pleine. Absent, le jeu compose le texte : « Tu as rangé tous les mots « En bus ». Tu peux partir vers la gare, ou ouvrir un autre chemin. » — il suit les noms, et ne propose un autre chemin que s'il en reste. Sans effet sur la liste du reste d'un tri unique, qui n'annonce rien |
 
 \* L'un ou l'autre, jamais les deux. `list` pour le cas courant ; `lists`
 quand le reste d'un tri unique puise dans plusieurs listes.

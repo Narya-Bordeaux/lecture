@@ -29,6 +29,7 @@ class WordFamily {
     this.area,
     this.goal,
     this.drawCount,
+    this.completionText,
   })  : assert(
           (list == null) != (lists == null),
           'Une famille cite une liste, ou plusieurs — pas les deux.',
@@ -60,6 +61,7 @@ class WordFamily {
           : RelativeArea.fromJson(area as Map<String, dynamic>),
       goal: json['goal'] as int?,
       drawCount: json['drawCount'] as int?,
+      completionText: json['completionText'] as String?,
     );
   }
 
@@ -116,6 +118,14 @@ class WordFamily {
   /// la famille ne dit rien.
   final int? drawCount;
 
+  /// Ce que l'enfant lit sous « Bravo ! » quand il a range tous les mots de
+  /// cette boite, si l'auteur l'a ecrit.
+  ///
+  /// Nul, le jeu compose un texte de lui-meme (`CompletionMessage`), qui suit
+  /// les noms du trajet et du lieu atteint, et ne propose un autre chemin que
+  /// s'il en reste. Il n'est donc ecrit ici que si l'auteur l'a change.
+  final String? completionText;
+
   /// Les mots de la liste citee.
   ///
   /// Derive, et non declare : un second endroit ou poser des mots finirait par
@@ -148,6 +158,8 @@ class WordFamily {
     RelativeArea? area,
     int? goal,
     int? drawCount,
+    String? completionText,
+    bool clearCompletionText = false,
   }) {
     return WordFamily(
       id: id ?? this.id,
@@ -157,6 +169,11 @@ class WordFamily {
       area: area ?? this.area,
       goal: goal ?? this.goal,
       drawCount: drawCount ?? this.drawCount,
+      // `??` ne sait pas effacer : revenir au texte propose passe par
+      // [clearCompletionText].
+      completionText: clearCompletionText
+          ? null
+          : completionText ?? this.completionText,
     );
   }
 
@@ -172,6 +189,7 @@ class WordFamily {
       if (area != null) 'area': area!.toJson(),
       if (goal != null) 'goal': goal,
       if (drawCount != null) 'drawCount': drawCount,
+      if (completionText != null) 'completionText': completionText,
     };
   }
 

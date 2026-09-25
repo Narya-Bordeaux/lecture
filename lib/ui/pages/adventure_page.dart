@@ -116,6 +116,7 @@ class _AdventurePageState extends State<AdventurePage> {
       // reutiliserait l'etat de l'etape precedente.
       key: ValueKey<String>(stage.id),
       stage: stage,
+      destinationNames: adventure.locationNames,
       // Rien ne s'intercale au depart : c'est le lieu d'arrivee qui raconte.
       onDeparture: _enterStage,
     );

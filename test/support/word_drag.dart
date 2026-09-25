@@ -51,3 +51,12 @@ Future<void> dragWordOnto(
     target: tester.getCenter(find.byKey(FamilyDropZone.frameKeyFor(familyId))),
   );
 }
+
+/// Ferme le « Bravo ! » d'une boite complete, comme l'enfant : il paraît
+/// apres une courte pause, et un toucher n'importe ou le ferme.
+Future<void> dismissCompletion(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+  await tester.tapAt(const Offset(20, 20));
+  await tester.pumpAndSettle();
+}

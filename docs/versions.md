@@ -44,6 +44,36 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.49.0+70 — 25 septembre 2026 — « Bravo ! »
+
+**Une boîte pleine dit « Bravo ! »**, selon l'option C retenue par l'auteur :
+un titre fixe, et dessous un texte pré-écrit que l'auteur peut changer.
+
+- Le dernier mot rangé, la boîte passe au vert ; 0,45 s plus tard s'ouvre
+  `CompletionPopup` : « Bravo ! » en vert, Grisbie le pouce levé qui déborde
+  du coin haut gauche (image fournie par l'auteur,
+  `assets/grisbie_bravo.webp`), le texte dessous. Un toucher n'importe où la
+  ferme ; la barre de départ attend dessous.
+- `CompletionMessage` (Dart pur) décide du texte : celui de l'auteur
+  (`WordFamily.completionText`, `"completionText"` dans le fichier), sinon
+  « Tu as rangé tous les mots « En bus ». Tu peux partir vers la gare, ou
+  ouvrir un autre chemin. » — sans l'autre chemin quand il n'en reste pas,
+  sans nom de lieu quand l'outil fait essayer un lieu seul. Seul l'article
+  prend une minuscule. Espaces insécables dans les guillemets : la capture
+  montrait un « seul en fin de ligne.
+- **« Autre chose » n'annonce rien** (décision de l'auteur).
+- **L'éditeur de lieu** : un champ par trajet, pré-écrit, derrière un
+  « Bravo ! » affiché mais non saisissable, et « Revenir au texte proposé ».
+  Le texte proposé gardé tel quel **n'est pas enregistré** : il suit ainsi
+  les renommages et la fin adaptative. `Adventure.locationNames` fournit les
+  noms de lieux au jeu comme à l'outil.
+- Règle « un lieu ne raconte pas son départ » : maintenue. Ce texte dit ce
+  qui vient d'être fait ici, au moment du choix ; la note de l'éditeur le
+  rappelle.
+- 24 tests nouveaux (moteur, fenêtre, éditeur). Deux tests existants ont dû
+  fermer la fenêtre avant de continuer, comme l'enfant
+  (`dismissCompletion`). 731 au vert ; vu en capture Chromium.
+
 ### 0.48.0+69 — 25 septembre 2026 — L'icône de Grisbie
 
 **L'application a l'icône de Grisbie**, d'après le logo de l'accueil, et
