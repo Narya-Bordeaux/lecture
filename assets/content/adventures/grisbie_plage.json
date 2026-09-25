@@ -29,7 +29,9 @@
             "top": 0.29,
             "width": 0.32,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as rangé tous les mots « En bus ». Tu peux prendre le bus, ou ouvrir un autre chemin.",
+          "departureLabel": "Prendre le bus"
         },
         {
           "id": "en_voiture",
@@ -41,7 +43,9 @@
             "top": 0.39,
             "width": 0.27,
             "height": 0.15
-          }
+          },
+          "completionText": "Tu as rangé tous les mots « En voiture ». Tu peux prendre la voiture, ou ouvrir un autre chemin.",
+          "departureLabel": "Partir en voiture"
         },
         {
           "id": "a_pied",
@@ -53,7 +57,9 @@
             "top": 0.44,
             "width": 0.3,
             "height": 0.18
-          }
+          },
+          "completionText": "Tu as rangé tous les mots « À pied ». Tu peux suivre le sentier, ou ouvrir un autre chemin.",
+          "departureLabel": "Prendre le sentier"
         }
       ]
     },
@@ -61,14 +67,14 @@
       "id": "gare",
       "location": "La gare",
       "narrative": {
-        "onArrival": "Le bus a amené Grisbie à la gare. Peut-elle aller acheter quelque chose ou doit elle prendre le train?"
+        "onArrival": "Le bus a amené Grisbie à la gare. Va-t-elle acheter quelque chose ou prendre le train?"
       },
       "background": "pictures/gare.jpg",
       "visibleWordCount": 4,
       "families": [
         {
           "id": "prendre_le_train",
-          "label": "Prendre le train",
+          "label": "le train",
           "list": "train",
           "destination": "plage",
           "area": {
@@ -76,11 +82,13 @@
             "top": 0.49,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as rangé tous les mots liés au train. Tu peux prendre le train, ou ouvrir un autre chemin.",
+          "departureLabel": "Prendre le train"
         },
         {
           "id": "acheter",
-          "label": "Acheter quelque chose",
+          "label": "quelque chose à acheter",
           "list": "achats_gare",
           "destination": "boutique",
           "area": {
@@ -88,7 +96,9 @@
             "top": 0.29,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as rangé toutes les choses à acheter. Tu peux aller dans la boutique de la gare, ou ouvrir un autre chemin.",
+          "departureLabel": "Aller à la boutique"
         }
       ]
     },
@@ -96,7 +106,7 @@
       "id": "boutique",
       "location": "La boutique de la gare",
       "narrative": {
-        "onArrival": "Grisbie est entrée dans la boutique. Mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
+        "onArrival": "Grisbie est passée par la boutique mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
       },
       "background": "pictures/horaire.jpg",
       "visibleWordCount": 6,
@@ -112,11 +122,13 @@
             "top": 0.22,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as retrouvé toutes les villes de France. Tu peux trouver le quai et partir en train.",
+          "departureLabel": "Partir en train"
         },
         {
           "id": "le_reste",
-          "label": "Autre chose",
+          "label": "d'autres mots",
           "lists": [
             "nourriture",
             "objets_divers",
@@ -135,7 +147,7 @@
       "id": "rue",
       "location": "Le chemin",
       "narrative": {
-        "onArrival": "Grisbie va aller à une plage proche. A pieds ou à vélo?"
+        "onArrival": "Grisbie prends le sentier de la plage, mais elle hésite à partir à pieds ou à vélo?"
       },
       "background": "pictures/carrefour.jpg",
       "visibleWordCount": 6,
@@ -151,7 +163,9 @@
             "top": 0.31,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu peux partir à vélo ou compléter l'autre liste.",
+          "departureLabel": "Partir à vélo"
         },
         {
           "id": "a_pieds",
@@ -163,7 +177,9 @@
             "top": 0.49,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu peux partir à pied ou compléter l'autre liste.",
+          "departureLabel": "Partir à pied"
         }
       ]
     },
@@ -171,7 +187,7 @@
       "id": "garage",
       "location": "Le garage",
       "narrative": {
-        "onArrival": "Un petit arrêt au garage. La radio est à fond !"
+        "onArrival": "Un petit arrêt au garage. Grisbie discute de musique avec le mécanicien !"
       },
       "background": "pictures/garage.jpg",
       "visibleWordCount": 6,
@@ -187,11 +203,13 @@
             "top": 0.65,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as rangé tous les mots évoquant la musique. Tu peux reprendre la voiture.",
+          "departureLabel": "Repartir en voiture"
         },
         {
           "id": "le_reste",
-          "label": "Autre chose",
+          "label": "d'autres mots",
           "lists": [
             "objets_divers",
             "marche",
@@ -210,7 +228,7 @@
       "id": "plage",
       "location": "La plage",
       "narrative": {
-        "onArrival": "Grisbie est arrivée à la plage : la mer est là !"
+        "onArrival": "Ca y est! Grisbie est arrivée à la plage : la mer est là!"
       },
       "background": "pictures/plage.jpg",
       "ending": true,
@@ -237,11 +255,13 @@
             "top": 0.59,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Après cette agréable discussion, tu peux repartir sur le vélo réparé",
+          "departureLabel": "Repartir à vélo"
         },
         {
           "id": "le_reste",
-          "label": "Autre chose",
+          "label": "d'autres mots",
           "lists": [
             "objets_divers",
             "nourriture",
@@ -276,11 +296,13 @@
             "top": 0.64,
             "width": 0.38,
             "height": 0.16
-          }
+          },
+          "completionText": "Tu as retrouvé tous les animaux de la forêt, tu peux sortir de la forêt",
+          "departureLabel": "Sortir de la forêt"
         },
         {
           "id": "le_reste",
-          "label": "Autre chose",
+          "label": "d'autres mots",
           "lists": [
             "train",
             "bus",
@@ -299,7 +321,7 @@
       "id": "plage_sauvage",
       "location": "La plage sauvage",
       "narrative": {
-        "onArrival": "Grisbie est arrivée sur une magnifique plage sauvage !"
+        "onArrival": "Après ces agréables rencontres, Grisbie est arrivée sur une magnifique plage sauvage !"
       },
       "background": "pictures/plage_sauvage.jpg",
       "ending": true,
