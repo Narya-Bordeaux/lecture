@@ -70,7 +70,7 @@
         "onArrival": "Le bus a amené Grisbie à la gare. Va-t-elle acheter quelque chose ou prendre le train?"
       },
       "background": "pictures/gare.jpg",
-      "visibleWordCount": 4,
+      "visibleWordCount": 6,
       "families": [
         {
           "id": "prendre_le_train",

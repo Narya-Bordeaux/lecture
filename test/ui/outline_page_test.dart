@@ -92,7 +92,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.textContaining('Acheter quelque chose → La boutique de la gare',
+        find.textContaining('quelque chose à acheter → La boutique de la gare',
             findRichText: true),
         findsOneWidget,
       );

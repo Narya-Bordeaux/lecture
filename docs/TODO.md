@@ -3,15 +3,13 @@
 Liste unique et courte de ce qui reste à faire. Ce qui est fait disparaît d'ici et
 n'existe plus que dans `versions.md`.
 
-## Urgent — le jeu n'ouvre plus l'aventure livrée
+## À trancher avec l'auteur
 
-- [ ] **Écrire les 22 textes de trajet de « Grisbie va à la plage »**
-      (0.50.0) : pour chacun des 11 trajets, le texte du « Bravo ! » et
-      l'action du bouton de départ. Ils sont obligatoires ; tant qu'il en
-      manque, le jeu refuse l'aventure, et 56 tests qui la chargent comme
-      jouable échouent — à raison. Travail d'auteur : dans l'outil (bouton
-      « Textes » de chaque lieu), ou transmis tels quels pour être versés
-      dans le fichier.
+- [ ] **Le nombre de mots à l'écran** (`visibleWordCount`, 6) est un réglage
+      par lieu qu'aucun écran ne montre : la gare en portait 4, hérité du
+      contenu inventé, et l'auteur ne pouvait ni le voir ni le changer
+      (0.50.1). Le montrer dans l'apparence du lieu, ou en faire une
+      constante du jeu ?
 
 ## Pages de récit, images et dépôt — en discussion avec l'auteur
 

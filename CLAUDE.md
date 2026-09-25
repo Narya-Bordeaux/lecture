@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.50.0+71** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.50.1+72** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration

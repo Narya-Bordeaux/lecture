@@ -215,7 +215,8 @@ void main() {
         }
 
         expect(
-          find.text(UiStringsFr.departTo(family.label.toLowerCase())),
+          // L'action que l'auteur a ecrite pour ce trajet.
+          find.text(family.departureLabel!),
           findsOneWidget,
         );
       });

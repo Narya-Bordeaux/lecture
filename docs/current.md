@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.50.0+71** — 25 septembre 2026
+**Version : 0.50.1+72** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,12 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.50.1+72 — La gare montre six mots
+- L'auteur a écrit les 22 textes de trajet et revu des noms de boîtes : le
+  jeu rouvre l'aventure, **737 tests au vert**.
+- La gare ne proposait que **4 mots** : un `visibleWordCount` de 4 hérité
+  du contenu inventé (0.12.0), qu'aucun écran ne montre. Remis à 6.
+
 ### 0.50.0+71 — Les textes d'un lieu, en diapositives
 - Chaque trajet porte **le thème** (boîte), **le texte du « Bravo ! »** et
   **l'action de départ** (bouton) ; le lieu suivant raconte l'arrivée. Le
@@ -114,8 +120,8 @@ un travail d'auteur, pas de code.
 - Carte d'un lieu : ligne 1 **Apparence** (image, cadres), ligne 2 nature,
   **Textes** et Ajouter. « Textes » ouvre les diapositives du lieu, chaque
   texte écrit là où l'enfant le lira. Renommer un trajet se fait là.
-- **L'aventure livrée n'a pas encore ces 22 textes** : le jeu la refuse et
-  56 tests échouent, tous pour cette seule raison. Voir `TODO.md`.
+- L'aventure livrée n'avait pas encore ces textes : l'auteur les a écrits
+  (voir 0.50.1).
 
 ### 0.49.0+70 — « Bravo ! »
 - Une boîte pleine ouvre « Bravo ! », avec Grisbie le pouce levé en coin,
@@ -125,13 +131,6 @@ un travail d'auteur, pas de code.
 - L'éditeur de lieu montre le texte pré-écrit, un champ par trajet ; gardé
   tel quel, il n'est pas enregistré et suit les noms.
 - Vu en capture dans Chromium. 731 tests au vert.
-
-### 0.48.0+69 — L'icône de Grisbie
-- Icône adaptative d'après le logo de l'accueil (cadrage A1), marquée d'un
-  crayon pour l'outil d'auteur ; écran de chargement sur le bleu de
-  l'accueil ; icônes web.
-- `tool/generate_app_icons.py` les refait. **Pas encore vue sur le
-  téléphone** : aucun build Android possible ici. 707 tests au vert.
 
 ## Décisions prises
 

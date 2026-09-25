@@ -44,6 +44,21 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.50.1+72 — 25 septembre 2026 — La gare montre six mots
+
+- **L'auteur a écrit les 22 textes de trajet** (commit `4324613`), et revu
+  des noms de boîtes (« le train », « quelque chose à acheter »,
+  « d'autres mots ») : l'aventure livrée est de nouveau jouable.
+- **La gare ne proposait que 4 mots à la fois** : son fichier portait
+  `"visibleWordCount": 4`, écrit en 0.12.0 à l'époque du contenu inventé,
+  et conservé quand l'auteur a réécrit l'aventure dans l'outil — aucun écran
+  ne montre ce réglage. Remis à 6, comme les autres lieux. Savoir s'il faut
+  le montrer dans l'outil ou en faire une constante est posé à l'auteur.
+- Tests : les jeux de données en JSON écrits avant 0.50.0 reçoivent leurs
+  deux textes de trajet ; les tests qui citaient d'anciens noms lisent
+  désormais ceux du contenu (le bouton de départ lit l'action écrite).
+  **737 tests au vert.**
+
 ### 0.50.0+71 — 25 septembre 2026 — Les textes d'un lieu, en diapositives
 
 **La narration se restructure autour du trajet**, d'après l'exemple de

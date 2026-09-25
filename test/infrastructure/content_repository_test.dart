@@ -43,7 +43,8 @@ Map<String, String> buildFiles({
       "drawCount": 2,
       "families": [
         { "id": "one", "label": "Famille", "list": "liste_une",
-          "destination": "end" }
+          "destination": "end",
+          "completionText": "Texte de test.", "departureLabel": "Partir" }
       ]
     },
     { "id": "end", "location": "Arrivee", "families": [], "ending": true }

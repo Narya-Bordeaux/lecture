@@ -55,7 +55,8 @@ MemoryContentFolder shippedFolder() {
       "drawCount": 2,
       "families": [
         { "id": "le_train", "label": "Prendre le train", "list": "train",
-          "destination": "sable" }
+          "destination": "sable",
+          "completionText": "Texte de test.", "departureLabel": "Partir" }
       ]
     },
     { "id": "sable", "location": "Le sable", "families": [], "ending": true }
