@@ -16,14 +16,15 @@ n'existe plus que dans `versions.md`.
       échouent alors que le jeu montre les images. Non reproduit : dans
       Chromium, en mode local, debug comme release, tout s'affiche. La raison
       s'affiche désormais dans l'outil — la relever.
+- [ ] **Éprouver l'accueil au doigt, sur le téléphone** (0.45.0) : vu
+      seulement en capture. À juger : la taille des vignettes (≈ 90 points de
+      large sur un téléphone courant), la lecture des titres penchés, le
+      vide entre le logo et la roue, le geste de rotation.
 - [ ] **Éprouver « Essayer » sur le téléphone** : un lieu, puis l'aventure
       entière, après un enregistrement fait depuis l'ordinateur.
 
 ## Plus tard — décidé, pas encore le moment
 
-- [ ] **Un écran de choix des aventures dans le jeu.** Le jeu lance toujours
-      `GrisbieApp.defaultAdventureId` ; dès que le dépôt en portera
-      plusieurs, l'enfant devra choisir.
 - [ ] **Un aperçu multi-formats dans l'outil** : la scène dans deux ou trois
       cadres de téléphone (360×640, 390×844, tablette) sur l'ordinateur,
       pour attraper sans téléphone un énoncé trop long ou une zone trop

@@ -18,11 +18,18 @@ class AdventurePage extends StatefulWidget {
   const AdventurePage({
     required this.repository,
     required this.adventureId,
+    this.onFinished,
     super.key,
   });
 
   final AdventureRepository repository;
   final String adventureId;
+
+  /// Appele depuis la fin, pour rendre la main a l'accueil du jeu.
+  ///
+  /// Nul, la fin propose de recommencer : c'est le cas de l'outil d'auteur,
+  /// qui joue une aventure pour l'essayer, et n'a pas d'accueil ou revenir.
+  final VoidCallback? onFinished;
 
   @override
   State<AdventurePage> createState() => _AdventurePageState();
@@ -95,9 +102,12 @@ class _AdventurePageState extends State<AdventurePage> {
   /// Une etape terminale n'a rien a classer : elle clot l'aventure.
   Widget _buildStage(Stage stage, Adventure adventure) {
     if (stage.isEnding) {
+      final onFinished = widget.onFinished;
       return _TerminalStageView(
         stage: stage,
-        onRestart: () => _restart(adventure),
+        actionLabel:
+            onFinished == null ? UiStringsFr.startOver : UiStringsFr.backToHome,
+        onAction: onFinished ?? () => _restart(adventure),
       );
     }
 
@@ -113,12 +123,18 @@ class _AdventurePageState extends State<AdventurePage> {
 }
 
 /// La fin : le nom du lieu, son illustration, son recit, et de quoi
-/// recommencer — sur l'ecran de lecture, comme la page de garde.
+/// revenir a l'accueil ou recommencer — sur l'ecran de lecture, comme la
+/// page de garde.
 class _TerminalStageView extends StatelessWidget {
-  const _TerminalStageView({required this.stage, required this.onRestart});
+  const _TerminalStageView({
+    required this.stage,
+    required this.actionLabel,
+    required this.onAction,
+  });
 
   final Stage stage;
-  final VoidCallback onRestart;
+  final String actionLabel;
+  final VoidCallback onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -126,8 +142,8 @@ class _TerminalStageView extends StatelessWidget {
       title: stage.locationName,
       imagePath: stage.backgroundAsset,
       text: stage.narrative.onArrival ?? UiStringsFr.adventureEnd,
-      actionLabel: UiStringsFr.startOver,
-      onAction: onRestart,
+      actionLabel: actionLabel,
+      onAction: onAction,
     );
   }
 }

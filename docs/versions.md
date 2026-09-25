@@ -44,6 +44,34 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.45.0+65 — 25 septembre 2026 — L'accueil du jeu
+
+**Le jeu s'ouvre sur son accueil**, d'après le croquis de l'auteur : « Les
+Aventures de Grisbie » en deux lignes arrondies au-dessus du logo, le logo
+découpé en ovale sur un bleu doux, et la roue des aventures dessous — trois
+vignettes penchées comme des rayons, chacune avec son titre. Au-delà de
+trois aventures, la roue tourne au doigt et boucle ; un toucher ouvre
+l'aventure, et sa fin propose « Retour à l'accueil ».
+
+- `HomeLayout` (Dart pur) calcule la mise en page pour un écran donné.
+  **L'arc n'est pas centré sur le logo** : centré, il laissait un vide de
+  300 points entre le logo et les cartes. Il passe juste sous le logo, courbé
+  à 20° par cran, et la hauteur libre se partage en trois. Éprouvé sur six
+  formats, du 360×640 au navigateur couché.
+- `CurvedTextPainter` pose le titre lettre par lettre sur un cercle.
+- `GameHomePage` assemble le tout, sans rien décider.
+- `AdventurePage.onFinished` : la fin ramène à l'accueil dans le jeu ; l'outil
+  d'auteur, qui n'a pas d'accueil, garde « Recommencer ».
+- `defaultAdventureId` a disparu : l'accueil montre tout le sommaire, et
+  `startup_test.dart` charge désormais **chaque** aventure proposée.
+
+**Première ouverture réelle du jeu** : construit pour le web et capturé dans
+le Chromium sans écran de la session cloud. Piège relevé et noté dans
+`Commandes.md` : sans langue, Flutter échoue au démarrage et la page reste
+blanche. Rien n'a encore été joué au doigt.
+
+662 tests au vert.
+
 ### 0.44.0+64 — 25 septembre 2026 — La vignette d'une aventure
 
 **Chaque aventure a sa vignette**, l'image qui la représente dans la roue de

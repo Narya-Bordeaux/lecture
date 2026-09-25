@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.44.0+64** — 25 septembre 2026
+**Version : 0.45.0+65** — 25 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,13 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.45.0+65 — L'accueil du jeu
+- Le jeu s'ouvre sur l'accueil du croquis : titre en arche, logo en ovale
+  sur un bleu doux, roue de trois vignettes titrées, qui tourne et boucle.
+- Toucher une vignette ouvre l'aventure ; sa fin ramène à l'accueil.
+- **Vu en capture** (Chromium sans écran), pas encore au doigt.
+- 662 tests au vert.
+
 ### 0.44.0+64 — La vignette d'une aventure
 - Chaque aventure a sa vignette, obligatoire, au format 3:2 en largeur ;
   l'outil la choisit sur une carte en tête du parcours et prévient d'un
@@ -121,12 +128,6 @@ un travail d'auteur, pas de code.
   (place et inclinaison d'une vignette autour du logo). Aucun écran encore.
 - Le logo `assets/accueil Grisbie.png` est déclaré : la suite était rouge.
 - 572 tests au vert.
-
-### 0.42.1+62 — L'aventure de l'auteur, et des images qui disent pourquoi
-- **Le contenu livré est l'aventure de l'auteur**, intégrée depuis l'outil.
-- Images illisibles dans l'outil connecté : non reproduit en local ; la
-  raison d'un échec s'affiche désormais. **À relever** chez l'auteur.
-- 548 tests au vert.
 
 ## Décisions prises
 

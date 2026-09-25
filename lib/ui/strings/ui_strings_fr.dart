@@ -10,6 +10,16 @@ abstract final class UiStringsFr {
   /// Titre de l'application.
   static const String appTitle = 'Les Aventures de Grisbie';
 
+  /// Le titre de l'accueil, en deux lignes arrondies au-dessus du logo.
+  static const String homeTitleFirstLine = 'Les Aventures';
+  static const String homeTitleSecondLine = 'de Grisbie';
+
+  /// Bouton de la fin d'une aventure, qui ramene a l'accueil.
+  static const String backToHome = 'Retour à l\'accueil';
+
+  /// Etiquette d'accessibilite d'une vignette de l'accueil.
+  static String adventureSemantics(String title) => 'L\'aventure $title';
+
   /// Bouton de la page de garde, qui ouvre l'aventure.
   static const String startAdventure = 'C\'est parti !';
 

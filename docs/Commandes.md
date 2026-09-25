@@ -182,6 +182,37 @@ et ne le verraient pas.
 c'est le comportement de l'outil, et le fichier suivi porte donc déjà cette
 ligne.
 
+## Voir un écran sans appareil (session cloud)
+
+Chromium sans écran est installé dans la session cloud : un build web s'y
+sert en local et s'y capture. Utilisé en 0.45.0 pour voir l'accueil.
+
+```bash
+flutter build web --no-web-resources-cdn -o /tmp/web_jeu
+(cd /tmp/web_jeu && python3 -m http.server 8765 &)
+```
+
+```js
+// capture.js — node capture.js
+const { chromium } = require('/opt/node22/lib/node_modules/playwright');
+(async () => {
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader',
+    '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2, locale: 'fr-FR' });
+  await page.goto('http://localhost:8765/', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(8000);
+  await page.screenshot({ path: 'accueil.png' });
+  await browser.close();
+})();
+```
+
+**`locale` est indispensable** : sans langue, Flutter échoue au démarrage
+(« Incorrect locale information provided ») et la page reste blanche.
+`--no-web-resources-cdn` embarque CanvasKit au lieu de le chercher en ligne.
+Une capture montre le rendu, pas le geste : elle ne remplace pas l'essai au
+doigt.
+
 ## Vérifier
 
 ```bash

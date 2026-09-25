@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.44.0+64** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.45.0+65** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -45,8 +45,10 @@ dossier `ios/` a été supprimé en 0.1.1, voir `docs/TODO.md` pour le régéné
 
 **Le web sert d'abord l'outil d'auteur** : écrire la structure et les textes au
 clavier sur un poste, garder le téléphone pour les images. Les deux points
-d'entrée compilent pour le web, **mais aucun n'a jamais été ouvert dans un
-navigateur** — compiler n'est pas fonctionner. Voir `docs/TODO.md`.
+d'entrée compilent pour le web. **Le jeu a été ouvert une première fois en
+0.45.0**, dans le Chromium sans écran de la session cloud, le temps de
+capturer l'accueil : il s'affiche. Rien n'y a été joué au doigt, et l'outil
+d'auteur n'a été ouvert que par l'auteur. Voir `docs/TODO.md`.
 
 **Noms et identifiants** : la table de vérité est
 `docs/Noms_et_identifiants.md`, contrôlée par
@@ -109,8 +111,12 @@ Firebase depuis 0.23.0. **Une saveur ne choisit pas le point d'entrée Dart** :
 - **Le build web fonctionne ici** — `flutter build web` compile les deux points
   d'entrée, la chaîne dart2js étant fournie avec le SDK. C'est la seule
   plateforme qu'on puisse construire en session cloud, et **le seul contrôle
-  qui attrape un `dart:io` mal placé**. En revanche rien ne peut être *ouvert* :
-  pas de navigateur.
+  qui attrape un `dart:io` mal placé**.
+- **Chromium sans écran est disponible** (Playwright, `/opt/pw-browsers`) : un
+  build web se sert en local et se capture, voir `docs/Commandes.md`. **Piège
+  : il faut lui donner une langue** (`locale: 'fr-FR'`) — sans elle, Flutter
+  échoue au démarrage (« Incorrect locale information provided ») et la page
+  reste blanche.
 - **Builds Android et Windows impossibles ici** : ni SDK Android, ni toolchain
   Windows.
 
@@ -533,13 +539,12 @@ elle, et chaque enregistrement l'effaçait. L'outil l'édite sur sa propre
 carte, en tête du parcours (`CoverEditorPage`) — pas sur la page de garde,
 qui est ce que l'enfant lit, pas ce qui la lui fait choisir.
 
-**La roue de l'accueil, moteur seul** — `AdventureWheel` dit quelle aventure
-occupe quelle place : trois places (quatre sur le croquis, trois depuis que
-les vignettes sont en largeur), une roue qui ne tourne pas à trois aventures
-ou moins et **boucle** au-delà, un calage au lâcher. `WheelArc` pose chaque
-vignette sur un cercle autour du logo, le haut tourné vers lui. Le logo
-(`assets/accueil.jpg`) est un élément du jeu, pas du contenu. Aucun écran ne
-s'en sert encore.
+**La roue de l'accueil** — `AdventureWheel` dit quelle aventure occupe
+quelle place : trois places (quatre sur le croquis, trois depuis que les
+vignettes sont en largeur), une roue qui ne tourne pas à trois aventures ou
+moins et **boucle** au-delà, un calage au lâcher. `WheelArc` pose chaque
+vignette sur un cercle, le haut tourné vers son centre. Le logo
+(`assets/accueil.jpg`) est un élément du jeu, pas du contenu.
 
 **`copyWith` ne sait pas effacer** — `??` garde l'ancienne valeur, si bien que
 retirer une illustration serait sans effet et que l'auteur croirait l'avoir
@@ -585,14 +590,39 @@ pas). Le lieu de départ garde son énoncé : la page de garde raconte, l'énonc
 demande. C'est un seuil, pas une transition.
 
 **Une fin** se lit sur le même écran : le nom du lieu en titre, son
-illustration, son récit, et « Recommencer ». L'éditeur de lieu appelle son
+illustration, son récit, et « Retour à l'accueil » (voir plus bas). L'éditeur de lieu appelle son
 texte « Le récit de fin », et non « L'énoncé » : il n'y a rien à trier.
 
-**Ce que `main.dart` demande doit exister** — l'identifiant d'aventure du
-lancement est exposé (`GrisbieApp.defaultAdventureId`) et vérifié par
-`test/infrastructure/startup_test.dart`. Aucun test ne démarre `main.dart` :
-renommer une aventure sans reprendre cette constante donnait un jeu qui ne
-s'ouvre pas, suite entièrement verte. C'est arrivé.
+**Ce que l'accueil propose doit s'ouvrir** — le jeu ne demande plus
+d'aventure par son nom (`defaultAdventureId` a disparu en 0.45.0) : l'accueil
+montre tout le sommaire. `test/infrastructure/startup_test.dart` charge
+**chaque** aventure proposée, vérifie que sa vignette existe et que le
+sommaire en porte la même copie. Aucun test ne démarre `main.dart` : du temps
+de l'identifiant, en renommer une donnait un jeu qui ne s'ouvre pas, suite
+entièrement verte. C'est arrivé.
+
+**L'accueil du jeu** (0.45.0) — `GameHomePage`, d'après le croquis de
+l'auteur : le titre en deux lignes arrondies au-dessus du logo
+(`CurvedTextPainter`, lettre par lettre sur un cercle), le logo découpé en
+ovale sur un bleu doux, et la roue des vignettes, chacune avec le titre de
+son aventure dessous. La page ne décide rien : `HomeLayout` (Dart pur) dit où
+tout se pose, `AdventureWheel` qui occupe quelle place. Un toucher ouvre
+l'aventure, un glissement tourne la roue — l'arène des gestes de Flutter les
+départage —, et une vignette qui entre ou sort ne s'ouvre pas.
+
+**L'arc n'est pas centré sur le logo.** Trois vignettes en largeur prennent
+presque toute la largeur d'un téléphone : pour les écarter autour du centre
+du logo, il fallait un rayon si grand qu'un vide de 300 points s'ouvrait entre
+le logo et les cartes. L'arc passe donc juste sous le logo, courbé à 20° par
+cran, et la hauteur libre se partage en trois — au-dessus du titre, sous le
+logo, sous les vignettes. `test/application/home_layout_test.dart` éprouve
+six formats : cartes dans l'écran, sans chevauchement entre elles ni avec le
+logo, assez grandes pour un doigt ; `game_home_page_test.dart` les monte pour
+de vrai, là où un débordement de colonne se verrait.
+
+**La fin ramène à l'accueil** — `AdventurePage.onFinished` : « Retour à
+l'accueil » dans le jeu, « Recommencer » dans l'outil d'auteur, qui joue une
+aventure pour l'essayer et n'a pas d'accueil où revenir.
 
 **Un seul geste écrit, et un seul mot le dit** — « Enregistrer » n'existe que
 sur `OutlinePage`, et c'est le seul endroit de l'outil qui touche un disque.
