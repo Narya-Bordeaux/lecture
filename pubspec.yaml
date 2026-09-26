@@ -87,6 +87,7 @@ flutter:
     - assets/content/lists/
     - assets/content/adventures/
     - assets/content/pictures/
+    - assets/content/pictures/présentation/
     - assets/content/pictures/grisbie_plage/
     # Le logo de l'accueil : un element du jeu, pas du contenu d'aventure.
     - assets/accueil.jpg
