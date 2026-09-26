@@ -29,7 +29,7 @@
             "width": 0.32,
             "height": 0.16
           },
-          "completionText": "Tu as rangé tous les mots « En bus ». Tu peux prendre le bus, ou ouvrir un autre chemin.",
+          "completionText": "Tu as rangé tous les mots du bus. Tu peux prendre le bus, ou ouvrir un autre chemin.",
           "departureLabel": "Prendre le bus"
         },
         {
@@ -43,7 +43,7 @@
             "width": 0.27,
             "height": 0.15
           },
-          "completionText": "Tu as rangé tous les mots « En voiture ». Tu peux prendre la voiture, ou ouvrir un autre chemin.",
+          "completionText": "Tu as rangé tous les mots de la voiture. Tu peux prendre la voiture, ou ouvrir un autre chemin.",
           "departureLabel": "Partir en voiture"
         },
         {
@@ -107,6 +107,7 @@
         "onArrival": "Grisbie est passée par la boutique mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
       },
       "background": "pictures/grisbie_plage/horaire.jpg",
+      "drawCount": 7,
       "families": [
         {
           "id": "villes_de_france",
@@ -146,6 +147,7 @@
         "onArrival": "Grisbie prends le sentier de la plage, mais elle hésite à partir à pieds ou à vélo?"
       },
       "background": "pictures/grisbie_plage/carrefour.jpg",
+      "drawCount": 7,
       "families": [
         {
           "id": "a_velo",
@@ -184,6 +186,7 @@
         "onArrival": "Un petit arrêt au garage. Grisbie discute de musique avec le mécanicien !"
       },
       "background": "pictures/grisbie_plage/garage.jpg",
+      "drawCount": 7,
       "families": [
         {
           "id": "types_de_musique",
@@ -233,6 +236,7 @@
         "onArrival": "Grisbie a crevé! heureusement une gentille personne va lui réparer sa roue. Pendant ce temps, elle n'arrête pas de parler de musique. Quelles genres de musique connais-tu?"
       },
       "background": "pictures/grisbie_plage/vélo.jpg",
+      "drawCount": 7,
       "families": [
         {
           "id": "genres_de_musique",
@@ -272,6 +276,7 @@
         "onArrival": "Grisbie marche prudemment pour pouvoir observer les animaux de la forêt!"
       },
       "background": "pictures/grisbie_plage/foret.jpg",
+      "drawCount": 7,
       "families": [
         {
           "id": "animaux_de_la_foret",
