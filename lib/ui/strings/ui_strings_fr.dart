@@ -29,6 +29,17 @@ abstract final class UiStringsFr {
   /// Bouton de depart vers une destination ouverte.
   static String departTo(String familyLabel) => 'Partir $familyLabel';
 
+  /// Les mots d'encouragement qui accompagnent parfois la tete de Grisbie,
+  /// apres un mot bien place. « Bravo ! » n'y est pas : il est reserve a la
+  /// boite pleine, qui garde ainsi toute sa force.
+  static const List<String> praiseComments = <String>[
+    'Super !',
+    'Bien joué !',
+    'Génial !',
+    'Oui !',
+    'Bien lu !',
+  ];
+
   /// Annonce faite quand une premiere destination s'ouvre.
   static const String destinationOpened = 'Un chemin est ouvert !';
 

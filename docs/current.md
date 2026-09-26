@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.52.0+74** — 26 septembre 2026
+**Version : 0.53.0+75** — 26 septembre 2026
 
 ## Où en est le projet
 
@@ -106,24 +106,16 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.53.0+75 — Grisbie salue chaque mot bien placé
+- Sa tête sort au bord de la boîte à chaque bon placement, et un mot
+  d'encouragement vient tous les deux ou trois mots.
+- « Bravo ! » reste à la boîte pleine. Pas encore vu à l'écran.
+
 ### 0.52.0+74 — Un dossier d'images par aventure
 - L'accueil porte en bas « Lis les mots et groupe-les par famille ».
 - Les images vivent dans `pictures/<id de l'aventure>/`, déclaré au
   `pubspec` ; le choix s'ouvre sur ce dossier, les autres à la demande.
 - La page de garde conseille le 3:2 en largeur, sans rien refuser.
-
-### 0.51.0+73 — Cinq mots par boîte, six à l'écran partout
-- Chaque boîte tire **5 mots** au lieu de 7 (décision de l'auteur).
-- **6 étiquettes à l'écran, partout** : une constante du jeu, plus un
-  réglage du lieu.
-- Ni l'outil ni le contenu livré n'écrivent plus ces nombres : figés dans
-  le fichier, ils ignoraient en silence un changement du jeu.
-
-### 0.50.1+72 — La gare montre six mots
-- L'auteur a écrit les 22 textes de trajet et revu des noms de boîtes : le
-  jeu rouvre l'aventure, **737 tests au vert**.
-- La gare ne proposait que **4 mots** : un `visibleWordCount` de 4 hérité
-  du contenu inventé (0.12.0), qu'aucun écran ne montre. Remis à 6.
 
 ## Décisions prises
 

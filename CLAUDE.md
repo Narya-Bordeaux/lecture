@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.52.0+74** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.53.0+75** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -647,6 +647,17 @@ boîte est rangé, la boîte passe au vert, puis une fenêtre s'ouvre
 débordant du coin (`assets/grisbie_bravo.webp`, élément du jeu), et un texte
 dessous. Un toucher n'importe où la ferme ; le départ attend dans la barre du
 bas. **« Autre chose » n'annonce rien** : elle n'ouvre aucun chemin.
+
+**Un mot bien placé fait sortir la tête de Grisbie** (0.53.0) — au coin
+haut de la boîte tourné vers le centre (`PraisePlacement`), deux têtes en
+rotation (`assets/admiratif.webp`, `assets/clindoeil.webp`, éléments du
+jeu). **La tête à chaque fois, rapide** (0,6 s) ; **un mot tous les deux ou
+trois mots** (« Super ! », « Bien joué ! »…, `UiStringsFr.praiseComments`),
+et la tête reste alors 1,1 s. L'écart est tiré après chaque mot, jamais le
+même mot deux fois de suite. **« Bravo ! » n'en fait pas partie** : il reste
+à la boîte pleine, qui ne montre pas de tête et remet le compte à zéro. Tout
+se décide dans `PraiseSchedule` (`lib/application/`, Dart pur, `Random`
+injecté) ; `PraisePop` ne fait que l'animation, et ne prend aucun toucher.
 
 **Chaque trajet porte trois textes, et le lieu suivant le quatrième**
 (0.50.0) : sur la boîte, **le thème** (« En voiture ») ; boîte pleine, **le

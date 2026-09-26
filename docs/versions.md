@@ -44,6 +44,25 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.53.0+75 — 26 septembre 2026 — Grisbie salue chaque mot bien placé
+
+Une petite récompense, proposée puis arbitrée par l'auteur.
+
+- **La tête de Grisbie sort au bord de la boîte** qui vient de recevoir le
+  mot, au coin haut tourné vers le centre de l'écran, avec un léger rebond,
+  puis s'efface en remontant. Deux têtes fournies par l'auteur alternent.
+- **La tête à chaque bon placement, rapide** (0,6 s), **et un mot tous les
+  deux ou trois** (« Super ! », « Bien joué ! », « Génial ! », « Oui ! »,
+  « Bien lu ! ») : la tête reste alors 1,1 s. L'écart est tiré au hasard
+  après chaque mot, et un mot n'est jamais redit aussitôt.
+- **« Bravo ! » reste à la boîte pleine** : elle ne fait pas sortir de tête,
+  et le compte repart de zéro pour qu'un mot ne tombe pas juste après la
+  grande fenêtre. « Autre chose », qui n'a pas de « Bravo ! », garde sa tête.
+- `PraiseSchedule` (application, Dart pur) décide ; `PraisePop` anime, sans
+  prendre de toucher : l'enfant enchaîne sans attendre.
+- Tests : 793 au vert. **Rien n'a été vu à l'écran** : ni capture ni essai au
+  doigt de la tête et de sa bulle.
+
 ### 0.52.0+74 — 26 septembre 2026 — Un dossier d'images par aventure
 
 Trois demandes de l'auteur.

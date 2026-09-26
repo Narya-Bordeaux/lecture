@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:grisbie/application/completion_message.dart';
+import 'package:grisbie/application/praise_schedule.dart';
 import 'package:grisbie/application/stage_engine.dart';
 import 'package:grisbie/application/stage_introduction.dart';
+import 'package:grisbie/domain/models/relative_area.dart';
 import 'package:grisbie/domain/models/stage.dart';
 import 'package:grisbie/domain/models/word.dart';
 import 'package:grisbie/domain/models/word_family.dart';
@@ -14,6 +16,7 @@ import 'package:grisbie/ui/widgets/blink.dart';
 import 'package:grisbie/ui/widgets/completion_popup.dart';
 import 'package:grisbie/ui/widgets/family_drop_zone.dart';
 import 'package:grisbie/ui/widgets/family_intro_card.dart';
+import 'package:grisbie/ui/widgets/praise_pop.dart';
 import 'package:grisbie/ui/widgets/scene_layout.dart';
 import 'package:grisbie/ui/widgets/shake.dart';
 import 'package:grisbie/ui/widgets/shine.dart';
@@ -90,6 +93,17 @@ class _StagePageState extends State<StagePage> {
   final Map<String, GlobalKey<BlinkState>> _blinkKeys =
       <String, GlobalKey<BlinkState>>{};
 
+  /// Ce qui salue chaque mot bien place.
+  late PraiseSchedule _praiseSchedule;
+
+  /// La tete de Grisbie affichee, et la boite au bord de laquelle elle sort.
+  Praise? _praise;
+  String? _praisedFamilyId;
+
+  /// Change a chaque recompense : une tete neuve repart du debut, meme si la
+  /// precedente n'a pas fini.
+  int _praiseSerial = 0;
+
   /// Le « Bravo ! » affiche, s'il y en a un.
   CompletionMessage? _completion;
 
@@ -125,6 +139,15 @@ class _StagePageState extends State<StagePage> {
 
   void _createEngine() {
     _engine = StageEngine(stage: widget.stage, random: widget.random);
+    // Apres le moteur, qui ne tire qu'a sa construction : le meme hasard
+    // injecte sert ensuite aux recompenses.
+    _praiseSchedule = PraiseSchedule(
+      heads: PraisePop.headAssets,
+      comments: UiStringsFr.praiseComments,
+      random: widget.random,
+    );
+    _praise = null;
+    _praisedFamilyId = null;
     _completionDelay?.cancel();
     _completion = null;
     _startIntroduction();
@@ -204,21 +227,30 @@ class _StagePageState extends State<StagePage> {
     final result = _engine.placeWord(wordText: wordText, familyId: familyId);
     if (!result.accepted) {
       _shakeKeys[wordText]?.currentState?.shake();
+      setState(() {});
+      return;
     }
+
     final completedFamilyId = result.completedFamilyId;
-    if (completedFamilyId != null) _announceCompletion(completedFamilyId);
-    setState(() {});
+    final completion = completedFamilyId == null
+        ? null
+        : CompletionMessage.forFamily(
+            stage: _engine.stage,
+            familyId: completedFamilyId,
+          );
+    if (completion != null) _announceCompletion(completion);
+
+    final praise = _praiseSchedule.next(boxCelebrated: completion != null);
+    setState(() {
+      _praise = praise;
+      _praisedFamilyId = praise == null ? null : familyId;
+      _praiseSerial += 1;
+    });
   }
 
   /// Le « Bravo ! » d'une boite complete, apres une courte pause : l'enfant
   /// voit d'abord sa boite passer au vert.
-  void _announceCompletion(String familyId) {
-    final message = CompletionMessage.forFamily(
-      stage: _engine.stage,
-      familyId: familyId,
-    );
-    if (message == null) return;
-
+  void _announceCompletion(CompletionMessage message) {
     _completionDelay?.cancel();
     _completionDelay = Timer(_completionPause, () {
       if (mounted) setState(() => _completion = message);
@@ -239,6 +271,10 @@ class _StagePageState extends State<StagePage> {
         ? null
         : widget.stage.findFamily(presentedId);
     final area = presented?.area;
+    final praise = _praise;
+    final praisedArea = _praisedFamilyId == null
+        ? null
+        : widget.stage.findFamily(_praisedFamilyId!)?.area;
 
     return Stack(
       fit: StackFit.expand,
@@ -249,17 +285,30 @@ class _StagePageState extends State<StagePage> {
             key: ValueKey<String>('intro_${presented.id}'),
             family: presented,
             requiredCount: _requiredCountOf(presented),
-            targetRect: Rect.fromLTWH(
-              imageRect.left + area.left * imageRect.width,
-              imageRect.top + area.top * imageRect.height,
-              area.width * imageRect.width,
-              area.height * imageRect.height,
-            ),
+            targetRect: _areaRect(area, imageRect),
             onPlaced: _advanceIntroduction,
+          ),
+        if (praise != null && praisedArea != null)
+          PraisePop(
+            key: ValueKey<int>(_praiseSerial),
+            praise: praise,
+            zone: _areaRect(praisedArea, imageRect),
+            onFinished: () => setState(() => _praise = null),
           ),
         if (widget.sceneOverlayBuilder != null)
           widget.sceneOverlayBuilder!(imageRect),
       ],
+    );
+  }
+
+  /// Le cadre d'une zone dans la scene, d'apres le rectangle de
+  /// l'illustration.
+  Rect _areaRect(RelativeArea area, Rect imageRect) {
+    return Rect.fromLTWH(
+      imageRect.left + area.left * imageRect.width,
+      imageRect.top + area.top * imageRect.height,
+      area.width * imageRect.width,
+      area.height * imageRect.height,
     );
   }
 
