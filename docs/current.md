@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.51.0+73** — 25 septembre 2026
+**Version : 0.52.0+74** — 26 septembre 2026
 
 ## Où en est le projet
 
@@ -106,6 +106,12 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.52.0+74 — Un dossier d'images par aventure
+- L'accueil porte en bas « Lis les mots et groupe-les par famille ».
+- Les images vivent dans `pictures/<id de l'aventure>/`, déclaré au
+  `pubspec` ; le choix s'ouvre sur ce dossier, les autres à la demande.
+- La page de garde conseille le 3:2 en largeur, sans rien refuser.
+
 ### 0.51.0+73 — Cinq mots par boîte, six à l'écran partout
 - Chaque boîte tire **5 mots** au lieu de 7 (décision de l'auteur).
 - **6 étiquettes à l'écran, partout** : une constante du jeu, plus un
@@ -118,17 +124,6 @@ un travail d'auteur, pas de code.
   jeu rouvre l'aventure, **737 tests au vert**.
 - La gare ne proposait que **4 mots** : un `visibleWordCount` de 4 hérité
   du contenu inventé (0.12.0), qu'aucun écran ne montre. Remis à 6.
-
-### 0.50.0+71 — Les textes d'un lieu, en diapositives
-- Chaque trajet porte **le thème** (boîte), **le texte du « Bravo ! »** et
-  **l'action de départ** (bouton) ; le lieu suivant raconte l'arrivée. Le
-  lieu atteint n'est plus nommé avant d'y être.
-- Les deux textes de trajet sont **obligatoires** et **jamais pré-écrits**.
-- Carte d'un lieu : ligne 1 **Apparence** (image, cadres), ligne 2 nature,
-  **Textes** et Ajouter. « Textes » ouvre les diapositives du lieu, chaque
-  texte écrit là où l'enfant le lira. Renommer un trajet se fait là.
-- L'aventure livrée n'avait pas encore ces textes : l'auteur les a écrits
-  (voir 0.50.1).
 
 ## Décisions prises
 

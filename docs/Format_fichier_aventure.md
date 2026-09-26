@@ -17,15 +17,27 @@ assets/content/
   lexicon/*.json        ← le vocabulaire, regroupé par domaine
   lists/*.json          ← les listes de mots, par thème
   adventures/*.json     ← les aventures et leurs lieux
-  pictures/*.jpg        ← les illustrations
+  pictures/<aventure>/  ← les illustrations, un dossier par aventure
 ```
 
 **Les illustrations sont du contenu**, et vivent donc dans le même dossier que
 le reste. Tout chemin d'image s'écrit **relatif à `assets/content/`** :
-`"pictures/gare.jpg"`, jamais `"assets/pictures/gare.jpg"`. C'est ce qui
-permet à l'outil d'auteur de les déposer sur le dépôt distant avec le JSON, de
-les afficher pendant l'édition, et de tout faire redescendre d'un bloc vers le
-dépôt git.
+`"pictures/grisbie_plage/gare.jpg"`, jamais `"assets/pictures/gare.jpg"`.
+C'est ce qui permet à l'outil d'auteur de les déposer sur le dépôt distant avec
+le JSON, de les afficher pendant l'édition, et de tout faire redescendre d'un
+bloc vers le dépôt git.
+
+**Chaque aventure range ses images dans son dossier**, nommé d'après son
+identifiant : `pictures/grisbie_plage/` pour `grisbie_plage`. Le jeu n'en
+sait rien — un chemin reste un chemin —, mais l'outil ouvre le choix d'une
+image sur ce dossier. La racine de `pictures/` reste permise, pour une image
+qui n'est encore à aucune aventure ou qui en sert plusieurs. **Chaque dossier
+se déclare dans `pubspec.yaml`** : Flutter n'embarque pas les sous-dossiers,
+et `declared_assets_test.dart` échoue en nommant le fichier oublié.
+
+**Format conseillé** : 3:2 en largeur (1536 × 1024) pour la vignette et la
+page de garde ; la vignette hors format est recadrée, la page de garde est
+montrée entière. Les décors de lieu n'ont pas de format imposé.
 
 Le principe est simple : **un mot n'est défini qu'une fois**, dans le lexique.
 Tout le reste ne fait que le citer. Une liste qui cite un mot inconnu du
@@ -56,7 +68,7 @@ Il ne contient aucun contenu de jeu, seulement la liste de ce qui existe.
     {
       "id": "grisbie_plage",
       "title": "Grisbie va à la plage",
-      "cover": "pictures/Grisbie_plage.jpg",
+      "cover": "pictures/grisbie_plage/Grisbie_plage.jpg",
       "file": "adventures/grisbie_plage.json"
     }
   ]
@@ -154,7 +166,7 @@ Une aventure est une « journée » : un ensemble de lieux reliés entre eux.
 {
   "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
-  "cover": "pictures/Grisbie_plage.jpg",
+  "cover": "pictures/grisbie_plage/Grisbie_plage.jpg",
   "startStageId": "maison",
   "stages": [ … ]
 }
@@ -193,7 +205,7 @@ texte dessous.
 ```json
 "opening": {
   "title": "Grisbie part à la plage",
-  "image": "pictures/Grisbie_plage.jpg",
+  "image": "pictures/grisbie_plage/Grisbie_plage.jpg",
   "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte."
 }
 ```
@@ -220,7 +232,7 @@ pose la question du premier tri.
 {
   "id": "station_service",
   "location": "La station-service",
-  "background": "pictures/station.jpg",
+  "background": "pictures/grisbie_plage/station.jpg",
   "narrative": {
     "onArrival": "La voiture a soif ! Grisbie s'arrête faire le plein."
   },

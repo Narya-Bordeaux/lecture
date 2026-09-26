@@ -156,6 +156,9 @@ class _GameHomePageState extends State<GameHomePage>
         children: <Widget>[
           Positioned.fill(
             child: Semantics(
+              // Un noeud a part : sans quoi le titre se fond dans la phrase
+              // du bas, et se lit en une seule etiquette avec elle.
+              container: true,
               header: true,
               label: UiStringsFr.appTitle,
               child: ExcludeSemantics(
@@ -187,6 +190,26 @@ class _GameHomePageState extends State<GameHomePage>
           ),
           for (final slot in wheel.slots)
             _placeCard(layout, slot, adventures[slot.itemIndex]),
+          Positioned(
+            left: HomeLayout.margin,
+            right: HomeLayout.margin,
+            top: layout.taglineTop,
+            height: layout.taglineHeight,
+            // Une seule ligne : elle rapetisse sur un ecran etroit plutot que
+            // de deborder de sa bande.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                UiStringsFr.homeTagline,
+                style: TextStyle(
+                  fontSize: layout.taglineFontSize,
+                  fontWeight: FontWeight.w700,
+                  color: GameHomePage.titleColor,
+                  height: HomeLayout.taglineLineHeight,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

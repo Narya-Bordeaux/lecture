@@ -19,6 +19,7 @@ class PictureField extends StatefulWidget {
     required this.controller,
     required this.fieldKey,
     this.catalog,
+    this.adventureId,
     this.contentSource,
     this.helperText,
     this.onChanged,
@@ -34,6 +35,10 @@ class PictureField extends StatefulWidget {
   /// Les images du depot. Nul, le champ reste seul : c'est le cas des tests
   /// qui ne portent pas sur l'image.
   final PictureCatalog? catalog;
+
+  /// L'aventure en cours : le choix s'ouvre sur son dossier d'images. Nul,
+  /// il montre tout.
+  final String? adventureId;
 
   /// D'ou lire l'apercu. Nulle, le bundle.
   final ContentSource? contentSource;
@@ -65,7 +70,10 @@ class _PictureFieldState extends State<PictureField> {
 
     final chosen = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
-        builder: (_) => PictureChooserPage(catalog: catalog),
+        builder: (_) => PictureChooserPage(
+          catalog: catalog,
+          adventureId: widget.adventureId,
+        ),
       ),
     );
     if (chosen == null || !mounted) return;

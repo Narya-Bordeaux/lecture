@@ -30,6 +30,7 @@ class HomeLayout {
     required this.cardWidth,
     required this.captionFontSize,
     required this.arc,
+    required this.taglineFontSize,
   });
 
   /// La marge tenue le long des bords.
@@ -65,6 +66,10 @@ class HomeLayout {
   /// ecran couche, les vignettes n'auraient plus de place.
   static const double logoHeightShare = 0.45;
 
+  /// La phrase du bas tient sur une ligne : elle rapetisse plutot que de
+  /// passer a la ligne sur un ecran etroit.
+  static const double taglineLineHeight = 1.3;
+
   final double width;
   final double height;
 
@@ -99,6 +104,13 @@ class HomeLayout {
   /// vignette, titre compris.
   final WheelArc arc;
 
+  /// La phrase du bas de l'accueil, qui dit a quoi l'on joue.
+  final double taglineFontSize;
+  double get taglineHeight => taglineFontSize * taglineLineHeight;
+
+  /// Le haut de sa bande : elle touche la marge du bas.
+  double get taglineTop => height - margin - taglineHeight;
+
   /// La longueur d'arc entre deux places : ce que le doigt doit parcourir
   /// pour faire tourner la roue d'un cran.
   double get slotSpacing => arc.radius * arc.stepAngle;
@@ -111,6 +123,9 @@ class HomeLayout {
 
   static double _captionFontSize(double cardWidth) =>
       (cardWidth * 0.13).clamp(13.0, 20.0);
+
+  static double _taglineFontSize(double width) =>
+      (width * 0.05).clamp(16.0, 24.0);
 
   static double _elementHeight(double cardWidth) =>
       cardWidth / CoverFormat.aspectRatio +
@@ -145,25 +160,39 @@ class HomeLayout {
     return cardWidth;
   }
 
-  /// La hauteur qu'il faut : titre, logo, vignettes, sans rien entre.
-  static double _neededHeight(double logoWidth, double cardWidth) {
+  /// La hauteur qu'il faut : titre, logo, vignettes et phrase du bas, sans
+  /// rien entre.
+  static double _neededHeight(
+    double logoWidth,
+    double cardWidth,
+    double taglineHeight,
+  ) {
     final fontSize = _titleFontSize(logoWidth);
-    final titleTop = fontSize + _titleInnerRadius(logoWidth, fontSize) +
-        fontSize * 1.25 - logoWidth * logoAspect / 2;
+    final titleTop =
+        fontSize +
+        _titleInnerRadius(logoWidth, fontSize) +
+        fontSize * 1.25 -
+        logoWidth * logoAspect / 2;
     return 2 * margin +
         titleTop +
         logoWidth * logoAspect +
         cardSpacing +
-        _elementHeight(cardWidth);
+        _elementHeight(cardWidth) +
+        taglineHeight;
   }
 
   static HomeLayout compute({required double width, required double height}) {
     var cardWidth = _widestCard(width);
-    var logoWidth = min(width * logoShare, height * logoHeightShare / logoAspect);
+    var logoWidth = min(
+      width * logoShare,
+      height * logoHeightShare / logoAspect,
+    );
     final smallestLogo = min(width, height) * 0.25;
+    final taglineFontSize = _taglineFontSize(width);
+    final taglineHeight = taglineFontSize * taglineLineHeight;
 
     // Le logo cede d'abord, puis les vignettes : elles sont a toucher.
-    while (_neededHeight(logoWidth, cardWidth) > height) {
+    while (_neededHeight(logoWidth, cardWidth, taglineHeight) > height) {
       if (logoWidth > smallestLogo) {
         logoWidth -= 2;
       } else if (cardWidth > minimumCardWidth) {
@@ -174,9 +203,11 @@ class HomeLayout {
     }
 
     // La hauteur qui reste, partagee en trois : au-dessus du titre, entre le
-    // logo et les vignettes, et sous elles. Tout serre en haut laissait un
-    // grand vide en bas des telephones allonges.
-    final slack = max(0.0, height - _neededHeight(logoWidth, cardWidth)) / 3;
+    // logo et les vignettes, et entre elles et la phrase du bas. Tout serre
+    // en haut laissait un grand vide en bas des telephones allonges.
+    final slack =
+        max(0.0, height - _neededHeight(logoWidth, cardWidth, taglineHeight)) /
+        3;
 
     final fontSize = _titleFontSize(logoWidth);
     final outerRadius =
@@ -202,6 +233,7 @@ class HomeLayout {
         radius: radius,
         stepAngle: _step,
       ),
+      taglineFontSize: taglineFontSize,
     );
   }
 }

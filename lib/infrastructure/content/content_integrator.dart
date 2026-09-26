@@ -1,4 +1,5 @@
 import 'package:grisbie/domain/models/adventure.dart';
+import 'package:grisbie/domain/models/picture_folder.dart';
 import 'package:grisbie/domain/repositories/content_file_not_found.dart';
 import 'package:grisbie/domain/repositories/content_store.dart';
 import 'package:grisbie/infrastructure/content/content_saver.dart';
@@ -57,7 +58,7 @@ class ContentIntegrator {
       for (final path in adventure.picturePaths.toList()..sort())
         if (!await _exists(path, asText: false))
           'L\'image « $path » n\'est pas dans le dépôt : versez-la dans '
-              '« assets/content/pictures/ ».',
+              '« assets/content/${PictureFolder.pathFor(adventure.id)} ».',
     ];
   }
 

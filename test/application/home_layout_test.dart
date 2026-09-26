@@ -70,7 +70,7 @@ void main() {
                 reason: 'place $position');
             expect(corner.x, lessThanOrEqualTo(width - HomeLayout.margin + 0.5),
                 reason: 'place $position');
-            expect(corner.y, lessThanOrEqualTo(height - HomeLayout.margin + 0.5),
+            expect(corner.y, lessThanOrEqualTo(layout.taglineTop + 0.5),
                 reason: 'place $position');
           }
         }
@@ -99,6 +99,15 @@ void main() {
             expect(dx * dx + dy * dy, greaterThan(1), reason: 'place $position');
           }
         }
+      });
+
+      test('la phrase du bas tient dans l ecran, sous les cartes', () {
+        expect(layout.taglineTop, greaterThan(layout.arc.place(0).y));
+        expect(
+          layout.taglineTop + layout.taglineHeight,
+          lessThanOrEqualTo(height - HomeLayout.margin + 0.5),
+        );
+        expect(layout.taglineFontSize, greaterThanOrEqualTo(16));
       });
 
       test('une carte reste assez grande pour un doigt', () {
@@ -150,6 +159,17 @@ void main() {
     final bottom = layout.arc.place(0).y + layout.elementHeight / 2;
     final top = layout.logoCenterY - layout.titleOuterRadius - layout.titleFontSize;
 
-    expect(800 - bottom, closeTo(top, 1));
+    // Entre les cartes et la phrase du bas, autant qu'au-dessus du titre,
+    // marge du bord mise a part.
+    expect(layout.taglineTop - bottom, closeTo(top - HomeLayout.margin, 1));
+  });
+
+  test('la phrase du bas touche la marge du bas', () {
+    final layout = HomeLayout.compute(width: 390, height: 800);
+
+    expect(
+      layout.taglineTop + layout.taglineHeight,
+      closeTo(800 - HomeLayout.margin, 1e-9),
+    );
   });
 }

@@ -8,6 +8,7 @@ import 'package:grisbie/ui/pages/outline_page.dart';
 import 'package:grisbie/ui/pages/stage_texts_page.dart';
 import 'package:grisbie/ui/pages/stage_page.dart';
 import 'package:grisbie/ui/strings/ui_strings_fr.dart';
+import 'package:grisbie/ui/widgets/picture_field.dart';
 
 import '../support/disk_content.dart';
 
@@ -543,7 +544,7 @@ void main() {
       await pumpOutline(tester, realAdventure);
 
       expect(find.text('Vignette de l\'aventure'), findsOneWidget);
-      expect(find.text('pictures/Grisbie_plage.jpg'), findsOneWidget);
+      expect(find.text('pictures/grisbie_plage/Grisbie_plage.jpg'), findsOneWidget);
       final cover = tester.getTopLeft(find.text('Vignette de l\'aventure'));
       final opening = tester.getTopLeft(find.text('Page de garde'));
       expect(cover.dy, lessThan(opening.dy));
@@ -584,7 +585,7 @@ void main() {
       await tester.tap(find.text('Retirer la vignette'));
       await tester.pumpAndSettle();
 
-      expect(find.text('pictures/Grisbie_plage.jpg'), findsNothing);
+      expect(find.text('pictures/grisbie_plage/Grisbie_plage.jpg'), findsNothing);
       expect(find.text('Cette aventure n\'est pas complète.'), findsOneWidget);
     });
 
@@ -597,7 +598,35 @@ void main() {
       await tester.tap(find.byTooltip('Fermer sans garder'));
       await tester.pumpAndSettle();
 
-      expect(find.text('pictures/Grisbie_plage.jpg'), findsOneWidget);
+      expect(find.text('pictures/grisbie_plage/Grisbie_plage.jpg'), findsOneWidget);
+    });
+  });
+
+  group('Les images de l aventure', () {
+    // Chaque aventure range ses images dans `pictures/<son id>/` : le choix
+    // s'ouvre sur ce dossier, depuis chacun des trois editeurs d'image.
+    Future<void> expectAdventureFolder(WidgetTester tester) async {
+      final field = tester.widget<PictureField>(find.byType(PictureField));
+      expect(field.adventureId, realAdventure.id);
+      await tester.tap(find.byTooltip('Fermer sans garder'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('la vignette, la page de garde et le lieu citent l aventure',
+        (tester) async {
+      await pumpOutline(tester, realAdventure);
+
+      await tester.tap(find.text('Vignette de l\'aventure'));
+      await tester.pumpAndSettle();
+      await expectAdventureFolder(tester);
+
+      await tester.tap(find.text('Page de garde'));
+      await tester.pumpAndSettle();
+      await expectAdventureFolder(tester);
+
+      await tester.tap(find.text('Apparence').first);
+      await tester.pumpAndSettle();
+      await expectAdventureFolder(tester);
     });
   });
 

@@ -71,7 +71,7 @@ void main() {
     testWidgets('le chemin de l\'illustration, modifiable', (tester) async {
       await pumpEditor(tester, realAdventure.startStage);
 
-      expect(find.text('pictures/maison.jpg'), findsOneWidget);
+      expect(find.text('pictures/grisbie_plage/maison.jpg'), findsOneWidget);
     });
 
     testWidgets('un lieu sans famille ne propose pas de poser des zones',
@@ -133,7 +133,7 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
 
-      expect(find.text('pictures/maison.jpg'), findsOneWidget);
+      expect(find.text('pictures/grisbie_plage/maison.jpg'), findsOneWidget);
     });
 
     testWidgets('un depot vide dit ou verser les images', (tester) async {
@@ -181,7 +181,7 @@ void main() {
       await pumpEditor(
         tester,
         realAdventure.startStage,
-        pictures: FakePictureCatalog(<String>['pictures/maison.jpg']),
+        pictures: FakePictureCatalog(<String>['pictures/grisbie_plage/maison.jpg']),
       );
 
       expect(find.textContaining('pas dans le dépôt'), findsNothing);

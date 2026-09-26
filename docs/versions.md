@@ -44,6 +44,30 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.52.0+74 — 26 septembre 2026 — Un dossier d'images par aventure
+
+Trois demandes de l'auteur.
+
+- **L'accueil dit à quoi l'on joue** : « Lis les mots et groupe-les par
+  famille », en bas de l'écran (option A). `HomeLayout` lui réserve une
+  bande au-dessus de la marge du bas, et le vide libre se partage toujours
+  en trois ; sur un écran étroit la phrase rapetisse plutôt que de passer à
+  la ligne. Le titre de l'accueil devient un nœud d'accessibilité à part,
+  sans quoi il se lisait d'un bloc avec la phrase.
+- **Un sous-dossier d'images par aventure** : `pictures/<id>/`. Les dix
+  images de la plage passent dans `pictures/grisbie_plage/`, l'aventure et
+  le sommaire suivent, et le dossier est déclaré au `pubspec`. `bonjour.jpg`
+  reste à la racine, son aventure n'existant pas encore. `PictureFolder`
+  (domaine) déduit le dossier du chemin et regroupe ; le choix d'une image
+  **s'ouvre sur le dossier de l'aventure**, « Toutes les images » montre les
+  autres par dossier (option B). Sans dossier, il dit lequel créer et le
+  déclarer. Le refus d'intégration nomme le dossier de l'aventure.
+- **La page de garde conseille son format** : 3:2 en largeur, celui de la
+  vignette. Une alerte sous le champ, jamais un refus : l'image est montrée
+  entière, mais ne servirait pas de vignette sans recadrage.
+- Tests : 764 au vert. Accueil capturé dans Chromium en 390 × 844 et
+  360 × 640 ; la vignette s'y lit depuis son nouveau dossier.
+
 ### 0.51.0+73 — 25 septembre 2026 — Cinq mots par boîte, six à l'écran partout
 
 Deux décisions de l'auteur, sur deux nombres qu'aucun écran ne montrait.

@@ -156,5 +156,24 @@ void main() {
       );
       expect(folder.files, before);
     });
+
+    test('le refus dit dans quel dossier verser l image', () async {
+      // Chaque aventure range ses images dans `pictures/<son id>/`.
+      final withMissingPicture = delivered.withStage(
+        delivered.startStage.copyWith(backgroundAsset: 'pictures/absente.jpg'),
+      );
+
+      await expectLater(
+        ContentIntegrator(folder: repositoryFolder())
+            .integrate(withMissingPicture),
+        throwsA(
+          isA<IntegrationRefused>().having(
+            (refusal) => refusal.reasons.join(),
+            'raisons',
+            contains('assets/content/pictures/${delivered.id}/'),
+          ),
+        ),
+      );
+    });
   });
 }

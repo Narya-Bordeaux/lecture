@@ -22,6 +22,7 @@ class StageAppearancePage extends StatefulWidget {
   const StageAppearancePage({
     required this.stage,
     this.pictures,
+    this.adventureId,
     this.contentSource,
     super.key,
   });
@@ -33,6 +34,9 @@ class StageAppearancePage extends StatefulWidget {
   /// Nul, le champ reste saisissable au clavier et le bouton ne paraît pas :
   /// c'est le cas des tests qui ne portent pas sur l'image.
   final PictureCatalog? pictures;
+
+  /// L'aventure en cours, dont le dossier d'images s'ouvre d'abord.
+  final String? adventureId;
 
   /// D'ou lire le contenu, illustrations comprises.
   ///
@@ -116,6 +120,7 @@ class _StageAppearancePageState extends State<StageAppearancePage> {
             fieldKey: const Key('background'),
             controller: _background,
             catalog: widget.pictures,
+            adventureId: widget.adventureId,
             contentSource: widget.contentSource,
             // L'apercu et le bouton de calage suivent ce qui est saisi.
             onChanged: () => setState(() {}),

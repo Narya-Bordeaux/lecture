@@ -35,10 +35,23 @@ void main() {
     });
   });
 
+  test('une image rangee dans le dossier d une aventure garde son dossier',
+      () {
+    final pictures = BundledPictureCatalog.picturesIn(<String>[
+      'assets/content/pictures/plage/gare.jpg',
+      'assets/content/pictures/bonjour.jpg',
+    ]);
+
+    expect(pictures, <String>[
+      'pictures/bonjour.jpg',
+      'pictures/plage/gare.jpg',
+    ]);
+  });
+
   test('le bundle propose les images versees par l\'auteur', () async {
     final pictures = await const BundledPictureCatalog().listPictures();
 
-    expect(pictures, contains('pictures/gare.jpg'));
-    expect(pictures, contains('pictures/maison.jpg'));
+    expect(pictures, contains('pictures/grisbie_plage/gare.jpg'));
+    expect(pictures, contains('pictures/grisbie_plage/maison.jpg'));
   });
 }

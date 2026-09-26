@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/adventure_opening.dart';
+import 'package:grisbie/domain/models/cover_format.dart';
 import 'package:grisbie/domain/repositories/content_source.dart';
 import 'package:grisbie/domain/repositories/picture_catalog.dart';
 import 'package:grisbie/ui/widgets/picture_field.dart';
+
+/// Ce qu'il faut dire de l'illustration de la page de garde, d'apres ses
+/// dimensions en pixels. Vide, elle convient.
+///
+/// Un conseil, jamais un refus : la page de garde montre l'image entiere, a
+/// ses proportions. Le format est celui de la vignette (`CoverFormat`), le
+/// 3:2 des ecrans de lecture : le suivre permet de reprendre l'image telle
+/// quelle pour la vignette.
+List<String> describeOpeningPictureProblems(int width, int height) {
+  const recommended =
+      '${CoverFormat.recommendedWidth} × ${CoverFormat.recommendedHeight}';
+  return <String>[
+    for (final problem in CoverFormat.check(width: width, height: height))
+      switch (problem) {
+        CoverProblem.wrongProportions =>
+          'Cette image ($width × $height) n\'est pas au format 3:2 en '
+              'largeur. Elle sera montrée entière, mais ne pourra pas servir '
+              'de vignette sans être recadrée. Conseillé : $recommended.',
+        CoverProblem.tooSmall =>
+          'Cette image ($width × $height) est trop petite : elle sera floue '
+              'sur un téléphone. Au moins ${CoverFormat.minimumWidth} × '
+              '${CoverFormat.minimumHeight}.',
+      },
+  ];
+}
 
 /// Ce que l'editeur de page de garde rend.
 ///
@@ -28,6 +54,7 @@ class AdventureOpeningEditorPage extends StatefulWidget {
     required this.adventureTitle,
     this.opening,
     this.pictures,
+    this.adventureId,
     this.contentSource,
     super.key,
   });
@@ -40,6 +67,9 @@ class AdventureOpeningEditorPage extends StatefulWidget {
 
   /// Les images du depot, parmi lesquelles choisir l'illustration.
   final PictureCatalog? pictures;
+
+  /// L'aventure en cours, dont le dossier d'images s'ouvre d'abord.
+  final String? adventureId;
 
   /// D'ou lire le contenu, illustrations comprises.
   ///
@@ -140,8 +170,11 @@ class _AdventureOpeningEditorPageState
             fieldKey: const Key('openingImage'),
             controller: _image,
             catalog: widget.pictures,
+            adventureId: widget.adventureId,
             contentSource: widget.contentSource,
-            helperText: 'Montrée en entier : elle peut être horizontale.',
+            helperText: 'Montrée en entier. Conseillé : 3:2 en largeur, '
+                'comme la vignette.',
+            checkDimensions: describeOpeningPictureProblems,
             onChanged: () => setState(() {}),
           ),
           const SizedBox(height: 20),

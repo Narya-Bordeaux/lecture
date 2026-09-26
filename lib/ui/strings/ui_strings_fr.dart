@@ -14,6 +14,9 @@ abstract final class UiStringsFr {
   static const String homeTitleFirstLine = 'Les Aventures';
   static const String homeTitleSecondLine = 'de Grisbie';
 
+  /// La phrase du bas de l'accueil, qui dit a quoi l'on joue.
+  static const String homeTagline = 'Lis les mots et groupe-les par famille';
+
   /// Bouton de la fin d'une aventure, qui ramene a l'accueil.
   static const String backToHome = 'Retour à l\'accueil';
 

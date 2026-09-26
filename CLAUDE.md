@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.51.0+73** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.52.0+74** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -233,8 +233,8 @@ Quatre fichiers, un rôle chacun : `index.json` dit ce qui existe, `lexicon/*.js
 définit chaque mot **une seule fois**, `lists/*.json` regroupe les mots par thème,
 et `adventures/*.json` assemble le tout
 par références. **`pictures/` s'y ajoute** : une illustration est du contenu, et
-tout chemin d'image s'écrit relatif à `assets/content/` — `pictures/gare.jpg`,
-jamais `assets/pictures/gare.jpg`. Un mot n'est défini qu'une fois ; le
+tout chemin d'image s'écrit relatif à `assets/content/` —
+`pictures/grisbie_plage/gare.jpg`, jamais `assets/pictures/gare.jpg`. Un mot n'est défini qu'une fois ; le
 chargement refuse le doublon.
 
 **Trois objets, trois questions** — et c'est ce qui justifie le troisième :
@@ -527,6 +527,14 @@ dans le manifeste du bundle, `PictureChooserPage` les montre en vignettes avec
 leur nom. L'outil est compilé à partir du dépôt, comme le jeu : **une image
 choisie là existe forcément dans le jeu**. Rien n'est copié ni renommé.
 
+**Un dossier d'images par aventure** (0.52.0) — `pictures/<id>/`, que
+`PictureFolder` (domaine) déduit du chemin : rien ne le déclare, et le jeu
+n'en sait rien. Le choix d'une image **s'ouvre sur le dossier de l'aventure
+en cours** ; « Toutes les images » montre les autres, chacun sous son nom
+(option B de l'auteur). La racine reste permise, pour une image qui n'est à
+aucune aventure ou qui en sert plusieurs. **Chaque dossier se déclare dans
+`pubspec.yaml`** — voir plus bas, « Assets ».
+
 Ce que cela a remplacé : une photothèque qui copiait la photo de l'appareil
 sous un nom fabriqué (`gare_1790155902917.jpg`) dans le dossier de travail.
 L'image vivait alors sur le dépôt distant, jamais dans le dépôt git, et le jeu
@@ -666,7 +674,10 @@ elle peut être horizontale —, le texte dessous, et un bouton toujours visible
 La page de garde et la fin s'en servent toutes deux. La fin avait son propre
 écran, **sans image** : l'auteur en posait, elles ne paraissaient jamais.
 
-**Page de garde** — `Adventure.opening` porte un titre, une illustration et un
+**Page de garde** — son illustration est montrée entière, et l'outil
+conseille le 3:2 en largeur de la vignette (`describeOpeningPictureProblems`),
+sans jamais refuser : suivi, il permet de reprendre l'image pour la vignette.
+`Adventure.opening` porte un titre, une illustration et un
 texte, montrés une fois avant le premier lieu (`AdventureOpeningPage`, sur
 l'écran de lecture ; le titre de l'aventure sert quand l'ouverture n'en donne
 pas). Le lieu de départ garde son énoncé : la page de garde raconte, l'énoncé
@@ -688,7 +699,9 @@ entièrement verte. C'est arrivé.
 l'auteur : le titre en deux lignes arrondies au-dessus du logo
 (`CurvedTextPainter`, lettre par lettre sur un cercle), le logo découpé en
 ovale sur un bleu doux, et la roue des vignettes, chacune avec le titre de
-son aventure dessous. La page ne décide rien : `HomeLayout` (Dart pur) dit où
+son aventure dessous, et **en bas « Lis les mots et groupe-les par
+famille »** (0.52.0), dans une bande que `HomeLayout` réserve au-dessus de la
+marge. La page ne décide rien : `HomeLayout` (Dart pur) dit où
 tout se pose, `AdventureWheel` qui occupe quelle place. Un toucher ouvre
 l'aventure, un glissement tourne la roue — l'arène des gestes de Flutter les
 départage —, et une vignette qui entre ou sort ne s'ouvre pas.

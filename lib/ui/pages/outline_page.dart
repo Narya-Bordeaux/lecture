@@ -292,6 +292,7 @@ class _OutlinePageState extends State<OutlinePage> {
       (stage) => StageAppearancePage(
         stage: stage,
         pictures: widget.pictures,
+        adventureId: _adventure.id,
         contentSource: widget.contentSource,
       ),
     );
@@ -331,6 +332,7 @@ class _OutlinePageState extends State<OutlinePage> {
           adventureTitle: _adventure.title,
           opening: _adventure.opening,
           pictures: widget.pictures,
+          adventureId: _adventure.id,
           contentSource: widget.contentSource,
         ),
       ),
@@ -347,6 +349,7 @@ class _OutlinePageState extends State<OutlinePage> {
         builder: (_) => CoverEditorPage(
           coverAsset: _adventure.coverAsset,
           pictures: widget.pictures,
+          adventureId: _adventure.id,
           contentSource: widget.contentSource,
         ),
       ),

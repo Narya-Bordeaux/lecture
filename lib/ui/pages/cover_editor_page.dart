@@ -50,6 +50,7 @@ class CoverEditorPage extends StatefulWidget {
   const CoverEditorPage({
     this.coverAsset,
     this.pictures,
+    this.adventureId,
     this.contentSource,
     super.key,
   });
@@ -59,6 +60,9 @@ class CoverEditorPage extends StatefulWidget {
 
   /// Les images du depot, parmi lesquelles choisir.
   final PictureCatalog? pictures;
+
+  /// L'aventure en cours, dont le dossier d'images s'ouvre d'abord.
+  final String? adventureId;
 
   /// D'ou lire l'apercu. Nulle, le bundle.
   final ContentSource? contentSource;
@@ -114,6 +118,7 @@ class _CoverEditorPageState extends State<CoverEditorPage> {
             fieldKey: const Key('coverImage'),
             controller: _image,
             catalog: widget.pictures,
+            adventureId: widget.adventureId,
             contentSource: widget.contentSource,
             checkDimensions: describeCoverProblems,
             onChanged: () => setState(() {}),

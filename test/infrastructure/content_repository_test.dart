@@ -207,7 +207,7 @@ void main() {
 
       expect(opening, isNotNull);
       expect(opening!.titleOr(adventure.title), 'Grisbie part à la plage');
-      expect(opening.imageAsset, 'pictures/Grisbie_plage.jpg');
+      expect(opening.imageAsset, 'pictures/grisbie_plage/Grisbie_plage.jpg');
       expect(opening.text, isNotEmpty);
     });
 

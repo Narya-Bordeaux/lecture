@@ -98,6 +98,12 @@ void main() {
       );
     });
 
+    testWidgets('la phrase du bas dit a quoi l on joue', (tester) async {
+      await pumpHome(tester, FabricatedAdventures(3));
+
+      expect(find.text(UiStringsFr.homeTagline), findsOneWidget);
+    });
+
     testWidgets('trois aventures, chacune sous son titre', (tester) async {
       final adventures = FabricatedAdventures(3);
       await pumpHome(tester, adventures);
@@ -214,6 +220,10 @@ void main() {
           expect(box.right, lessThanOrEqualTo(size.width), reason: title);
           expect(box.bottom, lessThanOrEqualTo(size.height), reason: title);
         }
+        final tagline = tester.getRect(find.text(UiStringsFr.homeTagline));
+        expect(tagline.left, greaterThanOrEqualTo(0));
+        expect(tagline.right, lessThanOrEqualTo(size.width));
+        expect(tagline.bottom, lessThanOrEqualTo(size.height));
       });
     });
   });

@@ -1,11 +1,11 @@
 {
   "id": "grisbie_plage",
   "title": "Grisbie va à la plage",
-  "cover": "pictures/Grisbie_plage.jpg",
+  "cover": "pictures/grisbie_plage/Grisbie_plage.jpg",
   "startStageId": "maison",
   "opening": {
     "title": "Grisbie part à la plage",
-    "image": "pictures/Grisbie_plage.jpg",
+    "image": "pictures/grisbie_plage/Grisbie_plage.jpg",
     "text": "Ce matin, Grisbie a mis son sac à dos et pris sa carte. Elle veut aller voir la mer !\nMais Grisbie ne sait pas lire! Il faudra l'aider en lisant les mots et en les mettant dans leur famille."
   },
   "stages": [
@@ -15,7 +15,7 @@
       "narrative": {
         "onArrival": "Grisbie veut partir à la plage. Y ira-t-elle à pied, en bus ou en voiture?"
       },
-      "background": "pictures/maison.jpg",
+      "background": "pictures/grisbie_plage/maison.jpg",
       "backgroundColor": "#4ab8fd",
       "families": [
         {
@@ -68,7 +68,7 @@
       "narrative": {
         "onArrival": "Le bus a amené Grisbie à la gare. Va-t-elle acheter quelque chose ou prendre le train?"
       },
-      "background": "pictures/gare.jpg",
+      "background": "pictures/grisbie_plage/gare.jpg",
       "families": [
         {
           "id": "prendre_le_train",
@@ -106,7 +106,7 @@
       "narrative": {
         "onArrival": "Grisbie est passée par la boutique mais elle est maintenant en retard! Aide là trouver son quai en triant les villes de France!"
       },
-      "background": "pictures/horaire.jpg",
+      "background": "pictures/grisbie_plage/horaire.jpg",
       "families": [
         {
           "id": "villes_de_france",
@@ -145,7 +145,7 @@
       "narrative": {
         "onArrival": "Grisbie prends le sentier de la plage, mais elle hésite à partir à pieds ou à vélo?"
       },
-      "background": "pictures/carrefour.jpg",
+      "background": "pictures/grisbie_plage/carrefour.jpg",
       "families": [
         {
           "id": "a_velo",
@@ -183,7 +183,7 @@
       "narrative": {
         "onArrival": "Un petit arrêt au garage. Grisbie discute de musique avec le mécanicien !"
       },
-      "background": "pictures/garage.jpg",
+      "background": "pictures/grisbie_plage/garage.jpg",
       "families": [
         {
           "id": "types_de_musique",
@@ -222,7 +222,7 @@
       "narrative": {
         "onArrival": "Ca y est! Grisbie est arrivée à la plage : la mer est là!"
       },
-      "background": "pictures/plage.jpg",
+      "background": "pictures/grisbie_plage/plage.jpg",
       "ending": true,
       "families": []
     },
@@ -232,7 +232,7 @@
       "narrative": {
         "onArrival": "Grisbie a crevé! heureusement une gentille personne va lui réparer sa roue. Pendant ce temps, elle n'arrête pas de parler de musique. Quelles genres de musique connais-tu?"
       },
-      "background": "pictures/vélo.jpg",
+      "background": "pictures/grisbie_plage/vélo.jpg",
       "families": [
         {
           "id": "genres_de_musique",
@@ -271,7 +271,7 @@
       "narrative": {
         "onArrival": "Grisbie marche prudemment pour pouvoir observer les animaux de la forêt!"
       },
-      "background": "pictures/foret.jpg",
+      "background": "pictures/grisbie_plage/foret.jpg",
       "families": [
         {
           "id": "animaux_de_la_foret",
@@ -310,7 +310,7 @@
       "narrative": {
         "onArrival": "Après ces agréables rencontres, Grisbie est arrivée sur une magnifique plage sauvage !"
       },
-      "background": "pictures/plage_sauvage.jpg",
+      "background": "pictures/grisbie_plage/plage_sauvage.jpg",
       "ending": true,
       "families": []
     }
