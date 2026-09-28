@@ -1,0 +1,130 @@
+{
+  "id": "presentation",
+  "title": "Présentation",
+  "cover": "pictures/présentation/bonjour.jpg",
+  "startStageId": "chambre_de_grisbie",
+  "opening": {
+    "title": "Salut !",
+    "image": "pictures/présentation/bonjour.jpg",
+    "text": "Moi, c'est Grisbie. On joue ensemble? \n\nRassemble les mots par famille pour avancer"
+  },
+  "stages": [
+    {
+      "id": "chambre_de_grisbie",
+      "location": "Chambre de Grisbie",
+      "narrative": {
+        "onArrival": "Trouve les animaux de la famille du chat. On les appelle les \"félins\""
+      },
+      "background": "pictures/présentation/maison.jpg",
+      "families": [
+        {
+          "id": "chat",
+          "label": "félin",
+          "list": "chat",
+          "destination": "tri",
+          "area": {
+            "left": 0.08,
+            "top": 0.23,
+            "width": 0.33,
+            "height": 0.21
+          },
+          "completionText": "Bravo, tu as trouvé tous les animaux de ma famille !",
+          "departureLabel": "On continue !"
+        },
+        {
+          "id": "autre_chose",
+          "label": "autres animaux",
+          "list": "non_felin",
+          "area": {
+            "left": 0.64,
+            "top": 0.27,
+            "width": 0.26,
+            "height": 0.16
+          }
+        }
+      ]
+    },
+    {
+      "id": "tri",
+      "location": "Tri",
+      "narrative": {
+        "onArrival": "Parfois tu devras trier différentes familles de mots"
+      },
+      "background": "pictures/présentation/maison.jpg",
+      "families": [
+        {
+          "id": "famille_2",
+          "label": "La famille",
+          "list": "famille",
+          "destination": "famille",
+          "area": {
+            "left": 0.09,
+            "top": 0.18,
+            "width": 0.26,
+            "height": 0.16
+          },
+          "completionText": "Tu as trouvés tous les mots de la famille!",
+          "departureLabel": "Allez voir la famille de Grisbie"
+        },
+        {
+          "id": "maison",
+          "label": "La maison",
+          "list": "maison",
+          "destination": "maison",
+          "area": {
+            "left": 0.1,
+            "top": 0.63,
+            "width": 0.26,
+            "height": 0.16
+          },
+          "completionText": "Tu as trouvé tous les mots de la maison.",
+          "departureLabel": "Voir l'extérieur de la maison de Grisbie"
+        },
+        {
+          "id": "rue",
+          "label": "La rue",
+          "list": "rue",
+          "destination": "rue",
+          "area": {
+            "left": 0.67,
+            "top": 0.25,
+            "width": 0.26,
+            "height": 0.16
+          },
+          "completionText": "Tu as trouvé tous les mots de la rue!",
+          "departureLabel": "Allez dans la rue avec Grisbie"
+        }
+      ]
+    },
+    {
+      "id": "famille",
+      "location": "La famille",
+      "narrative": {
+        "onArrival": "Grisbie joue avec sa famile ! Et toi tu veux allez jouer avec eux?"
+      },
+      "background": "pictures/présentation/famille.jpg",
+      "ending": true,
+      "families": []
+    },
+    {
+      "id": "maison",
+      "location": "La maison",
+      "narrative": {
+        "onArrival": "Tu veux aller jouer dans le jardin avec Grisbie?"
+      },
+      "background": "pictures/présentation/jardin.jpg",
+      "ending": true,
+      "families": []
+    },
+    {
+      "id": "rue",
+      "location": "La rue",
+      "narrative": {
+        "onArrival": "Tu veux aller te promener dehors avec Grisbie?"
+      },
+      "background": "pictures/présentation/rue.jpg",
+      "ending": true,
+      "families": []
+    }
+  ]
+}

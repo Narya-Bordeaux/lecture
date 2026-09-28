@@ -1,0 +1,71 @@
+{
+  "lists": [
+    {
+      "id": "chat",
+      "name": "Chat",
+      "words": [
+        "guépard",
+        "lion",
+        "panthère",
+        "puma",
+        "tigre"
+      ]
+    },
+    {
+      "id": "non_felin",
+      "name": "non félin",
+      "words": [
+        "cheval",
+        "chien",
+        "cochon",
+        "loup",
+        "souris"
+      ]
+    },
+    {
+      "id": "famille",
+      "name": "La famille",
+      "words": [
+        "cousin",
+        "cousine",
+        "frère",
+        "grand-mère",
+        "grand-père",
+        "maman",
+        "mamie",
+        "mère",
+        "oncle",
+        "papa",
+        "papi",
+        "père",
+        "soeur",
+        "tante"
+      ]
+    },
+    {
+      "id": "maison",
+      "name": "La maison",
+      "words": [
+        "chambre",
+        "cuisine",
+        "entrée",
+        "salle de bain",
+        "salon",
+        "toilettes"
+      ]
+    },
+    {
+      "id": "rue",
+      "name": "La rue",
+      "words": [
+        "lampadaire",
+        "passant",
+        "piéton",
+        "rue",
+        "trottoir",
+        "vélo",
+        "voiture"
+      ]
+    }
+  ]
+}

@@ -3,12 +3,14 @@
     "lexicon/transport.json",
     "lexicon/nourriture.json",
     "lexicon/lieux.json",
-    "lexicon/grisbie_plage.json"
+    "lexicon/grisbie_plage.json",
+    "lexicon/presentation.json"
   ],
   "lists": [
     "lists/transport.json",
     "lists/quotidien.json",
-    "lists/grisbie_plage.json"
+    "lists/grisbie_plage.json",
+    "lists/presentation.json"
   ],
   "adventures": [
     {
@@ -16,6 +18,12 @@
       "title": "Grisbie va à la plage",
       "file": "adventures/grisbie_plage.json",
       "cover": "pictures/grisbie_plage/Grisbie_plage.jpg"
+    },
+    {
+      "id": "presentation",
+      "title": "Présentation",
+      "file": "adventures/presentation.json",
+      "cover": "pictures/présentation/bonjour.jpg"
     }
   ]
 }
