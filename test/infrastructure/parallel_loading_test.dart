@@ -45,7 +45,8 @@ class ConcurrencyCountingSource implements ContentSource {
   }
 
   @override
-  Future<String> readFile(String path) => _watch(path, () => inner.readFile(path));
+  Future<String> readFile(String path) =>
+      _watch(path, () => inner.readFile(path));
 
   @override
   Future<Uint8List> readBytes(String path) =>
@@ -64,9 +65,16 @@ void main() {
   test('les fichiers d\'une aventure se demandent ensemble', () async {
     await repository.loadAdventure('grisbie_plage');
 
-    // Quatre lexiques, trois listes et l'aventure : huit fichiers après le
-    // sommaire. Un par un, le sommet resterait à 1.
-    expect(source.requested, hasLength(9));
+    // Tous les lexiques, toutes les listes et l'aventure, après le sommaire.
+    // Le compte se tire du sommaire : écrit en dur, il cassait à chaque
+    // fichier de contenu ajouté. Un par un, le sommet resterait à 1.
+    final index = await ContentRepository(
+      source: const DiskContentSource(),
+    ).loadIndex();
+    expect(
+      source.requested,
+      hasLength(1 + index.lexiconFiles.length + index.wordListFiles.length + 1),
+    );
     expect(
       source.peak,
       greaterThan(1),
@@ -84,7 +92,9 @@ void main() {
   test('le contenu chargé est le même', () async {
     // Le fond du contrôle : paralléliser ne doit rien changer au résultat.
     final parallel = await repository.loadAdventure('grisbie_plage');
-    final reference = await buildDiskRepository().loadAdventure('grisbie_plage');
+    final reference = await buildDiskRepository().loadAdventure(
+      'grisbie_plage',
+    );
 
     expect(parallel.stages.keys, reference.stages.keys);
     expect(

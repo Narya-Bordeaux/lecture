@@ -1,6 +1,6 @@
 # État courant
 
-**Version : 0.53.0+75** — 26 septembre 2026
+**Version : 0.54.0+76** — 28 septembre 2026
 
 ## Où en est le projet
 
@@ -106,16 +106,16 @@ un travail d'auteur, pas de code.
 
 ## Dernières modifications
 
+### 0.54.0+76 — La présentation en premier, le sens des images
+- « Présentation » ouvre la roue de l'accueil, à gauche : l'ordre est celui
+  du sommaire, réglé à la main, et l'enregistrement le garde.
+- Chaque vignette de la galerie porte un badge : horizontale, verticale ou
+  carrée, et ses dimensions. Pas encore vu à l'écran.
+
 ### 0.53.0+75 — Grisbie salue chaque mot bien placé
 - Sa tête sort au bord de la boîte à chaque bon placement, et un mot
   d'encouragement vient tous les deux ou trois mots.
 - « Bravo ! » reste à la boîte pleine. Pas encore vu à l'écran.
-
-### 0.52.0+74 — Un dossier d'images par aventure
-- L'accueil porte en bas « Lis les mots et groupe-les par famille ».
-- Les images vivent dans `pictures/<id de l'aventure>/`, déclaré au
-  `pubspec` ; le choix s'ouvre sur ce dossier, les autres à la demande.
-- La page de garde conseille le 3:2 en largeur, sans rien refuser.
 
 ## Décisions prises
 

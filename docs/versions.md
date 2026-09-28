@@ -44,6 +44,26 @@ les 2 ou 3 dernières versions ; les plus anciennes ne vivent que dans ce fichie
 
 ## Historique
 
+### 0.54.0+76 — 28 septembre 2026 — La présentation en premier, le sens des images
+
+Deux petites demandes de l'auteur.
+
+- **« Présentation » est proposée en premier**, à gauche de la roue. Aucun
+  champ d'ordre n'a été ajouté (option B de l'auteur) : l'ordre de l'accueil
+  est celui du sommaire, `index.json`, qui se règle à la main. C'est stable :
+  réenregistrer une aventure la garde à sa place, une aventure nouvelle se
+  range à la fin (`content_index_order_test.dart`), et `startup_test.dart`
+  vérifie que la présentation reste en tête.
+- **La galerie dit le sens de chaque image.** Les vignettes sont recadrées au
+  carré, si bien qu'une image verticale et une horizontale s'y
+  ressemblaient. Un badge dans le coin porte une icône — horizontale,
+  verticale ou carrée — et les dimensions en pixels, qui disent aussi si
+  l'image est assez grande pour une vignette. `PictureOrientation` (domaine)
+  décide, un carré tolérant 5 % d'écart ; `PictureOrientationBadge` affiche.
+- **Un test cassé par le contenu est réparé** : `parallel_loading_test.dart`
+  attendait neuf fichiers écrits en dur, et le contenu de la présentation en
+  a ajouté deux. Le compte se tire désormais du sommaire.
+
 ### 0.53.0+75 — 26 septembre 2026 — Grisbie salue chaque mot bien placé
 
 Une petite récompense, proposée puis arbitrée par l'auteur.

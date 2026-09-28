@@ -24,7 +24,7 @@ inventé de cette façon, et l'auteur ne l'a découvert qu'en ouvrant l'outil. I
 a été remplacé en 0.42.1 par l'aventure que l'auteur a écrite dans l'outil et
 intégrée au dépôt.
 
-**Version actuelle : 0.53.0+75** — le niveau test est jouable : moteur, contenu et
+**Version actuelle : 0.54.0+76** — le niveau test est jouable : moteur, contenu et
 interface de l'étape de départ. Une seule aventure existe, et la progression
 n'est pas encore enregistrée. Un outil d'auteur existe sur un second point
 d'entrée (`lib/main_author.dart`) : il cale les zones de dépôt sur l'illustration
@@ -527,6 +527,12 @@ dans le manifeste du bundle, `PictureChooserPage` les montre en vignettes avec
 leur nom. L'outil est compilé à partir du dépôt, comme le jeu : **une image
 choisie là existe forcément dans le jeu**. Rien n'est copié ni renommé.
 
+**Une vignette dit le sens de son image** (0.54.0) — la galerie recadre au
+carré, et une image verticale y ressemblait à une horizontale. Un badge au
+coin (`PictureOrientationBadge`) porte une icône — horizontale, verticale ou
+carrée — et les dimensions en pixels, lues par `BackgroundImageSize`.
+`PictureOrientation` (domaine) décide, un carré tolérant 5 % d'écart.
+
 **Un dossier d'images par aventure** (0.52.0) — `pictures/<id>/`, que
 `PictureFolder` (domaine) déduit du chemin : rien ne le déclare, et le jeu
 n'en sait rien. Le choix d'une image **s'ouvre sur le dossier de l'aventure
@@ -563,6 +569,13 @@ recadrage du jeu. Le sommaire en garde une copie, comme du titre, et
 elle, et chaque enregistrement l'effaçait. L'outil l'édite sur sa propre
 carte, en tête du parcours (`CoverEditorPage`) — pas sur la page de garde,
 qui est ce que l'enfant lit, pas ce qui la lui fait choisir.
+
+**L'ordre de l'accueil est celui du sommaire** (0.54.0, option B de
+l'auteur) — la première aventure d'`index.json` se pose à gauche de la roue,
+qu'elle tourne ou non. Aucun champ d'ordre : il se règle à la main dans le
+fichier. `ContentIndex.withAdventure` remplace une aventure à sa place et
+range une nouvelle à la fin, si bien qu'un enregistrement ne défait rien.
+**« Présentation » vient en premier**, et `startup_test.dart` le vérifie.
 
 **La roue de l'accueil** — `AdventureWheel` dit quelle aventure occupe
 quelle place : trois places (quatre sur le croquis, trois depuis que les

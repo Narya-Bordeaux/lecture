@@ -20,6 +20,15 @@ void main() {
       expect(index.adventures, isNotEmpty);
     });
 
+    test('la presentation est proposee en premier', () async {
+      // Decision de l'auteur : l'ordre du sommaire est celui de l'accueil, et
+      // la premiere aventure se pose a gauche de la roue. Il se regle a la
+      // main dans `index.json` ; ce test dit qu'il ne s'est pas defait.
+      final index = await buildDiskRepository().loadIndex();
+
+      expect(index.adventures.first.id, 'presentation');
+    });
+
     test('chaque aventure proposee se charge et se valide', () async {
       final repository = buildDiskRepository();
       final index = await repository.loadIndex();

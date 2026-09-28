@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grisbie/domain/models/picture_folder.dart';
 import 'package:grisbie/domain/repositories/picture_catalog.dart';
+import 'package:grisbie/ui/widgets/background_image_size.dart';
 import 'package:grisbie/ui/widgets/content_image.dart';
+import 'package:grisbie/ui/widgets/picture_orientation_badge.dart';
 
 /// Choisir une illustration parmi celles du depot.
 ///
@@ -226,33 +228,27 @@ class _PictureTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               // Le bundle, et lui seul : c'est ce que le jeu montrera. La
               // vignette remplit sa case, quelles que soient les proportions.
-              child: SizedBox.expand(
-                child: ContentImage(
-                  path: path,
-                  fit: BoxFit.cover,
-                  // La raison s'ecrit dans la vignette : une icone seule laissait
-                  // chercher a l'aveugle pourquoi l'image ne venait pas.
-                  errorBuilder: (context, error, stack) => ColoredBox(
-                    color: const Color(0xFFE0E0E0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Icon(Icons.broken_image_outlined),
-                          const SizedBox(height: 6),
-                          Text(
-                            describeImageError(error),
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  _buildThumbnail(context),
+                  // Le sens de l'image, que le recadrage au carre efface.
+                  // Rien tant que ses dimensions ne sont pas lues, ni si elle
+                  // ne se lit pas : la vignette dit deja pourquoi.
+                  Positioned(
+                    left: 6,
+                    bottom: 6,
+                    child: BackgroundImageSize(
+                      asset: path,
+                      builder: (context, size) => size == null
+                          ? const SizedBox.shrink()
+                          : PictureOrientationBadge(
+                              width: size.width.round(),
+                              height: size.height.round(),
+                            ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -264,6 +260,37 @@ class _PictureTile extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildThumbnail(BuildContext context) {
+    return SizedBox.expand(
+      child: ContentImage(
+        path: path,
+        fit: BoxFit.cover,
+        // La raison s'ecrit dans la vignette : une icone seule laissait
+        // chercher a l'aveugle pourquoi l'image ne venait pas.
+        errorBuilder: (context, error, stack) => ColoredBox(
+          color: const Color(0xFFE0E0E0),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Icon(Icons.broken_image_outlined),
+                const SizedBox(height: 6),
+                Text(
+                  describeImageError(error),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
